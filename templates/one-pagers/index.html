@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>One-Pager Template Library</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff;
+      padding: 48px 40px;
+    }
+
+    /* -- Header -- */
+    .header {
+      margin-bottom: 48px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid #1c1c1c;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #44B2FF;
+      margin-bottom: 8px;
+    }
+    .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .header p  { font-size: 12px; color: #3a3a3a; }
+
+    /* -- Design System bar -- */
+    .ds-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid #1a1a1a;
+      margin-bottom: 52px;
+    }
+    .ds-block {
+      padding: 18px 20px;
+      border-right: 1px solid #1a1a1a;
+    }
+    .ds-block:last-child { border-right: none; }
+    .ds-block h4 {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 12px;
+    }
+    .color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+    .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #222; flex-shrink: 0; }
+    .color-hex { font-size: 11px; font-weight: 600; color: #ccc; }
+    .color-role { font-size: 10px; color: #3a3a3a; }
+    .font-item { margin-bottom: 7px; }
+    .font-item .fn { font-size: 11px; font-weight: 600; color: #bbb; }
+    .font-item .fu { font-size: 10px; color: #3a3a3a; }
+    .stat { font-size: 11px; color: #444; margin-bottom: 5px; }
+    .stat b { color: #aaa; }
+    .rule { font-size: 11px; color: #3a3a3a; margin-bottom: 5px; padding-left: 8px; border-left: 2px solid #1e1e1e; }
+    .rule b { color: #666; }
+
+    /* -- Section heading -- */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 32px;
+    }
+
+    /* -- Template row -- */
+    .template-row {
+      display: grid;
+      grid-template-columns: 425px 1fr;
+      gap: 48px;
+      align-items: start;
+      margin-bottom: 72px;
+    }
+
+    .template-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .t-num  { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; color: #44B2FF; text-transform: uppercase; }
+    .t-name { font-size: 15px; font-weight: 700; }
+
+    /* -- Letter-size preview frame -- */
+    .canvas-outer {
+      width: 425px;
+      height: 550px;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+      border: 1px solid #1a1a1a;
+      flex-shrink: 0;
+    }
+    .canvas-outer iframe {
+      width: 816px;  /* 8.5in at 96dpi */
+      height: 1056px; /* 11in at 96dpi */
+      border: none;
+      transform: scale(0.5208);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+
+    /* -- Spec panel -- */
+    .spec .desc { font-size: 12px; color: #444; line-height: 1.65; margin-bottom: 20px; }
+
+    .spec-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #282828;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    th {
+      text-align: left;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #222;
+      padding: 5px 8px;
+      border-bottom: 1px solid #161616;
+    }
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #121212;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    td:first-child { color: #44B2FF; font-family: monospace; white-space: nowrap; }
+    td:nth-child(2){ color: #555; }
+    td:nth-child(3){ color: #444; }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .chip-fixed    { background: #1e1e1e; color: #888; }
+    .chip-flexible { background: #0c2233; color: #44B2FF; }
+    .chip-optional { background: #1f0c2b; color: #c985e5; }
+
+    .zone-list { font-size: 11px; color: #555; margin-bottom: 16px; line-height: 1.7; }
+    .zone-list li { list-style: none; padding-left: 12px; border-left: 2px solid #1e1e1e; margin-bottom: 4px; }
+
+    .brand-checklist { font-size: 11px; color: #444; margin-bottom: 16px; }
+    .brand-checklist li { list-style: none; margin-bottom: 3px; }
+    .brand-checklist li::before { content: "\2713  "; color: #44b574; font-weight: 700; }
+
+    .cmd-box {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      padding: 10px 14px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+
+    hr { border: none; border-top: 1px solid #141414; margin: 56px 0; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="eyebrow">Fluid Creative OS &middot; Sales Collateral</div>
+  <h1>One-Pager Template Library</h1>
+  <p>5 one-pager templates &middot; Letter size (8.5&times;11&Prime;) &middot; Print to PDF &middot; NeueHaasDisplay + FLFont &middot; Pure black backgrounds</p>
+</div>
+
+<!-- Design System -->
+<div class="ds-bar">
+  <div class="ds-block">
+    <h4>Accent Colors</h4>
+    <div class="color-row"><div class="swatch" style="background:#FF8B58;"></div><span class="color-hex">#FF8B58</span><span class="color-role">Orange</span></div>
+    <div class="color-row"><div class="swatch" style="background:#42b1ff;"></div><span class="color-hex">#42B1FF</span><span class="color-role">Blue</span></div>
+    <div class="color-row"><div class="swatch" style="background:#44b574;"></div><span class="color-hex">#44B574</span><span class="color-role">Green</span></div>
+    <div class="color-row"><div class="swatch" style="background:#c985e5;"></div><span class="color-hex">#C985E5</span><span class="color-role">Purple</span></div>
+  </div>
+  <div class="ds-block">
+    <h4>Fonts</h4>
+    <div class="font-item"><span class="fn">NeueHaasDisplay</span><br><span class="fu">Headlines, stats, body (300/500/700/900)</span></div>
+    <div class="font-item"><span class="fn">FLFont Bold</span><br><span class="fu">Eyebrows, section labels, taglines</span></div>
+  </div>
+  <div class="ds-block">
+    <h4>Dimensions</h4>
+    <div class="stat"><b>Size:</b> 8.5 &times; 11 inches (letter)</div>
+    <div class="stat"><b>Padding:</b> 0.45in top, 0.55in sides, 0.35in bottom</div>
+    <div class="stat"><b>Background:</b> #000000 (pure black)</div>
+    <div class="stat"><b>Output:</b> Print to PDF from browser</div>
+  </div>
+  <div class="ds-block">
+    <h4>Brand Elements</h4>
+    <div class="rule"><b>Brushstrokes:</b> mix-blend-mode: screen, 0.10-0.25 opacity</div>
+    <div class="rule"><b>Side label:</b> rotate(90deg), 0.25 opacity, uppercase</div>
+    <div class="rule"><b>Cards:</b> rgba(255,255,255,0.03) bg, 0.06 border</div>
+    <div class="rule"><b>Footer:</b> border-top, logo + CTA pattern</div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- TEMPLATE 1: Product Feature    -->
+<!-- ============================== -->
+<div class="section-label">Templates</div>
+
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">01</span>
+      <span class="t-name">Product Feature</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="product-feature.html" loading="lazy"></iframe>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Two-column hero with product image placeholder + 2&times;2 feature grid. Best for product launch sheets, feature overviews, and capability summaries. Default accent: blue.</p>
+
+    <div class="spec-label">Zone Layout (Top to Bottom)</div>
+    <ul class="zone-list">
+      <li><b>Zone 1:</b> Header &mdash; Fluid logo + product name tag</li>
+      <li><b>Zone 2:</b> Hero &mdash; headline left, product image right (two-column)</li>
+      <li><b>Zone 3:</b> Feature Grid &mdash; 2&times;2 cards with icon + title + description</li>
+      <li><b>Zone 4:</b> Footer &mdash; logo + CTA button</li>
+    </ul>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <tr><th>Slot</th><th>Type</th><th>Description</th></tr>
+      <tr><td>HEADER</td><td><span class="chip chip-fixed">Fixed</span></td><td>Logo area + product name tag</td></tr>
+      <tr><td>HERO_EYEBROW</td><td><span class="chip chip-flexible">Flexible</span></td><td>FLFont tagline above headline</td></tr>
+      <tr><td>HERO_HEADLINE</td><td><span class="chip chip-flexible">Flexible</span></td><td>Main product headline (uppercase)</td></tr>
+      <tr><td>HERO_SUB</td><td><span class="chip chip-flexible">Flexible</span></td><td>Supporting description paragraph</td></tr>
+      <tr><td>HERO_IMAGE</td><td><span class="chip chip-flexible">Flexible</span></td><td>Product screenshot or illustration</td></tr>
+      <tr><td>FEATURE_1-4</td><td><span class="chip chip-flexible">Flexible</span></td><td>Feature title + description per card</td></tr>
+      <tr><td>CTA_LABEL</td><td><span class="chip chip-flexible">Flexible</span></td><td>CTA supporting text</td></tr>
+      <tr><td>CTA_BUTTON</td><td><span class="chip chip-flexible">Flexible</span></td><td>CTA button text</td></tr>
+    </table>
+
+    <div class="spec-label">Brand Element Checklist</div>
+    <ul class="brand-checklist">
+      <li>Brushstroke: top-right diagonal sweep (opacity 0.15)</li>
+      <li>Side label: "Fluid Commerce" (rotated 90deg)</li>
+      <li>FLFont: hero eyebrow tagline</li>
+      <li>Footer: standard logo + CTA pattern</li>
+    </ul>
+
+    <div class="spec-label">Creation Command</div>
+    <div class="cmd-box">/fluid-one-pager "topic" --type product-feature</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- TEMPLATE 2: Partner Integration -->
+<!-- ============================== -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">02</span>
+      <span class="t-name">Partner Integration</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="partner-integration.html" loading="lazy"></iframe>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Headline + two-column body (feature bullets left, stat callouts right) + benefits strip. Best for partner announcements, integration showcases, and ecosystem pages. Default accent: green.</p>
+
+    <div class="spec-label">Zone Layout (Top to Bottom)</div>
+    <ul class="zone-list">
+      <li><b>Zone 1:</b> Header &mdash; Fluid logo + partner logo</li>
+      <li><b>Zone 2:</b> Headline &mdash; full-width headline with FLFont eyebrow</li>
+      <li><b>Zone 3:</b> Body Grid &mdash; feature bullets left, stat callouts right</li>
+      <li><b>Zone 4:</b> Benefits Strip &mdash; 3 integration benefits</li>
+      <li><b>Zone 5:</b> Footer &mdash; logo + CTA button</li>
+    </ul>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <tr><th>Slot</th><th>Type</th><th>Description</th></tr>
+      <tr><td>PARTNER_LOGO</td><td><span class="chip chip-optional">Optional</span></td><td>Partner company logo or text</td></tr>
+      <tr><td>HEADLINE_TEXT</td><td><span class="chip chip-flexible">Flexible</span></td><td>Main headline (uppercase)</td></tr>
+      <tr><td>HEADLINE_SUB</td><td><span class="chip chip-flexible">Flexible</span></td><td>Supporting paragraph</td></tr>
+      <tr><td>FEATURE_BULLETS</td><td><span class="chip chip-flexible">Flexible</span></td><td>4-5 feature items with icon + title + desc</td></tr>
+      <tr><td>STAT_CALLOUTS</td><td><span class="chip chip-flexible">Flexible</span></td><td>2-4 large stat blocks</td></tr>
+      <tr><td>BENEFITS_STRIP</td><td><span class="chip chip-optional">Optional</span></td><td>3 integration benefit cards</td></tr>
+      <tr><td>CTA_BUTTON</td><td><span class="chip chip-flexible">Flexible</span></td><td>CTA button text</td></tr>
+    </table>
+
+    <div class="spec-label">Brand Element Checklist</div>
+    <ul class="brand-checklist">
+      <li>Brushstroke: bottom-left grounding (opacity 0.15)</li>
+      <li>Side label: "Fluid Commerce" (rotated 90deg)</li>
+      <li>FLFont: headline eyebrow + section labels</li>
+      <li>Footer: standard logo + CTA pattern</li>
+    </ul>
+
+    <div class="spec-label">Creation Command</div>
+    <div class="cmd-box">/fluid-one-pager "topic" --type partner</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- TEMPLATE 3: Company Overview   -->
+<!-- ============================== -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">03</span>
+      <span class="t-name">Company Overview</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="company-overview.html" loading="lazy"></iframe>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Giant stats + editorial text layout. Overview/vision/mission text left, large stat numbers stacked right. Best for company fact sheets, investor summaries, and partnership overviews. Default accent: purple.</p>
+
+    <div class="spec-label">Zone Layout (Top to Bottom)</div>
+    <ul class="zone-list">
+      <li><b>Zone 1:</b> Header &mdash; Fluid logo + "Company Overview" label</li>
+      <li><b>Zone 2:</b> Hero Headline &mdash; large full-width heading</li>
+      <li><b>Zone 3:</b> Body Grid &mdash; overview/vision/mission left, giant stats right</li>
+      <li><b>Zone 4:</b> Values Strip &mdash; 4 company value cards</li>
+      <li><b>Zone 5:</b> Footer &mdash; logo + CTA button</li>
+    </ul>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <tr><th>Slot</th><th>Type</th><th>Description</th></tr>
+      <tr><td>HEADLINE_TEXT</td><td><span class="chip chip-flexible">Flexible</span></td><td>Hero headline (uppercase)</td></tr>
+      <tr><td>OVERVIEW_TEXT</td><td><span class="chip chip-flexible">Flexible</span></td><td>Company overview paragraph</td></tr>
+      <tr><td>VISION_TEXT</td><td><span class="chip chip-flexible">Flexible</span></td><td>Vision statement</td></tr>
+      <tr><td>MISSION_TEXT</td><td><span class="chip chip-flexible">Flexible</span></td><td>Mission statement</td></tr>
+      <tr><td>GIANT_STATS</td><td><span class="chip chip-flexible">Flexible</span></td><td>2-4 large stat callouts</td></tr>
+      <tr><td>VALUES_STRIP</td><td><span class="chip chip-optional">Optional</span></td><td>4 company value/differentiator cards</td></tr>
+      <tr><td>CTA_BUTTON</td><td><span class="chip chip-flexible">Flexible</span></td><td>CTA button text</td></tr>
+    </table>
+
+    <div class="spec-label">Brand Element Checklist</div>
+    <ul class="brand-checklist">
+      <li>Brushstroke: diagonal across middle (opacity 0.10)</li>
+      <li>Side label: "Fluid Commerce" (rotated 90deg)</li>
+      <li>FLFont: hero eyebrow + section labels</li>
+      <li>Footer: standard logo + CTA pattern</li>
+    </ul>
+
+    <div class="spec-label">Creation Command</div>
+    <div class="cmd-box">/fluid-one-pager "topic" --type company</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- TEMPLATE 4: Case Study         -->
+<!-- ============================== -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">04</span>
+      <span class="t-name">Case Study</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="case-study.html" loading="lazy"></iframe>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Live editor pattern: header, hero, stat strip, challenge/solution body grid, results strip. Best for customer success stories, implementation case studies, and ROI showcases. Default accent: blue.</p>
+
+    <div class="spec-label">Zone Layout (Top to Bottom)</div>
+    <ul class="zone-list">
+      <li><b>Zone 1:</b> Header &mdash; Fluid logo + client logo/tag</li>
+      <li><b>Zone 2:</b> Hero &mdash; case study headline + client name</li>
+      <li><b>Zone 3:</b> Stat Strip &mdash; 3 key metrics in columns</li>
+      <li><b>Zone 4:</b> Body Grid &mdash; challenge left, solution right</li>
+      <li><b>Zone 5:</b> Results Strip + Footer &mdash; outcomes + CTA</li>
+    </ul>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <tr><th>Slot</th><th>Type</th><th>Description</th></tr>
+      <tr><td>CLIENT_TAG</td><td><span class="chip chip-flexible">Flexible</span></td><td>Client name or "Case Study" label</td></tr>
+      <tr><td>HERO_HEADLINE</td><td><span class="chip chip-flexible">Flexible</span></td><td>Case study headline (uppercase)</td></tr>
+      <tr><td>HERO_SUB</td><td><span class="chip chip-flexible">Flexible</span></td><td>Client context paragraph</td></tr>
+      <tr><td>STAT_1-3</td><td><span class="chip chip-flexible">Flexible</span></td><td>Key metric value + label</td></tr>
+      <tr><td>CHALLENGE_ITEMS</td><td><span class="chip chip-flexible">Flexible</span></td><td>3-4 pain point items</td></tr>
+      <tr><td>SOLUTION_ITEMS</td><td><span class="chip chip-flexible">Flexible</span></td><td>3-4 solution features</td></tr>
+      <tr><td>RESULTS_STRIP</td><td><span class="chip chip-flexible">Flexible</span></td><td>2-4 outcome metrics</td></tr>
+      <tr><td>CTA_BUTTON</td><td><span class="chip chip-flexible">Flexible</span></td><td>CTA button text</td></tr>
+    </table>
+
+    <div class="spec-label">Brand Element Checklist</div>
+    <ul class="brand-checklist">
+      <li>Brushstroke: top-left vertical edge sweep (opacity 0.16)</li>
+      <li>Side label: "Fluid Commerce" (rotated 90deg)</li>
+      <li>FLFont: hero eyebrow + section labels (challenge/solution)</li>
+      <li>Footer: standard logo + CTA pattern</li>
+    </ul>
+
+    <div class="spec-label">Creation Command</div>
+    <div class="cmd-box">/fluid-one-pager "client story" --type case-study</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- TEMPLATE 5: Comparison Sheet   -->
+<!-- ============================== -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">05</span>
+      <span class="t-name">Comparison Sheet</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="comparison-sheet.html" loading="lazy"></iframe>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Display headline + feature comparison table + key differentiator cards. Best for competitive positioning, vendor evaluation sheets, and sales battle cards. Default accent: orange.</p>
+
+    <div class="spec-label">Zone Layout (Top to Bottom)</div>
+    <ul class="zone-list">
+      <li><b>Zone 1:</b> Header &mdash; Fluid logo + category label</li>
+      <li><b>Zone 2:</b> Display Headline &mdash; headline with FLFont tagline</li>
+      <li><b>Zone 3:</b> Comparison Table &mdash; Fluid vs competitors (check/cross marks)</li>
+      <li><b>Zone 4:</b> Differentiators &mdash; 3 key differentiator cards</li>
+      <li><b>Zone 5:</b> Footer &mdash; logo + CTA button</li>
+    </ul>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <tr><th>Slot</th><th>Type</th><th>Description</th></tr>
+      <tr><td>HEADLINE_TEXT</td><td><span class="chip chip-flexible">Flexible</span></td><td>Display headline (uppercase)</td></tr>
+      <tr><td>HEADLINE_SUB</td><td><span class="chip chip-flexible">Flexible</span></td><td>Supporting paragraph</td></tr>
+      <tr><td>COMPETITOR_NAMES</td><td><span class="chip chip-flexible">Flexible</span></td><td>1-3 competitor column headers</td></tr>
+      <tr><td>COMPARISON_ROWS</td><td><span class="chip chip-optional">Optional</span></td><td>6-10 feature rows (expandable)</td></tr>
+      <tr><td>DIFF_1-3</td><td><span class="chip chip-optional">Optional</span></td><td>Key differentiator cards</td></tr>
+      <tr><td>CTA_BUTTON</td><td><span class="chip chip-flexible">Flexible</span></td><td>CTA button text</td></tr>
+    </table>
+
+    <div class="spec-label">Brand Element Checklist</div>
+    <ul class="brand-checklist">
+      <li>Brushstroke: right edge horizontal wide (opacity 0.12)</li>
+      <li>Side label: "Fluid Commerce" (rotated 90deg)</li>
+      <li>FLFont: display eyebrow tagline</li>
+      <li>Comparison: green checks, dim crosses, orange partials</li>
+      <li>Footer: standard logo + CTA pattern</li>
+    </ul>
+
+    <div class="spec-label">Creation Command</div>
+    <div class="cmd-box">/fluid-one-pager "topic" --type comparison</div>
+  </div>
+</div>
+
+</body>
+</html>
