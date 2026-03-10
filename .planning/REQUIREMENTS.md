@@ -21,12 +21,12 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Orchestrator Architecture
 
 - [ ] **ORCH-01**: Orchestrator skill pattern established — one slash command per asset type, spawns specialized subagents with fresh context
-- [ ] **ORCH-02**: Copy subagent loads only voice rules and messaging docs, produces copy in Fluid brand voice
-- [ ] **ORCH-03**: Layout subagent loads only layout archetypes and dimensions, produces structural arrangement
-- [ ] **ORCH-04**: Styling subagent loads only design tokens and asset-specific specs, implements against tokens (no aesthetic guessing)
-- [ ] **ORCH-05**: Spec-check subagent validates output against brand rules, returns structured list of issues with severity
-- [ ] **ORCH-06**: Fix subagent receives spec-check issues and corrects them, re-validates until passing
-- [ ] **ORCH-07**: Subagent contracts defined — what goes in (context files), what comes out (structured output), max iterations before escalating
+- [x] **ORCH-02**: Copy subagent loads only voice rules and messaging docs, produces copy in Fluid brand voice
+- [x] **ORCH-03**: Layout subagent loads only layout archetypes and dimensions, produces structural arrangement
+- [x] **ORCH-04**: Styling subagent loads only design tokens and asset-specific specs, implements against tokens (no aesthetic guessing)
+- [x] **ORCH-05**: Spec-check subagent validates output against brand rules, returns structured list of issues with severity
+- [x] **ORCH-06**: Fix subagent receives spec-check issues and corrects them, re-validates until passing
+- [x] **ORCH-07**: Subagent contracts defined — what goes in (context files), what comes out (structured output), max iterations before escalating
 
 ### Social Posts
 
@@ -150,12 +150,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | META-03 | Phase 1 | Complete (01-01) |
 | META-04 | Phase 1 | Complete (01-01) |
 | ORCH-01 | Phase 2 | Pending |
-| ORCH-02 | Phase 2 | Pending |
-| ORCH-03 | Phase 2 | Pending |
-| ORCH-04 | Phase 2 | Pending |
-| ORCH-05 | Phase 2 | Pending |
-| ORCH-06 | Phase 2 | Pending |
-| ORCH-07 | Phase 2 | Pending |
+| ORCH-02 | Phase 2 | Complete |
+| ORCH-03 | Phase 2 | Complete |
+| ORCH-04 | Phase 2 | Complete |
+| ORCH-05 | Phase 2 | Complete |
+| ORCH-06 | Phase 2 | Complete |
+| ORCH-07 | Phase 2 | Complete |
 | SOCL-01 | Phase 2 | Pending |
 | SOCL-02 | Phase 2 | Pending |
 | SOCL-03 | Phase 2 | Pending |
