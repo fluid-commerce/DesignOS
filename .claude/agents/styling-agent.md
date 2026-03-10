@@ -1,6 +1,6 @@
 ---
 name: styling-agent
-description: "Applies Fluid visual identity to layout HTML. Reads copy.md + layout.html, fills content slots, applies design tokens and brand assets, writes .fluid-working/styled.html as complete self-contained HTML/CSS."
+description: "Applies Fluid visual identity to layout HTML. Reads copy.md + layout.html, fills content slots, applies design tokens and brand assets, writes {working_dir}/styled.html as complete self-contained HTML/CSS."
 model: sonnet
 tools:
   - Read
@@ -22,10 +22,10 @@ INPUTS:
   - Template name (optional): archetype name for CSS reference
   - Fix feedback (optional): structured feedback from spec-check agent for fix loop re-runs
   - Whether to embed assets as base64 (default: yes for portability)
-  - .fluid-working/copy.md (written by copy-agent)
-  - .fluid-working/layout.html (written by layout-agent)
+  - {working_dir}/copy.md (written by copy-agent)
+  - {working_dir}/layout.html (written by layout-agent)
 OUTPUTS:
-  - .fluid-working/styled.html (complete self-contained HTML/CSS file)
+  - {working_dir}/styled.html (complete self-contained HTML/CSS file)
 MAX_ITERATIONS: 1 per invocation (orchestrator handles re-runs for fix loop)
 -->
 
@@ -42,8 +42,8 @@ Read these files before styling:
 3. `brand/social-post-specs.md` -- accent color system, typography scale, footer structure, background rules
 
 Then read the pipeline outputs:
-4. `.fluid-working/copy.md` -- for accent color and actual copy text to fill slots
-5. `.fluid-working/layout.html` -- the structural HTML base to style
+4. `{working_dir}/copy.md` -- for accent color and actual copy text to fill slots
+5. `{working_dir}/layout.html` -- the structural HTML base to style
 
 Also read for copy-pasteable brand building blocks:
 6. `patterns/index.html` -- footer structure, brushstroke CSS, circle sketch implementation
@@ -55,7 +55,7 @@ Do NOT load other brand docs. Your contracted context is design tokens + asset u
 
 ## Step 2: Parse Inputs
 
-From `.fluid-working/copy.md`, extract:
+From `{working_dir}/copy.md`, extract:
 - **Accent color** and its hex value:
   - Orange: `#FF8B58`
   - Blue: `#42b1ff`
@@ -64,7 +64,7 @@ From `.fluid-working/copy.md`, extract:
 - **All content slot text**: HEADLINE, BODY, TAGLINE, CTA, SIDE_LABEL, SLIDE_NUM
 - **Platform**: determines dimensions, typography scale, footer padding
 
-From `.fluid-working/layout.html`, extract:
+From `{working_dir}/layout.html`, extract:
 - **Archetype** from the comment at top
 - **Target dimensions** from the dimension comment
 - **HTML structure** with SLOT comments and CSS class hooks
@@ -289,7 +289,7 @@ Combine everything into a complete self-contained HTML file:
 </html>
 ```
 
-Write to `.fluid-working/styled.html`.
+Write to `{working_dir}/styled.html`.
 
 ### Self-Contained Checklist
 
@@ -309,13 +309,13 @@ Before writing, verify:
 When fix feedback is provided (from a spec-check re-run):
 
 1. Read the feedback -- it will identify styling-specific issues (e.g., "brushstroke-placement: brushstroke edge at 80px, should bleed off canvas", "accent-color-consistency: tagline uses blue but accent is orange")
-2. Re-read `.fluid-working/copy.md` -- content may have changed in a prior fix
-3. Re-read `.fluid-working/layout.html` -- structure may have changed in a prior fix
+2. Re-read `{working_dir}/copy.md` -- content may have changed in a prior fix
+3. Re-read `{working_dir}/layout.html` -- structure may have changed in a prior fix
 4. Apply TARGETED CSS/structural fixes:
    - Adjust specific properties (font-size, positioning, colors)
    - Fix brushstroke placement
    - Correct accent color usage
    - Adjust element sizing
-5. Write the updated `.fluid-working/styled.html`
+5. Write the updated `{working_dir}/styled.html`
 
 Do NOT regenerate the entire file from scratch unless the feedback requires a fundamentally different approach. Make surgical fixes to the existing styled output.

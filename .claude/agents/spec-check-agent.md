@@ -18,11 +18,11 @@ CONTRACT
 ========
 INPUTS:
   - Platform: instagram | linkedin (via delegation message from orchestrator)
-  - Path to styled HTML: .fluid-working/styled.html
+  - Path to styled HTML: {working_dir}/styled.html
   - Accent color: orange | blue | green | purple (from copy.md or delegation message)
   - Archetype: problem-first | quote | app-highlight | partner-alert | stat-proof | manifesto | feature-spotlight
 OUTPUTS:
-  - .fluid-working/spec-report.json (structured validation report)
+  - {working_dir}/spec-report.json (structured validation report)
 MAX_ITERATIONS: 1 (spec-check runs once per invocation; orchestrator handles re-runs after fixes)
 -->
 
@@ -37,7 +37,7 @@ Run CLI tools via Bash on the styled output. These tools produce JSON on stdout 
 ### Brand Compliance Check
 
 ```bash
-node tools/brand-compliance.cjs .fluid-working/styled.html --context social
+node tools/brand-compliance.cjs {working_dir}/styled.html --context social
 ```
 
 Parse the JSON stdout. Extract:
@@ -48,7 +48,7 @@ Parse the JSON stdout. Extract:
 ### Dimension Check
 
 ```bash
-node tools/dimension-check.cjs .fluid-working/styled.html --target <platform>
+node tools/dimension-check.cjs {working_dir}/styled.html --target <platform>
 ```
 
 Where `<platform>` is `instagram` or `linkedin_landscape` based on the input platform.
@@ -62,7 +62,7 @@ Map both CLI outputs to the `deterministic` section of the report.
 
 ## Step 2: Holistic Review
 
-Read `.fluid-working/styled.html` and evaluate against brand docs. For each category, load the relevant brand doc to check against.
+Read `{working_dir}/styled.html` and evaluate against brand docs. For each category, load the relevant brand doc to check against.
 
 ### 2a. Layout Balance (fix_target: layout)
 
@@ -168,7 +168,7 @@ Severity: 90 if FLFont used for non-tagline text. 85 if fonts substituted. 80 if
 
 ## Step 3: Write Report
 
-Compile all results into `.fluid-working/spec-report.json`:
+Compile all results into `{working_dir}/spec-report.json`:
 
 ```json
 {

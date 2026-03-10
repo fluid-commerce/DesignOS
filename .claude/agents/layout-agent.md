@@ -1,6 +1,6 @@
 ---
 name: layout-agent
-description: "Creates structural HTML layouts from copy output. Reads copy.md, selects archetype layout, writes .fluid-working/layout.html with positioned containers and SLOT comments."
+description: "Creates structural HTML layouts from copy output. Reads copy.md, selects archetype layout, writes {working_dir}/layout.html with positioned containers and SLOT comments."
 model: sonnet
 tools:
   - Read
@@ -19,9 +19,9 @@ INPUTS:
   - Platform: instagram | linkedin (via delegation message from orchestrator)
   - Template name (optional): archetype name for template-follow mode
   - Fix feedback (optional): structured feedback from spec-check agent for fix loop re-runs
-  - .fluid-working/copy.md (written by copy-agent -- MUST exist before layout-agent runs)
+  - {working_dir}/copy.md (written by copy-agent -- MUST exist before layout-agent runs)
 OUTPUTS:
-  - .fluid-working/layout.html (structural HTML with positioned containers and SLOT comments)
+  - {working_dir}/layout.html (structural HTML with positioned containers and SLOT comments)
 MAX_ITERATIONS: 1 per invocation (orchestrator handles re-runs for fix loop)
 -->
 
@@ -37,7 +37,7 @@ Read these files before generating any layout:
 2. `brand/social-post-specs.md` -- platform dimensions, typography scale, footer structure
 
 Then read the copy output:
-3. `.fluid-working/copy.md` -- to understand content volume (headline length, body text amount, presence of tagline, stat numbers)
+3. `{working_dir}/copy.md` -- to understand content volume (headline length, body text amount, presence of tagline, stat numbers)
 
 If a template is specified, also read:
 4. `templates/social/<template-name>.html` -- for structural reference (container positions, element ordering, proportions)
@@ -46,7 +46,7 @@ Do NOT load other brand docs. Your contracted context is layout archetypes + soc
 
 ## Step 2: Analyze Copy Content
 
-Parse `.fluid-working/copy.md` to understand:
+Parse `{working_dir}/copy.md` to understand:
 - **Platform** -- determines dimensions (1080x1080 vs 1200x627/1340x630)
 - **Archetype** -- the copy agent's archetype selection guides layout choice
 - **Headline length** -- short headlines (2-4 words) can be larger; longer headlines need size adjustment
@@ -72,7 +72,7 @@ For LinkedIn: consider E. Two-Column layout when content suits side-by-side pres
 
 ## Step 4: Generate Structural HTML
 
-Write HTML to `.fluid-working/layout.html` following these rules:
+Write HTML to `{working_dir}/layout.html` following these rules:
 
 ### Required Elements
 
@@ -141,7 +141,7 @@ When a template is specified:
 
 ## Step 6: Write Output
 
-Write the complete structural HTML to `.fluid-working/layout.html`.
+Write the complete structural HTML to `{working_dir}/layout.html`.
 
 Example output (problem-first archetype, Instagram):
 
@@ -185,11 +185,11 @@ Example output (problem-first archetype, Instagram):
 When fix feedback is provided (from a spec-check re-run):
 
 1. Read the feedback -- it will identify layout-specific issues (e.g., "layout-balance: headline container too small for updated copy", "visual-hierarchy: body text area competing with headline")
-2. Re-read `.fluid-working/copy.md` -- the copy may have changed in a prior fix iteration
+2. Re-read `{working_dir}/copy.md` -- the copy may have changed in a prior fix iteration
 3. Adjust the structural HTML:
    - If headline got longer from a copy fix, increase headline container proportions
    - If layout balance is off, reorder or resize containers
    - If archetype mismatch, consider switching to a more appropriate layout type
-4. Write the updated `.fluid-working/layout.html`
+4. Write the updated `{working_dir}/layout.html`
 
 Do NOT regenerate from scratch unless the feedback requires a fundamentally different layout approach.

@@ -24,7 +24,7 @@ Parse `$ARGUMENTS` for the following flags and values:
 | `--template` | archetype name | (none) | Valid: `quote`, `app-highlight`, `partner-alert`, `problem-first`, `stat-proof`, `manifesto`, `feature-spotlight`. Subagents follow template structure closely when specified. |
 | `--variations` | integer N | `1` | Number of distinct takes to generate. Each variation runs the full pipeline independently. |
 | `--ref` | file path | (none) | Explicit reference file for style matching. |
-| `--debug` | (flag, no value) | off | Preserve `.fluid-working/` directory after completion for inspection. |
+| `--debug` | (flag, no value) | off | Preserve full session directory (all intermediate artifacts) after completion. |
 
 **Natural language template matching:**
 If `--template` is not set but the prompt contains natural language template hints (e.g., "use the pain post template", "make it a manifesto", "stat post about..."), match against templates:
@@ -44,21 +44,58 @@ If `--ref` is not set but the prompt references a known post (e.g., "make it lik
 
 # 2. Working Directory Setup
 
-Create the working directory for inter-agent file communication:
+Each run gets a unique session directory under `.fluid/working/`:
 
 ```
-.fluid-working/          (single variation)
-.fluid-working/v1/       (multiple variations)
-.fluid-working/v2/
-...
+.fluid/working/{sessionId}/
+├── lineage.json           # Prompt → result chain (see below)
+├── copy.md                # (single variation)
+├── layout.html
+├── styled.html
+├── spec-report.json
+├── v1/                    # (multiple variations, N > 1)
+│   ├── copy.md
+│   ├── layout.html
+│   ├── styled.html
+│   └── spec-report.json
+├── v2/
+│   └── ...
 ```
 
-If `.fluid-working/` already exists:
-- Print warning: "Working directory .fluid-working/ already exists. Creating timestamped alternative."
-- Create `.fluid-working-{YYYYMMDD-HHMMSS}/` instead
-- Use this path for all subsequent operations
+**Session ID format:** `{YYYYMMDD-HHMMSS}` (e.g., `20260310-143022`).
 
-For variations (N > 1): create numbered subdirectories `.fluid-working/v1/`, `.fluid-working/v2/`, etc.
+Create `.fluid/working/` if it doesn't exist. Generate the session ID from current timestamp. Create `.fluid/working/{sessionId}/`.
+
+For variations (N > 1): create numbered subdirectories `v1/`, `v2/`, etc. inside the session directory.
+
+**Lineage JSON (`lineage.json`):**
+
+Initialize at session start. This file tracks the full prompt → result chain so downstream processes (feedback loop, documentation) have complete generation context.
+
+```json
+{
+  "sessionId": "{sessionId}",
+  "created": "{ISO 8601 timestamp}",
+  "platform": "{platform}",
+  "product": "{product or null}",
+  "template": "{template or null}",
+  "entries": [
+    {
+      "version": 1,
+      "prompt": "{the user's original prompt text}",
+      "flags": { "platform": "instagram", "product": "connect", "template": null, "variations": 1 },
+      "result": "./output/fluid-social-instagram-problem-first-20260310.html",
+      "specCheck": "pass",
+      "fixIterations": 0,
+      "timestamp": "{ISO 8601}"
+    }
+  ]
+}
+```
+
+When the user follows up with changes (e.g., "make it more urgent", "try a linkedin version"), append a new entry to `entries[]` with incremented `version`. If a follow-up splits into multiple variations, the entry's `result` becomes an array of paths.
+
+Update `lineage.json` after each pipeline completion (after output is saved).
 
 # 3. Pipeline Execution
 
@@ -74,7 +111,7 @@ Generating Fluid social post...
 
 For each variation (default: 1), execute the 4-stage pipeline sequentially.
 
-Use the working directory path. For single variation: `.fluid-working/`. For multiple: `.fluid-working/v{N}/`.
+Use the session directory path. For single variation: `.fluid/working/{sessionId}/`. For multiple: `.fluid/working/{sessionId}/v{N}/`.
 
 ## Step 3a: Copy Agent
 
@@ -184,8 +221,8 @@ Create the `./output/` directory if it does not exist.
 Copy `{working_dir}/styled.html` to the output path.
 
 **Cleanup:**
-- If `--debug` is NOT set: delete the `.fluid-working/` directory entirely.
-- If `--debug` IS set: print "Debug: working directory preserved at .fluid-working/"
+- If `--debug` is NOT set: session directory is preserved (lineage.json provides long-term value). Only delete intermediate artifacts (`copy.md`, `layout.html`, `spec-report.json`) — keep `lineage.json` and `styled.html` (as a local cache of the final output).
+- If `--debug` IS set: print "Debug: full session preserved at .fluid/working/{sessionId}/" and keep all files.
 
 **Final status:**
 

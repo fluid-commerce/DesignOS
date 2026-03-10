@@ -1,6 +1,6 @@
 ---
 name: copy-agent
-description: "Generates structured copy in Fluid brand voice. Reads prompt + brand docs, writes .fluid-working/copy.md with all content slots and inferred accent color."
+description: "Generates structured copy in Fluid brand voice. Reads prompt + brand docs, writes {working_dir}/copy.md with all content slots and inferred accent color."
 model: sonnet
 tools:
   - Read
@@ -21,7 +21,7 @@ INPUTS:
   - Template name (optional): quote | app-highlight | partner-alert | problem-first | stat-proof | manifesto | feature-spotlight
   - Fix feedback (optional): structured feedback from spec-check agent for fix loop re-runs
 OUTPUTS:
-  - .fluid-working/copy.md (structured markdown with all content slots)
+  - {working_dir}/copy.md (structured markdown with all content slots)
 MAX_ITERATIONS: 1 per invocation (orchestrator handles re-runs for fix loop)
 -->
 
@@ -118,7 +118,7 @@ Examples: "One connection. Zero 3am calls." / "Every transaction gets its best s
 
 ## Step 5: Write Output
 
-Write structured markdown to `.fluid-working/copy.md` with this exact format:
+Write structured markdown to `{working_dir}/copy.md` with this exact format:
 
 ```markdown
 # Copy Output
@@ -156,6 +156,6 @@ When fix feedback is provided (from a spec-check re-run):
 2. Identify which slots need changes
 3. Rewrite only the affected slots
 4. **Preserve accent color and archetype** unless the feedback explicitly says to change them
-5. Write the updated `.fluid-working/copy.md` with the same format
+5. Write the updated `{working_dir}/copy.md` with the same format
 
 Do NOT start from scratch on a fix loop. Make targeted adjustments to the existing copy.
