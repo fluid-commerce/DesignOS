@@ -972,6 +972,7 @@ body {
     <!-- ============================================================
          4. CIRCLES & UNDERLINES — EMPHASIS ELEMENTS
          ============================================================ -->
+    <script src="mask-data.js"></script>
     <div class="section" id="circles">
       <h2 class="section-title">Circles & Underlines</h2>
       <p class="section-subtitle">Hand-drawn emphasis elements for words and data points. CSS-mask technique — any color. <span class="weight-badge weight-critical">Weight: 90</span></p>
@@ -985,7 +986,14 @@ body {
       <!-- Technique explanation -->
       <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;">
         <strong style="color: rgba(255,255,255,0.8);">How it works</strong>
-        <span style="color: rgba(255,255,255,0.5); font-size: 13px;"> — White PNG used as CSS <code style="color:#FF8B58">mask-image</code>. A colored <code style="color:#FF8B58">div</code> behind the text has its shape cut by the mask. Change <code style="color:#FF8B58">backgroundColor</code> to change the color. Animation uses a gradient mask sweep to reveal progressively.</span>
+        <span style="color: rgba(255,255,255,0.5); font-size: 13px;"> — White PNG used as CSS <code style="color:#FF8B58">mask-image</code>. A colored <code style="color:#FF8B58">div</code> behind the text has its shape cut by the mask. Change <code style="color:#FF8B58">backgroundColor</code> to change the color. Works in any context: static HTML, social post images, presentations, web pages.</span>
+      </div>
+
+      <!-- Static vs animated note -->
+      <div style="background: rgba(66,177,255,0.08); border: 1px solid rgba(66,177,255,0.2); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;">
+        <strong style="color: #42b1ff;">STATIC BY DEFAULT</strong>
+        <span style="color: rgba(255,255,255,0.65); font-size: 13px;"> — For social post images, email graphics, one-pagers, and any static/image output: just use the mask technique with no animation. Animation is optional and only for interactive contexts (presentations, web pages, app UIs). Most brand assets are rendered as static images.</span>
+        <span class="weight-badge weight-strong">75</span>
       </div>
 
       <!-- ==================== CIRCLE VARIANTS ==================== -->
@@ -995,31 +1003,31 @@ body {
       <div class="asset-grid" style="grid-template-columns: repeat(5, 1fr); gap: 12px;">
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px;">
-            <div style="width: 120px; height: 80px; margin: 0 auto; background: #FF8B58; -webkit-mask-image: url('../assets/circles/masks/circle-1.png'); mask-image: url('../assets/circles/masks/circle-1.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/circles/masks/circle-1.png" style="width: 120px; height: 80px; margin: 0 auto; background: #FF8B58; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">circle-1</h4>
         </div>
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px;">
-            <div style="width: 120px; height: 80px; margin: 0 auto; background: #42b1ff; -webkit-mask-image: url('../assets/circles/masks/circle-2.png'); mask-image: url('../assets/circles/masks/circle-2.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/circles/masks/circle-2.png" style="width: 120px; height: 80px; margin: 0 auto; background: #42b1ff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">circle-2</h4>
         </div>
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px;">
-            <div style="width: 120px; height: 80px; margin: 0 auto; background: #44b574; -webkit-mask-image: url('../assets/circles/masks/circle-3.png'); mask-image: url('../assets/circles/masks/circle-3.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/circles/masks/circle-3.png" style="width: 120px; height: 80px; margin: 0 auto; background: #44b574; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">circle-3</h4>
         </div>
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px;">
-            <div style="width: 120px; height: 80px; margin: 0 auto; background: #c985e5; -webkit-mask-image: url('../assets/circles/masks/circle-4.png'); mask-image: url('../assets/circles/masks/circle-4.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/circles/masks/circle-4.png" style="width: 120px; height: 80px; margin: 0 auto; background: #c985e5; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">circle-4</h4>
         </div>
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px;">
-            <div style="width: 120px; height: 80px; margin: 0 auto; background: #FF8B58; -webkit-mask-image: url('../assets/circles/masks/circle-5.png'); mask-image: url('../assets/circles/masks/circle-5.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/circles/masks/circle-5.png" style="width: 120px; height: 80px; margin: 0 auto; background: #FF8B58; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">circle-5</h4>
         </div>
@@ -1032,28 +1040,28 @@ body {
       <div class="asset-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px;">
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px 40px;">
-            <div style="width: 200px; height: 24px; margin: 0 auto; background: #FF8B58; -webkit-mask-image: url('../assets/underlines/underline-1.png'); mask-image: url('../assets/underlines/underline-1.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/underlines/underline-1.png" style="width: 200px; height: 24px; margin: 0 auto; background: #FF8B58; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">underline-1</h4>
         </div>
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px 40px;">
-            <div style="width: 200px; height: 24px; margin: 0 auto; background: #42b1ff; -webkit-mask-image: url('../assets/underlines/underline-2.png'); mask-image: url('../assets/underlines/underline-2.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/underlines/underline-2.png" style="width: 200px; height: 24px; margin: 0 auto; background: #42b1ff; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">underline-2</h4>
         </div>
         <div>
           <div class="asset-preview" style="text-align: center; padding: 24px 40px;">
-            <div style="width: 200px; height: 24px; margin: 0 auto; background: #44b574; -webkit-mask-image: url('../assets/underlines/underline-3.png'); mask-image: url('../assets/underlines/underline-3.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+            <div data-mask="assets/underlines/underline-3.png" style="width: 200px; height: 24px; margin: 0 auto; background: #44b574; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
           <h4 style="font-size: 12px; text-align: center;">underline-3</h4>
         </div>
       </div>
 
-      <!-- ==================== LIVE USAGE EXAMPLES ==================== -->
+      <!-- ==================== STATIC USAGE EXAMPLE ==================== -->
       <div class="subsection" style="margin-top: 32px;">
-        <h3 class="subsection-title">Circle Emphasis — Live Example</h3>
-        <p style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px;">Click any example to replay the animation. Color picker shows any-color capability.</p>
+        <h3 class="subsection-title">Static Usage (default for images & social posts)</h3>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px;">No animation needed. Just the mask + color. This is what you use for social post images, email headers, one-pagers, and any rendered-to-image output.</p>
 
         <!-- Color picker row -->
         <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center;">
@@ -1065,37 +1073,64 @@ body {
           <input type="color" id="customEmphasisColor" value="#FF8B58" onchange="setEmphasisColor(this.value)" style="width:28px;height:28px;border:none;background:none;cursor:pointer;" title="Custom color">
         </div>
 
-        <!-- Circled example -->
-        <div class="asset-preview" style="text-align: center; padding: 48px;" onclick="replayCircleAnim()">
+        <!-- Circled static example -->
+        <div class="asset-preview" style="text-align: center; padding: 48px;">
           <div style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 56px; line-height: 1.2;">
-            <span id="circled-demo" class="circled-wrapper" style="position: relative; display: inline-block; cursor: pointer;">
+            <span style="position: relative; display: inline-block;">
               <span style="position: relative;">80%</span>
-              <span id="circled-reveal" class="circled-reveal" style="position: absolute; z-index: -1; pointer-events: none; left: -25%; top: -35%; width: 150%; height: 170%; opacity: 0;">
-                <span id="circled-deco" style="display: block; width: 100%; height: 100%; background-color: #FF8B58; -webkit-mask-image: url('../assets/circles/masks/circle-2.png'); mask-image: url('../assets/circles/masks/circle-2.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
+              <span data-mask="assets/circles/masks/circle-2.png" id="circled-deco-static" style="position: absolute; z-index: -1; pointer-events: none; left: -25%; top: -35%; width: 150%; height: 170%; background-color: #FF8B58; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
+            </span>
+            <span style="color: rgba(255,255,255,0.5); font-weight: 500; font-size: 32px;"> is considered healthy.</span>
+          </div>
+        </div>
+
+        <!-- Underlined static example -->
+        <div class="asset-preview" style="text-align: center; padding: 48px; margin-top: 12px;">
+          <div style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 48px; line-height: 1.3;">
+            Hope for the
+            <span style="position: relative; display: inline-block;">
+              <span style="position: relative;">best.</span>
+              <span data-mask="assets/underlines/underline-1.png" id="underlined-deco-static" style="position: absolute; z-index: -1; pointer-events: none; left: 0; right: 0; bottom: -0.1em; height: 0.55em; background-color: #FF8B58; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ANIMATED EXAMPLE (OPTIONAL) ==================== -->
+      <div class="subsection" style="margin-top: 32px;">
+        <h3 class="subsection-title">Animated Reveal (optional — presentations & web only)</h3>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px;">For interactive contexts like slidev presentations, web pages, and app UIs. Circle uses a conic-gradient sweep from 12 o'clock; underline sweeps left-to-right. Both have noisy fade edges for an organic feel. Click to replay.</p>
+
+        <!-- Animated circle -->
+        <div class="asset-preview" style="text-align: center; padding: 48px; cursor: pointer;" onclick="replayCircleAnim()">
+          <div style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 56px; line-height: 1.2;">
+            <span id="circled-demo" style="position: relative; display: inline-block;">
+              <span style="position: relative;">80%</span>
+              <span id="circled-reveal" style="position: absolute; z-index: -1; pointer-events: none; left: -25%; top: -35%; width: 150%; height: 170%; opacity: 0;">
+                <span id="circled-deco" data-mask="assets/circles/masks/circle-2.png" style="display: block; width: 100%; height: 100%; background-color: #FF8B58; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
               </span>
             </span>
             <span style="color: rgba(255,255,255,0.5); font-weight: 500; font-size: 32px;"> is considered healthy.</span>
           </div>
-          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 12px;">click to replay animation</p>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 12px;">click to replay circle animation</p>
         </div>
 
-        <!-- Underlined example -->
-        <h3 class="subsection-title" style="margin-top: 24px;">Underline Emphasis — Live Example</h3>
-        <div class="asset-preview" style="text-align: center; padding: 48px;" onclick="replayUnderlineAnim()">
+        <!-- Animated underline -->
+        <div class="asset-preview" style="text-align: center; padding: 48px; cursor: pointer; margin-top: 12px;" onclick="replayUnderlineAnim()">
           <div style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 48px; line-height: 1.3;">
             Hope for the
-            <span id="underlined-demo" style="position: relative; display: inline-block; cursor: pointer;">
+            <span id="underlined-demo" style="position: relative; display: inline-block;">
               <span style="position: relative;">best.</span>
               <span id="underlined-reveal" style="position: absolute; z-index: -1; pointer-events: none; left: 0; right: 0; bottom: -0.1em; height: 0.55em; opacity: 0;">
-                <span id="underlined-deco" style="display: block; width: 100%; height: 100%; background-color: #FF8B58; -webkit-mask-image: url('../assets/underlines/underline-1.png'); mask-image: url('../assets/underlines/underline-1.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
+                <span id="underlined-deco" data-mask="assets/underlines/underline-1.png" style="display: block; width: 100%; height: 100%; background-color: #FF8B58; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
               </span>
             </span>
           </div>
-          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 12px;">click to replay animation</p>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 12px;">click to replay underline animation</p>
         </div>
       </div>
 
-      <!-- Animation script -->
+      <!-- Animation + color picker script -->
       <script>
         // ---- Emphasis animation engine (matches slidev Circled.vue / Underlined.vue) ----
         const FADE_ZONE = 0.15, NOISE_STRENGTH = 0.7, NOISE_STOPS = 40;
@@ -1104,7 +1139,6 @@ body {
           return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
         }
 
-        // Circle: conic-gradient sweep from 12 o'clock
         function circleRevealGradient(progress) {
           const sweepDeg = progress * 360, fadeDeg = FADE_ZONE * 360;
           const solidEnd = Math.max(0, sweepDeg - fadeDeg);
@@ -1121,7 +1155,6 @@ body {
           return `conic-gradient(from -90deg at 50% 50%, ${stops.join(', ')})`;
         }
 
-        // Underline: left-to-right linear gradient
         function underlineRevealGradient(progress) {
           const sweepPct = progress * 100, fadePct = FADE_ZONE * 100;
           const solidEnd = Math.max(0, sweepPct - fadePct);
@@ -1138,20 +1171,21 @@ body {
           return `linear-gradient(to right, ${stops.join(', ')})`;
         }
 
-        function animateReveal(el, gradientFn, duration) {
-          el.style.opacity = '1';
+        // Note: animation applies gradient mask to the REVEAL wrapper (parent),
+        // NOT the deco element. The deco element keeps its shape mask always.
+        function animateReveal(revealEl, gradientFn, duration) {
+          revealEl.style.opacity = '1';
           let start = null;
           function frame(now) {
             if (!start) start = now;
             const raw = Math.min((now - start) / duration, 1);
-            const p = easeInOutCubic(raw);
-            const grad = gradientFn(p);
-            el.style.webkitMaskImage = grad;
-            el.style.maskImage = grad;
-            el.style.webkitMaskSize = '100% 100%';
-            el.style.maskSize = '100% 100%';
+            const grad = gradientFn(easeInOutCubic(raw));
+            revealEl.style.webkitMaskImage = grad;
+            revealEl.style.maskImage = grad;
+            revealEl.style.webkitMaskSize = '100% 100%';
+            revealEl.style.maskSize = '100% 100%';
             if (raw < 1) requestAnimationFrame(frame);
-            else { el.style.webkitMaskImage = ''; el.style.maskImage = ''; }
+            else { revealEl.style.webkitMaskImage = ''; revealEl.style.maskImage = ''; }
           }
           requestAnimationFrame(frame);
         }
@@ -1171,16 +1205,23 @@ body {
         }
 
         function setEmphasisColor(color) {
+          // Update static demos
+          document.getElementById('circled-deco-static').style.backgroundColor = color;
+          document.getElementById('underlined-deco-static').style.backgroundColor = color;
+          // Update animated demos
           document.getElementById('circled-deco').style.backgroundColor = color;
           document.getElementById('underlined-deco').style.backgroundColor = color;
-          replayCircleAnim();
-          setTimeout(() => replayUnderlineAnim(), 300);
+          // Also update all variant swatches
+          document.querySelectorAll('[data-mask]').forEach(el => {
+            if (el.id) return; // skip named demos
+            el.style.backgroundColor = color;
+          });
         }
 
-        // Auto-play on load
+        // Auto-play animated demos on load
         window.addEventListener('load', () => {
-          setTimeout(() => replayCircleAnim(), 600);
-          setTimeout(() => replayUnderlineAnim(), 1100);
+          setTimeout(() => replayCircleAnim(), 800);
+          setTimeout(() => replayUnderlineAnim(), 1500);
         });
       </script>
 
