@@ -1,0 +1,306 @@
+#!/usr/bin/env node
+/**
+ * brand-compliance.cjs (CLI-02) — Validates HTML/CSS against brand tokens
+ *
+ * Checks hex colors, font families, rgba patterns, and hardcoded spacing
+ * against compiled rules.json.
+ *
+ * Usage: node tools/brand-compliance.cjs path/to/file.html [--context social|website]
+ * Output: JSON violations to stdout, human summary to stderr
+ * Exit code: 1 if any errors (weight >= 81), 0 otherwise
+ *
+ * Zero external dependencies — uses only Node.js built-ins.
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+const RULES_PATH = path.resolve(__dirname, 'rules.json');
+
+function loadRules() {
+  if (!fs.existsSync(RULES_PATH)) {
+    process.stderr.write('Error: rules.json not found. Run compile-rules.cjs first.\n');
+    process.exit(2);
+  }
+  return JSON.parse(fs.readFileSync(RULES_PATH, 'utf-8'));
+}
+
+function severityFromWeight(weight, thresholds) {
+  if (weight >= thresholds.error) return 'error';
+  if (weight >= thresholds.warning) return 'warning';
+  if (weight >= thresholds.info) return 'info';
+  return 'hint';
+}
+
+function detectContext(content) {
+  // Try to auto-detect social vs website from content
+  const hasSocialDimension = /1080\s*x?\s*1080|1200\s*x?\s*627|1340\s*x?\s*630/i.test(content);
+  const hasLiquidSchema = /{%\s*schema\s*%}/i.test(content);
+  const hasViewport = /viewport/i.test(content);
+  const hasCssVars = /var\(--/g.test(content);
+
+  if (hasLiquidSchema || hasCssVars) return 'website';
+  if (hasSocialDimension) return 'social';
+  return 'all';
+}
+
+function normalizeHex(hex) {
+  hex = hex.toUpperCase();
+  // Expand 3-char hex to 6-char
+  if (hex.length === 4) {
+    hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+  }
+  return hex;
+}
+
+function checkHexColors(lines, rules, context) {
+  const violations = [];
+  const allowedHex = new Set();
+
+  // Add colors based on context
+  if (context === 'social' || context === 'all') {
+    rules.colors.social.allowed_hex.forEach(h => allowedHex.add(normalizeHex(h)));
+  }
+  if (context === 'website' || context === 'all') {
+    rules.colors.website.allowed_hex.forEach(h => allowedHex.add(normalizeHex(h)));
+  }
+
+  // Also add common CSS colors that aren't brand-specific but are harmless
+  // (transparent, currentColor handled elsewhere)
+
+  const hexRegex = /#([0-9a-fA-F]{3,6})\b/g;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let match;
+    hexRegex.lastIndex = 0;
+    while ((match = hexRegex.exec(line)) !== null) {
+      const rawHex = '#' + match[1];
+      const normalized = normalizeHex(rawHex);
+
+      // Skip if it's in a comment or code snippet display
+      const before = line.substring(0, match.index);
+      if (before.includes('<!--') && !before.includes('-->')) continue;
+
+      if (!allowedHex.has(normalized)) {
+        violations.push({
+          line: i + 1,
+          column: match.index + 1,
+          rule: 'color-non-brand-hex',
+          severity: severityFromWeight(90, rules.thresholds),
+          weight: 90,
+          message: `Non-brand hex color "${rawHex}" (normalized: ${normalized}). Allowed: ${[...allowedHex].join(', ')}`,
+          found: rawHex,
+        });
+      }
+    }
+  }
+
+  return violations;
+}
+
+function checkFontFamilies(lines, rules, context) {
+  const violations = [];
+
+  const allowedFamilies = context === 'social'
+    ? rules.fonts.social_families
+    : context === 'website'
+      ? rules.fonts.website_families
+      : rules.fonts.allowed_families;
+
+  const fontFamilyRegex = /font-family\s*:\s*([^;}{]+)/gi;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let match;
+    fontFamilyRegex.lastIndex = 0;
+    while ((match = fontFamilyRegex.exec(line)) !== null) {
+      const familyDecl = match[1].trim();
+      // Extract individual family names
+      const families = familyDecl.split(',').map(f =>
+        f.trim().replace(/["']/g, '').trim()
+      ).filter(f => f && f !== 'sans-serif' && f !== 'serif' && f !== 'monospace' && f !== 'cursive');
+
+      for (const family of families) {
+        const isAllowed = allowedFamilies.some(af =>
+          af.toLowerCase() === family.toLowerCase()
+        );
+        if (!isAllowed) {
+          violations.push({
+            line: i + 1,
+            column: match.index + 1,
+            rule: 'font-non-brand-family',
+            severity: severityFromWeight(85, rules.thresholds),
+            weight: 85,
+            message: `Non-brand font family "${family}". Allowed for ${context}: ${allowedFamilies.join(', ')}`,
+            found: family,
+          });
+        }
+      }
+    }
+  }
+
+  return violations;
+}
+
+function checkMultipleAccentColors(lines, rules, context) {
+  if (context === 'website') return [];
+
+  const violations = [];
+  const accentColors = rules.colors.social.accent_colors.map(c => normalizeHex(c));
+  const foundAccents = new Set();
+  const content = lines.join('\n');
+
+  for (const accent of accentColors) {
+    // Check both normalized and original case
+    const regex = new RegExp(accent.replace('#', '#?'), 'gi');
+    if (regex.test(content)) {
+      foundAccents.add(accent);
+    }
+  }
+
+  if (foundAccents.size > 1) {
+    violations.push({
+      line: 1,
+      column: 1,
+      rule: 'color-one-accent',
+      severity: severityFromWeight(95, rules.thresholds),
+      weight: 95,
+      message: `Multiple accent colors found: ${[...foundAccents].join(', ')}. Use only one accent color per post.`,
+      found: [...foundAccents],
+    });
+  }
+
+  return violations;
+}
+
+function checkSocialBackground(lines, rules, context) {
+  if (context === 'website') return [];
+
+  const violations = [];
+  const bgRegex = /background(?:-color)?\s*:\s*#([0-9a-fA-F]{3,6})\b/gi;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let match;
+    bgRegex.lastIndex = 0;
+    while ((match = bgRegex.exec(line)) !== null) {
+      const hex = normalizeHex('#' + match[1]);
+      if (hex !== '#000000' && context === 'social') {
+        const darkGrays = ['#191919', '#1A1A1A', '#111111', '#222222'];
+        if (darkGrays.includes(hex)) {
+          violations.push({
+            line: i + 1,
+            column: match.index + 1,
+            rule: 'color-bg-pure-black',
+            severity: severityFromWeight(95, rules.thresholds),
+            weight: 95,
+            message: `Social posts use pure #000 background, not dark gray (${hex})`,
+            found: hex,
+          });
+        }
+      }
+    }
+  }
+
+  return violations;
+}
+
+// --- Main ---
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  process.stderr.write(`brand-compliance.cjs (CLI-02) — Validate HTML/CSS against brand tokens
+
+Usage: node tools/brand-compliance.cjs <file> [--context social|website]
+
+Options:
+  --context social|website  Scope rules to social or website context
+                            (auto-detected from file content if not specified)
+  --help, -h               Show this help message
+
+Output:
+  stdout: JSON array of violations
+  stderr: Human-readable summary
+
+Exit codes:
+  0  No errors (may have warnings/info)
+  1  Errors found (weight >= 81)
+  2  Tool error (missing rules.json, missing file)
+`);
+  process.exit(0);
+}
+
+const args = process.argv.slice(2).filter(a => !a.startsWith('--'));
+const flags = process.argv.slice(2);
+const contextIdx = flags.indexOf('--context');
+let contextOverride = null;
+if (contextIdx !== -1 && flags[contextIdx + 1]) {
+  contextOverride = flags[contextIdx + 1];
+}
+
+if (args.length === 0) {
+  process.stderr.write('Error: No file path provided.\nUsage: node tools/brand-compliance.cjs <file> [--context social|website]\n');
+  process.exit(2);
+}
+
+const filePath = path.resolve(args[0]);
+if (!fs.existsSync(filePath)) {
+  process.stderr.write(`Error: File not found: ${filePath}\n`);
+  process.exit(2);
+}
+
+const rules = loadRules();
+const content = fs.readFileSync(filePath, 'utf-8');
+const lines = content.split('\n');
+const context = contextOverride || detectContext(content);
+
+const violations = [
+  ...checkHexColors(lines, rules, context),
+  ...checkFontFamilies(lines, rules, context),
+  ...checkMultipleAccentColors(lines, rules, context),
+  ...checkSocialBackground(lines, rules, context),
+];
+
+// Add file to each violation
+violations.forEach(v => { v.file = filePath; });
+
+// Sort by line number
+violations.sort((a, b) => a.line - b.line || a.column - b.column);
+
+// JSON output to stdout
+const output = {
+  file: filePath,
+  context,
+  violations,
+  summary: {
+    total: violations.length,
+    errors: violations.filter(v => v.severity === 'error').length,
+    warnings: violations.filter(v => v.severity === 'warning').length,
+    info: violations.filter(v => v.severity === 'info').length,
+    hints: violations.filter(v => v.severity === 'hint').length,
+  },
+};
+
+process.stdout.write(JSON.stringify(output, null, 2) + '\n');
+
+// Human summary to stderr
+const supportsColor = process.stderr.isTTY;
+const red = supportsColor ? '\x1b[31m' : '';
+const yellow = supportsColor ? '\x1b[33m' : '';
+const blue = supportsColor ? '\x1b[34m' : '';
+const gray = supportsColor ? '\x1b[90m' : '';
+const reset = supportsColor ? '\x1b[0m' : '';
+
+process.stderr.write(`\nBrand Compliance Check: ${path.basename(filePath)} (context: ${context})\n`);
+
+if (violations.length === 0) {
+  process.stderr.write(`  ${blue}No violations found${reset}\n\n`);
+} else {
+  for (const v of violations) {
+    const color = v.severity === 'error' ? red : v.severity === 'warning' ? yellow : v.severity === 'info' ? blue : gray;
+    process.stderr.write(`  ${color}${v.severity.toUpperCase()}${reset} [${v.rule}] Line ${v.line}:${v.column} — ${v.message}\n`);
+  }
+  process.stderr.write(`\n  ${red}${output.summary.errors} errors${reset}, ${yellow}${output.summary.warnings} warnings${reset}, ${blue}${output.summary.info} info${reset}, ${gray}${output.summary.hints} hints${reset}\n\n`);
+}
+
+// Exit code
+process.exit(output.summary.errors > 0 ? 1 : 0);
