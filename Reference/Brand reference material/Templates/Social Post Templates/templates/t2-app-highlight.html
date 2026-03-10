@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @font-face {
+    font-family: 'flfontbold';
+    src: url('../fonts/flfontbold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'NeueHaas';
+    src: url('../fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+  }
+
+  /* ── Headline: left:46 top:167 w:936 font:168.68px lh:0.75 center ── */
+  .headline {
+    position: absolute;
+    left: 46px;
+    top: 167px;
+    width: 988px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 168.68px;
+    line-height: 0.75;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  /* ── Rotated label: left:1026 top:88 w:19 h:224 ── */
+  .category {
+    position: absolute;
+    left: 1026px;
+    top: 88px;
+    width: 19px;
+    height: 224px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .category span {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #ffffff;
+    white-space: nowrap;
+    transform: rotate(90deg);
+    display: block;
+  }
+
+  /* ── Slide number: right-aligned, top:45 ── */
+  /* left-[calc(50%+524px)] with -translate-x-full → right edge at 1064px */
+  .slide-num {
+    position: absolute;
+    right: 16px;
+    top: 45px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #ffffff;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── Phone mockup: left:-1 top:450 w:1105 h:829 ── */
+  .mockup {
+    position: absolute;
+    left: -1px;
+    top: 450px;
+    width: 1105px;
+    height: 829px;
+    overflow: hidden;
+  }
+  .mockup img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  /* ── Accent label: left:742 top:447 rotate:-28.61deg ── */
+  .accent-label {
+    position: absolute;
+    left: 742px;
+    top: 447px;
+    width: 274px;
+    height: 229px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .accent-label p {
+    font-family: 'flfontbold', sans-serif;
+    font-size: 45.715px;
+    line-height: 0.9;
+    color: #44b2ff;
+    transform: rotate(-28.61deg);
+    transform-origin: center center;
+    white-space: pre;
+  }
+
+  /* ── Brand bar: left:35 top:982 ── */
+  .brand-bar {
+    position: absolute;
+    left: 35px;
+    top: 982px;
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    height: 54px;
+    z-index: 10;
+  }
+
+  .brand-bar .flag {
+    width: 53px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .brand-bar .flag img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .brand-bar .divider {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 300;
+    font-size: 46px;
+    color: #ffffff;
+    line-height: 1;
+    width: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 54px;
+  }
+
+  .brand-bar .wc-logo {
+    width: 210px;
+    height: 53.435px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .brand-bar .wc-logo img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Fluid logo: right side, top:994 ── */
+  /* left-[calc(50%+365px)] = 905px with center, w:280 */
+  .fluid-logo {
+    position: absolute;
+    right: 36px;
+    top: 994px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+  }
+  .fluid-logo img {
+    height: 38px;
+    width: auto;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Slide number -->
+  <p class="slide-num">01/12</p>
+
+  <!-- Category label (rotated) -->
+  <div class="category">
+    <span>App Highlight | Share</span>
+  </div>
+
+  <!-- Headline -->
+  <p class="headline">YOUR ONE STOP SHOP FOR REPS</p>
+
+  <!-- Phone mockup (actual asset from Figma MCP) -->
+  <div class="mockup">
+    <img src="http://localhost:3845/assets/50595e933e245334001e53efdeac0e59a8e334bd.png" alt="">
+  </div>
+
+  <!-- Accent label (flfontbold, rotated) -->
+  <div class="accent-label">
+    <p>APP Feature&#10;Highlight Share!</p>
+  </div>
+
+  <!-- Brand bar -->
+  <div class="brand-bar">
+    <div class="flag">
+      <img src="http://localhost:3845/assets/ddac5aaae8ccd1ad6a344af1126f5061f88b9a64.svg" alt="">
+    </div>
+    <div class="divider">|</div>
+    <div class="wc-logo">
+      <img src="http://localhost:3845/assets/db2d5b6db00551641a9bc1504b4bfce2ede91e06.svg" alt="">
+    </div>
+  </div>
+
+  <!-- Fluid logo -->
+  <div class="fluid-logo">
+    <img src="http://localhost:3845/assets/69eb67f5e9a71e4ad0c2f5037d6955ecc28e1953.png" alt="fluid">
+  </div>
+
+</body>
+</html>

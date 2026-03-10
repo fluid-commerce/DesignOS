@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid Live Editor — Edit Your Website Like a Document</title>
+  <style>
+    /* ─── Brand Fonts ─── */
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Light.ttf') format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Mediu.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Black.ttf') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'FLFont'; src: url('../fonts/flfontbold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --blue: #42b1ff;
+      --green: #44b574;
+      --orange: #FF8B58;
+      --purple: #c985e5;
+      --gray-light: rgba(255,255,255,0.45);
+      --gray-dim: rgba(255,255,255,0.25);
+      --gray-muted: rgba(255,255,255,0.35);
+      --card-bg: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+      --font-display: 'NeueHaasDisplay', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-hand: 'FLFont', cursive;
+      --font-body: 'NeueHaasDisplay', Arial, system-ui, sans-serif;
+      --radius-sm: 6px;
+      --radius-md: 11px;
+      --radius-lg: 17px;
+    }
+
+    @page { size: letter; margin: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--black);
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.45in 0.55in 0.35in;
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page > *:not(.brush):not(.circle-sketch):not(.side-label) {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ─── BRUSHSTROKE TEXTURES ─── */
+    .brush {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: screen;
+      object-fit: contain;
+    }
+
+    /* ─── SIDE LABEL ─── */
+    .side-label {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%) rotate(90deg);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      white-space: nowrap;
+      z-index: 5;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25in;
+      padding-bottom: 0.1in;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-area img { height: 22px; width: auto; }
+    .logo-area .separator { color: rgba(255,255,255,0.2); font-size: 1rem; font-weight: 300; }
+    .logo-area .wc-logo { height: 18px; }
+
+    .header-tag {
+      font-family: var(--font-hand);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    /* ─── HERO ─── */
+    .hero { margin-bottom: 0.22in; }
+
+    .hero-eyebrow {
+      font-family: var(--font-hand);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 36px;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      color: var(--white);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 .accent {
+      color: var(--blue);
+    }
+
+    .hero-sub {
+      font-weight: 300;
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: var(--gray-light);
+      max-width: 5.8in;
+    }
+
+    .hero-sub strong {
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    /* ─── STAT STRIP ─── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 0.2in;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-value.blue { color: var(--blue); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.orange { color: var(--orange); }
+
+    .stat-label {
+      font-size: 8.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-dim);
+      line-height: 1.35;
+    }
+
+    /* ─── TWO-COLUMN BODY ─── */
+    .body-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.22in;
+      margin-bottom: 0.15in;
+    }
+
+    .section-label {
+      font-family: var(--font-hand);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .section-label.blue { color: var(--blue); }
+    .section-label.orange { color: var(--orange); }
+    .section-label.green { color: var(--green); }
+    .section-label.purple { color: var(--purple); }
+
+    /* ─── PAIN LIST ─── */
+    .pain-list { display: flex; flex-direction: column; gap: 7px; }
+
+    .pain-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 7px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+    }
+
+    .pain-icon { font-size: 13px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+
+    .pain-text {
+      font-weight: 300;
+      font-size: 10px;
+      line-height: 1.5;
+      color: var(--gray-light);
+    }
+
+    .pain-text strong { font-weight: 700; color: var(--orange); }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .compare-header {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      padding: 7px 14px;
+      background: rgba(255,255,255,0.04);
+      font-weight: 700;
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gray-dim);
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      align-items: center;
+      padding: 6px 14px;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 10px;
+    }
+
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row .label { color: var(--gray-light); font-weight: 300; }
+    .compare-row .old { color: var(--orange); font-weight: 500; font-size: 9px; }
+    .compare-row .new { color: var(--blue); font-weight: 700; }
+
+    .table-note {
+      font-size: 8px;
+      color: var(--gray-dim);
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    /* ─── FEATURES ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 9px; }
+
+    .feature { display: flex; gap: 10px; align-items: flex-start; }
+
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .feature-icon.blue { background: rgba(66,177,255,0.12); color: var(--blue); border: 1.5px solid rgba(66,177,255,0.4); }
+    .feature-icon.green { background: rgba(68,181,116,0.12); color: var(--green); border: 1.5px solid rgba(68,181,116,0.4); }
+    .feature-icon.purple { background: rgba(201,133,229,0.12); color: var(--purple); border: 1.5px solid rgba(201,133,229,0.4); }
+    .feature-icon.orange { background: rgba(255,139,88,0.12); color: var(--orange); border: 1.5px solid rgba(255,139,88,0.4); }
+
+    .feature-name {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+
+    .feature-desc {
+      font-weight: 300;
+      font-size: 9.5px;
+      line-height: 1.5;
+      color: var(--gray-light);
+    }
+
+    /* ─── PULLQUOTE ─── */
+    .pullquote {
+      margin-bottom: 0.14in;
+      padding: 0 0.05in;
+      position: relative;
+    }
+
+    .pullquote-mark {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 60px;
+      line-height: 0.6;
+      color: var(--blue);
+      opacity: 0.3;
+      position: absolute;
+      top: -4px;
+      left: -4px;
+    }
+
+    .pullquote p {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--gray-light);
+      padding-left: 28px;
+    }
+
+    .pullquote p strong {
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .pullquote .attribution {
+      font-family: var(--font-hand);
+      font-size: 10px;
+      color: var(--blue);
+      padding-left: 28px;
+      margin-top: 4px;
+    }
+
+    /* ─── STEPS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 0.14in;
+    }
+
+    .step {
+      text-align: center;
+      padding: 10px 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .step-num-1 { background: rgba(66,177,255,0.12); color: var(--blue); border: 1.5px solid rgba(66,177,255,0.4); }
+    .step-num-2 { background: rgba(68,181,116,0.12); color: var(--green); border: 1.5px solid rgba(68,181,116,0.4); }
+    .step-num-3 { background: rgba(201,133,229,0.12); color: var(--purple); border: 1.5px solid rgba(201,133,229,0.4); }
+    .step-num-4 { background: rgba(255,139,88,0.12); color: var(--orange); border: 1.5px solid rgba(255,139,88,0.4); }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .step-desc {
+      font-size: 8.5px;
+      line-height: 1.4;
+      color: var(--gray-dim);
+      font-weight: 300;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.1in;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-left img { height: 16px; width: auto; }
+    .footer-left .sep { color: rgba(255,255,255,0.2); font-weight: 300; font-size: 13px; }
+    .footer-left .sub {
+      font-size: 8px;
+      color: var(--gray-dim);
+      font-weight: 300;
+      margin-top: 4px;
+    }
+
+    .footer-cta { text-align: right; }
+    .footer-cta-label {
+      font-size: 9px;
+      color: var(--gray-light);
+      font-weight: 300;
+      margin-bottom: 5px;
+    }
+
+    .footer-cta-btn {
+      display: inline-block;
+      padding: 7px 20px;
+      border-radius: 9999px;
+      background: var(--blue);
+      color: var(--white);
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .footer-dots img { height: 20px; width: auto; }
+
+    @media print {
+      body { background: var(--black); }
+      .page { width: 100%; min-height: 100vh; padding: 0.4in; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- BRUSHSTROKE TEXTURES — varied from brand kit -->
+    <!-- 03: tall vertical left edge for dramatic framing -->
+    <img class="brush" src="../../Logos, textures/brushstroke03.png" alt="" style="top: -30px; left: -25px; height: 65%; width: auto; opacity: 0.18;">
+    <!-- 07: diagonal sweep upper-right -->
+    <img class="brush" src="../../Logos, textures/brushstroke07.png" alt="" style="top: -20px; right: -40px; width: 380px; opacity: 0.14; transform: rotate(-5deg);">
+    <!-- 06: wide horizontal bottom -->
+    <img class="brush" src="../../Logos, textures/brushstroke06.png" alt="" style="bottom: -20px; right: -30px; width: 450px; opacity: 0.10; transform: rotate(3deg);">
+
+    <!-- SIDE LABEL -->
+    <div class="side-label">Fluid Live Editor</div>
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo-area">
+        <img src="../../Logos, textures/We-Commerce Flags.png" alt="Fluid" />
+        <span class="separator">|</span>
+        <img src="../../Logos, textures/We-Commerce Logos.png" alt="We-Commerce" class="wc-logo" />
+      </div>
+      <div class="header-tag">Live Website Editor</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">The bottleneck you stopped questioning</div>
+      <h1>Your team can use<br>Microsoft Word.<br>They should be able to<br><span class="accent">edit the website.</span></h1>
+      <p class="hero-sub">Every time marketing needs a page, they file a ticket. The page gets built eventually — but <strong>the moment has passed.</strong> You're not slow because your team is slow. You're slow because your tools require developers for everything.</p>
+    </div>
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="stat-value orange">90 days</div>
+        <div class="stat-label">Avg platform<br>implementation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value blue">Minutes</div>
+        <div class="stat-label">Time to launch a page<br>with Live Editor</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value green">0</div>
+        <div class="stat-label">Dev tickets required<br>to change your site</div>
+      </div>
+    </div>
+
+    <!-- TWO-COLUMN BODY -->
+    <div class="body-grid">
+
+      <!-- LEFT: The Cost of Waiting -->
+      <div>
+        <div class="section-label orange">What IT Dependency Costs You</div>
+
+        <div class="compare-table">
+          <div class="compare-header">
+            <span>Task</span><span>Traditional</span><span>Live Editor</span>
+          </div>
+          <div class="compare-row"><span class="label">New landing page</span><span class="old">2-4 weeks</span><span class="new">15 minutes</span></div>
+          <div class="compare-row"><span class="label">Update homepage hero</span><span class="old">Dev ticket + QA</span><span class="new">Drag & drop</span></div>
+          <div class="compare-row"><span class="label">Launch campaign page</span><span class="old">Sprint planning</span><span class="new">Same day</span></div>
+          <div class="compare-row"><span class="label">Fix a typo on the site</span><span class="old">PR + deploy</span><span class="new">Click. Type. Done.</span></div>
+          <div class="compare-row"><span class="label">Rollback a mistake</span><span class="old">Git revert + deploy</span><span class="new">One click</span></div>
+        </div>
+        <p class="table-note">Based on typical direct selling company workflows.</p>
+      </div>
+
+      <!-- RIGHT: How Live Editor Works -->
+      <div>
+        <div class="section-label blue">How Live Editor Works</div>
+        <div class="feature-list">
+          <div class="feature">
+            <div class="feature-icon blue">&#x2726;</div>
+            <div>
+              <div class="feature-name">Drag-and-Drop Everything</div>
+              <div class="feature-desc">Pre-built, high-converting sections you arrange visually. No code. No markup. If you can drag a file into a folder, you can build a page.</div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon green">&#x21BB;</div>
+            <div>
+              <div class="feature-name">Instant Versioning & Rollback</div>
+              <div class="feature-desc">Every change is saved automatically. Made a mistake? Roll back to any previous version with one click. No deployment pipelines.</div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon purple">&#x2750;</div>
+            <div>
+              <div class="feature-name">Reusable Templates & Sections</div>
+              <div class="feature-desc">Build once, reuse everywhere. Save sections as templates your entire team can access. Campaign pages, product launches, event pages — all on-brand.</div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon orange">&#x26A1;</div>
+            <div>
+              <div class="feature-name">Live Preview. Publish Instantly.</div>
+              <div class="feature-desc">See exactly what your customers will see before you publish. Then push it live — immediately. No staging environments. No waiting for deploys.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PULLQUOTE -->
+    <div class="pullquote">
+      <div class="pullquote-mark">&ldquo;</div>
+      <p><strong>I get it now. You guys just had the cojones to build all the pieces direct sales needs in one system.</strong></p>
+      <div class="attribution">— Dan England, VP Payments + Risk</div>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step">
+        <div class="step-num step-num-1">1</div>
+        <div class="step-title">Blitz Week</div>
+        <div class="step-desc">Your site is built and configured during a 4-day intensive at Fluid HQ.</div>
+      </div>
+      <div class="step">
+        <div class="step-num step-num-2">2</div>
+        <div class="step-title">Team Training</div>
+        <div class="step-desc">Marketing and ops learn the editor in hours — not weeks. It's that intuitive.</div>
+      </div>
+      <div class="step">
+        <div class="step-num step-num-3">3</div>
+        <div class="step-title">Launch Pages</div>
+        <div class="step-desc">Start building and publishing pages the same day. No dev handoff required.</div>
+      </div>
+      <div class="step">
+        <div class="step-num step-num-4">4</div>
+        <div class="step-title">Never Wait Again</div>
+        <div class="step-desc">Every update, every campaign, every page — on your timeline. Not IT's.</div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div>
+        <div class="footer-left">
+          <img src="../../Logos, textures/We-Commerce Flags.png" alt="Fluid" />
+          <span class="sep">|</span>
+          <img src="../../Logos, textures/We-Commerce Logos.png" alt="We-Commerce" />
+        </div>
+        <div class="footer-left sub">Part of the We-Commerce platform. Connected to Fair Share, Payments, Mobile, and Sync.</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 24px;">
+        <div class="footer-cta">
+          <div class="footer-cta-label">See how fast your team can move without dev tickets.</div>
+          <span class="footer-cta-btn">Book a Demo &rarr;</span>
+        </div>
+        <div class="footer-dots">
+          <img src="../../Logos, textures/Frame 3.png" alt="fluid" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

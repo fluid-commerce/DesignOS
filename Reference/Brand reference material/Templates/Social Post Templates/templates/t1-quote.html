@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @font-face {
+    font-family: 'flfontbold';
+    src: url('../fonts/flfontbold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'NeueHaas';
+    src: url('../fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+  }
+
+  /* ── Photo: left:35 top:46 w:353 h:439 ── */
+  .photo {
+    position: absolute;
+    left: 35px;
+    top: 46px;
+    width: 353px;
+    height: 439px;
+    overflow: hidden;
+  }
+  .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  /* ── Name: left:411 top:46 font:108.685px lh:0.8 white ── */
+  .name {
+    position: absolute;
+    left: 411px;
+    top: 46px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 108.685px;
+    line-height: 0.8;
+    color: #ffffff;
+    white-space: pre;
+  }
+
+  /* ── Title: left:411 top:217 font:68px flfontbold blue ── */
+  .title {
+    position: absolute;
+    left: 411px;
+    top: 217px;
+    font-family: 'flfontbold', sans-serif;
+    font-size: 68px;
+    line-height: 1;
+    color: #44b2ff;
+    white-space: pre;
+  }
+
+  /* ── Handle: left:411 top:353 font:36px flfontbold blue ── */
+  .handle {
+    position: absolute;
+    left: 411px;
+    top: 353px;
+    font-family: 'flfontbold', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    color: #44b2ff;
+    white-space: nowrap;
+  }
+
+  /* ── Category label: left:1026 top:45 w:19 h:193 rotated 90° ── */
+  .category {
+    position: absolute;
+    left: 1026px;
+    top: 45px;
+    width: 19px;
+    height: 193px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .category span {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #ffffff;
+    white-space: nowrap;
+    transform: rotate(90deg);
+    display: block;
+  }
+
+  /* ── Quote: left:57 top:552 w:921 font:56px lh:1 hanging indent ── */
+  .quote {
+    position: absolute;
+    left: 57px;
+    top: 552px;
+    width: 921px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 1;
+    color: #ffffff;
+    white-space: pre-wrap;
+    text-indent: -25.2px;
+    padding-left: 25.2px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Photo (actual asset from Figma MCP) -->
+  <div class="photo">
+    <img src="http://localhost:3845/assets/7a23add539199eeac0a3c2e5663b3a91883656cc.png" alt="">
+  </div>
+
+  <!-- Name -->
+  <p class="name">Kohlmann&#10;Kearley</p>
+
+  <!-- Title -->
+  <p class="title">Design &amp; Solutions&#10;Architect</p>
+
+  <!-- Handle -->
+  <p class="handle">@ NEumi</p>
+
+  <!-- Category label (rotated) -->
+  <div class="category">
+    <span>Client Testimonial</span>
+  </div>
+
+  <!-- Quote -->
+  <p class="quote">"My favorite spicy feedback from this week:&#10;&#10;'I get it now; you guys just had the cojones to build all the pieces direct sales needs in one system.'"</p>
+
+</body>
+</html>

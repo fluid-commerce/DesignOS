@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fluid Payments — Acceptance Rate (Variation B)</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Accent: BLUE only — Centered manifesto with watermark */
+    .manifesto-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+      flex: 1;
+    }
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 360px;
+      letter-spacing: -0.06em;
+      color: rgba(255,255,255,0.02);
+      white-space: nowrap;
+      z-index: 0;
+      pointer-events: none;
+      line-height: 0.8;
+    }
+    .manifesto-rule {
+      width: 50px;
+      height: 2px;
+      background: var(--blue);
+      opacity: 0.5;
+      margin: 28px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card card-ig">
+    <!-- Brushstrokes: 03 tall left (curtain) + 04 tall right (curtain) -->
+    <img class="brush" src="../../Logos, textures/brushstroke03.png" alt="" style="top: -30px; left: -45px; height: 110%; width: auto; opacity: 0.18;">
+    <img class="brush" src="../../Logos, textures/brushstroke04.png" alt="" style="top: -30px; right: -45px; height: 110%; width: auto; opacity: 0.16;">
+
+    <div class="side-label">Fluid Payments</div>
+    <div class="slide-num">01/05</div>
+
+    <!-- Watermark background -->
+    <div class="watermark">82%</div>
+
+    <div class="manifesto-center">
+      <div class="sub-text sub-text-md text-blue" style="margin-bottom: 32px;">An honest question</div>
+
+      <div class="headline headline-ig" style="text-align: center; margin-bottom: 0;">
+        You know<br>
+        your revenue.<br>
+        Do you know<br>
+        your <span class="text-blue">acceptance<br>rate?</span>
+      </div>
+
+      <div class="manifesto-rule"></div>
+
+      <div class="body-copy" style="text-align: center; max-width: 620px; margin-bottom: 36px;">
+        The difference between 82% and 94% isn't a rounding error. It's revenue you already earned and <strong>silently lost at the payment processor.</strong>
+      </div>
+
+      <div class="sub-text sub-text-lg text-blue">Fluid recovers what others leave behind.</div>
+    </div>
+
+    <div class="footer footer-ig">
+      <div class="footer-left">
+        <img src="../../Logos, textures/We-Commerce Flags.png" alt="Fluid" style="height: 16px;">
+        <span class="sep">|</span>
+        <img src="../../Logos, textures/We-Commerce Logos.png" alt="We-Commerce" style="height: 14px;">
+      </div>
+      <div class="footer-right">
+        <img src="../../Logos, textures/Frame 3.png" alt="fluid" style="height: 22px;">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

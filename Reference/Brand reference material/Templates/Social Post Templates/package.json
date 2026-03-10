@@ -1,0 +1,7 @@
+{
+  "name": "template-library-preview",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx serve . -p 4200 --no-clipboard"
+  }
+}
