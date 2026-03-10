@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid Brand Pattern Library</title>
+  <style>
+    /* ============================================================
+       FONT FACES
+       ============================================================ */
+    @font-face {
+      font-family: 'flfontbold';
+      src: url('../assets/fonts/flfontbold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'NeueHaas';
+      src: url('../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 100 900;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Inter';
+      src: url('../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 100 900;
+      font-style: normal;
+    }
+
+    /* ============================================================
+       BASE STYLES
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', 'NeueHaas', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       LAYOUT
+       ============================================================ */
+    .page-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Nav */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: #0a0a0a;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      padding: 32px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .sidebar h2 {
+      font-family: 'flfontbold', cursive;
+      font-size: 20px;
+      padding: 0 24px 24px;
+      color: #FF8B58;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 16px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 8px 24px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      transition: color 0.15s, background 0.15s;
+    }
+    .sidebar a:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.03);
+    }
+    .sidebar .nav-group {
+      margin-bottom: 8px;
+    }
+    .sidebar .nav-group-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.25);
+      padding: 16px 24px 4px;
+    }
+
+    /* Main Content */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 48px 64px 96px;
+      max-width: 1200px;
+    }
+
+    /* ============================================================
+       SECTION STYLES
+       ============================================================ */
+    .section {
+      margin-bottom: 80px;
+      padding-top: 32px;
+    }
+    .section-title {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .section-subtitle {
+      color: rgba(255,255,255,0.45);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+    .subsection {
+      margin-bottom: 48px;
+    }
+    .subsection-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .weight-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 600;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .weight-critical { background: rgba(255,59,48,0.2); color: #ff3b30; }
+    .weight-strong { background: rgba(255,139,88,0.2); color: #FF8B58; }
+    .weight-flexible { background: rgba(66,177,255,0.2); color: #42b1ff; }
+    .weight-optional { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+
+    /* ============================================================
+       CODE BLOCKS
+       ============================================================ */
+    .code-block {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 20px;
+      margin: 16px 0;
+      overflow-x: auto;
+      position: relative;
+    }
+    .code-block pre {
+      margin: 0;
+      font-family: 'Space Mono', 'SF Mono', 'Menlo', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.75);
+      white-space: pre;
+    }
+    .code-block .code-label {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ============================================================
+       COMPONENT STYLES
+       ============================================================ */
+
+    /* Color swatches */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .swatch {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .swatch-color {
+      height: 80px;
+    }
+    .swatch-info {
+      padding: 12px;
+      background: #111;
+    }
+    .swatch-hex {
+      font-family: monospace;
+      font-size: 13px;
+      color: #fff;
+    }
+    .swatch-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+    }
+
+    /* Typography samples */
+    .type-sample {
+      margin-bottom: 24px;
+      padding: 24px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+    }
+    .type-sample-meta {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 8px;
+      font-family: monospace;
+    }
+
+    /* Asset previews */
+    .asset-preview {
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .asset-preview img {
+      max-width: 100%;
+      height: auto;
+    }
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    /* Wireframe boxes */
+    .wireframe {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 24px;
+      min-height: 200px;
+      position: relative;
+    }
+    .wireframe-element {
+      background: rgba(255,255,255,0.06);
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .wireframe-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    /* Footer demo */
+    .footer-demo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 68px;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+    }
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-left img { height: 20px; }
+    .footer-separator {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.15);
+    }
+    .footer-right img { height: 24px; }
+
+    /* Layout grid */
+    .layout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .layout-card {
+      background: #0a0a0a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .layout-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .layout-card-header h4 {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .layout-card-body {
+      padding: 20px;
+    }
+
+    /* Opacity demo */
+    .opacity-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .opacity-sample {
+      width: 60px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+
+    /* Table */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .info-table th, .info-table td {
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .info-table th {
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .info-table td { color: rgba(255,255,255,0.75); }
+    .info-table code {
+      font-family: monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 24px; }
+    }
+
+    /* Details / collapsible */
+    details {
+      margin: 12px 0;
+    }
+    details summary {
+      cursor: pointer;
+      font-size: 13px;
+      color: #42b1ff;
+      padding: 8px 0;
+    }
+    details summary:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- ============================================================
+       SIDEBAR NAV
+       ============================================================ -->
+  <nav class="sidebar">
+    <h2>Fluid Patterns</h2>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Visual Tokens</div>
+      <a href="#colors">Color Palette</a>
+      <a href="#typography">Typography</a>
+      <a href="#opacity">Opacity Patterns</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Brand Assets</div>
+      <a href="#brushstrokes">Brushstroke Textures</a>
+      <a href="#circles">Circle Sketch Elements</a>
+      <a href="#footer">Footer Structure</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Patterns</div>
+      <a href="#flfont">FLFont Taglines</a>
+      <a href="#layouts">Layout Archetypes</a>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main class="main">
+
+    <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.03em;">
+      Brand Pattern Library
+    </h1>
+    <p style="color: rgba(255,255,255,0.45); font-size: 16px; margin-bottom: 64px;">
+      Visual reference and copy-pasteable code for every Fluid brand building block.<br>
+      For agents: load the code snippet, adapt it, ship it.
+    </p>
+
+    <!-- ============================================================
+         1. COLOR PALETTE
+         ============================================================ -->
+    <div class="section" id="colors">
+      <h2 class="section-title">Color Palette</h2>
+      <p class="section-subtitle">Two distinct palettes: Social and Website. Never cross-pollinate.</p>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Social Post Accent Colors <span class="weight-badge weight-critical">Weight: 95</span></h3>
+        <p style="color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 16px;">One accent color per post. Pick based on content mood.</p>
+
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-color" style="background: #FF8B58;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#FF8B58</div>
+              <div class="swatch-label">Orange — Urgency, pain, warning</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #42b1ff;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#42b1ff</div>
+              <div class="swatch-label">Blue — Technical, intelligence, trust</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #44b574;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#44b574</div>
+              <div class="swatch-label">Green — Success, solution, proof</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #c985e5;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#c985e5</div>
+              <div class="swatch-label">Purple — Premium, financial, analytical</div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Copy: Social accent color CSS</summary>
+          <div class="code-block">
+            <span class="code-label">CSS</span>
+<pre>/* Social Post Accent Colors — pick ONE per post */
+.accent-orange  { color: #FF8B58; }  /* Urgency, pain, warning */
+.accent-blue    { color: #42b1ff; }  /* Technical, intelligence, trust */
+.accent-green   { color: #44b574; }  /* Success, solution, proof */
+.accent-purple  { color: #c985e5; }  /* Premium, financial, analytical */</pre>
+          </div>
+        </details>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Social Backgrounds &amp; Text <span class="weight-badge weight-critical">Weight: 95</span></h3>
+
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-color" style="background: #000; border: 1px solid rgba(255,255,255,0.1);"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#000000</div>
+              <div class="swatch-label">Background — pure black, NOT dark gray</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #fff;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#ffffff</div>
+              <div class="swatch-label">Primary text</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="font-size: 14px; margin: 16px 0 8px; color: rgba(255,255,255,0.7);">RGBA Overlay Patterns</h4>
+        <div class="opacity-row">
+          <div class="opacity-sample" style="background: rgba(255,255,255,0.45);"></div>
+          <span style="font-size: 13px;"><code>rgba(255,255,255,0.45)</code> — Body copy</span>
+          <span class="weight-badge weight-critical">85</span>
+        </div>
+        <div class="opacity-row">
+          <div class="opacity-sample" style="background: rgba(255,255,255,0.25);"></div>
+          <span style="font-size: 13px;"><code>rgba(255,255,255,0.25)</code> — Dimmed/secondary</span>
+          <span class="weight-badge weight-strong">80</span>
+        </div>
+        <div class="opacity-row">
+          <div class="opacity-sample" style="background: rgba(255,255,255,0.03);"></div>
+          <span style="font-size: 13px;"><code>rgba(255,255,255,0.03)</code> — Card backgrounds</span>
+          <span class="weight-badge weight-strong">80</span>
+        </div>
+        <div class="opacity-row">
+          <div class="opacity-sample" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06);"></div>
+          <span style="font-size: 13px;"><code>rgba(255,255,255,0.06)</code> — Card borders</span>
+          <span class="weight-badge weight-strong">75</span>
+        </div>
+
+        <details>
+          <summary>Copy: Social background and text CSS</summary>
+          <div class="code-block">
+            <span class="code-label">CSS</span>
+<pre>/* Social Post Base */
+body {
+  background: #000;         /* Weight: 95 — pure black, NEVER #191919 */
+  color: #ffffff;            /* Weight: 90 — primary text */
+}
+.body-copy    { color: rgba(255,255,255,0.45); }  /* Weight: 85 */
+.dimmed       { color: rgba(255,255,255,0.25); }  /* Weight: 80 */
+.card         { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }  /* Weight: 80/75 */</pre>
+          </div>
+        </details>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Website Palette <span class="weight-badge weight-critical">Weight: 90</span></h3>
+
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-color" style="background: #050505; border: 1px solid rgba(255,255,255,0.1);"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#050505</div>
+              <div class="swatch-label">Page background</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #111;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#111 / #161616</div>
+              <div class="swatch-label">Section backgrounds</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #f5f0e8;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#f5f0e8</div>
+              <div class="swatch-label">Warm off-white body text</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #FF5500;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#FF5500</div>
+              <div class="swatch-label">Website Orange — deeper than social</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #00AAFF;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#00AAFF</div>
+              <div class="swatch-label">Website Blue — navigation, links</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #00E87A;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#00E87A</div>
+              <div class="swatch-label">Website Green — success</div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Copy: Website color CSS variables</summary>
+          <div class="code-block">
+            <span class="code-label">CSS</span>
+<pre>/* Website Palette — use CSS variables, never hardcode */
+:root {
+  --clr-bg: #050505;
+  --clr-bg-section: #111;
+  --clr-text: #f5f0e8;
+  --clr-accent: #FF5500;
+  --clr-blue: #00AAFF;
+  --clr-green: #00E87A;
+  --clr-text-secondary: #888;
+  --clr-border: #1a1a1a;
+}</pre>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         2. TYPOGRAPHY
+         ============================================================ -->
+    <div class="section" id="typography">
+      <h2 class="section-title">Typography</h2>
+      <p class="section-subtitle">Social = NeueHaasDisplay + FLFont. Website = Syne + DM Sans + Space Mono. Never cross-pollinate.</p>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Font Mapping</h3>
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th>Display Name</th>
+              <th>CSS font-family</th>
+              <th>File</th>
+              <th>Context</th>
+              <th>Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FLFont Bold</td>
+              <td><code>flfontbold</code></td>
+              <td><code>assets/fonts/flfontbold.ttf</code></td>
+              <td>Social — taglines</td>
+              <td><span class="weight-badge weight-critical">95</span></td>
+            </tr>
+            <tr>
+              <td>NeueHaasDisplay</td>
+              <td><code>NeueHaas</code></td>
+              <td><code>assets/fonts/Inter-VariableFont.ttf</code> (proxy)</td>
+              <td>Social — headlines, body</td>
+              <td><span class="weight-badge weight-critical">90</span></td>
+            </tr>
+            <tr>
+              <td>Inter</td>
+              <td><code>Inter</code></td>
+              <td><code>assets/fonts/Inter-VariableFont.ttf</code></td>
+              <td>Body, UI text</td>
+              <td><span class="weight-badge weight-strong">80</span></td>
+            </tr>
+            <tr>
+              <td>Syne</td>
+              <td><code>Syne</code></td>
+              <td>(web font)</td>
+              <td>Website — display/headline</td>
+              <td><span class="weight-badge weight-critical">90</span></td>
+            </tr>
+            <tr>
+              <td>DM Sans</td>
+              <td><code>DM Sans</code></td>
+              <td>(web font)</td>
+              <td>Website — body copy</td>
+              <td><span class="weight-badge weight-strong">80</span></td>
+            </tr>
+            <tr>
+              <td>Space Mono</td>
+              <td><code>Space Mono</code></td>
+              <td>(web font)</td>
+              <td>Website — labels, metadata</td>
+              <td><span class="weight-badge weight-strong">75</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">FLFont Bold Samples</h3>
+
+        <div class="type-sample">
+          <p style="font-family: 'flfontbold', cursive; font-size: 32px; color: #FF8B58;">Every transaction matters.</p>
+          <p class="type-sample-meta">FLFont Bold / 32px / accent orange — Instagram tagline</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'flfontbold', cursive; font-size: 26px; color: #42b1ff;">One connection. Zero 3am calls.</p>
+          <p class="type-sample-meta">FLFont Bold / 26px / accent blue — Instagram tagline (smaller)</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'flfontbold', cursive; font-size: 22px; color: #44b574;">Every transaction gets its best shot.</p>
+          <p class="type-sample-meta">FLFont Bold / 22px / accent green — LinkedIn tagline</p>
+        </div>
+
+        <details>
+          <summary>Copy: FLFont @font-face and usage</summary>
+          <div class="code-block">
+            <span class="code-label">CSS</span>
+<pre>@font-face {
+  font-family: 'flfontbold';
+  src: url('assets/fonts/flfontbold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Usage — taglines and emphasis ONLY */
+.flfont-tagline {
+  font-family: 'flfontbold', cursive;
+  font-size: 26px;       /* Instagram: 26-32px, LinkedIn: 20-24px */
+  color: #FF8B58;         /* Replace with post accent color */
+  line-height: 1.3;
+}</pre>
+          </div>
+        </details>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">NeueHaasDisplay / Inter Samples (Social)</h3>
+
+        <div class="type-sample">
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 82px; line-height: 0.95; letter-spacing: -0.02em;">When a transaction fails</p>
+          <p class="type-sample-meta">NeueHaasDisplay Black 900 / 82px / Instagram headline</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 52px; line-height: 1.0;">Half your transactions</p>
+          <p class="type-sample-meta">NeueHaasDisplay Black 900 / 52px / LinkedIn headline</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 300; font-size: 22px; color: rgba(255,255,255,0.45); line-height: 1.5;">The order went through. It never reached the commission engine. The rep who closed the deal? They'll never know.</p>
+          <p class="type-sample-meta">NeueHaasDisplay Light 300 / 22px / Body copy / rgba(255,255,255,0.45)</p>
+        </div>
+
+        <details>
+          <summary>Copy: NeueHaas @font-face and typography scale</summary>
+          <div class="code-block">
+            <span class="code-label">CSS</span>
+<pre>@font-face {
+  font-family: 'NeueHaas';
+  src: url('assets/fonts/Inter-VariableFont.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+/* Social Typography Scale — Instagram */
+.headline-ig {
+  font-family: 'NeueHaas', sans-serif;
+  font-weight: 900;
+  font-size: 82px;       /* Range: 82-100px */
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+.headline-accent {
+  color: #FF8B58;         /* Replace with post accent color */
+}
+.body-copy {
+  font-family: 'NeueHaas', sans-serif;
+  font-weight: 300;
+  font-size: 22px;       /* Range: 22-24px */
+  line-height: 1.5;
+  color: rgba(255,255,255,0.45);
+}
+.side-label {
+  font-family: 'NeueHaas', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.35;
+  writing-mode: vertical-rl;
+}
+.slide-number {
+  font-family: 'NeueHaas', sans-serif;
+  font-size: 13px;
+  opacity: 0.40;
+}
+
+/* Social Typography Scale — LinkedIn */
+.headline-li {
+  font-family: 'NeueHaas', sans-serif;
+  font-weight: 900;
+  font-size: 52px;       /* Range: 52-62px */
+  line-height: 1.0;
+  color: #ffffff;
+}
+.body-copy-li {
+  font-family: 'NeueHaas', sans-serif;
+  font-weight: 300;
+  font-size: 16px;       /* Range: 16-18px */
+  color: rgba(255,255,255,0.45);
+}</pre>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         OPACITY PATTERNS
+         ============================================================ -->
+    <div class="section" id="opacity">
+      <h2 class="section-title">Opacity Patterns</h2>
+      <p class="section-subtitle">Consistent opacity values across all brand elements.</p>
+
+      <table class="info-table">
+        <thead>
+          <tr><th>Element</th><th>Opacity</th><th>Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Brushstrokes</td><td><code>0.10 - 0.25</code></td><td><span class="weight-badge weight-critical">90</span></td></tr>
+          <tr><td>Circle sketches</td><td><code>0.5 - 0.7</code></td><td><span class="weight-badge weight-critical">85</span></td></tr>
+          <tr><td>Side labels</td><td><code>~0.35</code></td><td><span class="weight-badge weight-strong">70</span></td></tr>
+          <tr><td>Slide numbers</td><td><code>~0.40</code></td><td><span class="weight-badge weight-strong">70</span></td></tr>
+          <tr><td>Ghost background text</td><td><code>0.04 - 0.06</code></td><td><span class="weight-badge weight-strong">65</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============================================================
+         3. BRUSHSTROKE TEXTURES
+         ============================================================ -->
+    <div class="section" id="brushstrokes">
+      <h2 class="section-title">Brushstroke Textures</h2>
+      <p class="section-subtitle">7 brand brushstrokes. Use <code>mix-blend-mode: screen</code> and opacity 0.10-0.25. Always bleed off canvas edges.</p>
+
+      <div class="asset-grid">
+        <!-- Brushstroke 1: Diagonal Sweep -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-diagonal-sweep.png" alt="Diagonal Sweep" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-diagonal-sweep</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Diagonal sweep from lower-left. Dynamic upward motion.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+
+        <!-- Brushstroke 2: Compact Burst -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-compact-burst.png" alt="Compact Burst" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-compact-burst</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Compact burst, tight horizontal strokes. Accent energy.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+
+        <!-- Brushstroke 3: Vertical Double Block -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-vertical-double-block.png" alt="Vertical Double Block" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-vertical-double-block</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Tall vertical with two stacked blocks. Dramatic edge framing.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+
+        <!-- Brushstroke 4: Vertical Edge Sweep -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-vertical-edge-sweep.png" alt="Vertical Edge Sweep" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-vertical-edge-sweep</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Tall vertical with upper sweep and corner glow. Edge framing.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+
+        <!-- Brushstroke 5: Horizontal Wide -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-horizontal-wide.png" alt="Horizontal Wide" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-horizontal-wide</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Wide horizontal with diagonal streaks. Grounding, horizon feel.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+
+        <!-- Brushstroke 6: Bottom Grounding -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-bottom-grounding.png" alt="Bottom Grounding" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-bottom-grounding</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Wide horizontal, bottom-positioned grounding texture.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+
+        <!-- Brushstroke 7: Diagonal Upward -->
+        <div>
+          <div class="asset-preview">
+            <img src="../assets/brushstrokes/brushstroke-diagonal-upward.png" alt="Diagonal Upward" style="mix-blend-mode: screen; opacity: 0.2;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">brushstroke-diagonal-upward</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Strong diagonal sweep to upper-right. Dynamic upward motion.</p>
+          <span class="weight-badge weight-strong">Weight: 75</span>
+        </div>
+      </div>
+
+      <details>
+        <summary>Copy: Brushstroke CSS usage pattern</summary>
+        <div class="code-block">
+          <span class="code-label">CSS + HTML</span>
+<pre>/* Brushstroke Usage Rules:
+   - ALWAYS use mix-blend-mode: screen (Weight: 95)
+   - Opacity: 0.10-0.25 (Weight: 90)
+   - Edges must bleed off canvas, never cut mid-frame (Weight: 85)
+   - 2 per post standard, 3 max for manifesto (Weight: 80)
+   - Slight rotation for organic feel (Weight: 50)
+*/
+
+/* Brushstroke positioning pattern */
+.brushstroke {
+  position: absolute;
+  mix-blend-mode: screen;
+  opacity: 0.15;          /* 0.10-0.15 subtle, 0.20-0.25 dramatic */
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top-right placement (bleed off edge) */
+.brushstroke-top-right {
+  top: -20px;
+  right: -30px;
+  width: 500px;
+  transform: rotate(5deg);
+}
+
+/* Bottom-left placement (bleed off edge) */
+.brushstroke-bottom-left {
+  bottom: -20px;
+  left: -30px;
+  width: 500px;
+  transform: rotate(-8deg);
+}
+
+/* Full-height edge framing */
+.brushstroke-edge-left {
+  top: 0;
+  left: -10px;
+  height: 100%;
+  width: auto;
+}
+
+/* Center-bottom grounding */
+.brushstroke-ground {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+}
+
+/* HTML usage */
+&lt;div class="post" style="position: relative; overflow: hidden;"&gt;
+  &lt;img class="brushstroke brushstroke-top-right"
+       src="assets/brushstrokes/brushstroke-diagonal-sweep.png"
+       alt="" aria-hidden="true"&gt;
+  &lt;img class="brushstroke brushstroke-bottom-left"
+       src="assets/brushstrokes/brushstroke-bottom-grounding.png"
+       alt="" aria-hidden="true"&gt;
+
+  &lt;!-- Content here --&gt;
+&lt;/div&gt;</pre>
+        </div>
+      </details>
+
+      <div class="subsection" style="margin-top: 32px;">
+        <h3 class="subsection-title">Placement Strategies</h3>
+        <table class="info-table">
+          <thead>
+            <tr><th>Strategy</th><th>Best Brushstrokes</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Top-right + bottom-left</td><td>diagonal-sweep, compact-burst</td><td>Default for most posts</td></tr>
+            <tr><td>Full-height edge framing</td><td>vertical-double-block, vertical-edge-sweep</td><td>Dramatic, editorial posts</td></tr>
+            <tr><td>Full-width top sweep</td><td>horizontal-wide</td><td>Horizon/sky effect</td></tr>
+            <tr><td>Both sides (curtain)</td><td>Any tall verticals</td><td>Manifesto posts only (sparingly)</td></tr>
+            <tr><td>Center-bottom grounding</td><td>bottom-grounding</td><td>Under content, stability</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         4. CIRCLE SKETCH ELEMENTS
+         ============================================================ -->
+    <div class="section" id="circles">
+      <h2 class="section-title">Circle Sketch Elements</h2>
+      <p class="section-subtitle">Hand-drawn circle sketches for word emphasis ONLY. Never decorative. <span class="weight-badge weight-critical">Weight: 90</span></p>
+
+      <div style="background: rgba(255,59,48,0.08); border: 1px solid rgba(255,59,48,0.2); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;">
+        <strong style="color: #ff3b30;">NOT DECORATIVE</strong>
+        <span style="color: rgba(255,255,255,0.65); font-size: 13px;"> — Every circle sketch must visually wrap a specific word or data point. Floating circles behind content add visual noise without meaning. CSS mask circles look thin and mechanical. Use the actual PNG assets.</span>
+        <span class="weight-badge weight-critical">90</span>
+      </div>
+
+      <div class="asset-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 40px;">
+            <img src="../assets/circles/circle-sketch-rough.png" alt="Circle Sketch Rough" style="width: 300px; opacity: 0.6;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">circle-sketch-rough</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Rougher hand-drawn circle with visible texture. Primary emphasis element.</p>
+        </div>
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 40px;">
+            <img src="../assets/circles/circle-sketch-clean.png" alt="Circle Sketch Clean" style="width: 300px; opacity: 0.6;">
+          </div>
+          <h4 style="font-size: 14px; margin-bottom: 4px;">circle-sketch-clean</h4>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Cleaner hand-drawn circle, still imperfect. Alternative emphasis.</p>
+        </div>
+      </div>
+
+      <div class="subsection" style="margin-top: 32px;">
+        <h3 class="subsection-title">Word Emphasis Usage Example</h3>
+        <div class="asset-preview" style="text-align: center; padding: 48px;">
+          <div style="position: relative; display: inline-block;">
+            <img src="../assets/circles/circle-sketch-rough.png" alt=""
+                 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(8deg); width: 320px; opacity: 0.55; filter: hue-rotate(15deg); pointer-events: none;">
+            <span style="position: relative; font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 64px; z-index: 2;">commission engine</span>
+          </div>
+        </div>
+      </div>
+
+      <details>
+        <summary>Copy: Circle sketch CSS for word emphasis</summary>
+        <div class="code-block">
+          <span class="code-label">CSS + HTML</span>
+<pre>/* Circle Sketch Usage Rules:
+   - Emphasis-only: wrap specific words or numbers (Weight: 90)
+   - Hue-shift to match accent color (Weight: 85)
+   - Size: 280-400px width for 1-2 words (Weight: 75)
+   - Rotation: always slightly rotated 5-15deg (Weight: 70)
+   - Opacity: 0.5-0.7 (Weight: 80)
+   - Use PNG assets, NOT CSS circles (Weight: 90)
+*/
+
+.circle-emphasis {
+  position: relative;
+  display: inline-block;
+}
+.circle-emphasis img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(8deg);
+  width: 320px;           /* Size to word: 280-400px */
+  opacity: 0.55;          /* Range: 0.5-0.7 */
+  pointer-events: none;
+  z-index: 0;
+
+  /* Hue-shift to match accent color */
+  /* Orange #FF8B58: hue-rotate(15deg) */
+  /* Blue #42b1ff: hue-rotate(0deg) (source is blue) */
+  /* Green #44b574: hue-rotate(100deg) */
+  /* Purple #c985e5: hue-rotate(240deg) */
+  filter: hue-rotate(15deg);
+}
+.circle-emphasis span {
+  position: relative;
+  z-index: 2;
+}
+
+/* HTML usage */
+&lt;span class="circle-emphasis"&gt;
+  &lt;img src="assets/circles/circle-sketch-rough.png" alt="" aria-hidden="true"&gt;
+  &lt;span&gt;commission engine&lt;/span&gt;
+&lt;/span&gt;</pre>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============================================================
+         5. FOOTER STRUCTURE
+         ============================================================ -->
+    <div class="section" id="footer">
+      <h2 class="section-title">Footer Structure</h2>
+      <p class="section-subtitle">Standard footer across all social posts. Three elements, always the same. <span class="weight-badge weight-critical">Weight: 95</span></p>
+
+      <div class="footer-demo">
+        <div class="footer-left">
+          <img src="../assets/logos/wecommerce-flags.png" alt="We-Commerce Flag">
+          <div class="footer-separator"></div>
+          <img src="../assets/logos/wecommerce-logos.png" alt="We-Commerce">
+        </div>
+        <div class="footer-right">
+          <img src="../assets/logos/frame-3-fluid-dots.png" alt="Fluid">
+        </div>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <table class="info-table">
+          <thead><tr><th>Platform</th><th>Footer Padding</th><th>Weight</th></tr></thead>
+          <tbody>
+            <tr><td>Instagram</td><td><code>padding: 22px 68px</code></td><td><span class="weight-badge weight-critical">85</span></td></tr>
+            <tr><td>LinkedIn</td><td><code>padding: 18px 72px</code></td><td><span class="weight-badge weight-critical">85</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <details>
+        <summary>Copy: Footer HTML + CSS</summary>
+        <div class="code-block">
+          <span class="code-label">HTML + CSS</span>
+<pre>/* Footer Structure (Weight: 95)
+   Left: flag icon + separator + We-Commerce wordmark
+   Right: Fluid dots mark
+   Subtle, never competing with content
+*/
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 68px;     /* Instagram. LinkedIn: 18px 72px */
+  z-index: 10;
+}
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.footer-left img {
+  height: 18px;
+  opacity: 0.8;
+}
+.footer-separator {
+  width: 1px;
+  height: 14px;
+  background: rgba(255,255,255,0.15);
+}
+.footer-right img {
+  height: 22px;
+  opacity: 0.8;
+}
+
+/* HTML */
+&lt;footer class="footer"&gt;
+  &lt;div class="footer-left"&gt;
+    &lt;img src="assets/logos/wecommerce-flags.png" alt="We-Commerce"&gt;
+    &lt;div class="footer-separator"&gt;&lt;/div&gt;
+    &lt;img src="assets/logos/wecommerce-logos.png" alt="We-Commerce"&gt;
+  &lt;/div&gt;
+  &lt;div class="footer-right"&gt;
+    &lt;img src="assets/logos/frame-3-fluid-dots.png" alt="Fluid"&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</pre>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============================================================
+         6. FLFONT TAGLINE PATTERNS
+         ============================================================ -->
+    <div class="section" id="flfont">
+      <h2 class="section-title">FLFont Tagline Patterns</h2>
+      <p class="section-subtitle">The handwritten font for the takeaway line. Confidence and personality. <span class="weight-badge weight-critical">Weight: 90</span></p>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Size Examples</h3>
+
+        <div class="type-sample">
+          <p style="font-family: 'flfontbold', cursive; font-size: 32px; color: #FF8B58; margin-bottom: 8px;">Every transaction matters.</p>
+          <p class="type-sample-meta">32px — Instagram primary tagline</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'flfontbold', cursive; font-size: 26px; color: #42b1ff; margin-bottom: 8px;">One connection. Zero 3am calls.</p>
+          <p class="type-sample-meta">26px — Instagram secondary tagline</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'flfontbold', cursive; font-size: 22px; color: #c985e5; margin-bottom: 8px;">One platform. Every transaction.</p>
+          <p class="type-sample-meta">22px — LinkedIn tagline</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Placement Patterns</h3>
+        <div class="asset-preview" style="padding: 48px; text-align: center;">
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 48px; margin-bottom: 12px;">When a transaction fails</p>
+          <p style="font-family: 'flfontbold', cursive; font-size: 28px; color: #44b574;">Every transaction gets its best shot.</p>
+          <p class="type-sample-meta" style="margin-top: 16px;">Placement: Below headline, before footer. Never IN the headline.</p>
+        </div>
+
+        <table class="info-table">
+          <thead><tr><th>Pattern</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>[benefit]. [contrast].</td><td>"One connection. Zero 3am calls."</td></tr>
+            <tr><td>[declaration].</td><td>"Every transaction matters."</td></tr>
+            <tr><td>[scope]. [claim].</td><td>"One platform. Every transaction."</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <details>
+        <summary>Copy: FLFont tagline component</summary>
+        <div class="code-block">
+          <span class="code-label">CSS + HTML</span>
+<pre>/* FLFont Tagline Rules:
+   - Taglines and emphasis ONLY, never body/headlines (Weight: 90)
+   - Below headline or bottom of content, before footer (Weight: 80)
+   - Instagram: 26-32px, LinkedIn: 20-24px
+   - Color: post accent color
+   - Pattern: [benefit]. [contrast or reinforcement].
+*/
+
+.tagline {
+  font-family: 'flfontbold', cursive;
+  font-size: 28px;        /* Instagram: 26-32px */
+  color: #FF8B58;          /* Replace with post accent color */
+  line-height: 1.3;
+  margin-top: 16px;
+}
+
+/* HTML */
+&lt;p class="tagline"&gt;Every transaction matters.&lt;/p&gt;</pre>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============================================================
+         7. LAYOUT ARCHETYPES
+         ============================================================ -->
+    <div class="section" id="layouts">
+      <h2 class="section-title">Layout Archetypes</h2>
+      <p class="section-subtitle">6 proven layout types for social posts. Each validated through 10+ iterations.</p>
+
+      <div class="layout-grid">
+        <!-- A. Full-Bleed Headline -->
+        <div class="layout-card">
+          <div class="layout-card-header">
+            <h4>A. Full-Bleed Headline <span class="weight-badge weight-critical">85</span></h4>
+          </div>
+          <div class="layout-card-body">
+            <div class="wireframe" style="min-height: 240px;">
+              <div class="wireframe-element" style="height: 60px; font-size: 16px; font-weight: 700;">HEADLINE (82-100px)</div>
+              <div class="wireframe-element" style="height: 24px; font-size: 10px;">FLFont tagline</div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.5;">Body (1-2 sentences max)</div>
+              <div style="flex: 1;"></div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.3; margin-top: auto;">Footer</div>
+              <div style="position: absolute; top: 8px; right: 8px; font-size: 9px; color: rgba(255,255,255,0.15);">Brushstrokes: 2</div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 12px;">Brand statements, problem declarations, emotional hooks</p>
+          </div>
+        </div>
+
+        <!-- B. Headline + Diagram Card -->
+        <div class="layout-card">
+          <div class="layout-card-header">
+            <h4>B. Headline + Diagram Card <span class="weight-badge weight-strong">80</span></h4>
+          </div>
+          <div class="layout-card-body">
+            <div class="wireframe" style="min-height: 240px;">
+              <div class="wireframe-element" style="height: 48px; font-size: 14px; font-weight: 700;">HEADLINE (82px)</div>
+              <div class="wireframe-element" style="height: 100px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); font-size: 10px;">
+                Diagram / Terminal / Flow<br><code style="font-size: 9px; color: rgba(255,255,255,0.3);">rgba(255,255,255,0.03) bg</code>
+              </div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.3;">Footer</div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 12px;">Technical differentiators, before/after, process explanations</p>
+          </div>
+        </div>
+
+        <!-- C. Giant Stat Hero -->
+        <div class="layout-card">
+          <div class="layout-card-header">
+            <h4>C. Giant Stat Hero <span class="weight-badge weight-strong">80</span></h4>
+          </div>
+          <div class="layout-card-body">
+            <div class="wireframe" style="min-height: 240px; text-align: center;">
+              <div class="wireframe-element" style="height: 80px; font-size: 36px; font-weight: 900;">82%</div>
+              <div class="wireframe-element" style="height: 32px; font-size: 12px;">Headline below stat</div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.5;">Body context</div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.3;">Footer</div>
+              <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 9px; color: rgba(255,255,255,0.15);">Circle: around stat</div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 12px;">Proof points, reframes, "the number you're not tracking"</p>
+          </div>
+        </div>
+
+        <!-- D. Pull Quote / Manifesto -->
+        <div class="layout-card">
+          <div class="layout-card-header">
+            <h4>D. Pull Quote / Manifesto <span class="weight-badge weight-strong">80</span></h4>
+          </div>
+          <div class="layout-card-body">
+            <div class="wireframe" style="min-height: 240px;">
+              <div style="font-size: 48px; color: rgba(255,255,255,0.1); position: absolute; top: 8px; left: 16px;">"</div>
+              <div class="wireframe-element" style="height: 64px; font-size: 11px; margin-top: 40px;">Quote text (50-52px)</div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px;">FLFont attribution</div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.3;">Footer</div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 12px;">Company voice, emotional storytelling, thought leadership</p>
+          </div>
+        </div>
+
+        <!-- E. Two-Column -->
+        <div class="layout-card">
+          <div class="layout-card-header">
+            <h4>E. Two-Column (LinkedIn only) <span class="weight-badge weight-strong">75</span></h4>
+          </div>
+          <div class="layout-card-body">
+            <div class="wireframe" style="min-height: 240px; display: flex; gap: 12px;">
+              <div style="flex: 55%;">
+                <div class="wireframe-label">55% width</div>
+                <div class="wireframe-element" style="height: 48px; font-size: 12px;">Headline</div>
+                <div class="wireframe-element" style="height: 32px; font-size: 10px; opacity: 0.5;">Body text</div>
+              </div>
+              <div style="flex: 45%; border-left: 1px dashed rgba(255,255,255,0.1); padding-left: 12px;">
+                <div class="wireframe-label">45% width</div>
+                <div class="wireframe-element" style="height: 100px; font-size: 10px;">Visual element</div>
+              </div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 12px;">Educational content, comparisons. 1200x627 landscape ONLY.</p>
+          </div>
+        </div>
+
+        <!-- F. Centered Manifesto -->
+        <div class="layout-card">
+          <div class="layout-card-header">
+            <h4>F. Centered Manifesto <span class="weight-badge weight-strong">75</span></h4>
+          </div>
+          <div class="layout-card-body">
+            <div class="wireframe" style="min-height: 240px; text-align: center; position: relative;">
+              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.04); font-weight: 900; overflow: hidden;">EVERY TRANSACTION</div>
+              <div class="wireframe-element" style="height: 48px; font-size: 12px; margin-top: 60px;">Centered headline</div>
+              <div class="wireframe-element" style="height: 28px; font-size: 10px;">Centered body</div>
+              <div class="wireframe-element" style="height: 20px; font-size: 10px; opacity: 0.3;">Footer</div>
+              <div style="position: absolute; top: 8px; right: 8px; font-size: 9px; color: rgba(255,255,255,0.15);">Watermark: ~4% opacity</div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 12px;">Mission statements, campaign anchors. Heavy brush framing both sides.</p>
+          </div>
+        </div>
+      </div>
+
+      <details>
+        <summary>Copy: Layout archetype reference table</summary>
+        <div class="code-block">
+          <span class="code-label">Reference</span>
+<pre>/* Layout Selection Guide
+   See brand/layout-archetypes.md for full specs
+
+   A. Full-Bleed Headline  — Brand statements, emotional hooks
+   B. Headline + Diagram   — Technical differentiators, process
+   C. Giant Stat Hero      — Proof points, reframes
+   D. Pull Quote           — Thought leadership, storytelling
+   E. Two-Column           — LinkedIn ONLY (1200x627), comparisons
+   F. Centered Manifesto   — Mission statements, campaign anchors
+
+   General Rules:
+   - Headline-dominant, not information-dense (Weight: 90)
+   - One idea per post (Weight: 85)
+   - No stat cards or data grids on social (Weight: 80)
+*/</pre>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 32px; margin-top: 80px;">
+      <p style="color: rgba(255,255,255,0.25); font-size: 12px;">
+        Fluid Brand Pattern Library v1.0.0<br>
+        Last compiled: <span id="compile-date"></span><br>
+        Generated by Fluid Creative OS. See brand/ directory for source docs.
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  document.getElementById('compile-date').textContent = new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>
