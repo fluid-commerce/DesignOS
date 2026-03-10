@@ -16,12 +16,25 @@ See [asset-usage.md](asset-usage.md) for detailed usage rules, blend modes, opac
 | brushstroke-bottom-grounding | `assets/brushstrokes/brushstroke-bottom-grounding.png` | brushstroke06.png | Wide horizontal, bottom-positioned grounding texture. Horizon feel. | 75 |
 | brushstroke-diagonal-upward | `assets/brushstrokes/brushstroke-diagonal-upward.png` | brushstroke07.png | Strong diagonal sweep upward to upper-right corner. Dynamic upward motion. | 75 |
 
-## Circle Sketches
+## Circle Masks (Emphasis)
 
-| Asset Name | Path | Original Filename | Usage Summary | Weight |
-|-----------|------|-------------------|---------------|--------|
-| circle-sketch-rough | `assets/circles/circle-sketch-rough.png` | circle sketch 1.png | Rougher hand-drawn circle with visible texture and imperfection. Primary emphasis element. | 85 |
-| circle-sketch-clean | `assets/circles/circle-sketch-clean.png` | circle sketch 2.png | Cleaner hand-drawn circle, still imperfect. Alternative emphasis element. | 85 |
+| Asset Name | Path | Usage Summary | Weight |
+|-----------|------|---------------|--------|
+| circle-1 | `assets/circles/masks/circle-1.png` | Hand-drawn circle variant 1. White mask — use with CSS mask-image + backgroundColor. | 90 |
+| circle-2 | `assets/circles/masks/circle-2.png` | Hand-drawn circle variant 2. Rounder, slightly thicker stroke. | 90 |
+| circle-3 | `assets/circles/masks/circle-3.png` | Hand-drawn circle variant 3. More angular, energetic. | 90 |
+| circle-4 | `assets/circles/masks/circle-4.png` | Hand-drawn circle variant 4. Loose, expressive. | 90 |
+| circle-5 | `assets/circles/masks/circle-5.png` | Hand-drawn circle variant 5. Tighter, contained. | 90 |
+| circle-sketch-rough | `assets/circles/circle-sketch-rough.png` | Legacy rougher circle (original). Kept for backward compat. | 85 |
+| circle-sketch-clean | `assets/circles/circle-sketch-clean.png` | Legacy cleaner circle (original). Kept for backward compat. | 85 |
+
+## Underline Masks (Emphasis)
+
+| Asset Name | Path | Usage Summary | Weight |
+|-----------|------|---------------|--------|
+| underline-1 | `assets/underlines/underline-1.png` | Hand-drawn underline variant 1. White mask — use with CSS mask-image + backgroundColor. | 90 |
+| underline-2 | `assets/underlines/underline-2.png` | Hand-drawn underline variant 2. Thinner, more delicate stroke. | 90 |
+| underline-3 | `assets/underlines/underline-3.png` | Hand-drawn underline variant 3. Bolder, more textured. | 90 |
 
 ## Logos and Marks
 

@@ -397,7 +397,7 @@
     <div class="nav-group">
       <div class="nav-group-label">Brand Assets</div>
       <a href="#brushstrokes">Brushstroke Textures</a>
-      <a href="#circles">Circle Sketch Elements</a>
+      <a href="#circles">Circles & Underlines</a>
       <a href="#footer">Footer Structure</a>
     </div>
 
@@ -970,90 +970,401 @@ body {
     </div>
 
     <!-- ============================================================
-         4. CIRCLE SKETCH ELEMENTS
+         4. CIRCLES & UNDERLINES — EMPHASIS ELEMENTS
          ============================================================ -->
     <div class="section" id="circles">
-      <h2 class="section-title">Circle Sketch Elements</h2>
-      <p class="section-subtitle">Hand-drawn circle sketches for word emphasis ONLY. Never decorative. <span class="weight-badge weight-critical">Weight: 90</span></p>
+      <h2 class="section-title">Circles & Underlines</h2>
+      <p class="section-subtitle">Hand-drawn emphasis elements for words and data points. CSS-mask technique — any color. <span class="weight-badge weight-critical">Weight: 90</span></p>
 
       <div style="background: rgba(255,59,48,0.08); border: 1px solid rgba(255,59,48,0.2); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;">
-        <strong style="color: #ff3b30;">NOT DECORATIVE</strong>
-        <span style="color: rgba(255,255,255,0.65); font-size: 13px;"> — Every circle sketch must visually wrap a specific word or data point. Floating circles behind content add visual noise without meaning. CSS mask circles look thin and mechanical. Use the actual PNG assets.</span>
+        <strong style="color: #ff3b30;">EMPHASIS ONLY, NOT DECORATIVE</strong>
+        <span style="color: rgba(255,255,255,0.65); font-size: 13px;"> — Every circle/underline must wrap a specific word or data point. White PNG masks + backgroundColor = any color. Never use hue-rotate or tinted PNGs.</span>
         <span class="weight-badge weight-critical">90</span>
       </div>
 
-      <div class="asset-grid" style="grid-template-columns: repeat(2, 1fr);">
+      <!-- Technique explanation -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;">
+        <strong style="color: rgba(255,255,255,0.8);">How it works</strong>
+        <span style="color: rgba(255,255,255,0.5); font-size: 13px;"> — White PNG used as CSS <code style="color:#FF8B58">mask-image</code>. A colored <code style="color:#FF8B58">div</code> behind the text has its shape cut by the mask. Change <code style="color:#FF8B58">backgroundColor</code> to change the color. Animation uses a gradient mask sweep to reveal progressively.</span>
+      </div>
+
+      <!-- ==================== CIRCLE VARIANTS ==================== -->
+      <h3 class="subsection-title">Circle Variants (5 masks)</h3>
+      <p style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px;">assets/circles/masks/circle-{1-5}.png — white masks, use as mask-image</p>
+
+      <div class="asset-grid" style="grid-template-columns: repeat(5, 1fr); gap: 12px;">
         <div>
-          <div class="asset-preview" style="text-align: center; padding: 40px;">
-            <img src="../assets/circles/circle-sketch-rough.png" alt="Circle Sketch Rough" style="width: 300px; opacity: 0.6;">
+          <div class="asset-preview" style="text-align: center; padding: 24px;">
+            <div style="width: 120px; height: 80px; margin: 0 auto; background: #FF8B58; -webkit-mask-image: url('../assets/circles/masks/circle-1.png'); mask-image: url('../assets/circles/masks/circle-1.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
-          <h4 style="font-size: 14px; margin-bottom: 4px;">circle-sketch-rough</h4>
-          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Rougher hand-drawn circle with visible texture. Primary emphasis element.</p>
+          <h4 style="font-size: 12px; text-align: center;">circle-1</h4>
         </div>
         <div>
-          <div class="asset-preview" style="text-align: center; padding: 40px;">
-            <img src="../assets/circles/circle-sketch-clean.png" alt="Circle Sketch Clean" style="width: 300px; opacity: 0.6;">
+          <div class="asset-preview" style="text-align: center; padding: 24px;">
+            <div style="width: 120px; height: 80px; margin: 0 auto; background: #42b1ff; -webkit-mask-image: url('../assets/circles/masks/circle-2.png'); mask-image: url('../assets/circles/masks/circle-2.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
           </div>
-          <h4 style="font-size: 14px; margin-bottom: 4px;">circle-sketch-clean</h4>
-          <p style="font-size: 12px; color: rgba(255,255,255,0.45);">Cleaner hand-drawn circle, still imperfect. Alternative emphasis.</p>
+          <h4 style="font-size: 12px; text-align: center;">circle-2</h4>
+        </div>
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 24px;">
+            <div style="width: 120px; height: 80px; margin: 0 auto; background: #44b574; -webkit-mask-image: url('../assets/circles/masks/circle-3.png'); mask-image: url('../assets/circles/masks/circle-3.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+          </div>
+          <h4 style="font-size: 12px; text-align: center;">circle-3</h4>
+        </div>
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 24px;">
+            <div style="width: 120px; height: 80px; margin: 0 auto; background: #c985e5; -webkit-mask-image: url('../assets/circles/masks/circle-4.png'); mask-image: url('../assets/circles/masks/circle-4.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+          </div>
+          <h4 style="font-size: 12px; text-align: center;">circle-4</h4>
+        </div>
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 24px;">
+            <div style="width: 120px; height: 80px; margin: 0 auto; background: #FF8B58; -webkit-mask-image: url('../assets/circles/masks/circle-5.png'); mask-image: url('../assets/circles/masks/circle-5.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+          </div>
+          <h4 style="font-size: 12px; text-align: center;">circle-5</h4>
         </div>
       </div>
 
+      <!-- ==================== UNDERLINE VARIANTS ==================== -->
+      <h3 class="subsection-title" style="margin-top: 32px;">Underline Variants (3 masks)</h3>
+      <p style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px;">assets/underlines/underline-{1-3}.png — white masks, use as mask-image</p>
+
+      <div class="asset-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 24px 40px;">
+            <div style="width: 200px; height: 24px; margin: 0 auto; background: #FF8B58; -webkit-mask-image: url('../assets/underlines/underline-1.png'); mask-image: url('../assets/underlines/underline-1.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+          </div>
+          <h4 style="font-size: 12px; text-align: center;">underline-1</h4>
+        </div>
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 24px 40px;">
+            <div style="width: 200px; height: 24px; margin: 0 auto; background: #42b1ff; -webkit-mask-image: url('../assets/underlines/underline-2.png'); mask-image: url('../assets/underlines/underline-2.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+          </div>
+          <h4 style="font-size: 12px; text-align: center;">underline-2</h4>
+        </div>
+        <div>
+          <div class="asset-preview" style="text-align: center; padding: 24px 40px;">
+            <div style="width: 200px; height: 24px; margin: 0 auto; background: #44b574; -webkit-mask-image: url('../assets/underlines/underline-3.png'); mask-image: url('../assets/underlines/underline-3.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+          </div>
+          <h4 style="font-size: 12px; text-align: center;">underline-3</h4>
+        </div>
+      </div>
+
+      <!-- ==================== LIVE USAGE EXAMPLES ==================== -->
       <div class="subsection" style="margin-top: 32px;">
-        <h3 class="subsection-title">Word Emphasis Usage Example</h3>
-        <div class="asset-preview" style="text-align: center; padding: 48px;">
-          <div style="position: relative; display: inline-block;">
-            <img src="../assets/circles/circle-sketch-rough.png" alt=""
-                 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(8deg); width: 320px; opacity: 0.55; filter: hue-rotate(15deg); pointer-events: none;">
-            <span style="position: relative; font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 64px; z-index: 2;">commission engine</span>
+        <h3 class="subsection-title">Circle Emphasis — Live Example</h3>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px;">Click any example to replay the animation. Color picker shows any-color capability.</p>
+
+        <!-- Color picker row -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center;">
+          <span style="font-size: 12px; color: rgba(255,255,255,0.45);">Try a color:</span>
+          <button onclick="setEmphasisColor('#FF8B58')" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);background:#FF8B58;cursor:pointer;" title="Orange"></button>
+          <button onclick="setEmphasisColor('#42b1ff')" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);background:#42b1ff;cursor:pointer;" title="Blue"></button>
+          <button onclick="setEmphasisColor('#44b574')" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);background:#44b574;cursor:pointer;" title="Green"></button>
+          <button onclick="setEmphasisColor('#c985e5')" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);background:#c985e5;cursor:pointer;" title="Purple"></button>
+          <input type="color" id="customEmphasisColor" value="#FF8B58" onchange="setEmphasisColor(this.value)" style="width:28px;height:28px;border:none;background:none;cursor:pointer;" title="Custom color">
+        </div>
+
+        <!-- Circled example -->
+        <div class="asset-preview" style="text-align: center; padding: 48px;" onclick="replayCircleAnim()">
+          <div style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 56px; line-height: 1.2;">
+            <span id="circled-demo" class="circled-wrapper" style="position: relative; display: inline-block; cursor: pointer;">
+              <span style="position: relative;">80%</span>
+              <span id="circled-reveal" class="circled-reveal" style="position: absolute; z-index: -1; pointer-events: none; left: -25%; top: -35%; width: 150%; height: 170%; opacity: 0;">
+                <span id="circled-deco" style="display: block; width: 100%; height: 100%; background-color: #FF8B58; -webkit-mask-image: url('../assets/circles/masks/circle-2.png'); mask-image: url('../assets/circles/masks/circle-2.png'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
+              </span>
+            </span>
+            <span style="color: rgba(255,255,255,0.5); font-weight: 500; font-size: 32px;"> is considered healthy.</span>
           </div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 12px;">click to replay animation</p>
+        </div>
+
+        <!-- Underlined example -->
+        <h3 class="subsection-title" style="margin-top: 24px;">Underline Emphasis — Live Example</h3>
+        <div class="asset-preview" style="text-align: center; padding: 48px;" onclick="replayUnderlineAnim()">
+          <div style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 48px; line-height: 1.3;">
+            Hope for the
+            <span id="underlined-demo" style="position: relative; display: inline-block; cursor: pointer;">
+              <span style="position: relative;">best.</span>
+              <span id="underlined-reveal" style="position: absolute; z-index: -1; pointer-events: none; left: 0; right: 0; bottom: -0.1em; height: 0.55em; opacity: 0;">
+                <span id="underlined-deco" style="display: block; width: 100%; height: 100%; background-color: #FF8B58; -webkit-mask-image: url('../assets/underlines/underline-1.png'); mask-image: url('../assets/underlines/underline-1.png'); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></span>
+              </span>
+            </span>
+          </div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 12px;">click to replay animation</p>
         </div>
       </div>
 
+      <!-- Animation script -->
+      <script>
+        // ---- Emphasis animation engine (matches slidev Circled.vue / Underlined.vue) ----
+        const FADE_ZONE = 0.15, NOISE_STRENGTH = 0.7, NOISE_STOPS = 40;
+
+        function easeInOutCubic(t) {
+          return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+        }
+
+        // Circle: conic-gradient sweep from 12 o'clock
+        function circleRevealGradient(progress) {
+          const sweepDeg = progress * 360, fadeDeg = FADE_ZONE * 360;
+          const solidEnd = Math.max(0, sweepDeg - fadeDeg);
+          const stops = [`rgba(0,0,0,1) 0deg`, `rgba(0,0,0,1) ${solidEnd.toFixed(1)}deg`];
+          for (let i = 0; i <= NOISE_STOPS; i++) {
+            const t = i / NOISE_STOPS, deg = solidEnd + t * fadeDeg;
+            if (deg > sweepDeg) break;
+            const baseAlpha = 1 - t;
+            const noise = (Math.random() - 0.5) * 2 * NOISE_STRENGTH;
+            const alpha = Math.max(0, Math.min(1, baseAlpha + noise * (1 - Math.abs(baseAlpha - 0.5) * 2)));
+            stops.push(`rgba(0,0,0,${alpha.toFixed(3)}) ${deg.toFixed(1)}deg`);
+          }
+          stops.push(`rgba(0,0,0,0) ${sweepDeg.toFixed(1)}deg`, `rgba(0,0,0,0) 360deg`);
+          return `conic-gradient(from -90deg at 50% 50%, ${stops.join(', ')})`;
+        }
+
+        // Underline: left-to-right linear gradient
+        function underlineRevealGradient(progress) {
+          const sweepPct = progress * 100, fadePct = FADE_ZONE * 100;
+          const solidEnd = Math.max(0, sweepPct - fadePct);
+          const stops = [`rgba(0,0,0,1) 0%`, `rgba(0,0,0,1) ${solidEnd.toFixed(1)}%`];
+          for (let i = 0; i <= NOISE_STOPS; i++) {
+            const t = i / NOISE_STOPS, pct = solidEnd + t * fadePct;
+            if (pct > sweepPct) break;
+            const baseAlpha = 1 - t;
+            const noise = (Math.random() - 0.5) * 2 * NOISE_STRENGTH;
+            const alpha = Math.max(0, Math.min(1, baseAlpha + noise * (1 - Math.abs(baseAlpha - 0.5) * 2)));
+            stops.push(`rgba(0,0,0,${alpha.toFixed(3)}) ${pct.toFixed(1)}%`);
+          }
+          stops.push(`rgba(0,0,0,0) ${sweepPct.toFixed(1)}%`, `rgba(0,0,0,0) 100%`);
+          return `linear-gradient(to right, ${stops.join(', ')})`;
+        }
+
+        function animateReveal(el, gradientFn, duration) {
+          el.style.opacity = '1';
+          let start = null;
+          function frame(now) {
+            if (!start) start = now;
+            const raw = Math.min((now - start) / duration, 1);
+            const p = easeInOutCubic(raw);
+            const grad = gradientFn(p);
+            el.style.webkitMaskImage = grad;
+            el.style.maskImage = grad;
+            el.style.webkitMaskSize = '100% 100%';
+            el.style.maskSize = '100% 100%';
+            if (raw < 1) requestAnimationFrame(frame);
+            else { el.style.webkitMaskImage = ''; el.style.maskImage = ''; }
+          }
+          requestAnimationFrame(frame);
+        }
+
+        function replayCircleAnim() {
+          const el = document.getElementById('circled-reveal');
+          el.style.opacity = '0';
+          el.style.webkitMaskImage = ''; el.style.maskImage = '';
+          setTimeout(() => animateReveal(el, circleRevealGradient, 700), 100);
+        }
+
+        function replayUnderlineAnim() {
+          const el = document.getElementById('underlined-reveal');
+          el.style.opacity = '0';
+          el.style.webkitMaskImage = ''; el.style.maskImage = '';
+          setTimeout(() => animateReveal(el, underlineRevealGradient, 500), 100);
+        }
+
+        function setEmphasisColor(color) {
+          document.getElementById('circled-deco').style.backgroundColor = color;
+          document.getElementById('underlined-deco').style.backgroundColor = color;
+          replayCircleAnim();
+          setTimeout(() => replayUnderlineAnim(), 300);
+        }
+
+        // Auto-play on load
+        window.addEventListener('load', () => {
+          setTimeout(() => replayCircleAnim(), 600);
+          setTimeout(() => replayUnderlineAnim(), 1100);
+        });
+      </script>
+
+      <!-- ==================== CODE BLOCKS ==================== -->
       <details>
-        <summary>Copy: Circle sketch CSS for word emphasis</summary>
+        <summary>Copy: Circle emphasis (CSS mask technique)</summary>
         <div class="code-block">
           <span class="code-label">CSS + HTML</span>
-<pre>/* Circle Sketch Usage Rules:
-   - Emphasis-only: wrap specific words or numbers (Weight: 90)
-   - Hue-shift to match accent color (Weight: 85)
-   - Size: 280-400px width for 1-2 words (Weight: 75)
-   - Rotation: always slightly rotated 5-15deg (Weight: 70)
-   - Opacity: 0.5-0.7 (Weight: 80)
-   - Use PNG assets, NOT CSS circles (Weight: 90)
+<pre>/* Circle Emphasis — CSS Mask Technique (Weight: 90)
+   White PNG mask shapes the colored div behind text.
+   Change backgroundColor for any color. No hue-rotate needed.
+   Assets: assets/circles/masks/circle-{1-5}.png
 */
 
-.circle-emphasis {
+.circled-wrapper {
   position: relative;
   display: inline-block;
 }
-.circle-emphasis img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(8deg);
-  width: 320px;           /* Size to word: 280-400px */
-  opacity: 0.55;          /* Range: 0.5-0.7 */
-  pointer-events: none;
-  z-index: 0;
 
-  /* Hue-shift to match accent color */
-  /* Orange #FF8B58: hue-rotate(15deg) */
-  /* Blue #42b1ff: hue-rotate(0deg) (source is blue) */
-  /* Green #44b574: hue-rotate(100deg) */
-  /* Purple #c985e5: hue-rotate(240deg) */
-  filter: hue-rotate(15deg);
-}
-.circle-emphasis span {
+.circled-text {
   position: relative;
-  z-index: 2;
 }
 
-/* HTML usage */
-&lt;span class="circle-emphasis"&gt;
-  &lt;img src="assets/circles/circle-sketch-rough.png" alt="" aria-hidden="true"&gt;
-  &lt;span&gt;commission engine&lt;/span&gt;
+.circled-decoration {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  left: -25%;
+  top: -35%;
+  width: 150%;
+  height: 170%;
+}
+
+.circled-decoration-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  /* THE KEY: color via background, shape via mask */
+  background-color: #FF8B58;             /* &lt;-- any color */
+  -webkit-mask-image: url('assets/circles/masks/circle-1.png');
+  mask-image: url('assets/circles/masks/circle-1.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* HTML */
+&lt;span class="circled-wrapper"&gt;
+  &lt;span class="circled-text"&gt;80%&lt;/span&gt;
+  &lt;span class="circled-decoration"&gt;
+    &lt;span class="circled-decoration-inner"&gt;&lt;/span&gt;
+  &lt;/span&gt;
 &lt;/span&gt;</pre>
+        </div>
+      </details>
+
+      <details style="margin-top: 8px;">
+        <summary>Copy: Underline emphasis (CSS mask technique)</summary>
+        <div class="code-block">
+          <span class="code-label">CSS + HTML</span>
+<pre>/* Underline Emphasis — CSS Mask Technique (Weight: 90)
+   Same mask approach as circles. Sits below the text baseline.
+   thickness and offset are configurable.
+   Assets: assets/underlines/underline-{1-3}.png
+*/
+
+.underlined-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.underlined-text {
+  position: relative;
+}
+
+.underlined-decoration {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  bottom: -0.1em;    /* offset — adjust per font */
+  height: 0.55em;    /* thickness */
+}
+
+.underlined-decoration-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  background-color: #FF8B58;             /* &lt;-- any color */
+  -webkit-mask-image: url('assets/underlines/underline-1.png');
+  mask-image: url('assets/underlines/underline-1.png');
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* HTML */
+&lt;span class="underlined-wrapper"&gt;
+  &lt;span class="underlined-text"&gt;best.&lt;/span&gt;
+  &lt;span class="underlined-decoration"&gt;
+    &lt;span class="underlined-decoration-inner"&gt;&lt;/span&gt;
+  &lt;/span&gt;
+&lt;/span&gt;</pre>
+        </div>
+      </details>
+
+      <details style="margin-top: 8px;">
+        <summary>Copy: Animated reveal (conic sweep for circles, linear sweep for underlines)</summary>
+        <div class="code-block">
+          <span class="code-label">JavaScript</span>
+<pre>/* Animated Emphasis Reveal
+   Circle: conic-gradient sweep from 12 o'clock with noisy fade edge
+   Underline: left-to-right linear-gradient with noisy fade edge
+   Both use requestAnimationFrame + easeInOutCubic
+*/
+const FADE_ZONE = 0.15, NOISE_STRENGTH = 0.7, NOISE_STOPS = 40;
+
+function easeInOutCubic(t) {
+  return t &lt; 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+}
+
+// Circle: conic sweep from top
+function circleRevealGradient(progress) {
+  const sweepDeg = progress * 360, fadeDeg = FADE_ZONE * 360;
+  const solidEnd = Math.max(0, sweepDeg - fadeDeg);
+  const stops = [`rgba(0,0,0,1) 0deg`, `rgba(0,0,0,1) ${solidEnd.toFixed(1)}deg`];
+  for (let i = 0; i &lt;= NOISE_STOPS; i++) {
+    const t = i / NOISE_STOPS, deg = solidEnd + t * fadeDeg;
+    if (deg &gt; sweepDeg) break;
+    const baseAlpha = 1 - t;
+    const noise = (Math.random() - 0.5) * 2 * NOISE_STRENGTH;
+    const alpha = Math.max(0, Math.min(1, baseAlpha + noise * (1 - Math.abs(baseAlpha - 0.5) * 2)));
+    stops.push(`rgba(0,0,0,${alpha.toFixed(3)}) ${deg.toFixed(1)}deg`);
+  }
+  stops.push(`rgba(0,0,0,0) ${sweepDeg.toFixed(1)}deg`, `rgba(0,0,0,0) 360deg`);
+  return `conic-gradient(from -90deg at 50% 50%, ${stops.join(', ')})`;
+}
+
+// Underline: left-to-right linear sweep
+function underlineRevealGradient(progress) {
+  const sweepPct = progress * 100, fadePct = FADE_ZONE * 100;
+  const solidEnd = Math.max(0, sweepPct - fadePct);
+  const stops = [`rgba(0,0,0,1) 0%`, `rgba(0,0,0,1) ${solidEnd.toFixed(1)}%`];
+  for (let i = 0; i &lt;= NOISE_STOPS; i++) {
+    const t = i / NOISE_STOPS, pct = solidEnd + t * fadePct;
+    if (pct &gt; sweepPct) break;
+    const baseAlpha = 1 - t;
+    const noise = (Math.random() - 0.5) * 2 * NOISE_STRENGTH;
+    const alpha = Math.max(0, Math.min(1, baseAlpha + noise * (1 - Math.abs(baseAlpha - 0.5) * 2)));
+    stops.push(`rgba(0,0,0,${alpha.toFixed(3)}) ${pct.toFixed(1)}%`);
+  }
+  stops.push(`rgba(0,0,0,0) ${sweepPct.toFixed(1)}%`, `rgba(0,0,0,0) 100%`);
+  return `linear-gradient(to right, ${stops.join(', ')})`;
+}
+
+function animateReveal(el, gradientFn, duration) {
+  el.style.opacity = '1';
+  let start = null;
+  function frame(now) {
+    if (!start) start = now;
+    const raw = Math.min((now - start) / duration, 1);
+    const grad = gradientFn(easeInOutCubic(raw));
+    el.style.webkitMaskImage = grad;
+    el.style.maskImage = grad;
+    el.style.webkitMaskSize = '100% 100%';
+    el.style.maskSize = '100% 100%';
+    if (raw &lt; 1) requestAnimationFrame(frame);
+    else { el.style.webkitMaskImage = ''; el.style.maskImage = ''; }
+  }
+  requestAnimationFrame(frame);
+}
+
+// Usage:
+// animateReveal(circleEl, circleRevealGradient, 700);
+// animateReveal(underlineEl, underlineRevealGradient, 500);</pre>
         </div>
       </details>
     </div>
