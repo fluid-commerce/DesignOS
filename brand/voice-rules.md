@@ -72,8 +72,43 @@ Below the headline or at the bottom of the content area, before the footer. Neve
 
 "Every transaction matters." This is the brand's north star. It appears as tagline, manifesto anchor, and campaign theme. (Weight: 100)
 
+## The Authenticity Advantage — Recommended Campaign Direction (Weight: 95)
+
+Reframes DS from "old school" to "future of commerce." Timely and ownable.
+
+### Human-First AI (Weight: 95)
+
+AI makes reps better, not replaces them. "AI helps your reps create personalized content in minutes" not "AI generates content." The human is irreplaceable.
+
+### UGC & Trust (Weight: 90)
+
+Trust in digital commerce is collapsing. DS is the antidote: real people recommending to people they actually know.
+
+### "WE" Philosophy (Weight: 90)
+
+"WE" is intentional: we-commerce, we build for you, we believe in people. Informs ALL messaging.
+
+## We-Commerce Category (Weight: 85)
+
+Own "We-Commerce" — defining a new market. See [messaging-frameworks.md](messaging-frameworks.md).
+
+## Key Differentiators Reference (Weight: 85)
+
+Competitors genuinely cannot say these. Weave into copy as proof points.
+
+- **Fair Share Attribution** — accurate credit, full order journey visibility (Weight: 90)
+- **One-Click Checkout** — APMs, intl address verification, currency conversion (Weight: 85)
+- **Payment Orchestration** — 7 PSPs, third-party tokenization (Weight: 80)
+- **Fluid Connect** — visual data mapper, auto-staging (Weight: 85)
+- **Droplet Marketplace** — one-click install ecosystem (Weight: 75)
+- **Blitz Week** — launch in days not months (Weight: 80)
+- **Drag-and-Drop Everything** — no IT required (Weight: 75)
+
 ## Related Docs
 
-- See [design-tokens.md](design-tokens.md) for accent color-to-emotion mapping (orange=pain, blue=trust, green=success, purple=premium)
-- See [social-post-specs.md](social-post-specs.md) for character limits and typography scale
-- See [layout-archetypes.md](layout-archetypes.md) for which layouts suit which messaging patterns
+- [design-tokens.md](design-tokens.md) — accent color-to-emotion mapping
+- [social-post-specs.md](social-post-specs.md) — character limits, typography scale
+- [layout-archetypes.md](layout-archetypes.md) — layout-to-messaging pairing
+- [messaging-frameworks.md](messaging-frameworks.md) — 8 strategic frameworks
+- [audience-personas.md](audience-personas.md) — persona messaging maps
+- [elevator-pitches.md](elevator-pitches.md) — approved pitch language
