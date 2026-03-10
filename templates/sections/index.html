@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Section Template Library</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff;
+      padding: 48px 40px;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 48px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid #1c1c1c;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #44B2FF;
+      margin-bottom: 8px;
+    }
+    .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .header p  { font-size: 12px; color: #3a3a3a; }
+
+    /* Design System bar */
+    .ds-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid #1a1a1a;
+      margin-bottom: 52px;
+    }
+    .ds-block {
+      padding: 18px 20px;
+      border-right: 1px solid #1a1a1a;
+    }
+    .ds-block:last-child { border-right: none; }
+    .ds-block h4 {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 12px;
+    }
+    .stat { font-size: 11px; color: #444; margin-bottom: 5px; }
+    .stat b { color: #aaa; }
+    .rule { font-size: 11px; color: #3a3a3a; margin-bottom: 5px; padding-left: 8px; border-left: 2px solid #1e1e1e; }
+    .rule b { color: #666; }
+
+    /* Section heading */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 32px;
+    }
+
+    /* Template row */
+    .template-row {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 48px;
+      align-items: start;
+      margin-bottom: 72px;
+    }
+
+    .template-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .t-num  { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; color: #44B2FF; text-transform: uppercase; }
+    .t-name { font-size: 15px; font-weight: 700; }
+
+    /* Info card (replaces iframe since .liquid can't render in browser) */
+    .info-card {
+      width: 320px;
+      min-height: 200px;
+      background: #111;
+      border: 1px solid #1a1a1a;
+      padding: 20px;
+      font-size: 11px;
+    }
+    .info-card .label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 6px;
+    }
+    .info-card .file-link {
+      font-family: monospace;
+      font-size: 11px;
+      color: #44B2FF;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .info-card .file-link:hover { text-decoration: underline; }
+    .info-card .summary-stat {
+      font-size: 11px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .info-card .summary-stat b { color: #aaa; }
+
+    /* Spec panel */
+    .spec .desc { font-size: 12px; color: #444; line-height: 1.65; margin-bottom: 20px; }
+
+    .spec-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #282828;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    th {
+      text-align: left;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #222;
+      padding: 5px 8px;
+      border-bottom: 1px solid #161616;
+    }
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #121212;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    td:first-child { color: #44B2FF; font-family: monospace; white-space: nowrap; }
+    td:nth-child(2){ color: #555; }
+    td:nth-child(3){ color: #444; }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .chip-section { background: #0c2233; color: #44B2FF; }
+    .chip-block { background: #1f0c2b; color: #c985e5; }
+    .chip-text { background: #0b2216; color: #44b574; }
+    .chip-dim { background: #111; color: #555; }
+
+    hr { border: none; border-top: 1px solid #141414; margin: 56px 0; }
+
+    /* Collapsible schema */
+    details { margin-bottom: 16px; }
+    details summary {
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #333;
+      padding: 6px 0;
+    }
+    details summary:hover { color: #555; }
+    details pre {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      padding: 12px 16px;
+      font-size: 10px;
+      color: #555;
+      overflow-x: auto;
+      max-height: 300px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="eyebrow">Fluid Creative OS &middot; Website Sections</div>
+  <h1>Section Template Library</h1>
+  <p>12 Gold Standard .liquid templates &middot; Full schema settings &middot; Utility-class styling &middot; Zero hard-coded values</p>
+</div>
+
+<!-- Design System -->
+<div class="ds-bar">
+  <div class="ds-block">
+    <h4>Gold Standard Schema</h4>
+    <div class="stat">Text elements: <b>6 settings each</b></div>
+    <div class="stat">Font family, size mobile, size desktop, weight, color, content</div>
+    <div class="stat">Font sizes: <b>13 options</b> (text-xs to text-9xl)</div>
+    <div class="stat">Colors: <b>13 options</b></div>
+    <div class="stat">Weights: <b>5 options</b></div>
+  </div>
+  <div class="ds-block">
+    <h4>Button Settings</h4>
+    <div class="stat">Show: <b>checkbox</b></div>
+    <div class="stat">Text, URL, Style, Color, Size, Weight</div>
+    <div class="stat">Styles: <b>filled, outline, ghost</b></div>
+    <div class="stat">Sizes: <b>btn-xs to btn-xl</b></div>
+  </div>
+  <div class="ds-block">
+    <h4>Section Settings (5)</h4>
+    <div class="stat">background_color, background_image</div>
+    <div class="stat">section_padding_y_mobile/desktop</div>
+    <div class="stat">section_border_radius</div>
+  </div>
+  <div class="ds-block">
+    <h4>Container Settings (7)</h4>
+    <div class="stat">container_background_color/image</div>
+    <div class="stat">container_border_radius</div>
+    <div class="stat">container_padding_y_mobile/desktop</div>
+    <div class="stat">container_padding_x_mobile/desktop</div>
+  </div>
+</div>
+
+<!-- Templates -->
+<div class="section-label">Templates &mdash; 12 Gold Standard .liquid Sections</div>
+
+<!-- 01: HERO -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">01</span>
+      <span class="t-name">Hero</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="hero.liquid">hero.liquid</a>
+      <div class="summary-stat"><b>37</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, subheading, body</b></div>
+      <div class="summary-stat">Blocks: <b>none</b></div>
+      <div class="summary-stat">Category: <b>Hero</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Full-width hero section with heading, subheading, body text, and CTA button. The reference template that all other sections follow. Three text elements with full 6-setting typography control.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Your Heading Here</td></tr>
+        <tr><td>subheading</td><td>text &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>body</td><td>textarea &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Use <code>node tools/scaffold.cjs hero</code> or duplicate <code>hero.liquid</code></td></tr>
+        <tr><td>2.</td><td>Edit heading, subheading, body text content settings</td></tr>
+        <tr><td>3.</td><td>Adjust typography (font family, sizes, weight, color) per element</td></tr>
+        <tr><td>4.</td><td>Configure button (show/hide, text, URL, style, color)</td></tr>
+        <tr><td>5.</td><td>Set section background and container settings</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 02: FEATURES GRID -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">02</span>
+      <span class="t-name">Features Grid</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="features-grid.liquid">features-grid.liquid</a>
+      <div class="summary-stat"><b>43</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, icon_text, title, description</b></div>
+      <div class="summary-stat">Blocks: <span class="chip chip-block">feature_item</span></div>
+      <div class="summary-stat">Category: <b>Features</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">3-column responsive grid of feature items. Each block has an icon text area, title, and description -- all with full typography control. Section heading above the grid.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Features</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More (hidden)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Block: feature_item</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>icon_text</td><td>text &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>title</td><td>text &middot; 6 settings</td><td>Feature Title</td></tr>
+        <tr><td>description</td><td>textarea &middot; 6 settings</td><td>Feature description goes here.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>features-grid.liquid</code></td></tr>
+        <tr><td>2.</td><td>Edit section heading text</td></tr>
+        <tr><td>3.</td><td>Add feature_item blocks with icon_text, title, and description</td></tr>
+        <tr><td>4.</td><td>Adjust typography for each text element within blocks</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 03: TESTIMONIALS -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">03</span>
+      <span class="t-name">Testimonials</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="testimonials.liquid">testimonials.liquid</a>
+      <div class="summary-stat"><b>44</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, quote, author, role</b></div>
+      <div class="summary-stat">Blocks: <span class="chip chip-block">testimonial</span></div>
+      <div class="summary-stat">Category: <b>Social Proof</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Responsive grid of testimonial cards. Each block has an author image, quote, author name, and role -- all with full typography control. Great for customer stories and social proof.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Testimonials</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Block: testimonial</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>image</td><td>image_picker</td><td>&mdash;</td></tr>
+        <tr><td>quote</td><td>textarea &middot; 6 settings</td><td>This product has transformed our business.</td></tr>
+        <tr><td>author</td><td>text &middot; 6 settings</td><td>Jane Smith</td></tr>
+        <tr><td>role</td><td>text &middot; 6 settings</td><td>CEO, Acme Corp</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>testimonials.liquid</code></td></tr>
+        <tr><td>2.</td><td>Add testimonial blocks with author images, quotes, names, and roles</td></tr>
+        <tr><td>3.</td><td>Adjust grid layout via container padding settings</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 04: CTA BANNER -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">04</span>
+      <span class="t-name">CTA Banner</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="cta-banner.liquid">cta-banner.liquid</a>
+      <div class="summary-stat"><b>38</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, body</b></div>
+      <div class="summary-stat">Blocks: <b>none</b></div>
+      <div class="summary-stat">Category: <b>Call to Action</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Full-width call-to-action banner with dual buttons (primary + secondary). Bold heading with optional body text. Accent background by default. Perfect for conversion-focused sections.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Ready to Get Started?</td></tr>
+        <tr><td>body</td><td>textarea &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>button (primary)</td><td>7 settings</td><td>Learn More</td></tr>
+        <tr><td>button (secondary)</td><td>7 settings</td><td>Learn More (outline)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>cta-banner.liquid</code></td></tr>
+        <tr><td>2.</td><td>Edit heading and body text</td></tr>
+        <tr><td>3.</td><td>Configure both primary and secondary buttons</td></tr>
+        <tr><td>4.</td><td>Set background color (default: bg-accent)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 05: IMAGE TEXT -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">05</span>
+      <span class="t-name">Image Text</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="image-text.liquid">image-text.liquid</a>
+      <div class="summary-stat"><b>34</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, body</b></div>
+      <div class="summary-stat">Blocks: <b>none</b></div>
+      <div class="summary-stat">Category: <b>Content</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Split layout with image on one side and text on the other. Reversible via checkbox setting. Image picker with alt text. Two text elements plus CTA button.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Your Heading Here</td></tr>
+        <tr><td>body</td><td>textarea &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>image</td><td>image_picker + alt text</td><td>&mdash;</td></tr>
+        <tr><td>reverse_layout</td><td>checkbox</td><td>false</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>image-text.liquid</code></td></tr>
+        <tr><td>2.</td><td>Set image and alt text</td></tr>
+        <tr><td>3.</td><td>Edit heading and body text</td></tr>
+        <tr><td>4.</td><td>Toggle reverse_layout to flip image position</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 06: STATISTICS -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">06</span>
+      <span class="t-name">Statistics</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="statistics.liquid">statistics.liquid</a>
+      <div class="summary-stat"><b>37</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, value, label</b></div>
+      <div class="summary-stat">Blocks: <span class="chip chip-block">stat_item</span></div>
+      <div class="summary-stat">Category: <b>Social Proof</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Grid of large stat numbers with labels. Each stat_item block has a value (the big number) and label (the description). 4-column grid on desktop, 2-column on mobile.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>By the Numbers</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Block: stat_item</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>value</td><td>text &middot; 6 settings</td><td>99%</td></tr>
+        <tr><td>label</td><td>text &middot; 6 settings</td><td>Success Rate</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>statistics.liquid</code></td></tr>
+        <tr><td>2.</td><td>Add stat_item blocks with values and labels</td></tr>
+        <tr><td>3.</td><td>Style value text large (default: text-3xl/lg:text-5xl, accent color)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 07: FAQ ACCORDION -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">07</span>
+      <span class="t-name">FAQ Accordion</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="faq-accordion.liquid">faq-accordion.liquid</a>
+      <div class="summary-stat"><b>37</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, question, answer</b></div>
+      <div class="summary-stat">Blocks: <span class="chip chip-block">faq_item</span></div>
+      <div class="summary-stat">Category: <b>Content</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Expandable FAQ section using native HTML details/summary elements. Each faq_item block has a question (summary) and answer (expandable content). No JavaScript required.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Frequently Asked Questions</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Block: faq_item</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>question</td><td>text &middot; 6 settings</td><td>What is your product?</td></tr>
+        <tr><td>answer</td><td>textarea &middot; 6 settings</td><td>Our product helps businesses grow.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>faq-accordion.liquid</code></td></tr>
+        <tr><td>2.</td><td>Add faq_item blocks with questions and answers</td></tr>
+        <tr><td>3.</td><td>Style question text as semibold, answer as normal weight</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 08: LOGO SHOWCASE -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">08</span>
+      <span class="t-name">Logo Showcase</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="logo-showcase.liquid">logo-showcase.liquid</a>
+      <div class="summary-stat"><b>29</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading</b></div>
+      <div class="summary-stat">Blocks: <span class="chip chip-block">logo_item</span></div>
+      <div class="summary-stat">Category: <b>Social Proof</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">6-column logo grid for partner/client logos. Each logo_item has an image, alt text, and optional link URL. Global grayscale toggle for consistent visual treatment.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Trusted By</td></tr>
+        <tr><td>grayscale</td><td>checkbox</td><td>true</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Block: logo_item</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>image</td><td>image_picker</td><td>&mdash;</td></tr>
+        <tr><td>alt_text</td><td>text</td><td>Partner logo</td></tr>
+        <tr><td>link_url</td><td>url</td><td>(empty)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>logo-showcase.liquid</code></td></tr>
+        <tr><td>2.</td><td>Add logo_item blocks with images and alt text</td></tr>
+        <tr><td>3.</td><td>Toggle grayscale for consistent visual treatment</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 09: PRICING -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">09</span>
+      <span class="t-name">Pricing</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="pricing.liquid">pricing.liquid</a>
+      <div class="summary-stat"><b>62</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, subheading, name, price, period, features, cta_text</b></div>
+      <div class="summary-stat">Blocks: <span class="chip chip-block">pricing_tier</span></div>
+      <div class="summary-stat">Category: <b>Commerce</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Pricing card layout with up to 3 tiers. Each tier has plan name, price, period, features richtext, and CTA text. Highlighted tier option for emphasis. Most settings-rich section.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Pricing Plans</td></tr>
+        <tr><td>subheading</td><td>text &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Block: pricing_tier</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>highlighted</td><td>checkbox</td><td>false</td></tr>
+        <tr><td>name</td><td>text &middot; 6 settings</td><td>Basic</td></tr>
+        <tr><td>price</td><td>text &middot; 6 settings</td><td>$29</td></tr>
+        <tr><td>period</td><td>text &middot; 6 settings</td><td>/month</td></tr>
+        <tr><td>features</td><td>textarea &middot; 6 settings</td><td>Feature 1, Feature 2, Feature 3</td></tr>
+        <tr><td>cta_text</td><td>text &middot; 6 settings</td><td>Get Started</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>pricing.liquid</code></td></tr>
+        <tr><td>2.</td><td>Add pricing_tier blocks (typically 2-3 tiers)</td></tr>
+        <tr><td>3.</td><td>Set highlighted=true on the recommended tier</td></tr>
+        <tr><td>4.</td><td>Edit plan names, prices, periods, and feature lists</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 10: CONTENT RICHTEXT -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">10</span>
+      <span class="t-name">Content Richtext</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="content-richtext.liquid">content-richtext.liquid</a>
+      <div class="summary-stat"><b>31</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, body</b></div>
+      <div class="summary-stat">Blocks: <b>none</b></div>
+      <div class="summary-stat">Category: <b>Content</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Simple richtext content section. Heading with WYSIWYG-friendly body richtext. Perfect for long-form content, about pages, and editorial sections. Cleanest section type.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Content Section</td></tr>
+        <tr><td>body</td><td>richtext &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>content-richtext.liquid</code></td></tr>
+        <tr><td>2.</td><td>Edit heading and body richtext content</td></tr>
+        <tr><td>3.</td><td>Body supports full HTML formatting from WYSIWYG editor</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 11: VIDEO -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">11</span>
+      <span class="t-name">Video</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="video.liquid">video.liquid</a>
+      <div class="summary-stat"><b>32</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, body</b></div>
+      <div class="summary-stat">Blocks: <b>none</b></div>
+      <div class="summary-stat">Category: <b>Media</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Video embed section supporting YouTube and Vimeo URLs. Responsive aspect-ratio container. Heading above, optional body text and CTA below the video.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Watch the Video</td></tr>
+        <tr><td>video_url</td><td>text (YouTube/Vimeo URL)</td><td>(empty)</td></tr>
+        <tr><td>body</td><td>textarea &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>button</td><td>7 settings</td><td>Learn More</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>video.liquid</code></td></tr>
+        <tr><td>2.</td><td>Set video_url to YouTube or Vimeo embed URL</td></tr>
+        <tr><td>3.</td><td>Edit heading and optional body text</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- 12: NEWSLETTER -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">12</span>
+      <span class="t-name">Newsletter</span>
+    </div>
+    <div class="info-card">
+      <div class="label">Template File</div>
+      <a class="file-link" href="newsletter.liquid">newsletter.liquid</a>
+      <div class="summary-stat"><b>38</b> total settings</div>
+      <div class="summary-stat">Text elements: <b>heading, body, privacy_text</b></div>
+      <div class="summary-stat">Blocks: <b>none</b></div>
+      <div class="summary-stat">Category: <b>Lead Capture</b></div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Email signup form with heading, body text, email input, submit button, and privacy text. Form action placeholder for backend integration. Three text elements plus inline button.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Type</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>heading</td><td>text &middot; 6 settings</td><td>Stay Updated</td></tr>
+        <tr><td>body</td><td>textarea &middot; 6 settings</td><td>(empty)</td></tr>
+        <tr><td>placeholder_text</td><td>text</td><td>Enter your email</td></tr>
+        <tr><td>button</td><td>7 settings (inline in form)</td><td>Subscribe</td></tr>
+        <tr><td>privacy_text</td><td>text &middot; 6 settings</td><td>(empty)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>newsletter.liquid</code></td></tr>
+        <tr><td>2.</td><td>Edit heading, body, and privacy text</td></tr>
+        <tr><td>3.</td><td>Set form action URL for email service integration</td></tr>
+        <tr><td>4.</td><td>Customize button text and email placeholder</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
