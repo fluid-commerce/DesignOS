@@ -4,7 +4,7 @@ description: "Generate Gold Standard compliant .liquid website sections. Orchest
 invoke: slash
 context: fork
 disable-model-invocation: true
-argument-hint: '"section description" [--type hero|features-grid|testimonials|cta-banner|image-text|statistics|faq-accordion|logo-showcase|pricing|content-richtext|video|newsletter] [--template name] [--debug]'
+argument-hint: '"section description" [--type hero|features-grid|testimonials|cta-banner|image-text|statistics|faq-accordion|logo-showcase|pricing|content-richtext|video|newsletter] [--template name] [--skills skill1,skill2] [--debug]'
 allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Edit
 ---
 
@@ -23,6 +23,28 @@ Parse `$ARGUMENTS` for the following flags and values:
 | `--type` | section type name | (inferred from prompt) | Which section type to generate. Valid: `hero`, `features-grid`, `testimonials`, `cta-banner`, `image-text`, `statistics`, `faq-accordion`, `logo-showcase`, `pricing`, `content-richtext`, `video`, `newsletter` |
 | `--template` | template name | (none) | Use specific existing template as starting point |
 | `--debug` | (flag, no value) | off | Preserve full session directory after completion |
+| `--skills` | comma-separated skill names | (none) | Override default marketing skills. Full override, not additive. e.g., `--skills copywriting,pricing-strategy` |
+
+**Marketing skill resolution (--skills flag):**
+
+If `--skills` flag present:
+```
+resolved_skills = []
+for name in split($skills_arg, ","):
+  path = "skills/marketing/" + trim(name) + "/SKILL.md"
+  if file_exists(path):
+    append resolved_skills, path
+  else:
+    print "WARNING: Unknown skill '{name}' (resolved to {path}) -- skipping"
+
+if resolved_skills is empty:
+  print "WARNING: No valid skills found in --skills argument. Using defaults."
+  (fall through to defaults below)
+else:
+  use resolved_skills for ALL subagent delegation (replaces defaults)
+```
+
+If `--skills` flag NOT present, use hardcoded defaults (embedded below in delegation messages).
 
 **Natural language type matching:**
 If `--type` is not set but the prompt contains natural language hints, match against section types:
@@ -120,7 +142,21 @@ Execute the 4-stage pipeline sequentially using the session directory path.
 Delegate to `copy-agent` via the Agent tool:
 
 **Delegation message:**
-"Generate Fluid brand copy for a website section. mode=section, platform=shopify. Section type: {type}. Brief: {prompt}. {If template: Reference the content structure of templates/sections/{template}.liquid.} Write output to {working_dir}/copy.md. Include: heading text, subheading (if applicable), body text (if applicable), button text, and any block content (feature items, testimonials, FAQ items, etc.). Format as structured markdown with clear labels for each content slot."
+"Generate Fluid brand copy for a website section. mode=section, platform=shopify. Section type: {type}. Brief: {prompt}. {If template: Reference the content structure of templates/sections/{template}.liquid.} Include: heading text, subheading (if applicable), body text (if applicable), button text, and any block content (feature items, testimonials, FAQ items, etc.). Format as structured markdown with clear labels for each content slot.
+
+Brand context (PRIMARY -- must follow):
+- brand/voice-rules.md
+- brand/website-section-specs.md
+
+Marketing expertise (SECONDARY -- reference only, brand docs take precedence in any conflict):
+- {If --skills provided: resolved_skills[0] (if exists)}
+- {If --skills provided: resolved_skills[1] (if exists)}
+- {If --skills NOT provided: skills/marketing/copywriting/SKILL.md}
+- {If --skills NOT provided: skills/marketing/page-cro/SKILL.md}
+
+Apply marketing expertise to strengthen persuasion, specificity, and psychological hooks -- while staying within Fluid brand voice constraints.
+
+Write output to {working_dir}/copy.md"
 
 Wait for completion. Read `{working_dir}/copy.md`.
 
@@ -153,7 +189,14 @@ Print: `[3/4] Styling...     done`
 Delegate to `spec-check-agent` via the Agent tool:
 
 **Delegation message:**
-"Validate the Fluid .liquid section template. mode=section, platform=shopify. Section type: {type}. Read {working_dir}/styled.liquid. Run: node tools/schema-validation.cjs {working_dir}/styled.liquid. Also check: FIXED/FLEXIBLE/OPTIONAL annotations present, zero hard-coded style values, correct Liquid syntax, block.fluid_attributes on block containers. Write report to {working_dir}/spec-report.json"
+"Validate the Fluid .liquid section template. mode=section, platform=shopify. Section type: {type}. Read {working_dir}/styled.liquid. Run: node tools/schema-validation.cjs {working_dir}/styled.liquid. Also check: FIXED/FLEXIBLE/OPTIONAL annotations present, zero hard-coded style values, correct Liquid syntax, block.fluid_attributes on block containers.
+
+Marketing expertise (SECONDARY -- reference for additional validation awareness):
+- {If --skills NOT provided: skills/marketing/seo-audit/SKILL.md}
+
+Check for marketing best practices alongside brand compliance. Brand rules override marketing skill suggestions in all conflicts.
+
+Write report to {working_dir}/spec-report.json"
 
 Wait for completion. Read `{working_dir}/spec-report.json`.
 
@@ -247,6 +290,8 @@ Print the result. If validation fails, note the issues but do not re-enter the f
 - Layout agent: `brand/layout-archetypes.md` + `brand/website-section-specs.md`
 - Styling agent: `brand/design-tokens.md` + `brand/asset-usage.md` + `brand/website-section-specs.md`
 - Spec-check agent: loads relevant brand docs per check category
+
+**NEVER load more than 2 marketing skills per subagent.** Marketing skills are secondary reference -- brand docs always take precedence.
 
 **NEVER use hard-coded style values in .liquid templates.** All styles must come from schema settings via utility classes.
 

@@ -4,7 +4,7 @@ description: "Generate brand-correct Fluid social posts from a simple prompt. Cr
 invoke: slash
 context: fork
 disable-model-invocation: true
-argument-hint: '"topic or brief" [--platform instagram|linkedin] [--product connect|payments] [--template archetype] [--variations N] [--ref path] [--debug]'
+argument-hint: '"topic or brief" [--platform instagram|linkedin] [--product connect|payments] [--template archetype] [--variations N] [--ref path] [--skills skill1,skill2] [--debug]'
 allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Edit
 ---
 
@@ -26,6 +26,28 @@ Parse `$ARGUMENTS` for the following flags and values:
 | `--variations` | integer N | `1` | Number of distinct takes to generate. Each variation runs the full pipeline independently. |
 | `--ref` | file path | (none) | Explicit reference file for style matching. |
 | `--debug` | (flag, no value) | off | Preserve full session directory (all intermediate artifacts) after completion. |
+| `--skills` | comma-separated skill names | (none) | Override default marketing skills. Full override, not additive. e.g., `--skills copywriting,pricing-strategy` |
+
+**Marketing skill resolution (--skills flag):**
+
+If `--skills` flag present:
+```
+resolved_skills = []
+for name in split($skills_arg, ","):
+  path = "skills/marketing/" + trim(name) + "/SKILL.md"
+  if file_exists(path):
+    append resolved_skills, path
+  else:
+    print "WARNING: Unknown skill '{name}' (resolved to {path}) -- skipping"
+
+if resolved_skills is empty:
+  print "WARNING: No valid skills found in --skills argument. Using defaults."
+  (fall through to defaults below)
+else:
+  use resolved_skills for ALL subagent delegation (replaces defaults)
+```
+
+If `--skills` flag NOT present, use hardcoded defaults (embedded below in delegation messages).
 
 **Natural language template matching:**
 If `--template` is not set but the prompt contains natural language template hints (e.g., "use the pain post template", "make it a manifesto", "stat post about..."), match against templates:
@@ -140,7 +162,21 @@ Use the session directory path. For single variation: `.fluid/working/{sessionId
 Delegate to `copy-agent` via the Agent tool:
 
 **Delegation message:**
-"Generate Fluid brand copy for a social post. Topic: {prompt}. Platform: {platform}. {If product: Product context: {product} -- use product-specific features, terminology, and pain points from Fluid {product}.} {If template: Follow the structure of templates/social/{template}.html closely.} {If ref: Reference the style and tone of {ref}.} Write output to {working_dir}/copy.md"
+"Generate Fluid brand copy for a social post. Topic: {prompt}. Platform: {platform}. {If product: Product context: {product} -- use product-specific features, terminology, and pain points from Fluid {product}.} {If template: Follow the structure of templates/social/{template}.html closely.} {If ref: Reference the style and tone of {ref}.}
+
+Brand context (PRIMARY -- must follow):
+- brand/voice-rules.md
+- brand/social-post-specs.md
+
+Marketing expertise (SECONDARY -- reference only, brand docs take precedence in any conflict):
+- {If --skills provided: resolved_skills[0] (if exists)}
+- {If --skills provided: resolved_skills[1] (if exists)}
+- {If --skills NOT provided: skills/marketing/copywriting/SKILL.md}
+- {If --skills NOT provided: skills/marketing/social-content/SKILL.md}
+
+Apply marketing expertise to strengthen persuasion, specificity, and psychological hooks -- while staying within Fluid brand voice constraints.
+
+Write output to {working_dir}/copy.md"
 
 Wait for completion. Then read `{working_dir}/copy.md` and extract the accent color and archetype.
 
@@ -175,7 +211,14 @@ Read `{working_dir}/copy.md` to get the accent color and archetype values.
 Delegate to `spec-check-agent` via the Agent tool:
 
 **Delegation message:**
-"Validate the Fluid social post. Platform: {platform}. Accent color: {color}. Archetype: {archetype}. Read {working_dir}/styled.html. Run CLI tools and holistic review. Write report to {working_dir}/spec-report.json"
+"Validate the Fluid social post. Platform: {platform}. Accent color: {color}. Archetype: {archetype}. Read {working_dir}/styled.html. Run CLI tools and holistic review.
+
+Marketing expertise (SECONDARY -- reference for additional validation awareness):
+- {If --skills NOT provided: skills/marketing/analytics-tracking/SKILL.md}
+
+Check for marketing best practices alongside brand compliance. Brand rules override marketing skill suggestions in all conflicts.
+
+Write report to {working_dir}/spec-report.json"
 
 Wait for completion. Read `{working_dir}/spec-report.json`.
 
@@ -297,6 +340,8 @@ Saved: ./output/fluid-social-instagram-problem-first-20260310.html
 - Layout agent: `brand/layout-archetypes.md` + `brand/social-post-specs.md`
 - Styling agent: `brand/design-tokens.md` + `brand/asset-usage.md` + `brand/social-post-specs.md` + `patterns/index.html`
 - Spec-check agent: loads relevant brand docs per check category (scoped reads)
+
+**NEVER load more than 2 marketing skills per subagent.** Marketing skills are secondary reference -- brand docs always take precedence.
 
 **NEVER regenerate from scratch in fix loops.** Fix loops make targeted, surgical edits to existing output. Only the specific issues identified by spec-check are addressed.
 
