@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "fluid-canvas": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "canvas/mcp/server.ts"]
+    }
+  }
+}
