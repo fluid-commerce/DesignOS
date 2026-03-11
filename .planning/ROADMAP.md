@@ -125,17 +125,18 @@ Plans:
 ### Phase 6: Marketing Skills Integration
 **Goal**: 30 marketing domain skills (~/.agents/skills/) become composable intelligence that subagents automatically load based on task type — giving copy, layout, styling, and spec-check agents deep marketing expertise (CRO, SEO, copywriting, psychology, analytics) alongside brand context
 **Depends on**: Phase 2 (needs working orchestrator-subagent pattern; can run in parallel with Phases 3-5)
-**Requirements**: TBD (to be derived during planning)
+**Requirements**: MKTG-01, MKTG-02, MKTG-03, MKTG-04, MKTG-05
 **Success Criteria** (what must be TRUE):
   1. Subagents spawned for social posts, website sections, and one-pagers automatically load 3-6 relevant marketing skills based on task type without operator intervention
   2. A copy subagent generating a landing page hero section applies CRO principles (value prop clarity, headline effectiveness) and psychological hooks from the skills library, not just brand voice
   3. Marketing skill loading follows the same weight/role-mapping pattern as brand docs — focused loading, not dump-everything
   4. Skills are composable: an operator can override or extend the default skill set for a task type
   5. The system has a skill-to-task mapping registry that documents which skills load for which asset types and subagent roles
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD (run /gsd:plan-phase 6 to break down)
+- [ ] 06-01-PLAN.md — Copy 30 marketing skills + interactive skill-map.json curation
+- [ ] 06-02-PLAN.md — Update orchestrator delegation + sync.sh distribution + brand/index.md
 
 ## Progress
 
@@ -152,4 +153,4 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5 > 6
 | 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
 | 5. Learning Loop | 1/2 | In Progress|  |
-| 6. Marketing Skills Integration | 0/? | Not started | - |
+| 6. Marketing Skills Integration | 0/2 | Not started | - |

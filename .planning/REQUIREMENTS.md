@@ -89,6 +89,14 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DIST-02**: Installation script or clear setup instructions for both Claude Code and Cursor
 - [x] **DIST-03**: Works via sync.sh pattern or equivalent for both platforms
 
+### Marketing Skills Integration
+
+- [ ] **MKTG-01**: Subagents automatically load relevant marketing skills based on task type (asset type + role) without operator intervention
+- [ ] **MKTG-02**: Copy subagent applies CRO principles, psychological hooks, and domain expertise from marketing skills alongside brand voice
+- [ ] **MKTG-03**: Marketing skill loading follows focused role-mapping pattern — 1-2 skills max per subagent, brand docs take precedence
+- [ ] **MKTG-04**: Skills are composable via --skills operator override on any orchestrator command (full override, not additive)
+- [ ] **MKTG-05**: Skill-to-task mapping registry (brand/skill-map.json) documents which skills load for which asset types and subagent roles
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -184,12 +192,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CANV-05 | Phase 4 | Complete |
 | META-01 | Phase 5 | Complete |
 | META-02 | Phase 5 | Complete |
+| MKTG-01 | Phase 6 | Planned (06-02) |
+| MKTG-02 | Phase 6 | Planned (06-02) |
+| MKTG-03 | Phase 6 | Planned (06-01) |
+| MKTG-04 | Phase 6 | Planned (06-02) |
+| MKTG-05 | Phase 6 | Planned (06-01) |
 
 **Coverage:**
-- v1 requirements: 52 total
-- Mapped to phases: 52
+- v1 requirements: 57 total
+- Mapped to phases: 57
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-10 after 01-01 completion*
+*Last updated: 2026-03-11 after Phase 6 planning*
