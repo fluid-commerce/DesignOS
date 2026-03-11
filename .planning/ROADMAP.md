@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Website Sections + One-Pagers** - Extend proven orchestrator to .liquid sections and sales collateral
 - [ ] **Phase 4: Canvas + Iteration** - React app for viewing, annotating, and comparing asset variations with MCP agent bridge
 - [ ] **Phase 5: Learning Loop** - Feedback ingestion that reads iteration trajectories and updates brand rules
+- [ ] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system
 
 ## Phase Details
 
@@ -115,16 +116,33 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Running the feedback ingestion skill on a completed iteration trajectory produces specific, actionable updates to brand docs or templates (not vague suggestions)
   2. The system distinguishes asset-specific feedback (applied automatically) from systemic brand changes (flagged for human approval before applying)
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Feedback ingestion engine (session discovery, signal extraction, pattern clustering, proposal generation)
+- [ ] 05-02-PLAN.md — Slash command skills (/feedback-ingest approval walkthrough + /fluid-design-os-feedback capture)
+
+### Phase 6: Marketing Skills Integration
+**Goal**: 30 marketing domain skills (~/.agents/skills/) become composable intelligence that subagents automatically load based on task type — giving copy, layout, styling, and spec-check agents deep marketing expertise (CRO, SEO, copywriting, psychology, analytics) alongside brand context
+**Depends on**: Phase 2 (needs working orchestrator-subagent pattern; can run in parallel with Phases 3-5)
+**Requirements**: TBD (to be derived during planning)
+**Success Criteria** (what must be TRUE):
+  1. Subagents spawned for social posts, website sections, and one-pagers automatically load 3-6 relevant marketing skills based on task type without operator intervention
+  2. A copy subagent generating a landing page hero section applies CRO principles (value prop clarity, headline effectiveness) and psychological hooks from the skills library, not just brand voice
+  3. Marketing skill loading follows the same weight/role-mapping pattern as brand docs — focused loading, not dump-everything
+  4. Skills are composable: an operator can override or extend the default skill set for a task type
+  5. The system has a skill-to-task mapping registry that documents which skills load for which asset types and subagent roles
 **Plans**: TBD
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 06-01: TBD (run /gsd:plan-phase 6 to break down)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5
+Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5 > 6
 (Phase 4 depends on Phase 2, not Phase 3 -- Phases 3 and 4 could run in parallel)
+(Phase 6 depends on Phase 2 -- can run in parallel with Phases 3-5)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -133,4 +151,5 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
 | 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
-| 5. Learning Loop | 0/1 | Not started | - |
+| 5. Learning Loop | 0/2 | Not started | - |
+| 6. Marketing Skills Integration | 0/? | Not started | - |
