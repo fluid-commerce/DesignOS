@@ -60,6 +60,7 @@ export interface Lineage {
   platform: string;
   product: string | null;
   template: string | null;
+  title?: string;
   // Phase 4 format
   rounds?: Round[];
   // Phase 2 format (backward compat)
@@ -86,6 +87,25 @@ export interface LegacyEntry {
   archetype: string;
   accentColor: string;
   output: string;
+}
+
+// Iteration context for buildIterationContext payload
+export interface IterationContext {
+  winnerHtml: string;
+  annotations: Annotation[];
+  statuses: Record<string, VariationStatus>;
+  currentRound: number;
+  originalPrompt: string;
+}
+
+// Request body for POST /api/generate
+export interface GenerateRequestBody {
+  prompt: string;
+  template?: string;
+  customization?: object;
+  skillType?: string;
+  sessionId?: string;
+  iterationContext?: IterationContext;
 }
 
 // Dimension presets for known asset types

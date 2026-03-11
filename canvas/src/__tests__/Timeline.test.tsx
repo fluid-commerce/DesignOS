@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Timeline } from '../components/Timeline';
-import { IteratePanel } from '../components/IteratePanel';
 import { PromptReveal } from '../components/PromptReveal';
 import { useAnnotationStore } from '../store/annotations';
 import type { Lineage, Round } from '../lib/types';
@@ -69,50 +68,6 @@ describe('Timeline', () => {
 
     render(<Timeline lineage={lineage} statuses={{}} />);
     expect(screen.getByText('No iteration rounds yet.')).toBeDefined();
-  });
-});
-
-describe('IteratePanel', () => {
-  beforeEach(() => {
-    useAnnotationStore.setState({
-      annotations: [],
-      statuses: {},
-      activePin: null,
-      _saveTimer: null,
-      _sessionId: null,
-    });
-    vi.restoreAllMocks();
-  });
-
-  it('disables Iterate button when multi-variation and no winner is marked', () => {
-    render(
-      <IteratePanel
-        sessionId="test"
-        annotations={[]}
-        statuses={{ 'v1/styled.html': 'unmarked', 'v2/styled.html': 'unmarked' }}
-        currentRound={1}
-        variationCount={2}
-      />
-    );
-
-    const button = screen.getByTestId('iterate-button') as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
-    expect(screen.getByText('Mark a winner to iterate')).toBeDefined();
-  });
-
-  it('enables Iterate button when winner is marked', () => {
-    render(
-      <IteratePanel
-        sessionId="test"
-        annotations={[]}
-        statuses={{ 'v1/styled.html': 'winner', 'v2/styled.html': 'rejected' }}
-        currentRound={1}
-        variationCount={2}
-      />
-    );
-
-    const textarea = screen.getByTestId('iterate-feedback') as HTMLTextAreaElement;
-    expect(textarea.disabled).toBe(false);
   });
 });
 

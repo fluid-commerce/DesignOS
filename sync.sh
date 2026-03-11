@@ -42,7 +42,8 @@ while [[ $# -gt 0 ]]; do
       echo "  --uninstall Remove all ${NAMESPACE}-* skills from target platforms"
       echo ""
       echo "This script installs Fluid Creative OS skills into Claude Code and/or Cursor."
-      echo "It does NOT touch ~/.agents/ or global Claude Code commands."
+      echo "It also distributes marketing skills from skills/marketing/ to ~/.agents/skills/ globally."
+      echo "It does NOT touch ~/.agents/ orchestrator skills or global Claude Code commands."
       exit 0
       ;;
     *)
@@ -118,6 +119,24 @@ if [ "$UNINSTALL" = true ]; then
         ((REMOVED++))
       else
         echo "  Not found: $dir (skipping)"
+      fi
+    done
+  fi
+
+  # Remove marketing skills from ~/.agents/skills/
+  echo ""
+  echo "Marketing Skills (global):"
+  MARKETING_SKILLS_DIR="$REPO_DIR/skills/marketing"
+  if [ -d "$MARKETING_SKILLS_DIR" ]; then
+    for skill_dir in "$MARKETING_SKILLS_DIR"/*/; do
+      skill_name=$(basename "$skill_dir")
+      dst_dir="$HOME/.agents/skills/$skill_name"
+      if [ -d "$dst_dir" ]; then
+        echo "  Removing: $dst_dir"
+        run rm -rf "$dst_dir"
+        ((REMOVED++))
+      else
+        echo "  Not found: $dst_dir (skipping)"
       fi
     done
   fi
@@ -199,6 +218,37 @@ if [ "$TARGET" = "cursor" ] || [ "$TARGET" = "both" ]; then
 fi
 
 # ──────────────────────────────────────────────
+# INSTALL: MARKETING SKILLS (global distribution)
+# ──────────────────────────────────────────────
+MARKETING_SKILLS_DIR="$REPO_DIR/skills/marketing"
+
+if [ -d "$MARKETING_SKILLS_DIR" ]; then
+  echo ""
+  echo "--- Marketing Skills (global) ---"
+
+  for skill_dir in "$MARKETING_SKILLS_DIR"/*/; do
+    skill_name=$(basename "$skill_dir")
+    dst_dir="$HOME/.agents/skills/$skill_name"
+
+    if [ ! -f "$skill_dir/SKILL.md" ]; then
+      echo "  SKIP: $skill_name (SKILL.md not found)"
+      continue
+    fi
+
+    run mkdir -p "$dst_dir"
+
+    if [ "$DRY_RUN" = true ]; then
+      echo "  [dry-run] cp -r $skill_dir/* $dst_dir/"
+    else
+      cp -r "$skill_dir"/* "$dst_dir/"
+    fi
+
+    echo "  Overwrote: $dst_dir"
+    ((INSTALLED++))
+  done
+fi
+
+# ──────────────────────────────────────────────
 # REPORT
 # ──────────────────────────────────────────────
 echo ""
@@ -212,6 +262,7 @@ fi
 if [ "$TARGET" = "cursor" ] || [ "$TARGET" = "both" ]; then
   echo "  ls ~/.cursor/skills/ | grep ${NAMESPACE}"
 fi
+echo "  ls ~/.agents/skills/ | grep -c ''"
 echo ""
-echo "Important: This script does NOT modify ~/.agents/ or global Claude Code commands."
-echo "Your existing global skills are untouched."
+echo "Important: This script distributes marketing skills to ~/.agents/skills/ globally."
+echo "Orchestrator skills (Claude/Cursor) are NOT modified by this script."

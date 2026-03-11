@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-03 generation engine (stream parser, generate endpoint, generation store)
-last_updated: "2026-03-11T12:52:50.413Z"
-last_activity: 2026-03-11 -- Completed 04.1-01 winner UX overhaul (star toggle, smart iterate unblock)
+stopped_at: Completed 06-02-PLAN.md — orchestrator pipeline wiring
+last_updated: "2026-03-11T18:01:50.630Z"
+last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
-  total_phases: 6
-  completed_phases: 3
-  total_plans: 18
-  completed_plans: 16
-  percent: 82
+  total_phases: 7
+  completed_phases: 4
+  total_plans: 22
+  completed_plans: 19
+  percent: 89
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 Phase: 4.1 of 5 (Canvas Polish & Integration Hardening)
 Plan: 4 of 4 in current phase (04.1-01, 04.1-02, 04.1-03 complete)
 Status: In Progress
-Last activity: 2026-03-11 -- Completed 04.1-03 generation engine (stream parser, generate endpoint, generation store)
+Last activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 
 Progress: [█████████░] 89% (Overall: 16/18 plans)
 
@@ -61,6 +61,10 @@ Progress: [█████████░] 89% (Overall: 16/18 plans)
 | Phase 04.1 P01 | 3min | 2 tasks | 7 files |
 | Phase 04.1 P02 | 4min | 2 tasks | 9 files |
 | Phase 04.1 P03 | 3min | 2 tasks | 6 files |
+| Phase 04.1 P01 | 3min | 2 tasks | 7 files |
+| Phase 05-learning-loop P01 | 4min | 2 tasks | 2 files |
+| Phase 05 P02 | 20min | 3 tasks | 2 files |
+| Phase 06-marketing-skills-integration P02 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -120,6 +124,21 @@ Recent decisions affecting current work:
 - [Phase 04.1]: stdin inherit (not pipe) for claude spawn -- piped stdin causes hang (GitHub #771)
 - [Phase 04.1]: Concurrent generation lock returns 409 rather than queueing -- single user canvas
 - [Phase 04.1]: SSE frames use event: stderr for stderr forwarding, event: done for completion
+- [04.1-02]: Mode detection uses both activeSessionId AND activeSessionData presence (not just ID) for safety
+- [04.1-02]: Annotation badge counts only pin-type annotations, not sidebar notes
+- [04.1-02]: + New button calls clearSelection(), resetGeneration(), setPrompt('') for clean state reset
+- [04.1-02]: Session list uses optional title with fallback to session ID -- server populates title in Plan 03
+- [Phase 04.1]: buildIterationContext is a pure function returning IterationContext payload (no fetch, no file writes)
+- [Phase 04.1]: Single-variation sessions auto-infer winner without explicit star marking
+- [Phase 05-01]: Pattern clustering uses (asset_type, topic) tuples with keyword extraction — covers 9 signal topics without NLP dependencies
+- [Phase 05-01]: Directive bypass uses DIRECTIVE_KEYWORDS list (never, always, don't, stop using, avoid) — pragmatic approach, zero-dependency
+- [Phase 05-01]: Confidence scoring: HIGH=5+ sessions or feedback file, MEDIUM=3-4 sessions, LOW=threshold bypass (1 session)
+- [Phase 05-02]: AskUserQuestion is not a real Claude Code tool — both skills use conversational prompts instead of AskUserQuestion
+- [Phase 05-02]: Audit-trail-first: engine writes proposal file BEFORE walkthrough begins (full run, no --dry-run)
+- [Phase 05-02]: Batch-apply pattern: collect ALL decisions then apply ALL approved changes atomically — no partial state mid-walkthrough
+- [Phase 06-marketing-skills-integration]: Marketing skills embedded as hardcoded defaults in orchestrator skills (no runtime skill-map.json reads)
+- [Phase 06-marketing-skills-integration]: Brand docs listed first (PRIMARY), marketing skills second (SECONDARY) with explicit precedence framing in all delegation messages
+- [Phase 06-marketing-skills-integration]: --skills flag is a full override (not additive) -- resolved_skills replaces defaults for ALL subagent delegation
 
 ### Pending Todos
 
@@ -128,6 +147,7 @@ None yet.
 ### Roadmap Evolution
 
 - Phase 04.1 inserted after Phase 4: Canvas Polish & Integration Hardening (URGENT) — addresses permissions, file watcher auto-discovery, MCP→agent triggering, canvas UX overhaul (star/favorite, remove aggressive blocking, infer winner), generation speed optimization, skill path hardening
+- Phase 6 added: Marketing Skills Integration — deep integration of 30 marketing domain skills (~/.agents/skills/) into subagent system for composable marketing intelligence
 
 ### Blockers/Concerns
 
@@ -137,6 +157,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T12:52:50.411Z
-Stopped at: Completed 04.1-03 generation engine (stream parser, generate endpoint, generation store)
+Last session: 2026-03-11T18:01:50.628Z
+Stopped at: Completed 06-02-PLAN.md — orchestrator pipeline wiring
 Resume file: None

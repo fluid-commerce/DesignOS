@@ -4,7 +4,6 @@ import { TemplateGallery } from './components/TemplateGallery';
 import { TemplateCustomizer } from './components/TemplateCustomizer';
 import { VariationGrid } from './components/VariationGrid';
 import { Timeline } from './components/Timeline';
-import { IteratePanel } from './components/IteratePanel';
 import { SidebarNotes } from './components/SidebarNotes';
 import { useSessionStore } from './store/sessions';
 import { useGenerationStore } from './store/generation';
@@ -23,6 +22,8 @@ export function App() {
   const loading = useSessionStore((s) => s.loading);
 
   const generationStatus = useGenerationStore((s: any) => s.status);
+  const generationSessionId = useGenerationStore((s: any) => s.activeSessionId);
+  const selectSession = useSessionStore((s) => s.selectSession);
 
   const {
     annotations,
@@ -48,13 +49,20 @@ export function App() {
     refreshSessions();
   }, [refreshSessions]);
 
-  // Auto-switch to session view when generation completes
+  // Auto-switch to session view when generation starts or completes
   useEffect(() => {
-    if (generationStatus === 'complete') {
-      refreshSessions();
+    if (generationStatus === 'generating') {
       setMainView('session');
     }
-  }, [generationStatus, refreshSessions]);
+    if (generationStatus === 'complete') {
+      // Refresh sessions list, then auto-select the generated session
+      refreshSessions().then(() => {
+        if (generationSessionId) {
+          selectSession(generationSessionId);
+        }
+      });
+    }
+  }, [generationStatus, refreshSessions, generationSessionId, selectSession]);
 
   // Switch to session view when a session is selected
   useEffect(() => {
@@ -202,13 +210,30 @@ export function App() {
                 {!loading && !activeSessionData && (
                   <div style={{
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '100%',
                     color: '#555',
                     fontSize: '0.95rem',
+                    gap: '1rem',
                   }}>
-                    Select a session to view variations
+                    {generationStatus === 'generating' ? (
+                      <>
+                        <div style={{
+                          width: 40, height: 40, borderRadius: '50%',
+                          border: '3px solid #333', borderTopColor: '#3b82f6',
+                          animation: 'spin 1s linear infinite',
+                        }} />
+                        <div style={{ color: '#888' }}>Generating your asset...</div>
+                        <div style={{ color: '#555', fontSize: '0.8rem' }}>
+                          Watch the sidebar for progress
+                        </div>
+                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                      </>
+                    ) : (
+                      'Select a session to view variations'
+                    )}
                   </div>
                 )}
 
@@ -227,16 +252,7 @@ export function App() {
                 )}
               </div>
 
-              {/* Iterate panel (below grid) */}
-              {!loading && activeSessionData && activeSessionId && (
-                <IteratePanel
-                  sessionId={activeSessionId}
-                  annotations={annotations}
-                  statuses={statuses}
-                  currentRound={currentRound}
-                  variationCount={activeSessionData.variations.length}
-                />
-              )}
+              {/* Iterate panel placeholder -- will be replaced in Plan 04 */}
             </div>
           )}
         </main>

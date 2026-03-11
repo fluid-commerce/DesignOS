@@ -51,6 +51,20 @@ Every brand rule carries a numeric weight (1-100) with named thresholds:
 
 Weights are tunable over time through the feedback/ directory and Phase 5 learning loop.
 
+## Marketing Skill Loading
+
+Marketing skills from `skills/marketing/` provide secondary expertise for subagents. They supplement brand docs (never replace them). See `brand/skill-map.json` for the full mapping.
+
+- **Copy agent** (social posts): also reads `skills/marketing/copywriting/SKILL.md` + `skills/marketing/social-content/SKILL.md`
+- **Copy agent** (one-pagers): also reads `skills/marketing/copywriting/SKILL.md` + `skills/marketing/sales-enablement/SKILL.md`
+- **Copy agent** (website sections): also reads `skills/marketing/copywriting/SKILL.md` + `skills/marketing/page-cro/SKILL.md`
+- **Spec-check agent** (social posts): also reads `skills/marketing/analytics-tracking/SKILL.md`
+- **Spec-check agent** (website sections): also reads `skills/marketing/seo-audit/SKILL.md`
+
+Operators can override defaults with `--skills copywriting,pricing-strategy` on any orchestrator command (full override, not additive).
+
+Brand docs are always PRIMARY. Marketing skills are SECONDARY -- brand rules override marketing skill suggestions in all conflicts.
+
 ## Related Docs
 
 - See [asset-index.md](asset-index.md) for the complete asset inventory with file paths

@@ -2,11 +2,14 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useGenerationStream } from '../hooks/useGenerationStream';
 import { StreamMessage } from './StreamMessage';
 import { useSessionStore } from '../store/sessions';
+import { useGenerationStore } from '../store/generation';
+import { useAnnotations } from '../hooks/useAnnotations';
 import type { StreamUIMessage } from '../lib/stream-parser';
 
 /**
  * Left sidebar with prompt input and streaming agent output display.
  * Always visible regardless of main pane view.
+ * Session-aware: switches between "Create with AI" (new) and "Iterate on [Title]" mode.
  * Includes a collapsible "Recent Sessions" list at the bottom.
  */
 export function PromptSidebar() {
@@ -16,7 +19,16 @@ export function PromptSidebar() {
 
   const sessions = useSessionStore((s) => s.sessions);
   const activeSessionId = useSessionStore((s) => s.activeSessionId);
+  const activeSessionData = useSessionStore((s) => s.activeSessionData);
   const setActiveSessionId = useSessionStore((s) => s.setActiveSessionId);
+  const clearSelection = useSessionStore((s) => s.clearSelection);
+  const resetGeneration = useGenerationStore((s) => s.reset);
+  const { annotations } = useAnnotations();
+
+  // Mode detection
+  const isIterateMode = !!activeSessionId && !!activeSessionData;
+  const projectTitle = activeSessionData?.lineage?.title ?? activeSessionId ?? '';
+  const annotationCount = annotations.filter((a) => a.type === 'pin').length;
 
   const isGenerating = status === 'generating';
 
@@ -52,12 +64,25 @@ export function PromptSidebar() {
     setPrompt('');
   };
 
+  const handleNewSession = () => {
+    clearSelection();
+    resetGeneration();
+    setPrompt('');
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleGenerate();
     }
   };
+
+  // Contextual text based on mode
+  const headerText = isIterateMode ? `Iterate on ${projectTitle}` : 'Create with AI';
+  const placeholderText = isIterateMode ? 'Describe changes...' : 'Describe what you want to create...';
+  const buttonText = isIterateMode
+    ? (isGenerating ? 'Iterating...' : 'Iterate')
+    : (isGenerating ? 'Generating...' : 'Generate');
 
   return (
     <div
@@ -73,15 +98,51 @@ export function PromptSidebar() {
     >
       {/* Prompt input area */}
       <div style={{ padding: '0.75rem', borderBottom: '1px solid #2a2a3e' }}>
-        <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.35rem' }}>
-          Create with AI
+        {/* Header with optional + New button */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ fontSize: '0.75rem', color: '#666' }}>
+              {headerText}
+            </span>
+            {isIterateMode && annotationCount > 0 && (
+              <span
+                style={{
+                  fontSize: '0.6rem',
+                  color: '#a78bfa',
+                  backgroundColor: '#2d2050',
+                  padding: '0.1rem 0.35rem',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                }}
+              >
+                {annotationCount} annotation{annotationCount !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          {isIterateMode && (
+            <button
+              onClick={handleNewSession}
+              style={{
+                background: 'none',
+                border: '1px solid #3a3a52',
+                color: '#888',
+                fontSize: '0.68rem',
+                padding: '0.15rem 0.4rem',
+                borderRadius: 4,
+                cursor: 'pointer',
+                fontWeight: 500,
+              }}
+            >
+              + New
+            </button>
+          )}
         </div>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isGenerating}
-          placeholder="Describe what you want to create..."
+          placeholder={placeholderText}
           style={{
             width: '100%',
             backgroundColor: '#252540',
@@ -113,7 +174,7 @@ export function PromptSidebar() {
             cursor: isGenerating ? 'not-allowed' : 'pointer',
           }}
         >
-          {isGenerating ? 'Generating...' : 'Generate'}
+          {buttonText}
         </button>
         {isGenerating && (
           <button
@@ -193,7 +254,12 @@ export function PromptSidebar() {
               cursor: 'pointer',
             }}
           >
-            {s.id}
+            <div>{s.title ?? s.id}</div>
+            {s.title && (
+              <div style={{ fontSize: '0.6rem', color: '#555', marginTop: '0.1rem' }}>
+                {s.id}
+              </div>
+            )}
           </button>
         ))}
         {sessions.length === 0 && (

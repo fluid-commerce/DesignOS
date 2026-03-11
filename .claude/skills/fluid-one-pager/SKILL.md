@@ -4,7 +4,7 @@ description: "Generate print-ready Fluid one-pager sales collateral from a simpl
 invoke: slash
 context: fork
 disable-model-invocation: true
-argument-hint: '"topic or brief" [--type product-feature|partner|company|case-study|comparison] [--product connect|payments] [--template name] [--ref path] [--debug]'
+argument-hint: '"topic or brief" [--type product-feature|partner|company|case-study|comparison] [--product connect|payments] [--template name] [--ref path] [--skills skill1,skill2] [--debug]'
 allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Edit
 ---
 
@@ -25,6 +25,28 @@ Parse `$ARGUMENTS` for the following flags and values:
 | `--template` | template name | (none) | Use specific template as starting point. |
 | `--ref` | file path | (none) | Explicit reference file for style matching. |
 | `--debug` | (flag, no value) | off | Preserve full session directory after completion. |
+| `--skills` | comma-separated skill names | (none) | Override default marketing skills. Full override, not additive. e.g., `--skills copywriting,pricing-strategy` |
+
+**Marketing skill resolution (--skills flag):**
+
+If `--skills` flag present:
+```
+resolved_skills = []
+for name in split($skills_arg, ","):
+  path = "skills/marketing/" + trim(name) + "/SKILL.md"
+  if file_exists(path):
+    append resolved_skills, path
+  else:
+    print "WARNING: Unknown skill '{name}' (resolved to {path}) -- skipping"
+
+if resolved_skills is empty:
+  print "WARNING: No valid skills found in --skills argument. Using defaults."
+  (fall through to defaults below)
+else:
+  use resolved_skills for ALL subagent delegation (replaces defaults)
+```
+
+If `--skills` flag NOT present, use hardcoded defaults (embedded below in delegation messages).
 
 **Natural language type matching:**
 If `--type` is not set but the prompt contains natural language hints, match against types:
@@ -123,7 +145,20 @@ Execute the 4-stage pipeline sequentially.
 Delegate to `copy-agent` via the Agent tool:
 
 **Delegation message:**
-"Generate Fluid brand copy for a one-pager. Mode: one-pager. Topic: {prompt}. Type: {type or 'infer from topic'}. {If product: Product context: {product} -- use product-specific features, terminology, and pain points from Fluid {product}.} {If template: Follow the content structure of templates/one-pagers/{template}.html closely.} {If ref: Reference the style and tone of {ref}.} Write output to {working_dir}/copy.md"
+"Generate Fluid brand copy for a one-pager. Mode: one-pager. Topic: {prompt}. Type: {type or 'infer from topic'}. {If product: Product context: {product} -- use product-specific features, terminology, and pain points from Fluid {product}.} {If template: Follow the content structure of templates/one-pagers/{template}.html closely.} {If ref: Reference the style and tone of {ref}.}
+
+Brand context (PRIMARY -- must follow):
+- brand/voice-rules.md
+
+Marketing expertise (SECONDARY -- reference only, brand docs take precedence in any conflict):
+- {If --skills provided: resolved_skills[0] (if exists)}
+- {If --skills provided: resolved_skills[1] (if exists)}
+- {If --skills NOT provided: skills/marketing/copywriting/SKILL.md}
+- {If --skills NOT provided: skills/marketing/sales-enablement/SKILL.md}
+
+Apply marketing expertise to strengthen persuasion, specificity, and psychological hooks -- while staying within Fluid brand voice constraints.
+
+Write output to {working_dir}/copy.md"
 
 Wait for completion. Then read `{working_dir}/copy.md` and extract the accent color and type.
 
@@ -278,6 +313,8 @@ Saved: ./output/fluid-one-pager-product-feature-20260310.html
 - Layout agent: `brand/layout-archetypes.md` + template file for structure reference
 - Styling agent: `brand/design-tokens.md` + `brand/asset-usage.md` + `patterns/index.html`
 - Spec-check agent: loads relevant brand docs per check category
+
+**NEVER load more than 2 marketing skills per subagent.** Marketing skills are secondary reference -- brand docs always take precedence.
 
 **NEVER regenerate from scratch in fix loops.** Fix loops make targeted, surgical edits to existing output.
 

@@ -328,20 +328,6 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
-          // POST /api/iterate/:sessionId
-          const iterateMatch = req.url.match(/^\/api\/iterate\/([^/]+)$/);
-          if (iterateMatch && req.method === 'POST') {
-            const sessionId = iterateMatch[1];
-            const sessionDir = path.join(absDir, sessionId);
-            await fs.mkdir(sessionDir, { recursive: true });
-            const iterPath = path.join(sessionDir, 'iterate-request.json');
-            const body = await readBody(req);
-            await fs.writeFile(iterPath, body, 'utf-8');
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ ok: true }));
-            return;
-          }
-
           next();
         } catch (err) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
