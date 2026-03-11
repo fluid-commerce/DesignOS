@@ -5,6 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline';
+import type { TemplateInfo } from '../lib/templates';
 
 /**
  * Vite plugin that watches .fluid/working/ and pushes HMR custom events
@@ -69,11 +70,38 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         clearInterval(rescanInterval);
       });
 
+      // Static asset serving for /fluid-assets/ -- serves from project assets/ dir
+      const projectRoot = path.resolve(srv.config.root, '..');
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/fluid-assets/')) return next();
+
+        const assetPath = req.url.replace('/fluid-assets/', '');
+        const fullPath = path.join(projectRoot, 'assets', assetPath);
+
+        try {
+          const data = await fs.readFile(fullPath);
+          const { contentType } = serveFluidAsset(assetPath);
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(data);
+        } catch {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not found');
+        }
+      });
+
       // API middleware for session discovery
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/api/')) return next();
 
         try {
+          // GET /api/templates -- return template listing
+          if (req.url === '/api/templates' && req.method === 'GET') {
+            const templates = await discoverTemplates(projectRoot);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(templates));
+            return;
+          }
+
           // POST /api/generate -- spawn claude CLI and stream SSE
           if (req.url === '/api/generate' && req.method === 'POST') {
             // Concurrent generation lock
@@ -131,9 +159,6 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 args.push('--append-system-prompt-file', skillPath);
               } catch { /* skill file not found, skip */ }
             }
-
-            // Resolve project root (parent of .fluid/)
-            const projectRoot = path.resolve(srv.config.root, '..');
 
             // CRITICAL: stdin MUST be 'inherit', not 'pipe'
             // Piped stdin causes claude to hang indefinitely (GitHub #771)
@@ -295,4 +320,81 @@ async function discoverSessionsFromDir(workingDir: string) {
 async function loadSessionFromDir(workingDir: string, sessionId: string) {
   const { loadSession } = await import('../lib/sessions.js');
   return loadSession(workingDir, sessionId);
+}
+
+/**
+ * MIME type map for static asset serving.
+ */
+const MIME_TYPES: Record<string, string> = {
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
+};
+
+/**
+ * Get content-type for a fluid asset file path.
+ * Exported for testing.
+ */
+export function serveFluidAsset(filePath: string): { contentType: string } {
+  const ext = path.extname(filePath).toLowerCase();
+  return { contentType: MIME_TYPES[ext] || 'application/octet-stream' };
+}
+
+/**
+ * Discover templates from the project's templates/ directory.
+ * Reads social/ and one-pagers/ subdirectories, excludes index.html,
+ * rewrites asset paths from ../../assets/ to /fluid-assets/.
+ * Exported for testing.
+ */
+export async function discoverTemplates(projectRoot: string): Promise<TemplateInfo[]> {
+  const templates: TemplateInfo[] = [];
+
+  const categories: Array<{ dir: string; category: 'social' | 'one-pager'; dims: { width: number; height: number } }> = [
+    { dir: 'templates/social', category: 'social', dims: { width: 1080, height: 1080 } },
+    { dir: 'templates/one-pagers', category: 'one-pager', dims: { width: 816, height: 1056 } },
+  ];
+
+  for (const cat of categories) {
+    const dirPath = path.join(projectRoot, cat.dir);
+    let files: string[];
+    try {
+      files = (await fs.readdir(dirPath)) as string[];
+    } catch {
+      continue; // directory may not exist
+    }
+
+    for (const file of files) {
+      if (!file.endsWith('.html') || file === 'index.html') continue;
+
+      const filePath = path.join(dirPath, file);
+      let html = await fs.readFile(filePath, 'utf-8');
+
+      // Rewrite relative asset paths to absolute /fluid-assets/ paths
+      html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
+
+      const id = file.replace('.html', '');
+      const name = id
+        .split('-')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+
+      templates.push({
+        id,
+        name,
+        category: cat.category,
+        html,
+        dimensions: cat.dims,
+      });
+    }
+  }
+
+  return templates;
 }
