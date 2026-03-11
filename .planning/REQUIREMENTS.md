@@ -91,11 +91,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Marketing Skills Integration
 
-- [x] **MKTG-01**: Subagents automatically load relevant marketing skills based on task type (asset type + role) without operator intervention
-- [x] **MKTG-02**: Copy subagent applies CRO principles, psychological hooks, and domain expertise from marketing skills alongside brand voice
-- [ ] **MKTG-03**: Marketing skill loading follows focused role-mapping pattern — 1-2 skills max per subagent, brand docs take precedence
-- [x] **MKTG-04**: Skills are composable via --skills operator override on any orchestrator command (full override, not additive)
-- [ ] **MKTG-05**: Skill-to-task mapping registry (brand/skill-map.json) documents which skills load for which asset types and subagent roles
+- [ ] **MKTG-01**: Subagents automatically load relevant marketing skills based on task type (asset type + role) without operator intervention
+- [ ] **MKTG-02**: Copy subagent applies CRO principles, psychological hooks, and domain expertise from marketing skills alongside brand voice
+- [x] **MKTG-03**: Marketing skill loading follows focused role-mapping pattern — 1-2 skills max per subagent, brand docs take precedence
+- [ ] **MKTG-04**: Skills are composable via --skills operator override on any orchestrator command (full override, not additive)
+- [x] **MKTG-05**: Skill-to-task mapping registry (brand/skill-map.json) documents which skills load for which asset types and subagent roles
 
 ## v2 Requirements
 
