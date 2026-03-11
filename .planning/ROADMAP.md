@@ -151,5 +151,5 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5 > 6
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
 | 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
-| 5. Learning Loop | 0/2 | Not started | - |
+| 5. Learning Loop | 1/2 | In Progress|  |
 | 6. Marketing Skills Integration | 0/? | Not started | - |

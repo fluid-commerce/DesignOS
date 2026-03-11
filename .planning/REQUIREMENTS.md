@@ -71,8 +71,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Meta / System Development
 
-- [ ] **META-01**: Feedback ingestion meta-skill — reads documented trajectories and updates brand rules/templates/skills
-- [ ] **META-02**: Feedback categorization — asset-specific feedback vs. systemic brand changes (systemic requires human approval)
+- [x] **META-01**: Feedback ingestion meta-skill — reads documented trajectories and updates brand rules/templates/skills
+- [x] **META-02**: Feedback categorization — asset-specific feedback vs. systemic brand changes (systemic requires human approval)
 - [x] **META-03**: Research and incorporate Claude Skills 2.0 patterns (context: fork, allowed-tools, hooks, agent field)
 - [x] **META-04**: Research Superpowers skill system and incorporate applicable patterns
 
@@ -182,8 +182,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CANV-03 | Phase 4 | Complete |
 | CANV-04 | Phase 4 | Complete |
 | CANV-05 | Phase 4 | Complete |
-| META-01 | Phase 5 | Pending |
-| META-02 | Phase 5 | Pending |
+| META-01 | Phase 5 | Complete |
+| META-02 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 52 total

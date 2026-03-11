@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-01 type foundation and dead code cleanup (re-executed)
-last_updated: "2026-03-11T16:25:07.962Z"
+stopped_at: Completed 05-01-PLAN.md — feedback ingestion engine
+last_updated: "2026-03-11T17:03:42.902Z"
 last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 3
-  total_plans: 18
-  completed_plans: 16
+  total_plans: 20
+  completed_plans: 17
   percent: 89
 ---
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 89% (Overall: 16/18 plans)
 | Phase 04.1 P02 | 4min | 2 tasks | 9 files |
 | Phase 04.1 P03 | 3min | 2 tasks | 6 files |
 | Phase 04.1 P01 | 3min | 2 tasks | 7 files |
+| Phase 05-learning-loop P01 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,9 @@ Recent decisions affecting current work:
 - [04.1-02]: Session list uses optional title with fallback to session ID -- server populates title in Plan 03
 - [Phase 04.1]: buildIterationContext is a pure function returning IterationContext payload (no fetch, no file writes)
 - [Phase 04.1]: Single-variation sessions auto-infer winner without explicit star marking
+- [Phase 05-01]: Pattern clustering uses (asset_type, topic) tuples with keyword extraction — covers 9 signal topics without NLP dependencies
+- [Phase 05-01]: Directive bypass uses DIRECTIVE_KEYWORDS list (never, always, don't, stop using, avoid) — pragmatic approach, zero-dependency
+- [Phase 05-01]: Confidence scoring: HIGH=5+ sessions or feedback file, MEDIUM=3-4 sessions, LOW=threshold bypass (1 session)
 
 ### Pending Todos
 
@@ -135,6 +139,7 @@ None yet.
 ### Roadmap Evolution
 
 - Phase 04.1 inserted after Phase 4: Canvas Polish & Integration Hardening (URGENT) — addresses permissions, file watcher auto-discovery, MCP→agent triggering, canvas UX overhaul (star/favorite, remove aggressive blocking, infer winner), generation speed optimization, skill path hardening
+- Phase 6 added: Marketing Skills Integration — deep integration of 30 marketing domain skills (~/.agents/skills/) into subagent system for composable marketing intelligence
 
 ### Blockers/Concerns
 
@@ -144,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T16:25:07.960Z
-Stopped at: Completed 04.1-01 type foundation and dead code cleanup (re-executed)
+Last session: 2026-03-11T17:03:42.901Z
+Stopped at: Completed 05-01-PLAN.md — feedback ingestion engine
 Resume file: None
