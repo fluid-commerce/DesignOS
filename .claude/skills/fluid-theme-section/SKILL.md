@@ -133,13 +133,14 @@ Print the run header:
 Generating Fluid theme section...
   Type: {type} (or: inferred from prompt)
   Template: {template or "(none -- agent generates from scratch)"}
+  Models: copy=sonnet, layout=haiku, styling=sonnet, spec-check=sonnet
 ```
 
 Execute the 4-stage pipeline sequentially using the session directory path.
 
 ## Step 4a: Copy Agent
 
-Delegate to `copy-agent` via the Agent tool:
+Delegate to `copy-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Generate Fluid brand copy for a website section. mode=section, platform=shopify. Section type: {type}. Brief: {prompt}. {If template: Reference the content structure of templates/sections/{template}.liquid.} Include: heading text, subheading (if applicable), body text (if applicable), button text, and any block content (feature items, testimonials, FAQ items, etc.). Format as structured markdown with clear labels for each content slot.
@@ -164,7 +165,7 @@ Print: `[1/4] Copy...        done`
 
 ## Step 4b: Layout Agent
 
-Delegate to `layout-agent` via the Agent tool:
+Delegate to `layout-agent` via the Agent tool with `model: "haiku"`:
 
 **Delegation message:**
 "Create a Gold Standard compliant .liquid section template. mode=section, platform=shopify. Section type: {type}. Read copy from {working_dir}/copy.md for content. Read the reference template at templates/sections/{type}.liquid for the exact schema structure and HTML pattern. Generate a .liquid file following the Gold Standard schema: 6 settings per text element (font_family, font_size, font_size_desktop, font_weight, color, content), 7 button settings, 5 section settings, 7 container settings. All styles via utility classes -- ZERO hard-coded values. Include FIXED/FLEXIBLE/OPTIONAL annotations. Write output to {working_dir}/layout.liquid"
@@ -175,7 +176,7 @@ Print: `[2/4] Layout...      done`
 
 ## Step 4c: Styling Agent
 
-Delegate to `styling-agent` via the Agent tool:
+Delegate to `styling-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Apply Fluid brand styling to the .liquid section template. mode=section, platform=shopify. Read copy from {working_dir}/copy.md (for content text). Read layout from {working_dir}/layout.liquid. Ensure: all styles use utility classes from schema settings (no hard-coded values), correct default values for all settings, proper use of Liquid template syntax ({{ section.settings.X | default: 'Y' }}), block.fluid_attributes on block containers. Reference brand/design-tokens.md for color and font defaults. Write complete .liquid file to {working_dir}/styled.liquid"
@@ -186,7 +187,7 @@ Print: `[3/4] Styling...     done`
 
 ## Step 4d: Spec-Check Agent
 
-Delegate to `spec-check-agent` via the Agent tool:
+Delegate to `spec-check-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Validate the Fluid .liquid section template. mode=section, platform=shopify. Section type: {type}. Read {working_dir}/styled.liquid. Run: node tools/schema-validation.cjs {working_dir}/styled.liquid. Also check: FIXED/FLEXIBLE/OPTIONAL annotations present, zero hard-coded style values, correct Liquid syntax, block.fluid_attributes on block containers.
@@ -219,18 +220,18 @@ For iteration 1 to 3:
 
 3. **Re-delegate to each target agent** with fix feedback:
 
-   **Copy fix delegation:**
+   **Copy fix delegation** (model: "sonnet"):
    "FIX ITERATION {N}: mode=section, platform=shopify. Re-read {working_dir}/copy.md. The following issues were found by spec-check: {issues list with severity and description for each}. Fix these issues and rewrite {working_dir}/copy.md."
 
-   **Layout fix delegation:**
+   **Layout fix delegation** (model: "haiku"):
    "FIX ITERATION {N}: mode=section, platform=shopify. Re-read {working_dir}/layout.liquid. Also re-read {working_dir}/copy.md (content may have changed). The following issues were found: {issues list with severity and description}. Fix these issues and rewrite {working_dir}/layout.liquid."
 
-   **Styling fix delegation:**
+   **Styling fix delegation** (model: "sonnet"):
    "FIX ITERATION {N}: mode=section, platform=shopify. Re-read {working_dir}/styled.liquid. Also re-read {working_dir}/copy.md and {working_dir}/layout.liquid (they may have changed). The following issues were found: {issues list with severity and description}. Fix these issues and rewrite {working_dir}/styled.liquid."
 
-4. **Cascade rule**: If any copy fixes were applied, re-run layout-agent and then styling-agent afterward (even if they had no direct issues). This entire cascade counts as ONE iteration, not three.
+4. **Cascade rule**: If any copy fixes were applied, re-run layout-agent (model: "haiku") and then styling-agent (model: "sonnet") afterward (even if they had no direct issues). This entire cascade counts as ONE iteration, not three.
 
-5. **Re-run spec-check** after all fixes in this iteration.
+5. **Re-run spec-check** (model: "sonnet") after all fixes in this iteration.
 
 6. Read the new `spec-report.json`. If `overall` is `"pass"`, break the loop.
 

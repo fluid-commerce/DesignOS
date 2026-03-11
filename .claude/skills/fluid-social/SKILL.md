@@ -151,6 +151,7 @@ Generating Fluid social post...
   Product: {product or "inferred from prompt"}
   Template: {template or "(none -- agent selects best archetype)"}
   Variations: {N}
+  Models: copy=sonnet, layout=haiku, styling=sonnet, spec-check=sonnet
 ```
 
 For each variation (default: 1), execute the 4-stage pipeline sequentially.
@@ -159,7 +160,7 @@ Use the session directory path. For single variation: `.fluid/working/{sessionId
 
 ## Step 4a: Copy Agent
 
-Delegate to `copy-agent` via the Agent tool:
+Delegate to `copy-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Generate Fluid brand copy for a social post. Topic: {prompt}. Platform: {platform}. {If product: Product context: {product} -- use product-specific features, terminology, and pain points from Fluid {product}.} {If template: Follow the structure of templates/social/{template}.html closely.} {If ref: Reference the style and tone of {ref}.}
@@ -184,7 +185,7 @@ Print: `[1/4] Copy...        done (accent: {color}, archetype: {archetype})`
 
 ## Step 4b: Layout Agent
 
-Delegate to `layout-agent` via the Agent tool:
+Delegate to `layout-agent` via the Agent tool with `model: "haiku"`:
 
 **Delegation message:**
 "Create structural HTML layout for a Fluid social post. Platform: {platform}. Read copy from {working_dir}/copy.md. {If template: Follow the layout structure of templates/social/{template}.html closely.} Write output to {working_dir}/layout.html"
@@ -195,7 +196,7 @@ Print: `[2/4] Layout...      done (archetype: {archetype})`
 
 ## Step 4c: Styling Agent
 
-Delegate to `styling-agent` via the Agent tool:
+Delegate to `styling-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Apply Fluid brand styling to the layout. Platform: {platform}. Read copy from {working_dir}/copy.md (for accent color and content text). Read layout from {working_dir}/layout.html. Reference patterns/index.html for brand building blocks (footer, brushstrokes, circles). {If template: Match the visual styling of templates/social/{template}.html.} Write complete self-contained HTML to {working_dir}/styled.html"
@@ -208,7 +209,7 @@ Print: `[3/4] Styling...     done`
 
 Read `{working_dir}/copy.md` to get the accent color and archetype values.
 
-Delegate to `spec-check-agent` via the Agent tool:
+Delegate to `spec-check-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Validate the Fluid social post. Platform: {platform}. Accent color: {color}. Archetype: {archetype}. Read {working_dir}/styled.html. Run CLI tools and holistic review.
@@ -238,18 +239,18 @@ For iteration 1 to 3:
 
    For each fix_target group that has issues, delegate to that agent:
 
-   **Copy fix delegation:**
+   **Copy fix delegation** (model: "sonnet"):
    "FIX ITERATION {N}: Re-read {working_dir}/copy.md. The following issues were found by spec-check: {issues list with severity and description for each}. Fix these issues and rewrite {working_dir}/copy.md. Preserve the accent color and archetype unless the feedback explicitly says to change them."
 
-   **Layout fix delegation:**
+   **Layout fix delegation** (model: "haiku"):
    "FIX ITERATION {N}: Re-read {working_dir}/layout.html. Also re-read {working_dir}/copy.md (content may have changed). The following issues were found: {issues list with severity and description}. Fix these issues and rewrite {working_dir}/layout.html."
 
-   **Styling fix delegation:**
+   **Styling fix delegation** (model: "sonnet"):
    "FIX ITERATION {N}: Re-read {working_dir}/styled.html. Also re-read {working_dir}/copy.md and {working_dir}/layout.html (they may have changed). The following issues were found: {issues list with severity and description}. Fix these issues and rewrite {working_dir}/styled.html."
 
-4. **Cascade rule**: If any copy fixes were applied, re-run layout-agent and then styling-agent afterward (even if they had no direct issues). This ensures downstream agents pick up the copy changes. This entire cascade counts as ONE iteration, not three.
+4. **Cascade rule**: If any copy fixes were applied, re-run layout-agent (model: "haiku") and then styling-agent (model: "sonnet") afterward (even if they had no direct issues). This ensures downstream agents pick up the copy changes. This entire cascade counts as ONE iteration, not three.
 
-5. **Re-run spec-check** after all fixes in this iteration:
+5. **Re-run spec-check** (model: "sonnet") after all fixes in this iteration:
 
    "Validate the Fluid social post. Platform: {platform}. Accent color: {color}. Archetype: {archetype}. Read {working_dir}/styled.html. Run CLI tools and holistic review. Write report to {working_dir}/spec-report.json"
 
@@ -301,6 +302,7 @@ Generating Fluid social post...
   Platform: instagram (1080x1080)
   Product: connect (or: inferred from prompt)
   Template: (none / problem-first / etc.)
+  Models: copy=sonnet, layout=haiku, styling=sonnet, spec-check=sonnet
 
 [1/4] Copy...        done (accent: orange, archetype: problem-first)
 [2/4] Layout...      done
