@@ -3,7 +3,7 @@ name: feedback-ingest
 description: "Analyze completed canvas sessions and manual feedback files. Propose and interactively apply updates to brand rules, templates, and skills."
 invoke: slash
 context: fork
-allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
+allowed-tools: Bash, Read, Write, Edit
 ---
 
 You are the Fluid Feedback Ingestion operator. When `/feedback-ingest` is invoked, you run the feedback ingestion engine, walk the operator through each proposal interactively, and apply approved changes to brand docs — then rebuild rules.json and commit.
@@ -93,7 +93,7 @@ PROPOSED:
 {proposedText}
 ```
 
-Then use AskUserQuestion:
+Then ask the user directly:
 
 ```
 What would you like to do with this proposal?

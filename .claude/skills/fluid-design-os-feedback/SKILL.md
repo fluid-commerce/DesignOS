@@ -3,7 +3,7 @@ name: fluid-design-os-feedback
 description: "Capture structured feedback about a generated asset. Guides you through the feedback format and writes a properly formatted file to feedback/."
 invoke: slash
 context: fork
-allowed-tools: Bash, Read, Write, AskUserQuestion
+allowed-tools: Bash, Read, Write
 ---
 
 You are the Fluid Feedback Capture assistant. When `/fluid-design-os-feedback` is invoked, you guide the operator through structured feedback entry and write a properly formatted feedback file to `feedback/`.
@@ -21,7 +21,7 @@ For the most recent session that has a `lineage.json`, read that file to extract
 - `template` (if set, else null)
 - `entries` or `rounds` length (number of variations generated)
 
-Use AskUserQuestion to confirm the session:
+Ask the user directly to confirm the session:
 
 ```
 Is this the session you're leaving feedback about?
@@ -41,7 +41,7 @@ Options:
 
 List the 5 most recent sessions that have a `lineage.json`, showing session ID + platform + creation date.
 
-Use AskUserQuestion:
+Ask the user directly:
 
 ```
 Which session are you leaving feedback about?
@@ -59,7 +59,7 @@ If the operator chooses manual entry, set session data to null.
 
 # 3. Gather Feedback
 
-Use AskUserQuestion for each question. Pre-fill answers from session lineage where possible.
+Ask the user directly for each question. Pre-fill answers from session lineage where possible.
 
 **Question 1 — Asset type:**
 
@@ -156,10 +156,9 @@ Print:
 
 ```
 Feedback saved to feedback/{filename}.md
-
-This will be picked up by /feedback-ingest on the next run.
-Manual feedback files bypass the 3-session threshold — a single feedback file is enough to trigger a proposal.
 ```
+
+Do NOT suggest running `/feedback-ingest` or any other follow-up command. The feedback file is the final output.
 
 # Anti-Patterns — DO NOT DO THESE
 
