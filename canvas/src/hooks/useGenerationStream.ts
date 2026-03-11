@@ -1,11 +1,22 @@
 import { useCallback } from 'react';
 import { useGenerationStore } from '../store/generation';
 import { parseStreamEvent } from '../lib/stream-parser';
+import type { Annotation, VariationStatus } from '../lib/types';
 
 interface GenerateOptions {
   template?: string;
   customization?: object;
   skillType?: string;
+  /** Session ID for iteration mode -- server echoes back the same ID */
+  sessionId?: string;
+  /** Iteration context including winner HTML, annotations, and statuses */
+  iterationContext?: {
+    winnerHtml: string;
+    annotations: Annotation[];
+    statuses: Record<string, VariationStatus>;
+    currentRound: number;
+    originalPrompt: string;
+  };
 }
 
 /**
