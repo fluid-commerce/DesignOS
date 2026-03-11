@@ -171,11 +171,17 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               await fs.mkdir(actualSessionDir, { recursive: true });
             }
 
+            // Each round gets its own subdirectory for file isolation.
+            // This prevents iteration N from overwriting iteration N-1's files.
+            const roundDir = path.join(actualSessionDir, `round-${roundNumber}`);
+            await fs.mkdir(roundDir, { recursive: true });
+
             // Generate a human-readable title from the prompt
             const titleWords = (prompt || 'Marketing Asset').split(/\s+/).slice(0, 6).join(' ');
             const title = titleWords.length > 40 ? titleWords.slice(0, 40) + '...' : titleWords;
 
-            // Write lineage.json immediately so session is discoverable
+            // Write lineage.json immediately so session is discoverable.
+            // Server OWNS lineage.json — the LLM never touches it.
             if (!isIteration) {
               const platform = body.skillType || 'general';
               const lineage = {
@@ -200,21 +206,23 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               );
             }
 
-            // Build the prompt with output path instructions
+            // Build the prompt with output path instructions.
+            // Output goes into the round subdirectory — NOT the session root.
+            // The LLM is NOT told about lineage.json at all.
             const parts: string[] = [];
             if (template) parts.push(`Template: ${template}`);
             if (customization) parts.push(`Customization: ${JSON.stringify(customization)}`);
             parts.push(prompt || 'Generate a marketing asset');
-            parts.push(`\nWrite all generated files to ${actualSessionDir}/`);
+            parts.push(`\nWrite all generated HTML output files to: ${roundDir}/`);
+            parts.push(`IMPORTANT: Do NOT create, read, or modify any file named lineage.json. The system manages that file automatically.`);
 
             if (isIteration) {
               // Iteration mode: write winner HTML to a temp file to avoid E2BIG
-              // (CLI arg limit) — large HTML assets can exceed OS arg size limits
               const winnerPath = path.join(actualSessionDir, '.iteration-winner.html');
               await fs.writeFile(winnerPath, iterationContext.winnerHtml || '', 'utf-8');
 
               parts.push(`\n--- ITERATION CONTEXT ---`);
-              parts.push(`Session: ${actualSessionId} (Round ${roundNumber})`);
+              parts.push(`This is Round ${roundNumber} of an iterative design session.`);
               parts.push(`Previous winner HTML is saved at: ${winnerPath}`);
               parts.push(`Read that file to see the current version you need to improve.`);
               if (iterationContext.annotations?.length > 0) {
@@ -224,10 +232,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 }
               }
               parts.push(`\nGenerate an improved version addressing the feedback above.`);
-              parts.push(`Write output HTML files to ${actualSessionDir}/`);
-              parts.push(`After writing output, update ${actualSessionDir}/lineage.json: read it first, then add a new round entry (roundNumber: ${roundNumber}) with the new variations.`);
-            } else {
-              parts.push(`\nAfter generating, update ${actualSessionDir}/lineage.json: read it first, then fill in the variations array in round 1 with the files you created (e.g. {id: "v1", path: "styled.html", status: "unmarked", specCheck: "pass"}).`);
+              parts.push(`Write output HTML files to: ${roundDir}/`);
             }
             const fullPrompt = parts.join('\n');
 
@@ -313,9 +318,18 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
             });
 
-            // Send done event on close
-            child.on('close', (code: number | null) => {
+            // On close: server updates lineage.json, then sends done event
+            child.on('close', async (code: number | null) => {
               activeChild = null;
+              try {
+                // Server-managed lineage update: discover files the LLM wrote
+                // into the round directory and update lineage.json atomically.
+                await updateLineageAfterGeneration(
+                  actualSessionDir, roundDir, roundNumber, prompt || '', isIteration
+                );
+              } catch (err) {
+                console.error('[watcher] Failed to update lineage:', err);
+              }
               try {
                 res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId })}\n\n`);
                 res.end();
@@ -466,6 +480,81 @@ const MIME_TYPES: Record<string, string> = {
 export function serveFluidAsset(filePath: string): { contentType: string } {
   const ext = path.extname(filePath).toLowerCase();
   return { contentType: MIME_TYPES[ext] || 'application/octet-stream' };
+}
+
+/**
+ * Server-managed lineage update after generation completes.
+ * Discovers HTML files written by the LLM into the round directory,
+ * then atomically updates lineage.json with the new round/variations.
+ *
+ * The LLM NEVER touches lineage.json — this function owns it.
+ */
+async function updateLineageAfterGeneration(
+  sessionDir: string,
+  roundDir: string,
+  roundNumber: number,
+  prompt: string,
+  isIteration: boolean
+): Promise<void> {
+  const lineagePath = path.join(sessionDir, 'lineage.json');
+
+  // Read current lineage
+  let lineage: any;
+  try {
+    const raw = await fs.readFile(lineagePath, 'utf-8');
+    lineage = JSON.parse(raw);
+  } catch {
+    // Should not happen — lineage.json is created before generation starts
+    return;
+  }
+
+  // Discover HTML files the LLM wrote into the round directory
+  let roundFiles: string[];
+  try {
+    roundFiles = await fs.readdir(roundDir);
+  } catch {
+    roundFiles = [];
+  }
+
+  // Clean up if LLM ignored instructions and wrote lineage.json in round dir
+  if (roundFiles.includes('lineage.json')) {
+    await fs.unlink(path.join(roundDir, 'lineage.json')).catch(() => {});
+  }
+
+  const htmlFiles = roundFiles.filter(
+    (f) => f.endsWith('.html') && !f.startsWith('.') && f !== 'copy.html' && f !== 'layout.html' && f !== 'index.html'
+  );
+
+  const variations = htmlFiles.map((f, i) => ({
+    id: `r${roundNumber}-v${i + 1}`,
+    path: `round-${roundNumber}/${f}`,
+    status: 'unmarked' as const,
+    specCheck: 'draft' as const,
+  }));
+
+  if (!lineage.rounds) lineage.rounds = [];
+
+  if (isIteration) {
+    // Append new round — never modify existing rounds
+    lineage.rounds.push({
+      roundNumber,
+      prompt,
+      variations,
+      winnerId: null,
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    // First round: update the placeholder round with discovered variations
+    const round1 = lineage.rounds.find((r: any) => r.roundNumber === 1);
+    if (round1) {
+      round1.variations = variations;
+    }
+  }
+
+  // Atomic write: write to temp file then rename
+  const tmpPath = lineagePath + '.tmp';
+  await fs.writeFile(tmpPath, JSON.stringify(lineage, null, 2), 'utf-8');
+  await fs.rename(tmpPath, lineagePath);
 }
 
 /**

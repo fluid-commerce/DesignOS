@@ -157,7 +157,10 @@ export async function loadSession(workingDir: string, sessionId: string): Promis
 
 /**
  * Find all HTML variation files in a session directory.
- * Looks for styled.html in subdirectories (v1/, v2/, etc.) and root.
+ * Supports both:
+ *   - Round-based layout: round-1/, round-2/, etc. (new format)
+ *   - Flat layout: styled.html, variation-a.html, etc. (legacy format)
+ *   - Subdirectory layout: v1/styled.html, v2/styled.html (legacy format)
  */
 async function findVariationFiles(sessionDir: string): Promise<VariationFile[]> {
   const variations: VariationFile[] = [];
@@ -169,12 +172,49 @@ async function findVariationFiles(sessionDir: string): Promise<VariationFile[]> 
     return variations;
   }
 
+  // Check for round-based directories first (round-1/, round-2/, ...)
+  const roundDirs = entries.filter((e) => /^round-\d+$/.test(e)).sort(
+    (a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1])
+  );
+
+  if (roundDirs.length > 0) {
+    // Round-based layout: collect variations from each round directory
+    for (const roundDir of roundDirs) {
+      const roundPath = path.join(sessionDir, roundDir);
+      let roundFiles: string[];
+      try {
+        roundFiles = await fs.readdir(roundPath);
+      } catch {
+        continue;
+      }
+
+      for (const file of roundFiles) {
+        if (!file.endsWith('.html') || !isVariationFile(file)) continue;
+        const filePath = path.join(roundPath, file);
+        const stat = await fs.stat(filePath).catch(() => null);
+        if (!stat?.isFile()) continue;
+        try {
+          const html = await fs.readFile(filePath, 'utf-8');
+          variations.push({
+            path: `${roundDir}/${file}`,
+            html,
+            name: `${roundDir}/${file.replace('.html', '')}`,
+          });
+        } catch {
+          // Skip unreadable
+        }
+      }
+    }
+    return variations;
+  }
+
+  // Legacy flat/subdirectory layout
   for (const entry of entries) {
     const entryPath = path.join(sessionDir, entry);
     const stat = await fs.stat(entryPath).catch(() => null);
 
     if (stat?.isDirectory()) {
-      // Check for styled.html in subdirectory
+      // Check for styled.html in subdirectory (v1/, v2/, etc.)
       const htmlPath = path.join(entryPath, 'styled.html');
       try {
         const html = await fs.readFile(htmlPath, 'utf-8');
@@ -183,7 +223,7 @@ async function findVariationFiles(sessionDir: string): Promise<VariationFile[]> 
         // No styled.html in this subdirectory
       }
     } else if (entry.endsWith('.html') && isVariationFile(entry)) {
-      // Root-level HTML files — only final outputs, not intermediate pipeline stages
+      // Root-level HTML files
       try {
         const html = await fs.readFile(entryPath, 'utf-8');
         variations.push({ path: entry, html, name: entry.replace('.html', '') });

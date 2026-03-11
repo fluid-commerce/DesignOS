@@ -142,6 +142,9 @@ Recent decisions affecting current work:
 - [Phase 06-marketing-skills-integration]: --skills flag is a full override (not additive) -- resolved_skills replaces defaults for ALL subagent delegation
 - [Phase 07]: layout-agent downgraded to Haiku: template matching is mechanical, no creative judgment, spec-check catches errors
 - [Phase 07]: Orchestrators now declare explicit model per agent delegation for operator visibility
+- [Phase 04]: Iteration lineage.json is server-owned — LLM never reads or writes it. Server updates atomically on child.close via updateLineageAfterGeneration()
+- [Phase 04]: Each iteration round writes to isolated round-{N}/ subdirectory — prevents cross-round file overwrites that corrupted previous iterations
+- [Phase 04]: Lineage updates are append-only for iterations — server pushes to rounds[] array, never modifies existing round entries
 
 ### Pending Todos
 
