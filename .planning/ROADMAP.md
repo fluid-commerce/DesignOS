@@ -84,8 +84,8 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Canvas app scaffold, shared types, session sidebar, variation grid with iframe rendering
-- [ ] 04-02-PLAN.md — MCP stdio server with 5 agent tools (push, read annotations/statuses/history, iterate)
-- [ ] 04-03-PLAN.md — Annotation system (spatial pins + sidebar notes) and iteration timeline
+- [x] 04-02-PLAN.md — MCP stdio server with 5 agent tools (push, read annotations/statuses/history, iterate)
+- [x] 04-03-PLAN.md — Annotation system (spatial pins + sidebar notes) and iteration timeline
 - [ ] 04-04-PLAN.md — Launcher skill (/fluid-design-OS), scripts, and end-to-end verification
 
 ### Phase 5: Learning Loop
@@ -111,5 +111,5 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 5
 | 1. Brand Intelligence + Foundation | 3/3 | Complete   | 2026-03-10 |
 | 2. Orchestrator + Social Posts | 3/3 | Complete   | 2026-03-10 |
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
-| 4. Canvas + Iteration | 1/4 | In Progress | - |
+| 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 5. Learning Loop | 0/1 | Not started | - |

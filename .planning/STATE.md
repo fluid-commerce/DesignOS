@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02 MCP agent tools
-last_updated: "2026-03-11T00:08:25Z"
-last_activity: 2026-03-11 -- Completed 04-02 MCP stdio server with 5 agent tools
+stopped_at: Completed 04-03 annotations and iteration timeline
+last_updated: "2026-03-11T00:17:52Z"
+last_activity: 2026-03-11 -- Completed 04-03 annotations system with spatial pins, timeline, and iterate workflow
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 14
-  completed_plans: 12
-  percent: 86
+  completed_plans: 13
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phase 4 in progress. Canvas scaffold + MCP server complete. Next: annotations system.
+**Current focus:** Phase 4 in progress. Canvas scaffold + MCP server + annotations/timeline complete. Next: end-to-end integration.
 
 ## Current Position
 
 Phase: 4 of 5 (Canvas + Iteration)
-Plan: 2 of 4 in current phase (04-02 complete)
+Plan: 3 of 4 in current phase (04-03 complete)
 Status: In Progress
-Last activity: 2026-03-11 -- Completed 04-02 MCP stdio server with 5 agent tools
+Last activity: 2026-03-11 -- Completed 04-03 annotations system with spatial pins, timeline, and iterate workflow
 
-Progress: [████████░░] 86% (Overall: 12/14 plans)
+Progress: [█████████░] 93% (Overall: 13/14 plans)
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████░░] 86% (Overall: 12/14 plans)
 | Phase 03 P04 | 11min | 2 tasks | 8 files |
 | Phase 04 P01 | 4min | 3 tasks | 20 files |
 | Phase 04 P02 | 5min | 2 tasks | 12 files |
+| Phase 04 P03 | 6min | 2 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,9 @@ Recent decisions affecting current work:
 - [04-02]: MCP tool handlers are pure functions accepting workingDir parameter for unit testability without MCP server
 - [04-02]: Zod v4 confirmed compatible with MCP SDK v1.27's zod-to-json-schema v3
 - [04-02]: Vitest environmentMatchGlobs routes mcp tests to node environment while keeping jsdom for React tests
+- [04-03]: Pin positions stored as percentage (0-100) of native asset dimensions for scale-independent rendering
+- [04-03]: Auto-reject logic lives in App.tsx callback, not in the store, to keep store actions pure
+- [04-03]: API endpoints for annotations and iterate-request added to existing Vite middleware plugin
 
 ### Pending Todos
 
@@ -118,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T00:08:25Z
-Stopped at: Completed 04-02 MCP agent tools
-Resume file: .planning/phases/04-canvas-iteration/04-02-SUMMARY.md
+Last session: 2026-03-11T00:17:52Z
+Stopped at: Completed 04-03 annotations and iteration timeline
+Resume file: .planning/phases/04-canvas-iteration/04-03-SUMMARY.md
