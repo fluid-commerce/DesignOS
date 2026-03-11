@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-02 session-aware prompt sidebar with iterate mode
-last_updated: "2026-03-11T16:24:59.019Z"
+stopped_at: Completed 04.1-01 type foundation and dead code cleanup (re-executed)
+last_updated: "2026-03-11T16:25:07.962Z"
 last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
   total_phases: 6
@@ -125,6 +125,8 @@ Recent decisions affecting current work:
 - [04.1-02]: Annotation badge counts only pin-type annotations, not sidebar notes
 - [04.1-02]: + New button calls clearSelection(), resetGeneration(), setPrompt('') for clean state reset
 - [04.1-02]: Session list uses optional title with fallback to session ID -- server populates title in Plan 03
+- [Phase 04.1]: buildIterationContext is a pure function returning IterationContext payload (no fetch, no file writes)
+- [Phase 04.1]: Single-variation sessions auto-infer winner without explicit star marking
 
 ### Pending Todos
 
@@ -142,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T16:23:02Z
-Stopped at: Completed 04.1-02 session-aware prompt sidebar with iterate mode
+Last session: 2026-03-11T16:25:07.960Z
+Stopped at: Completed 04.1-01 type foundation and dead code cleanup (re-executed)
 Resume file: None
