@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-03 generation engine (stream parser, generate endpoint, generation store)
-last_updated: "2026-03-11T12:52:50.413Z"
-last_activity: 2026-03-11 -- Completed 04.1-01 winner UX overhaul (star toggle, smart iterate unblock)
+stopped_at: Completed 04.1-02 session-aware prompt sidebar with iterate mode
+last_updated: "2026-03-11T16:24:59.019Z"
+last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 18
   completed_plans: 16
-  percent: 82
+  percent: 89
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 Phase: 4.1 of 5 (Canvas Polish & Integration Hardening)
 Plan: 4 of 4 in current phase (04.1-01, 04.1-02, 04.1-03 complete)
 Status: In Progress
-Last activity: 2026-03-11 -- Completed 04.1-03 generation engine (stream parser, generate endpoint, generation store)
+Last activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 
 Progress: [█████████░] 89% (Overall: 16/18 plans)
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 89% (Overall: 16/18 plans)
 | Phase 04.1 P01 | 3min | 2 tasks | 7 files |
 | Phase 04.1 P02 | 4min | 2 tasks | 9 files |
 | Phase 04.1 P03 | 3min | 2 tasks | 6 files |
+| Phase 04.1 P01 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,10 @@ Recent decisions affecting current work:
 - [Phase 04.1]: stdin inherit (not pipe) for claude spawn -- piped stdin causes hang (GitHub #771)
 - [Phase 04.1]: Concurrent generation lock returns 409 rather than queueing -- single user canvas
 - [Phase 04.1]: SSE frames use event: stderr for stderr forwarding, event: done for completion
+- [04.1-02]: Mode detection uses both activeSessionId AND activeSessionData presence (not just ID) for safety
+- [04.1-02]: Annotation badge counts only pin-type annotations, not sidebar notes
+- [04.1-02]: + New button calls clearSelection(), resetGeneration(), setPrompt('') for clean state reset
+- [04.1-02]: Session list uses optional title with fallback to session ID -- server populates title in Plan 03
 
 ### Pending Todos
 
@@ -137,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T12:52:50.411Z
-Stopped at: Completed 04.1-03 generation engine (stream parser, generate endpoint, generation store)
+Last session: 2026-03-11T16:23:02Z
+Stopped at: Completed 04.1-02 session-aware prompt sidebar with iterate mode
 Resume file: None
