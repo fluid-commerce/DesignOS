@@ -213,11 +213,6 @@ Delegate to `spec-check-agent` via the Agent tool:
 **Delegation message:**
 "Validate the Fluid social post. Platform: {platform}. Accent color: {color}. Archetype: {archetype}. Read {working_dir}/styled.html. Run CLI tools and holistic review.
 
-Marketing expertise (SECONDARY -- reference for additional validation awareness):
-- {If --skills NOT provided: skills/marketing/analytics-tracking/SKILL.md}
-
-Check for marketing best practices alongside brand compliance. Brand rules override marketing skill suggestions in all conflicts.
-
 Write report to {working_dir}/spec-report.json"
 
 Wait for completion. Read `{working_dir}/spec-report.json`.

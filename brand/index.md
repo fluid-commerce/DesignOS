@@ -58,7 +58,6 @@ Marketing skills from `skills/marketing/` provide secondary expertise for subage
 - **Copy agent** (social posts): also reads `skills/marketing/copywriting/SKILL.md` + `skills/marketing/social-content/SKILL.md`
 - **Copy agent** (one-pagers): also reads `skills/marketing/copywriting/SKILL.md` + `skills/marketing/sales-enablement/SKILL.md`
 - **Copy agent** (website sections): also reads `skills/marketing/copywriting/SKILL.md` + `skills/marketing/page-cro/SKILL.md`
-- **Spec-check agent** (social posts): also reads `skills/marketing/analytics-tracking/SKILL.md`
 - **Spec-check agent** (website sections): also reads `skills/marketing/seo-audit/SKILL.md`
 
 Operators can override defaults with `--skills copywriting,pricing-strategy` on any orchestrator command (full override, not additive).
