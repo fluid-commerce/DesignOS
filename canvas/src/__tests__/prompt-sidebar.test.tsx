@@ -27,6 +27,7 @@ vi.mock('../store/generation', () => ({
       events: [],
       activeSessionId: null,
       activePid: null,
+      reset: vi.fn(),
     };
     return selector ? selector(state) : state;
   },
@@ -62,6 +63,7 @@ vi.mock('../store/sessions', () => ({
       loading: false,
       sessions: [],
       setActiveSessionId: vi.fn(),
+      clearSelection: vi.fn(),
     };
     return selector(state);
   },
