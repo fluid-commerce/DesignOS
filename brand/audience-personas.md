@@ -2,9 +2,9 @@
 
 > Weight thresholds: 1-20 optional | 21-50 flexible | 51-80 strong preference | 81-100 brand-critical
 
-## Overview
+## Overview (Weight: 85)
 
-Target buyers span the entire C-suite. Each persona has different priorities, so messaging must be tailored. The Authenticity Advantage direction (see [messaging-frameworks.md](messaging-frameworks.md)) works across all personas but with different emphasis. (Weight: 85)
+Target buyers span the entire C-suite. Each persona has different priorities, so messaging must be tailored. The Authenticity Advantage direction (see [messaging-frameworks.md](messaging-frameworks.md)) works across all personas but with different emphasis.
 
 ## CEO / Founder (Weight: 85)
 
@@ -74,7 +74,7 @@ See [messaging-frameworks.md](messaging-frameworks.md) for framework details.
 **Best frameworks:** Pain-First, Speed & Agility, Ecosystem
 See [messaging-frameworks.md](messaging-frameworks.md) for framework details.
 
-## Cross-Persona Rules
+## Cross-Persona Rules (Weight: 85)
 
 **Always tailor the framework to the persona (Weight: 85):** Start with Pain-First discovery questions to understand their specific situation, then pivot to the framework that resonates with their stated concerns.
 

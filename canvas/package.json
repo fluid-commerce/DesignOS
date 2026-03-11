@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "npx vite --port 5174",
+    "build": "npx tsc && npx vite build",
+    "preview": "npx vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "build:mcp": "npx tsc -p mcp/tsconfig.json",
@@ -22,6 +22,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.0.0",

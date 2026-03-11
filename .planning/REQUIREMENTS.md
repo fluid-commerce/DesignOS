@@ -97,6 +97,18 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **MKTG-04**: Skills are composable via --skills operator override on any orchestrator command (full override, not additive)
 - [x] **MKTG-05**: Skill-to-task mapping registry (brand/skill-map.json) documents which skills load for which asset types and subagent roles
 
+### Asset Management
+
+- [ ] **ASSET-01**: Generated HTML references brand assets (logos, fonts, brushstrokes) via URL paths instead of inline base64 encoding
+- [ ] **ASSET-02**: Vite serves a static `/assets/` route so linked assets load correctly in canvas iframes
+- [ ] **ASSET-03**: Per-session non-brand images saved to `assets/sessions/{sessionId}/` with URL references in HTML
+- [ ] **ASSET-04**: Variation HTML files under 100KB (down from 2-3MB) enabling 6+ simultaneous iframe renders without memory pressure
+
+### Install Safety
+
+- [ ] **SAFE-01**: sync.sh only writes files it owns and never deletes files or directories it didn't create (verified by pre/post checksum)
+- [ ] **SAFE-02**: Ownership manifest tracks which files in `~/.claude/commands/` were created by sync.sh so stale Fluid skills can be cleaned without risking non-Fluid files
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -197,12 +209,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MKTG-03 | Phase 6 | Planned (06-01) |
 | MKTG-04 | Phase 6 | Planned (06-02) |
 | MKTG-05 | Phase 6 | Planned (06-01) |
+| ASSET-01 | Phase 4.2 | Planned |
+| ASSET-02 | Phase 4.2 | Planned |
+| ASSET-03 | Phase 4.2 | Planned |
+| ASSET-04 | Phase 4.2 | Planned |
+| SAFE-01 | Phase 4.3 | Planned |
+| SAFE-02 | Phase 4.3 | Planned |
 
 **Coverage:**
-- v1 requirements: 57 total
-- Mapped to phases: 57
+- v1 requirements: 63 total
+- Mapped to phases: 63
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-11 after Phase 6 planning*
+*Last updated: 2026-03-11 after Phase 4.2 and 4.3 insertion*

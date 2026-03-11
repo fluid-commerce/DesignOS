@@ -17,6 +17,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Website Sections + One-Pagers** - Extend proven orchestrator to .liquid sections and sales collateral
 - [ ] **Phase 4: Canvas + Iteration** - React app for viewing, annotating, and comparing asset variations with MCP agent bridge
 - [x] **Phase 5: Learning Loop** - Feedback ingestion that reads iteration trajectories and updates brand rules (completed 2026-03-11)
+- [ ] **Phase 4.2: Asset Linking & Output Refactor** - Replace base64 inlining with URL-linked assets, shared brand folder, Vite static serving
+- [ ] **Phase 4.3: Install Process Safety** - Ensure sync.sh never wipes non-Fluid commands (GSD, plugins, etc.)
 - [ ] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system
 
 ## Phase Details
@@ -109,6 +111,37 @@ Plans:
 - [ ] 04.1-03-PLAN.md — Generation engine (CLI spawn + SSE streaming + stream parser + generation store)
 - [ ] 04.1-04-PLAN.md — Canvas control plane UI (template gallery, customizer, prompt sidebar, App layout)
 
+### Phase 04.2: Asset Linking & Output Refactor (INSERTED)
+
+**Goal:** Replace inline base64-encoded images/fonts in generated HTML with URL-linked assets served via Vite, reducing variation file sizes from 2-3MB to ~10-50KB, eliminating E2BIG workarounds, and establishing a shared brand assets folder and per-session assets folder in the repo
+**Depends on:** Phase 4.1
+**Requirements**: ASSET-01, ASSET-02, ASSET-03, ASSET-04
+**Success Criteria** (what must be TRUE):
+  1. Generated HTML files reference brand assets (logos, fonts, brush textures) via `/assets/brand/` URLs instead of inline base64, and those assets load correctly in the canvas iframes
+  2. Vite serves a static `/assets/` route pointing to the repo's assets directory, with brand assets cached across variations
+  3. Per-session non-brand images (custom photos, generated graphics) are saved to `assets/sessions/{sessionId}/` and referenced by URL
+  4. Variation HTML files are under 100KB (down from 2-3MB), and the canvas can display 6+ variations simultaneously without tab crashes
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04.2-01-PLAN.md — Brand assets extraction + Vite static serving route + agent prompt updates
+- [ ] 04.2-02-PLAN.md — Session assets folder + image linking in generation pipeline + push_asset MCP tool updates
+- [ ] 04.2-03-PLAN.md — iframe src serving (replace srcDoc) + lazy loading + E2BIG cleanup
+
+### Phase 04.3: Install Process Safety (INSERTED)
+
+**Goal:** Ensure the Fluid skill sync process (`sync.sh`) and any repo install scripts never delete or interfere with non-Fluid commands, agents, or configurations (e.g., GSD slash commands at `~/.claude/commands/gsd/`)
+**Depends on:** Phase 1 (distribution system)
+**Requirements**: SAFE-01, SAFE-02
+**Success Criteria** (what must be TRUE):
+  1. Running `sync.sh` with GSD commands installed at `~/.claude/commands/gsd/` leaves them completely untouched — verified by checksum comparison before and after
+  2. `sync.sh` only writes files it owns (skill .md files matching `~/.agents/skills/*/SKILL.md`) and never deletes files or directories it didn't create
+  3. A manifest or ownership marker system exists so sync.sh can clean stale Fluid skills without risking non-Fluid files
+**Plans**: 1 plan
+
+Plans:
+- [ ] 04.3-01-PLAN.md — Ownership manifest + sync.sh cleanup guard + verification test
+
 ### Phase 5: Learning Loop
 **Goal**: The system improves over time by reading documented iteration trajectories and updating brand rules, templates, and skills accordingly
 **Depends on**: Phase 4 (needs trajectory data from canvas)
@@ -141,8 +174,9 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5 > 6
+Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6
 (Phase 4 depends on Phase 2, not Phase 3 -- Phases 3 and 4 could run in parallel)
+(Phase 4.3 has no dependency on 4.2 -- can run in parallel)
 (Phase 6 depends on Phase 2 -- can run in parallel with Phases 3-5)
 
 | Phase | Plans Complete | Status | Completed |
@@ -152,5 +186,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5 > 6
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
 | 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
+| 4.2 Asset Linking & Output Refactor | 0/3 | Not Started |  |
+| 4.3 Install Process Safety | 0/1 | Not Started |  |
 | 5. Learning Loop | 2/2 | Complete   | 2026-03-11 |
 | 6. Marketing Skills Integration | 1/2 | In Progress|  |

@@ -4,7 +4,7 @@
 
 See [asset-index.md](asset-index.md) for the complete inventory of all 15 assets with file paths and original filenames.
 
-## Brushstrokes
+## Brushstrokes (Weight: 90)
 
 ### Blend mode: `mix-blend-mode: screen` (Weight: 95)
 Brushstrokes are white on black — screen blend mode makes them layer correctly over dark backgrounds.
@@ -35,13 +35,13 @@ Don't use the same brushstroke placement on every post. The brand has 7 brushstr
 - **Tall verticals** (vertical-double-block, vertical-edge-sweep) — dramatic edge framing
 - **Wide horizontals** (horizontal-wide, bottom-grounding) — grounding, horizon feel
 
-## Circle Sketches
+## Circle Sketches (Weight: 90)
 
 ### Emphasis-only usage (Weight: 90)
 Use circle sketches ONLY to highlight specific words or numbers in headlines. Around key words like "commission engine", "Frankenstein", "credit", "82%". Never used as purely decorative floats — every circle sketch should visually wrap a specific word or data point. Floating circles behind content add visual noise without adding meaning.
 
-### Hue-shift to match accent color (Weight: 85)
-Use CSS `filter: hue-rotate()` to shift the circle sketch to match the post's accent color. The source asset is blue-tinted.
+### Color matching via CSS mask (Weight: 85)
+Use white PNG masks with `mask-image` and set `backgroundColor` to any accent color. This replaces the old `hue-rotate()` approach. See the Pattern Library for implementation examples.
 
 ### Sizing (Weight: 75)
 280-400px width for 1-2 words. Size the circle to tightly wrap the target word(s).
@@ -69,7 +69,7 @@ Three elements, always the same across all social posts:
 - Subtle, never competing with the content
 - See [social-post-specs.md](social-post-specs.md) for platform-specific footer padding
 
-## Fonts
+## Fonts (Weight: 90)
 
 ### FLFont Bold for taglines only (Weight: 90)
 The handwritten font signals confidence and personality. Use exclusively for tagline lines and emphasis text. Never for body copy or headlines. See [voice-rules.md](voice-rules.md) for tagline patterns.

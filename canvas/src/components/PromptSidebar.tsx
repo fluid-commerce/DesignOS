@@ -3,7 +3,9 @@ import { useGenerationStream } from '../hooks/useGenerationStream';
 import { StreamMessage } from './StreamMessage';
 import { useSessionStore } from '../store/sessions';
 import { useGenerationStore } from '../store/generation';
+import { useAnnotationStore } from '../store/annotations';
 import { useAnnotations } from '../hooks/useAnnotations';
+import { buildIterationContext } from '../lib/context-bundler';
 import type { StreamUIMessage } from '../lib/stream-parser';
 
 /**
@@ -60,7 +62,32 @@ export function PromptSidebar() {
   const handleGenerate = () => {
     const text = prompt.trim();
     if (!text || isGenerating) return;
-    generate(text, { skillType: 'social' });
+
+    if (isIterateMode && activeSessionData) {
+      // Iteration mode: bundle context and pass to generate
+      try {
+        const storeStatuses = useAnnotationStore.getState().statuses;
+        const iterCtx = buildIterationContext({
+          variations: activeSessionData.variations,
+          annotations,
+          statuses: storeStatuses,
+          currentRound: activeSessionData.lineage.rounds
+            ? Math.max(...activeSessionData.lineage.rounds.map((r) => r.roundNumber), 0)
+            : 0,
+          originalPrompt: activeSessionData.lineage.rounds?.[0]?.prompt || '',
+        });
+        generate(text, {
+          skillType: 'social',
+          sessionId: activeSessionId!,
+          iterationContext: iterCtx,
+        });
+      } catch (err) {
+        // If no winner selected, fall through to normal generation
+        generate(text, { skillType: 'social' });
+      }
+    } else {
+      generate(text, { skillType: 'social' });
+    }
     setPrompt('');
   };
 

@@ -2,11 +2,11 @@
 
 > Weight thresholds: 1-20 optional | 21-50 flexible | 51-80 strong preference | 81-100 brand-critical
 
-## Brand Voice Foundation
+## Brand Voice Foundation (Weight: 95)
 
 The brand speaks with earned confidence. Not corporate polish. Not startup hype. The tone is: someone who has seen the problem up close, built the solution, and talks about it like a human — not a brochure.
 
-### Core Voice Principles
+### Core Voice Principles (Weight: 90)
 
 **Direct and conversational, never corporate (Weight: 90)**
 Write like you're explaining it to a smart friend. Short sentences. Contractions. Real scenarios. "Here's the thing:" not "It is important to note that."
@@ -34,7 +34,7 @@ The mom at 11:47pm. The rep who lost credit. Groceries. Dance lessons. Never abs
 ### Never explain the product in a social post (Weight: 85)
 Create curiosity. The product page does the explaining.
 
-## Pain-Point Messaging Patterns
+## Pain-Point Messaging Patterns (Weight: 90)
 
 These are the core pain narratives. Use them as source material — distribute and adapt, don't rewrite from scratch.
 
@@ -53,7 +53,7 @@ Reps don't share because they don't trust they'll get credit. They build bootleg
 ### The Friction Kill (Weight: 85)
 "Someone's ready to buy. They pull out their phone. The checkout wants them to create an account. They're at a red light. The moment passes. You'll never know that transaction almost happened."
 
-## FLFont Tagline Rules
+## FLFont Tagline Rules (Weight: 90)
 
 ### Use FLFont for the takeaway line (Weight: 90)
 The handwritten font signals confidence and personality. Use it for the one line you want remembered.
@@ -68,9 +68,9 @@ The handwritten font signals confidence and personality. Use it for the one line
 ### Tagline placement (Weight: 80)
 Below the headline or at the bottom of the content area, before the footer. Never in the headline itself. See [social-post-specs.md](social-post-specs.md) for size specs.
 
-## Brand Manifesto Core Line
+## Brand Manifesto Core Line (Weight: 100)
 
-"Every transaction matters." This is the brand's north star. It appears as tagline, manifesto anchor, and campaign theme. (Weight: 100)
+"Every transaction matters." This is the brand's north star. It appears as tagline, manifesto anchor, and campaign theme.
 
 ## The Authenticity Advantage — Recommended Campaign Direction (Weight: 95)
 

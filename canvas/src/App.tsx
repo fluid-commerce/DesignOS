@@ -5,6 +5,7 @@ import { TemplateCustomizer } from './components/TemplateCustomizer';
 import { VariationGrid } from './components/VariationGrid';
 import { Timeline } from './components/Timeline';
 import { SidebarNotes } from './components/SidebarNotes';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useSessionStore } from './store/sessions';
 import { useGenerationStore } from './store/generation';
 import { useAnnotationStore } from './store/annotations';
@@ -23,6 +24,7 @@ export function App() {
 
   const generationStatus = useGenerationStore((s: any) => s.status);
   const generationSessionId = useGenerationStore((s: any) => s.activeSessionId);
+  const resetGeneration = useGenerationStore((s: any) => s.reset);
   const selectSession = useSessionStore((s) => s.selectSession);
 
   const {
@@ -60,9 +62,12 @@ export function App() {
         if (generationSessionId) {
           selectSession(generationSessionId);
         }
+        // Reset generation status to idle so it doesn't re-trigger
+        // on subsequent renders or interfere with manual session selection
+        resetGeneration();
       });
     }
-  }, [generationStatus, refreshSessions, generationSessionId, selectSession]);
+  }, [generationStatus, refreshSessions, generationSessionId, selectSession, resetGeneration]);
 
   // Switch to session view when a session is selected
   useEffect(() => {
@@ -199,87 +204,101 @@ export function App() {
 
           {/* Session view */}
           {mainView === 'session' && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ flex: 1, overflowY: 'auto' }}>
-                {loading && (
-                  <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-                    Loading session...
-                  </div>
-                )}
+            <ErrorBoundary>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                  {loading && (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                      Loading session...
+                    </div>
+                  )}
 
-                {!loading && !activeSessionData && (
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    color: '#555',
-                    fontSize: '0.95rem',
-                    gap: '1rem',
-                  }}>
-                    {generationStatus === 'generating' ? (
-                      <>
-                        <div style={{
-                          width: 40, height: 40, borderRadius: '50%',
-                          border: '3px solid #333', borderTopColor: '#3b82f6',
-                          animation: 'spin 1s linear infinite',
-                        }} />
-                        <div style={{ color: '#888' }}>Generating your asset...</div>
-                        <div style={{ color: '#555', fontSize: '0.8rem' }}>
-                          Watch the sidebar for progress
-                        </div>
-                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                      </>
-                    ) : (
-                      'Select a session to view variations'
-                    )}
-                  </div>
-                )}
+                  {!loading && generationStatus === 'generating' && (
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      color: '#555',
+                      fontSize: '0.95rem',
+                      gap: '1rem',
+                    }}>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: '50%',
+                        border: '3px solid #333', borderTopColor: '#3b82f6',
+                        animation: 'spin 1s linear infinite',
+                      }} />
+                      <div style={{ color: '#888' }}>
+                        {generationSessionId && generationSessionId === activeSessionId
+                          ? 'Iterating on your asset...'
+                          : 'Generating your asset...'}
+                      </div>
+                      <div style={{ color: '#555', fontSize: '0.8rem' }}>
+                        Watch the sidebar for progress
+                      </div>
+                      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                    </div>
+                  )}
 
-                {!loading && activeSessionData && (
-                  <VariationGrid
-                    variations={activeSessionData.variations}
-                    platform={activeSessionData.lineage.platform}
-                    statuses={statuses}
-                    annotations={annotations}
-                    activePin={activePin}
-                    onPinClick={handlePinClick}
-                    onAddPin={addPin}
-                    onReply={addReply}
-                    onStatusChange={handleStatusChange}
-                  />
-                )}
+                  {!loading && generationStatus !== 'generating' && !activeSessionData && (
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      color: '#555',
+                      fontSize: '0.95rem',
+                    }}>
+                      Select a session to view variations
+                    </div>
+                  )}
+
+                  {!loading && generationStatus !== 'generating' && activeSessionData && (
+                    <VariationGrid
+                      variations={activeSessionData.variations}
+                      platform={activeSessionData.lineage.platform}
+                      statuses={statuses}
+                      annotations={annotations}
+                      activePin={activePin}
+                      onPinClick={handlePinClick}
+                      onAddPin={addPin}
+                      onReply={addReply}
+                      onStatusChange={handleStatusChange}
+                    />
+                  )}
+                </div>
               </div>
-
-              {/* Iterate panel placeholder -- will be replaced in Plan 04 */}
-            </div>
+            </ErrorBoundary>
           )}
         </main>
 
-        {/* Right sidebar: Timeline + Notes (only when session active) */}
-        {mainView === 'session' && !loading && activeSessionData && (
-          <div style={{
-            width: showNotes ? 560 : 280,
-            display: 'flex',
-            borderLeft: '1px solid #2a2a3e',
-            flexShrink: 0,
-          }}>
-            <div style={{ width: 280, overflow: 'hidden' }}>
-              <Timeline
-                lineage={activeSessionData.lineage}
-                statuses={statuses}
-              />
+        {/* Right sidebar: Timeline + Notes (only when session active and not generating) */}
+        {mainView === 'session' && !loading && generationStatus !== 'generating' && activeSessionData && (
+          <ErrorBoundary>
+            <div style={{
+              width: showNotes ? 560 : 280,
+              display: 'flex',
+              borderLeft: '1px solid #2a2a3e',
+              flexShrink: 0,
+            }}>
+              <div style={{ width: 280, overflow: 'hidden' }}>
+                <Timeline
+                  lineage={activeSessionData.lineage}
+                  statuses={statuses}
+                />
+              </div>
+              {showNotes && (
+                <SidebarNotes
+                  notes={sidebarNotes}
+                  variations={activeSessionData.variations}
+                  onAddNote={addNote}
+                  onClose={() => setShowNotes(false)}
+                />
+              )}
             </div>
-            {showNotes && (
-              <SidebarNotes
-                notes={sidebarNotes}
-                variations={activeSessionData.variations}
-                onAddNote={addNote}
-                onClose={() => setShowNotes(false)}
-              />
-            )}
-          </div>
+          </ErrorBoundary>
         )}
       </div>
     </div>

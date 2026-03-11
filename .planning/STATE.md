@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-02-PLAN.md — orchestrator pipeline wiring
-last_updated: "2026-03-11T18:01:50.630Z"
+stopped_at: Phase 04.2 context gathered
+last_updated: "2026-03-11T21:46:22.705Z"
 last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
-  total_phases: 7
-  completed_phases: 4
-  total_plans: 22
-  completed_plans: 19
-  percent: 89
+  total_phases: 9
+  completed_phases: 6
+  total_plans: 23
+  completed_plans: 22
+  percent: 73
 ---
 
 # Project State
@@ -30,7 +30,7 @@ Plan: 4 of 4 in current phase (04.1-01, 04.1-02, 04.1-03 complete)
 Status: In Progress
 Last activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 
-Progress: [█████████░] 89% (Overall: 16/18 plans)
+Progress: [███████░░░] 73% (Overall: 19/26 plans)
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [█████████░] 89% (Overall: 16/18 plans)
 | Phase 05-learning-loop P01 | 4min | 2 tasks | 2 files |
 | Phase 05 P02 | 20min | 3 tasks | 2 files |
 | Phase 06-marketing-skills-integration P02 | 4min | 2 tasks | 5 files |
+| Phase 07 P01 | 4min | 4 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,8 @@ Recent decisions affecting current work:
 - [Phase 06-marketing-skills-integration]: Marketing skills embedded as hardcoded defaults in orchestrator skills (no runtime skill-map.json reads)
 - [Phase 06-marketing-skills-integration]: Brand docs listed first (PRIMARY), marketing skills second (SECONDARY) with explicit precedence framing in all delegation messages
 - [Phase 06-marketing-skills-integration]: --skills flag is a full override (not additive) -- resolved_skills replaces defaults for ALL subagent delegation
+- [Phase 07]: layout-agent downgraded to Haiku: template matching is mechanical, no creative judgment, spec-check catches errors
+- [Phase 07]: Orchestrators now declare explicit model per agent delegation for operator visibility
 
 ### Pending Todos
 
@@ -148,6 +151,8 @@ None yet.
 
 - Phase 04.1 inserted after Phase 4: Canvas Polish & Integration Hardening (URGENT) — addresses permissions, file watcher auto-discovery, MCP→agent triggering, canvas UX overhaul (star/favorite, remove aggressive blocking, infer winner), generation speed optimization, skill path hardening
 - Phase 6 added: Marketing Skills Integration — deep integration of 30 marketing domain skills (~/.agents/skills/) into subagent system for composable marketing intelligence
+- Phase 04.2 inserted after Phase 4.1: Asset Linking & Output Refactor — replace base64-inlined images/fonts with URL-linked assets served via Vite, shared brand assets folder, per-session assets, reducing HTML from 2-3MB to ~50KB
+- Phase 04.3 inserted after Phase 4.2: Install Process Safety — ensure sync.sh never wipes non-Fluid commands (GSD incident where ~/.claude/commands/gsd/ was deleted)
 
 ### Blockers/Concerns
 
@@ -157,6 +162,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T18:01:50.628Z
-Stopped at: Completed 06-02-PLAN.md — orchestrator pipeline wiring
-Resume file: None
+Last session: 2026-03-11T21:46:22.702Z
+Stopped at: Phase 04.2 context gathered
+Resume file: .planning/phases/04.2-asset-linking-output-refactor/04.2-CONTEXT.md

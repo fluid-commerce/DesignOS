@@ -90,7 +90,8 @@ describe('useGenerationStore', () => {
 
   it('transitions idle -> generating on startGeneration', () => {
     const store = useGenerationStore.getState();
-    store.startGeneration('test-session');
+    store.startGeneration();
+    store.setSessionId('test-session');
     const state = useGenerationStore.getState();
     expect(state.status).toBe('generating');
     expect(state.activeSessionId).toBe('test-session');
@@ -99,14 +100,14 @@ describe('useGenerationStore', () => {
 
   it('transitions generating -> complete on completeGeneration', () => {
     const store = useGenerationStore.getState();
-    store.startGeneration('test-session');
+    store.startGeneration();
     store.completeGeneration();
     expect(useGenerationStore.getState().status).toBe('complete');
   });
 
   it('accumulates events via addEvent', () => {
     const store = useGenerationStore.getState();
-    store.startGeneration('test-session');
+    store.startGeneration();
     store.addEvent({ id: 'msg-1', type: 'text', content: 'Hello', timestamp: 1 });
     store.addEvent({ id: 'msg-2', type: 'text', content: ' world', timestamp: 2 });
     expect(useGenerationStore.getState().events).toHaveLength(2);
@@ -114,16 +115,18 @@ describe('useGenerationStore', () => {
 
   it('clears events on startGeneration', () => {
     const store = useGenerationStore.getState();
-    store.startGeneration('session-1');
+    store.startGeneration();
+    store.setSessionId('session-1');
     store.addEvent({ id: 'msg-1', type: 'text', content: 'old', timestamp: 1 });
-    store.startGeneration('session-2');
+    store.startGeneration();
+    store.setSessionId('session-2');
     expect(useGenerationStore.getState().events).toEqual([]);
     expect(useGenerationStore.getState().activeSessionId).toBe('session-2');
   });
 
   it('transitions to error state on errorGeneration', () => {
     const store = useGenerationStore.getState();
-    store.startGeneration('test-session');
+    store.startGeneration();
     store.errorGeneration('Something went wrong');
     const state = useGenerationStore.getState();
     expect(state.status).toBe('error');
@@ -131,7 +134,7 @@ describe('useGenerationStore', () => {
 
   it('resets to idle state', () => {
     const store = useGenerationStore.getState();
-    store.startGeneration('test-session');
+    store.startGeneration();
     store.addEvent({ id: 'msg-1', type: 'text', content: 'test', timestamp: 1 });
     store.reset();
     const state = useGenerationStore.getState();

@@ -4,7 +4,7 @@ description: "Generate Gold Standard compliant .liquid website sections. Orchest
 invoke: slash
 context: fork
 disable-model-invocation: true
-argument-hint: '"section description" [--type hero|features-grid|testimonials|cta-banner|image-text|statistics|faq-accordion|logo-showcase|pricing|content-richtext|video|newsletter] [--template name] [--skills skill1,skill2] [--debug]'
+argument-hint: '"section description" [--type hero|features-grid|testimonials|cta-banner|image-text|statistics|faq-accordion|logo-showcase|pricing|content-richtext|video|newsletter] [--template name] [--debug]'
 allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Edit
 ---
 
@@ -23,28 +23,6 @@ Parse `$ARGUMENTS` for the following flags and values:
 | `--type` | section type name | (inferred from prompt) | Which section type to generate. Valid: `hero`, `features-grid`, `testimonials`, `cta-banner`, `image-text`, `statistics`, `faq-accordion`, `logo-showcase`, `pricing`, `content-richtext`, `video`, `newsletter` |
 | `--template` | template name | (none) | Use specific existing template as starting point |
 | `--debug` | (flag, no value) | off | Preserve full session directory after completion |
-| `--skills` | comma-separated skill names | (none) | Override default marketing skills. Full override, not additive. e.g., `--skills copywriting,pricing-strategy` |
-
-**Marketing skill resolution (--skills flag):**
-
-If `--skills` flag present:
-```
-resolved_skills = []
-for name in split($skills_arg, ","):
-  path = "skills/marketing/" + trim(name) + "/SKILL.md"
-  if file_exists(path):
-    append resolved_skills, path
-  else:
-    print "WARNING: Unknown skill '{name}' (resolved to {path}) -- skipping"
-
-if resolved_skills is empty:
-  print "WARNING: No valid skills found in --skills argument. Using defaults."
-  (fall through to defaults below)
-else:
-  use resolved_skills for ALL subagent delegation (replaces defaults)
-```
-
-If `--skills` flag NOT present, use hardcoded defaults (embedded below in delegation messages).
 
 **Natural language type matching:**
 If `--type` is not set but the prompt contains natural language hints, match against section types:
@@ -61,28 +39,7 @@ If `--type` is not set but the prompt contains natural language hints, match aga
 - "newsletter", "email", "subscribe", "signup" -> `newsletter`
 - "hero", "banner", "landing", "above the fold" -> `hero`
 
-# 2. Output Path
-
-**When canvas is active** (`.fluid/canvas-active` file exists):
-- Create a session directory: `.fluid/working/YYYYMMDD-HHMMSS/`
-- Write ALL output files to that session directory
-- Write `lineage.json` to the session directory
-- Do NOT write to `./templates/sections/`
-
-**When canvas is NOT active** (no `.fluid/canvas-active` file):
-- Write output to `./templates/sections/` as before
-- Optionally also write to `.fluid/working/` for future canvas review
-
-**Check canvas status:**
-```bash
-if [ -f .fluid/canvas-active ]; then
-  # Canvas is running -- use .fluid/working/{sessionId}/
-else
-  # Canvas not running -- use ./templates/sections/
-fi
-```
-
-# 3. Working Directory Setup
+# 2. Working Directory Setup
 
 Each run gets a unique session directory under `.fluid/working/`:
 
@@ -125,7 +82,7 @@ Initialize at session start:
 
 Update `lineage.json` after each pipeline completion.
 
-# 4. Pipeline Execution
+# 3. Pipeline Execution
 
 Print the run header:
 
@@ -133,38 +90,25 @@ Print the run header:
 Generating Fluid theme section...
   Type: {type} (or: inferred from prompt)
   Template: {template or "(none -- agent generates from scratch)"}
+  Models: copy=sonnet, layout=haiku, styling=sonnet, spec-check=sonnet
 ```
 
 Execute the 4-stage pipeline sequentially using the session directory path.
 
-## Step 4a: Copy Agent
+## Step 3a: Copy Agent
 
-Delegate to `copy-agent` via the Agent tool:
+Delegate to `copy-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
-"Generate Fluid brand copy for a website section. mode=section, platform=shopify. Section type: {type}. Brief: {prompt}. {If template: Reference the content structure of templates/sections/{template}.liquid.} Include: heading text, subheading (if applicable), body text (if applicable), button text, and any block content (feature items, testimonials, FAQ items, etc.). Format as structured markdown with clear labels for each content slot.
-
-Brand context (PRIMARY -- must follow):
-- brand/voice-rules.md
-- brand/website-section-specs.md
-
-Marketing expertise (SECONDARY -- reference only, brand docs take precedence in any conflict):
-- {If --skills provided: resolved_skills[0] (if exists)}
-- {If --skills provided: resolved_skills[1] (if exists)}
-- {If --skills NOT provided: skills/marketing/copywriting/SKILL.md}
-- {If --skills NOT provided: skills/marketing/page-cro/SKILL.md}
-
-Apply marketing expertise to strengthen persuasion, specificity, and psychological hooks -- while staying within Fluid brand voice constraints.
-
-Write output to {working_dir}/copy.md"
+"Generate Fluid brand copy for a website section. mode=section, platform=shopify. Section type: {type}. Brief: {prompt}. {If template: Reference the content structure of templates/sections/{template}.liquid.} Write output to {working_dir}/copy.md. Include: heading text, subheading (if applicable), body text (if applicable), button text, and any block content (feature items, testimonials, FAQ items, etc.). Format as structured markdown with clear labels for each content slot."
 
 Wait for completion. Read `{working_dir}/copy.md`.
 
 Print: `[1/4] Copy...        done`
 
-## Step 4b: Layout Agent
+## Step 3b: Layout Agent
 
-Delegate to `layout-agent` via the Agent tool:
+Delegate to `layout-agent` via the Agent tool with `model: "haiku"`:
 
 **Delegation message:**
 "Create a Gold Standard compliant .liquid section template. mode=section, platform=shopify. Section type: {type}. Read copy from {working_dir}/copy.md for content. Read the reference template at templates/sections/{type}.liquid for the exact schema structure and HTML pattern. Generate a .liquid file following the Gold Standard schema: 6 settings per text element (font_family, font_size, font_size_desktop, font_weight, color, content), 7 button settings, 5 section settings, 7 container settings. All styles via utility classes -- ZERO hard-coded values. Include FIXED/FLEXIBLE/OPTIONAL annotations. Write output to {working_dir}/layout.liquid"
@@ -173,9 +117,9 @@ Wait for completion.
 
 Print: `[2/4] Layout...      done`
 
-## Step 4c: Styling Agent
+## Step 3c: Styling Agent
 
-Delegate to `styling-agent` via the Agent tool:
+Delegate to `styling-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
 "Apply Fluid brand styling to the .liquid section template. mode=section, platform=shopify. Read copy from {working_dir}/copy.md (for content text). Read layout from {working_dir}/layout.liquid. Ensure: all styles use utility classes from schema settings (no hard-coded values), correct default values for all settings, proper use of Liquid template syntax ({{ section.settings.X | default: 'Y' }}), block.fluid_attributes on block containers. Reference brand/design-tokens.md for color and font defaults. Write complete .liquid file to {working_dir}/styled.liquid"
@@ -184,19 +128,12 @@ Wait for completion.
 
 Print: `[3/4] Styling...     done`
 
-## Step 4d: Spec-Check Agent
+## Step 3d: Spec-Check Agent
 
-Delegate to `spec-check-agent` via the Agent tool:
+Delegate to `spec-check-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
-"Validate the Fluid .liquid section template. mode=section, platform=shopify. Section type: {type}. Read {working_dir}/styled.liquid. Run: node tools/schema-validation.cjs {working_dir}/styled.liquid. Also check: FIXED/FLEXIBLE/OPTIONAL annotations present, zero hard-coded style values, correct Liquid syntax, block.fluid_attributes on block containers.
-
-Marketing expertise (SECONDARY -- reference for additional validation awareness):
-- {If --skills NOT provided: skills/marketing/seo-audit/SKILL.md}
-
-Check for marketing best practices alongside brand compliance. Brand rules override marketing skill suggestions in all conflicts.
-
-Write report to {working_dir}/spec-report.json"
+"Validate the Fluid .liquid section template. mode=section, platform=shopify. Section type: {type}. Read {working_dir}/styled.liquid. Run: node tools/schema-validation.cjs {working_dir}/styled.liquid. Also check: FIXED/FLEXIBLE/OPTIONAL annotations present, zero hard-coded style values, correct Liquid syntax, block.fluid_attributes on block containers. Write report to {working_dir}/spec-report.json"
 
 Wait for completion. Read `{working_dir}/spec-report.json`.
 
@@ -207,7 +144,7 @@ If `overall` is `"fail"`:
   Print: `[4/4] Spec-check...  FAIL ({N} blocking issues)`
   Proceed to the Fix Loop (Section 4).
 
-# 5. Fix Loop
+# 4. Fix Loop
 
 Only entered when `spec-report.json` has `"overall": "fail"`.
 
@@ -219,18 +156,18 @@ For iteration 1 to 3:
 
 3. **Re-delegate to each target agent** with fix feedback:
 
-   **Copy fix delegation:**
+   **Copy fix delegation** (model: "sonnet"):
    "FIX ITERATION {N}: mode=section, platform=shopify. Re-read {working_dir}/copy.md. The following issues were found by spec-check: {issues list with severity and description for each}. Fix these issues and rewrite {working_dir}/copy.md."
 
-   **Layout fix delegation:**
+   **Layout fix delegation** (model: "haiku"):
    "FIX ITERATION {N}: mode=section, platform=shopify. Re-read {working_dir}/layout.liquid. Also re-read {working_dir}/copy.md (content may have changed). The following issues were found: {issues list with severity and description}. Fix these issues and rewrite {working_dir}/layout.liquid."
 
-   **Styling fix delegation:**
+   **Styling fix delegation** (model: "sonnet"):
    "FIX ITERATION {N}: mode=section, platform=shopify. Re-read {working_dir}/styled.liquid. Also re-read {working_dir}/copy.md and {working_dir}/layout.liquid (they may have changed). The following issues were found: {issues list with severity and description}. Fix these issues and rewrite {working_dir}/styled.liquid."
 
-4. **Cascade rule**: If any copy fixes were applied, re-run layout-agent and then styling-agent afterward (even if they had no direct issues). This entire cascade counts as ONE iteration, not three.
+4. **Cascade rule**: If any copy fixes were applied, re-run layout-agent (model: "haiku") and then styling-agent (model: "sonnet") afterward (even if they had no direct issues). This entire cascade counts as ONE iteration, not three.
 
-5. **Re-run spec-check** after all fixes in this iteration.
+5. **Re-run spec-check** (model: "sonnet") after all fixes in this iteration.
 
 6. Read the new `spec-report.json`. If `overall` is `"pass"`, break the loop.
 
@@ -246,7 +183,7 @@ For iteration 1 to 3:
   ```
 - Continue to output (the section is saved but marked as a draft).
 
-# 6. Output and Cleanup
+# 5. Output and Cleanup
 
 Copy the final .liquid file to `./templates/sections/`:
 
@@ -267,7 +204,7 @@ Copy `{working_dir}/styled.liquid` to the output path.
 Saved: ./templates/sections/{type}.liquid
 ```
 
-# 7. Validation
+# 6. Validation
 
 After saving, run the validation tool to confirm Gold Standard compliance:
 
@@ -290,8 +227,6 @@ Print the result. If validation fails, note the issues but do not re-enter the f
 - Layout agent: `brand/layout-archetypes.md` + `brand/website-section-specs.md`
 - Styling agent: `brand/design-tokens.md` + `brand/asset-usage.md` + `brand/website-section-specs.md`
 - Spec-check agent: loads relevant brand docs per check category
-
-**NEVER load more than 2 marketing skills per subagent.** Marketing skills are secondary reference -- brand docs always take precedence.
 
 **NEVER use hard-coded style values in .liquid templates.** All styles must come from schema settings via utility classes.
 

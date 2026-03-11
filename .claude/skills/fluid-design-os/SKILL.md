@@ -12,16 +12,6 @@ Start and manage the Fluid Design OS canvas -- a visual workspace for reviewing,
 
 **Canvas directory:** `~/Fluid Marketing Master Skills/canvas`
 
-## Canvas Integration
-
-When the canvas is the control plane, it drives generation directly via CLI -- the launcher skill is for Desktop-originated workflows.
-
-The canvas manages the `.fluid/working/` directory for session output and the `.fluid/canvas-active` sentinel file to signal skills to route output there.
-
-- **Start** creates `.fluid/working/` and `.fluid/canvas-active`
-- **Stop** removes `.fluid/canvas-active`
-- Skills check for `.fluid/canvas-active` to decide output routing
-
 ## Behavior
 
 Parse `$ARGUMENTS` to determine action:

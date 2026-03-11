@@ -2,7 +2,7 @@
 
 > Weight thresholds: 1-20 optional | 21-50 flexible | 51-80 strong preference | 81-100 brand-critical
 
-## The Core Challenge
+## The Core Challenge (Weight: 85)
 
 Fluid faces a breadth vs. clarity paradox: the product's comprehensive nature is its greatest strength and biggest communication challenge. "We do everything" messaging fails — but the integration itself IS the product. (Weight: 85)
 

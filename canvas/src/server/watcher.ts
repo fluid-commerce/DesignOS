@@ -151,26 +151,101 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               pad(now.getSeconds()),
             ].join('');
 
-            // Create session directory
-            const sessionDir = path.join(absDir, sessionId);
-            await fs.mkdir(sessionDir, { recursive: true });
+            // Detect iteration mode
+            const { sessionId: reqSessionId, iterationContext } = body;
+            const isIteration = !!(reqSessionId && iterationContext);
+
+            // For iteration: reuse existing session dir; for new: create fresh
+            let actualSessionId: string;
+            let actualSessionDir: string;
+            let roundNumber: number;
+
+            if (isIteration) {
+              actualSessionId = reqSessionId;
+              actualSessionDir = path.join(absDir, actualSessionId);
+              roundNumber = (iterationContext.currentRound || 0) + 1;
+            } else {
+              actualSessionId = sessionId;
+              actualSessionDir = path.join(absDir, sessionId);
+              roundNumber = 1;
+              await fs.mkdir(actualSessionDir, { recursive: true });
+            }
+
+            // Generate a human-readable title from the prompt
+            const titleWords = (prompt || 'Marketing Asset').split(/\s+/).slice(0, 6).join(' ');
+            const title = titleWords.length > 40 ? titleWords.slice(0, 40) + '...' : titleWords;
+
+            // Write lineage.json immediately so session is discoverable
+            if (!isIteration) {
+              const platform = body.skillType || 'general';
+              const lineage = {
+                sessionId: actualSessionId,
+                created: now.toISOString(),
+                platform,
+                product: null,
+                template: template || null,
+                title,
+                rounds: [{
+                  roundNumber: 1,
+                  prompt: prompt || 'Generate a marketing asset',
+                  variations: [],
+                  winnerId: null,
+                  timestamp: now.toISOString(),
+                }],
+              };
+              await fs.writeFile(
+                path.join(actualSessionDir, 'lineage.json'),
+                JSON.stringify(lineage, null, 2),
+                'utf-8'
+              );
+            }
 
             // Build the prompt with output path instructions
             const parts: string[] = [];
             if (template) parts.push(`Template: ${template}`);
             if (customization) parts.push(`Customization: ${JSON.stringify(customization)}`);
             parts.push(prompt || 'Generate a marketing asset');
-            parts.push(`\nWrite all generated files to ${sessionDir}/`);
-            parts.push(`Write lineage.json to ${sessionDir}/`);
+            parts.push(`\nWrite all generated files to ${actualSessionDir}/`);
+
+            if (isIteration) {
+              // Iteration mode: write winner HTML to a temp file to avoid E2BIG
+              // (CLI arg limit) — large HTML assets can exceed OS arg size limits
+              const winnerPath = path.join(actualSessionDir, '.iteration-winner.html');
+              await fs.writeFile(winnerPath, iterationContext.winnerHtml || '', 'utf-8');
+
+              parts.push(`\n--- ITERATION CONTEXT ---`);
+              parts.push(`Session: ${actualSessionId} (Round ${roundNumber})`);
+              parts.push(`Previous winner HTML is saved at: ${winnerPath}`);
+              parts.push(`Read that file to see the current version you need to improve.`);
+              if (iterationContext.annotations?.length > 0) {
+                parts.push(`\nAnnotations from reviewer:`);
+                for (const ann of iterationContext.annotations) {
+                  parts.push(`- ${ann.text}${ann.x != null ? ` (at ${ann.x}%, ${ann.y}%)` : ''}`);
+                }
+              }
+              parts.push(`\nGenerate an improved version addressing the feedback above.`);
+              parts.push(`Write output HTML files to ${actualSessionDir}/`);
+              parts.push(`After writing output, update ${actualSessionDir}/lineage.json: read it first, then add a new round entry (roundNumber: ${roundNumber}) with the new variations.`);
+            } else {
+              parts.push(`\nAfter generating, update ${actualSessionDir}/lineage.json: read it first, then fill in the variations array in round 1 with the files you created (e.g. {id: "v1", path: "styled.html", status: "unmarked", specCheck: "pass"}).`);
+            }
             const fullPrompt = parts.join('\n');
 
-            // Build spawn args
+            // Build spawn args — include MCP tools so agent can read annotations/statuses
+            const projectRoot = path.resolve(srv.config.root, '..');
+            const mcpConfigPath = path.join(projectRoot, '.mcp.json');
             const args = [
               '-p', fullPrompt,
               '--output-format', 'stream-json',
               '--verbose',
-              '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,Agent',
+              '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,Agent,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__read_history,mcp__fluid-canvas__push_asset',
             ];
+
+            // Add MCP config if it exists
+            try {
+              await fs.access(mcpConfigPath);
+              args.push('--mcp-config', mcpConfigPath);
+            } catch { /* no MCP config, skip */ }
 
             // Add skill system prompt if available
             if (skillType) {
@@ -203,7 +278,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             (res as any).flushHeaders?.();
 
             // Send session ID immediately
-            res.write(`data: ${JSON.stringify({ type: 'session', sessionId })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId })}\n\n`);
 
             // Stream stdout line by line as SSE data events
             if (child.stdout) {
@@ -231,7 +306,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               activeChild = null;
               try {
                 res.write(`event: stderr\ndata: ${JSON.stringify({ text: `Spawn error: ${err.message}` })}\n\n`);
-                res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId, error: err.message })}\n\n`);
+                res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId: actualSessionId, error: err.message })}\n\n`);
                 res.end();
               } catch {
                 // Response may already be closed
@@ -242,7 +317,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             child.on('close', (code: number | null) => {
               activeChild = null;
               try {
-                res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId })}\n\n`);
+                res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId })}\n\n`);
                 res.end();
               } catch {
                 // Response may already be closed (e.g. client disconnected)

@@ -1,7 +1,7 @@
 ---
 name: layout-agent
 description: "Creates structural HTML layouts from copy output. Reads copy.md, selects archetype layout, writes {working_dir}/layout.html with positioned containers and SLOT comments."
-model: sonnet
+model: haiku
 tools:
   - Read
   - Write

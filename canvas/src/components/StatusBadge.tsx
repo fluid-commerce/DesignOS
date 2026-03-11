@@ -12,7 +12,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const style = STATUS_STYLES[status];
+  const style = STATUS_STYLES[status] ?? STATUS_STYLES.unmarked;
 
   return (
     <span style={{

@@ -1,4 +1,28 @@
 {
+  "permissions": {
+    "allow": [
+      "Read(brand/**)",
+      "Read(patterns/**)",
+      "Read(templates/**)",
+      "Read(assets/**)",
+      "Read(canvas/**)",
+      "Read(tools/**)",
+      "Read(install.md)",
+      "Read(.claude/skills/**)",
+      "Read(CLAUDE.md)",
+      "Bash(npx vite*)",
+      "Bash(npx tsc*)",
+      "Bash(npx tsx*)",
+      "Bash(npx vitest*)",
+      "Bash(npm install*)",
+      "Bash(npm run*)",
+      "Bash(node tools/*)",
+      "Bash(node canvas/*)",
+      "Bash(bash */canvas/scripts/*)",
+      "Bash(curl*localhost:5174*)",
+      "Bash(lsof -ti:5174*)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {

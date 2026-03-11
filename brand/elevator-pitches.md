@@ -65,9 +65,9 @@ For: Trade show conversations, discovery call openers, investor intros.
 **Option C — FOMO-Focused:**
 "The direct sales companies winning right now have figured out that their tech is their competitive advantage. They're not fighting with Shopify plugins. They're not praying their payment provider talks to their commission engine. They're on we-commerce platforms purpose-built for relationship-driven selling. Fluid is that platform. While your competitors are launching campaigns in hours, are you still waiting 90 days for IT?"
 
-## Usage Notes
+## Usage Notes (Weight: 75)
 
-- Match pitch length to context — don't deliver a 30-second pitch in a 5-second window (Weight: 75)
+- Match pitch length to context — don't deliver a 30-second pitch in a 5-second window
 - Authenticity Advantage taglines are the recommended default for new campaigns (Weight: 90)
 - See [messaging-frameworks.md](messaging-frameworks.md) for which framework to select per audience
 - See [audience-personas.md](audience-personas.md) for persona-specific emphasis

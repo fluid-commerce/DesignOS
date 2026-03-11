@@ -5,6 +5,21 @@ import type { Lineage, SessionSummary, SessionData, VariationFile, AnnotationFil
 // Session directory pattern: YYYYMMDD-HHMMSS
 const SESSION_DIR_PATTERN = /^\d{8}-\d{6}$/;
 
+// Intermediate pipeline files to exclude from variation display.
+// The orchestrator pipeline writes: copy.html → layout.html → styled.html → (spec-check) → final.
+// Only styled/final outputs should show as variations.
+const INTERMEDIATE_FILES = new Set([
+  'copy.html', 'layout.html', 'index.html',
+]);
+
+function isVariationFile(filename: string): boolean {
+  if (!filename.endsWith('.html')) return false;
+  if (INTERMEDIATE_FILES.has(filename)) return false;
+  // Exclude hidden/temp files (e.g. .iteration-winner.html)
+  if (filename.startsWith('.')) return false;
+  return true;
+}
+
 /**
  * Count variations in a lineage, supporting both Phase 2 and Phase 4 formats.
  */
@@ -26,8 +41,17 @@ export function countVariations(lineage: Lineage): number {
 export function parseLineage(json: string): Lineage | null {
   try {
     const parsed = JSON.parse(json);
-    if (!parsed.sessionId || !parsed.created || !parsed.platform) {
+    // Normalize: accept 'id' as fallback for 'sessionId'
+    if (!parsed.sessionId && parsed.id) {
+      parsed.sessionId = parsed.id;
+    }
+    // Must have sessionId and created at minimum
+    if (!parsed.sessionId || !parsed.created) {
       return null;
+    }
+    // Default platform if missing
+    if (!parsed.platform) {
+      parsed.platform = parsed.mode || parsed.type || 'general';
     }
     return parsed as Lineage;
   } catch {
@@ -71,13 +95,18 @@ export async function discoverSessions(workingDir: string): Promise<SessionSumma
         ? Math.max(...lineage.rounds.map((r) => r.roundNumber), 0)
         : 0;
 
+      // Count actual HTML files on disk (more reliable than lineage metadata)
+      const diskVariations = await findVariationFiles(path.join(workingDir, dir));
+      const variationCount = diskVariations.length || countVariations(lineage);
+
       sessions.push({
         id: dir,
         created: lineage.created,
         platform: lineage.platform,
-        variationCount: countVariations(lineage),
+        variationCount,
         hasAnnotations,
         latestRound,
+        ...(lineage.title ? { title: lineage.title } : {}),
       });
     } catch {
       // Skip directories without valid lineage.json
@@ -153,8 +182,8 @@ async function findVariationFiles(sessionDir: string): Promise<VariationFile[]> 
       } catch {
         // No styled.html in this subdirectory
       }
-    } else if (entry.endsWith('.html') && entry !== 'index.html') {
-      // Root-level HTML files
+    } else if (entry.endsWith('.html') && isVariationFile(entry)) {
+      // Root-level HTML files — only final outputs, not intermediate pipeline stages
       try {
         const html = await fs.readFile(entryPath, 'utf-8');
         variations.push({ path: entry, html, name: entry.replace('.html', '') });

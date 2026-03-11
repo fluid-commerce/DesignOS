@@ -46,6 +46,10 @@ export function AssetFrame({
   const scale = displayWidth / dims.width;
   const displayHeight = dims.height * scale;
 
+  // Guard: if HTML is missing or too large (>10MB), show placeholder instead of crashing
+  const MAX_HTML_SIZE = 10_000_000;
+  const htmlTooLarge = !html || html.length > MAX_HTML_SIZE;
+
   const [showPinInput, setShowPinInput] = useState(false);
   const [pendingPin, setPendingPin] = useState<{ x: number; y: number } | null>(null);
   const [pinText, setPinText] = useState('');
@@ -98,18 +102,40 @@ export function AssetFrame({
         border: status === 'winner' ? '2px solid #22c55e' : '1px solid #333',
         position: 'relative',
       }}>
-        <iframe
-          srcDoc={html}
-          sandbox="allow-same-origin"
-          style={{
+        {htmlTooLarge ? (
+          <div style={{
             width: dims.width,
             height: dims.height,
-            border: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#1e1e30',
+            color: '#888',
+            fontSize: '14px',
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
-          }}
-          title={name}
-        />
+            gap: '0.5rem',
+          }}>
+            <div style={{ fontSize: '1.2rem' }}>Preview too large</div>
+            <div style={{ fontSize: '0.85rem', color: '#555' }}>
+              {html ? `${(html.length / 1024 / 1024).toFixed(1)} MB` : 'No HTML content'}
+            </div>
+          </div>
+        ) : (
+          <iframe
+            srcDoc={html}
+            sandbox="allow-same-origin"
+            style={{
+              width: dims.width,
+              height: dims.height,
+              border: 'none',
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+            title={name}
+          />
+        )}
         {/* Clickable overlay for placing pins */}
         <div
           data-testid="pin-overlay"

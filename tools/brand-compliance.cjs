@@ -38,12 +38,16 @@ function detectContext(content) {
   const hasLiquidSchema = /{%\s*schema\s*%}/i.test(content);
   const hasPageRule = /@page\s*\{[^}]*size:\s*letter/i.test(content);
   const hasCssVars = /var\(--/g.test(content);
+  // Detect social dimensions declared on separate lines (width: 1080px + height: 1080px)
+  const hasSeparateSocialDims = /width:\s*1080px/i.test(content) && /height:\s*1080px/i.test(content)
+    || /width:\s*1200px/i.test(content) && /height:\s*627px/i.test(content)
+    || /width:\s*1340px/i.test(content) && /height:\s*630px/i.test(content);
 
   // One-pagers use @page letter rules and social fonts (NeueHaasDisplay + FLFont)
   // Treat them as social context for font validation
   if (hasPageRule) return 'social';
   if (hasLiquidSchema) return 'website';
-  if (hasSocialDimension) return 'social';
+  if (hasSocialDimension || hasSeparateSocialDims) return 'social';
   if (hasCssVars) return 'website';
   return 'all';
 }

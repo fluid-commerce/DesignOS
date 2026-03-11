@@ -2,7 +2,7 @@
 
 > Weight thresholds: 1-20 optional | 21-50 flexible | 51-80 strong preference | 81-100 brand-critical
 
-## Gold Standard Schema Rules
+## Gold Standard Schema Rules (Weight: 100)
 
 Every .liquid section must be Gold Standard compliant from day one. No partial schemas, no hard-coded values. See the full workflow in Reference/Brand reference material/Website/Gold Standard/GOLD_STANDARD_WORKFLOW.md.
 
@@ -90,7 +90,7 @@ Key visual elements from the build prompt:
 - **Ghost large text:** 100px+, ~4-6% opacity, monospace or display text behind content. Creates depth.
 - **Orange bar accent:** 48px wide x 4px tall orange rectangle above eyebrow labels.
 - **1px grid separators:** Modules separated by single-pixel lines, no spacing gap — cage/grid visual effect.
-- **Monospace eyebrow text:** Small, letter-spaced, all-caps label above section headlines. Brand blue color.
+- **Monospace eyebrow text:** Small, letter-spaced, all-caps label above section headlines. Brand blue color. `text-transform: uppercase; letter-spacing: 0.1em;` in Space Mono. (Weight: 80)
 
 ## Related Docs
 

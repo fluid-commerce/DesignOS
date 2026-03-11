@@ -66,7 +66,7 @@ For buyers who respond to windows of opportunity.
 
 "Every month you stay on your current stack is another month of lost conversion, lost rep trust, and lost competitive ground. What could you accomplish in the next 90 days if your technology wasn't the bottleneck?"
 
-## Deployment Notes
+## Deployment Notes (Weight: 80)
 
 - **Sales discovery:** Start with Strategy A (Acknowledge/Reframe), then pivot based on persona
 - **Closing/negotiation:** Layer Strategy B (Blitz Week proof) + Strategy D (social proof) + calibrated FOMO

@@ -2,7 +2,7 @@
 
 > Weight thresholds: 1-20 optional | 21-50 flexible | 51-80 strong preference | 81-100 brand-critical
 
-## Overview
+## Overview (Weight: 85)
 
 Six proven layout types for social posts. Each has been validated through 10+ iterations. Choose based on content type and message intent.
 
@@ -108,7 +108,7 @@ Everything centered. Watermark text repeating in the background at 4% opacity. H
 - Brushstrokes: both-sides "curtain" framing
 - Watermark text behind content layer
 
-## General Layout Rules
+## General Layout Rules (Weight: 85)
 
 ### Headline-dominant, not information-dense (Weight: 90)
 Social posts are not one-pagers. The headline IS the post. Body copy supports it; it doesn't carry the message. If you can't read the headline at phone size in 2 seconds, it's too much.

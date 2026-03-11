@@ -26,8 +26,11 @@ export function VariationGrid({
 }: VariationGridProps) {
   if (variations.length === 0) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
-        No variations to display
+      <div style={{ padding: '2rem', textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>
+        <div style={{ marginBottom: '0.5rem' }}>No variations yet</div>
+        <div style={{ fontSize: '0.75rem', color: '#555' }}>
+          Generation may still be in progress — check the sidebar for status.
+        </div>
       </div>
     );
   }

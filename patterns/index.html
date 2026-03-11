@@ -429,22 +429,22 @@
       <p class="section-subtitle">Two distinct palettes: Social and Website. Never cross-pollinate.</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Social Post Accent Colors <span class="weight-badge weight-critical">Weight: 95</span></h3>
-        <p style="color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 16px;">One accent color per post. Pick based on content mood.</p>
+        <h3 class="subsection-title">Accent Colors <span class="weight-badge weight-critical">Weight: 95</span></h3>
+        <p style="color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 16px;">One accent color per design. Used across all contexts — social, website, presentations.</p>
 
         <div class="swatch-grid">
           <div class="swatch">
             <div class="swatch-color" style="background: #FF8B58;"></div>
             <div class="swatch-info">
               <div class="swatch-hex">#FF8B58</div>
-              <div class="swatch-label">Orange — Urgency, pain, warning</div>
+              <div class="swatch-label">Orange — Urgency, pain, warning, CTAs</div>
             </div>
           </div>
           <div class="swatch">
             <div class="swatch-color" style="background: #42b1ff;"></div>
             <div class="swatch-info">
               <div class="swatch-hex">#42b1ff</div>
-              <div class="swatch-label">Blue — Technical, intelligence, trust</div>
+              <div class="swatch-label">Blue — Technical, intelligence, trust, links</div>
             </div>
           </div>
           <div class="swatch">
@@ -464,34 +464,70 @@
         </div>
 
         <details>
-          <summary>Copy: Social accent color CSS</summary>
+          <summary>Copy: Accent color CSS</summary>
           <div class="code-block">
             <span class="code-label">CSS</span>
-<pre>/* Social Post Accent Colors — pick ONE per post */
+<pre>/* Brand Accent Colors — pick ONE per design */
 .accent-orange  { color: #FF8B58; }  /* Urgency, pain, warning */
 .accent-blue    { color: #42b1ff; }  /* Technical, intelligence, trust */
 .accent-green   { color: #44b574; }  /* Success, solution, proof */
-.accent-purple  { color: #c985e5; }  /* Premium, financial, analytical */</pre>
+.accent-purple  { color: #c985e5; }  /* Premium, financial, analytical */
+
+/* CSS variable form */
+:root {
+  --clr-orange: #FF8B58;
+  --clr-blue: #42b1ff;
+  --clr-green: #44b574;
+  --clr-purple: #c985e5;
+}</pre>
           </div>
         </details>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Social Backgrounds &amp; Text <span class="weight-badge weight-critical">Weight: 95</span></h3>
+        <h3 class="subsection-title">Neutrals <span class="weight-badge weight-critical">Weight: 90</span></h3>
 
         <div class="swatch-grid">
           <div class="swatch">
             <div class="swatch-color" style="background: #000; border: 1px solid rgba(255,255,255,0.1);"></div>
             <div class="swatch-info">
               <div class="swatch-hex">#000000</div>
-              <div class="swatch-label">Background — pure black, NOT dark gray</div>
+              <div class="swatch-label">Pure black — social backgrounds</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #050505; border: 1px solid rgba(255,255,255,0.1);"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#050505</div>
+              <div class="swatch-label">Near-black — website backgrounds</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #111;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#111 / #161616</div>
+              <div class="swatch-label">Section backgrounds</div>
             </div>
           </div>
           <div class="swatch">
             <div class="swatch-color" style="background: #fff;"></div>
             <div class="swatch-info">
               <div class="swatch-hex">#ffffff</div>
-              <div class="swatch-label">Primary text</div>
+              <div class="swatch-label">Primary text (white)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #f5f0e8;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#f5f0e8</div>
+              <div class="swatch-label">Body text — warm off-white</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background: #888;"></div>
+            <div class="swatch-info">
+              <div class="swatch-hex">#888888</div>
+              <div class="swatch-label">Secondary text</div>
             </div>
           </div>
         </div>
@@ -517,86 +553,29 @@
           <span style="font-size: 13px;"><code>rgba(255,255,255,0.06)</code> — Card borders</span>
           <span class="weight-badge weight-strong">75</span>
         </div>
-
-        <details>
-          <summary>Copy: Social background and text CSS</summary>
-          <div class="code-block">
-            <span class="code-label">CSS</span>
-<pre>/* Social Post Base */
-body {
-  background: #000;         /* Weight: 95 — pure black, NEVER #191919 */
-  color: #ffffff;            /* Weight: 90 — primary text */
-}
-.body-copy    { color: rgba(255,255,255,0.45); }  /* Weight: 85 */
-.dimmed       { color: rgba(255,255,255,0.25); }  /* Weight: 80 */
-.card         { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }  /* Weight: 80/75 */</pre>
-          </div>
-        </details>
-      </div>
-
-      <div class="subsection">
-        <h3 class="subsection-title">Website Palette <span class="weight-badge weight-critical">Weight: 90</span></h3>
-
-        <div class="swatch-grid">
-          <div class="swatch">
-            <div class="swatch-color" style="background: #050505; border: 1px solid rgba(255,255,255,0.1);"></div>
-            <div class="swatch-info">
-              <div class="swatch-hex">#050505</div>
-              <div class="swatch-label">Page background</div>
-            </div>
-          </div>
-          <div class="swatch">
-            <div class="swatch-color" style="background: #111;"></div>
-            <div class="swatch-info">
-              <div class="swatch-hex">#111 / #161616</div>
-              <div class="swatch-label">Section backgrounds</div>
-            </div>
-          </div>
-          <div class="swatch">
-            <div class="swatch-color" style="background: #f5f0e8;"></div>
-            <div class="swatch-info">
-              <div class="swatch-hex">#f5f0e8</div>
-              <div class="swatch-label">Warm off-white body text</div>
-            </div>
-          </div>
-          <div class="swatch">
-            <div class="swatch-color" style="background: #FF5500;"></div>
-            <div class="swatch-info">
-              <div class="swatch-hex">#FF5500</div>
-              <div class="swatch-label">Website Orange — deeper than social</div>
-            </div>
-          </div>
-          <div class="swatch">
-            <div class="swatch-color" style="background: #00AAFF;"></div>
-            <div class="swatch-info">
-              <div class="swatch-hex">#00AAFF</div>
-              <div class="swatch-label">Website Blue — navigation, links</div>
-            </div>
-          </div>
-          <div class="swatch">
-            <div class="swatch-color" style="background: #00E87A;"></div>
-            <div class="swatch-info">
-              <div class="swatch-hex">#00E87A</div>
-              <div class="swatch-label">Website Green — success</div>
-            </div>
-          </div>
+        <div class="opacity-row">
+          <div class="opacity-sample" style="background: #1a1a1a;"></div>
+          <span style="font-size: 13px;"><code>#1a1a1a / #222</code> — Borders/dividers</span>
+          <span class="weight-badge weight-strong">75</span>
         </div>
 
         <details>
-          <summary>Copy: Website color CSS variables</summary>
+          <summary>Copy: Neutrals CSS</summary>
           <div class="code-block">
             <span class="code-label">CSS</span>
-<pre>/* Website Palette — use CSS variables, never hardcode */
+<pre>/* Neutrals — backgrounds, text, overlays */
 :root {
-  --clr-bg: #050505;
-  --clr-bg-section: #111;
-  --clr-text: #f5f0e8;
-  --clr-accent: #FF5500;
-  --clr-blue: #00AAFF;
-  --clr-green: #00E87A;
-  --clr-text-secondary: #888;
-  --clr-border: #1a1a1a;
-}</pre>
+  --clr-bg: #000;             /* Social: pure black */
+  --clr-bg-page: #050505;     /* Website: near-black */
+  --clr-bg-section: #111;     /* Section fills */
+  --clr-text: #ffffff;        /* Primary text */
+  --clr-text-warm: #f5f0e8;   /* Body text (warm) */
+  --clr-text-secondary: #888; /* Supporting text */
+  --clr-border: #1a1a1a;      /* Borders, dividers */
+}
+.body-copy    { color: rgba(255,255,255,0.45); }  /* Weight: 85 */
+.dimmed       { color: rgba(255,255,255,0.25); }  /* Weight: 80 */
+.card         { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }</pre>
           </div>
         </details>
       </div>
@@ -710,12 +689,12 @@ body {
         <h3 class="subsection-title">NeueHaasDisplay / Inter Samples (Social)</h3>
 
         <div class="type-sample">
-          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 82px; line-height: 0.95; letter-spacing: -0.02em;">When a transaction fails</p>
-          <p class="type-sample-meta">NeueHaasDisplay Black 900 / 82px / Instagram headline</p>
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 82px; line-height: 0.95; letter-spacing: -0.03em; text-transform: uppercase;">When a transaction fails</p>
+          <p class="type-sample-meta">NeueHaasDisplay Black 900 / 82px / uppercase / letter-spacing: -0.03em — Instagram headline</p>
         </div>
         <div class="type-sample">
-          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 52px; line-height: 1.0;">Half your transactions</p>
-          <p class="type-sample-meta">NeueHaasDisplay Black 900 / 52px / LinkedIn headline</p>
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 52px; line-height: 1.0; letter-spacing: -0.03em; text-transform: uppercase;">Half your transactions</p>
+          <p class="type-sample-meta">NeueHaasDisplay Black 900 / 52px / uppercase / letter-spacing: -0.03em — LinkedIn headline</p>
         </div>
         <div class="type-sample">
           <p style="font-family: 'NeueHaas', sans-serif; font-weight: 300; font-size: 22px; color: rgba(255,255,255,0.45); line-height: 1.5;">The order went through. It never reached the commission engine. The rep who closed the deal? They'll never know.</p>
@@ -738,8 +717,9 @@ body {
   font-family: 'NeueHaas', sans-serif;
   font-weight: 900;
   font-size: 82px;       /* Range: 82-100px */
-  line-height: 0.95;
-  letter-spacing: -0.02em;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
   color: #ffffff;
 }
 .headline-accent {
@@ -771,7 +751,9 @@ body {
   font-family: 'NeueHaas', sans-serif;
   font-weight: 900;
   font-size: 52px;       /* Range: 52-62px */
-  line-height: 1.0;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
   color: #ffffff;
 }
 .body-copy-li {
@@ -779,6 +761,113 @@ body {
   font-weight: 300;
   font-size: 16px;       /* Range: 16-18px */
   color: rgba(255,255,255,0.45);
+}</pre>
+          </div>
+        </details>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Uppercase Patterns <span class="weight-badge weight-critical">Weight: 90</span></h3>
+        <p style="color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 16px;">All-caps is used selectively. The letter-spacing inverts based on size: large display text gets tight negative tracking, small functional text gets wide positive tracking.</p>
+
+        <table class="info-table">
+          <thead>
+            <tr><th>Element</th><th>Letter-Spacing</th><th>Size</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Headlines</td>
+              <td><code>-0.03em</code> (tight)</td>
+              <td>82-100px+</td>
+              <td>Massive, fills the frame. Tight tracking creates density and impact.</td>
+            </tr>
+            <tr>
+              <td>Headline accents</td>
+              <td><code>-0.03em</code> (tight)</td>
+              <td>Same as headline</td>
+              <td>Accent-colored words within headlines. Same treatment.</td>
+            </tr>
+            <tr>
+              <td>Side labels</td>
+              <td><code>0.15em</code> (wide)</td>
+              <td>11px</td>
+              <td>Vertical rotated text on right edge. ~35% opacity.</td>
+            </tr>
+            <tr>
+              <td>Pills / tags</td>
+              <td><code>0.08em</code> (wide)</td>
+              <td>10px</td>
+              <td>Small tag-like elements with card background + border.</td>
+            </tr>
+            <tr>
+              <td>Context labels</td>
+              <td><code>0.1em</code> (wide)</td>
+              <td>11-18px</td>
+              <td>Stat descriptions, cost labels, status indicators. ~30% opacity.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="font-size: 14px; margin: 20px 0 12px; color: rgba(255,255,255,0.7);">NOT Uppercase</h4>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+          <span style="font-size: 13px; color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 4px 12px;">Body copy (sentence case)</span>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 4px 12px;">FLFont taglines (sentence case)</span>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 4px 12px;">Sub-text callouts (sentence case)</span>
+        </div>
+
+        <h4 style="font-size: 14px; margin: 20px 0 12px; color: rgba(255,255,255,0.7);">Live Examples</h4>
+        <div class="type-sample">
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 900; font-size: 72px; line-height: 0.92; letter-spacing: -0.03em; text-transform: uppercase;">Your checkout is losing money</p>
+          <p class="type-sample-meta">Headline — uppercase / -0.03em tracking / Black 900</p>
+        </div>
+        <div class="type-sample">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span style="font-family: 'NeueHaas', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 4px; color: #42b1ff;">Real-time</span>
+            <span style="font-family: 'NeueHaas', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 4px; color: #42b1ff;">Bidirectional</span>
+            <span style="font-family: 'NeueHaas', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 4px; color: #42b1ff;">SOC 2 Type II</span>
+          </div>
+          <p class="type-sample-meta">Pills — uppercase / 0.08em tracking / 10px / accent color</p>
+        </div>
+        <div class="type-sample">
+          <p style="font-family: 'NeueHaas', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3);">Industry avg acceptance rate</p>
+          <p class="type-sample-meta">Context label — uppercase / 0.1em tracking / ~30% opacity</p>
+        </div>
+
+        <details>
+          <summary>Copy: Uppercase pattern CSS</summary>
+          <div class="code-block">
+            <span class="code-label">CSS</span>
+<pre>/* Headlines — tight tracking, massive size */
+.headline {
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  font-weight: 900;
+  line-height: 0.92;
+}
+
+/* Pills / tags — wide tracking, tiny size */
+.pill {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Context labels — wide tracking, dimmed */
+.context-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Side labels — widest tracking, vertical */
+.side-label {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 11px;
+  opacity: 0.35;
+  writing-mode: vertical-rl;
 }</pre>
           </div>
         </details>

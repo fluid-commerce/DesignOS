@@ -46,20 +46,13 @@ function compileRules() {
   const assetUsage = readBrandDoc('asset-usage.md');
 
   // --- Colors ---
-  const socialAccentColors = ['#FF8B58', '#42B1FF', '#44B574', '#C985E5'];
-  const socialAllowedHex = [
-    '#000000', '#FFFFFF',
-    ...socialAccentColors,
-  ];
-
-  const websiteAllowedHex = [
-    '#050505', '#0A0A0A', '#111111', '#161616',
-    '#F5F0E8',
-    '#FF5500', '#00AAFF', '#00E87A',
-    '#888888',
+  const accentColors = ['#FF8B58', '#42B1FF', '#44B574', '#C985E5'];
+  const neutralColors = [
+    '#000000', '#050505', '#0A0A0A', '#111111', '#161616',
+    '#FFFFFF', '#F5F0E8', '#888888',
     '#1A1A1A', '#222222',
-    '#000000', '#FFFFFF',
   ];
+  const allowedHex = [...accentColors, ...neutralColors];
 
   const allowedRgbaPatterns = [
     'rgba(255,255,255,0.45)',
@@ -100,7 +93,7 @@ function compileRules() {
   ];
 
   const socialFontFamilies = ['NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold', 'Inter'];
-  const websiteFontFamilies = ['Syne', 'DM Sans', 'Space Mono', 'Inter'];
+  const websiteFontFamilies = ['Syne', 'DM Sans', 'Space Mono', 'Inter', 'NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold'];
 
   const fontRules = [
     {
@@ -223,14 +216,9 @@ function compileRules() {
     version: '1.0.0',
     compiled: new Date().toISOString(),
     colors: {
-      social: {
-        allowed_hex: socialAllowedHex,
-        accent_colors: socialAccentColors,
-        background: '#000000',
-      },
-      website: {
-        allowed_hex: websiteAllowedHex,
-      },
+      accent_colors: accentColors,
+      neutrals: neutralColors,
+      allowed_hex: allowedHex,
       allowed_rgba_patterns: allowedRgbaPatterns,
       rules: colorRules,
     },
@@ -277,8 +265,7 @@ const summary = {
     color_rules: rules.colors.rules.length,
     font_rules: rules.fonts.rules.length,
     spacing_rules: rules.spacing.rules.length,
-    social_hex_count: rules.colors.social.allowed_hex.length,
-    website_hex_count: rules.colors.website.allowed_hex.length,
+    allowed_hex_count: rules.colors.allowed_hex.length,
     dimensions: Object.keys(rules.dimensions).length,
   },
 };
@@ -293,7 +280,6 @@ process.stderr.write(`  Output: ${OUTPUT_PATH}\n`);
 process.stderr.write(`  Color rules: ${summary.stats.color_rules}\n`);
 process.stderr.write(`  Font rules: ${summary.stats.font_rules}\n`);
 process.stderr.write(`  Spacing rules: ${summary.stats.spacing_rules}\n`);
-process.stderr.write(`  Social hex colors: ${summary.stats.social_hex_count}\n`);
-process.stderr.write(`  Website hex colors: ${summary.stats.website_hex_count}\n`);
+process.stderr.write(`  Allowed hex colors: ${summary.stats.allowed_hex_count}\n`);
 process.stderr.write(`  Dimension targets: ${summary.stats.dimensions}\n`);
 process.stderr.write(`\n`);

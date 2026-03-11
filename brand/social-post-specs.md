@@ -12,23 +12,23 @@
 
 ## Typography Scale — Instagram (Weight: 90)
 
-| Element | Size | Font | Weight |
-|---------|------|------|--------|
-| Headline | 82-100px | NeueHaasDisplay | Black 900 |
-| Headline accent/answer | 82px | NeueHaasDisplay | Black 900, accent color |
-| Body copy | 22-24px | NeueHaasDisplay | Light 300 |
-| FLFont tagline | 26-32px | FLFont Bold | 700 |
-| Side label | 11px | NeueHaasDisplay | letter-spacing 0.15em |
-| Slide number | 13px | NeueHaasDisplay | — |
-| Footer text | 14-16px | NeueHaasDisplay | — |
+| Element | Size | Font | Weight | Case |
+|---------|------|------|--------|------|
+| Headline | 82-100px | NeueHaasDisplay | Black 900 | UPPERCASE |
+| Headline accent/answer | 82px | NeueHaasDisplay | Black 900, accent color | UPPERCASE |
+| Body copy | 22-24px | NeueHaasDisplay | Light 300 | Sentence |
+| FLFont tagline | 26-32px | FLFont Bold | 700 | Sentence |
+| Side label | 11px | NeueHaasDisplay | letter-spacing 0.15em | UPPERCASE |
+| Slide number | 13px | NeueHaasDisplay | — | — |
+| Footer text | 14-16px | NeueHaasDisplay | — | — |
 
 ## Typography Scale — LinkedIn (Weight: 90)
 
-| Element | Size | Font | Weight |
-|---------|------|------|--------|
-| Headline | 52-62px | NeueHaasDisplay | Black 900 |
-| Body copy | 16-18px | NeueHaasDisplay | Light 300 |
-| FLFont tagline | 20-24px | FLFont Bold | 700 |
+| Element | Size | Font | Weight | Case |
+|---------|------|------|--------|------|
+| Headline | 52-62px | NeueHaasDisplay | Black 900 | UPPERCASE |
+| Body copy | 16-18px | NeueHaasDisplay | Light 300 | Sentence |
+| FLFont tagline | 20-24px | FLFont Bold | 700 | Sentence |
 
 ## Accent Color System (Weight: 95)
 
@@ -63,6 +63,25 @@ Use accent color everywhere in the post: headline accents, circle sketches, FLFo
 - Subtle, never competing with content
 
 See [asset-usage.md](asset-usage.md) for detailed footer asset rules.
+
+## Uppercase Patterns (Weight: 90)
+
+All-caps (`text-transform: uppercase`) is used selectively. Each context has its own letter-spacing treatment.
+
+| Element | Letter-Spacing | Size | Notes |
+|---------|---------------|------|-------|
+| Headlines | `-0.03em` (tight) | 82-100px+ | Massive, fills the frame. Tight tracking creates density and impact. |
+| Headline accents | `-0.03em` (tight) | Same as headline | Accent-colored words within headlines. Same treatment. |
+| Side labels | `0.15em` (wide) | 11px | Vertical rotated text on right edge. ~35% opacity. |
+| Pills / tags | `0.08em` (wide) | 10px | Small tag-like elements. Card background + border. |
+| Context labels | `0.1em` (wide) | 11-18px | Stat descriptions, cost labels, status indicators. Dimmed (~30% opacity). |
+
+**NOT uppercase:**
+- Body copy (sentence case, Light 300)
+- FLFont taglines (sentence case, handwritten feel)
+- Sub-text / FLFont callouts (sentence case)
+
+**The rule:** Large display text gets tight negative tracking. Small functional text gets wide positive tracking. Both are uppercase, but the letter-spacing inverts based on size.
 
 ## Side Labels and Slide Numbers (Weight: 60)
 

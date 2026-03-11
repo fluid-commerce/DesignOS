@@ -6,6 +6,7 @@ export interface SessionSummary {
   variationCount: number;
   hasAnnotations: boolean;
   latestRound: number;
+  title?: string;
 }
 
 // Full session data returned by loadSession
