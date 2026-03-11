@@ -1,0 +1,188 @@
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useGenerationStream } from '../hooks/useGenerationStream';
+import { StreamMessage } from './StreamMessage';
+import { useSessionStore } from '../store/sessions';
+import type { StreamUIMessage } from '../lib/stream-parser';
+
+/**
+ * Left sidebar with prompt input and streaming agent output display.
+ * Always visible regardless of main pane view.
+ * Includes a collapsible "Recent Sessions" list at the bottom.
+ */
+export function PromptSidebar() {
+  const { generate, status, events } = useGenerationStream();
+  const [prompt, setPrompt] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const sessions = useSessionStore((s) => s.sessions);
+  const activeSessionId = useSessionStore((s) => s.activeSessionId);
+  const setActiveSessionId = useSessionStore((s) => s.setActiveSessionId);
+
+  const isGenerating = status === 'generating';
+
+  // Accumulate consecutive text events into single messages
+  const displayMessages = useMemo(() => {
+    const result: StreamUIMessage[] = [];
+    for (const ev of events) {
+      if (ev.type === 'text' && result.length > 0 && result[result.length - 1].type === 'text') {
+        // Merge into previous text message
+        const prev = result[result.length - 1];
+        result[result.length - 1] = {
+          ...prev,
+          content: prev.content + ev.content,
+        };
+      } else {
+        result.push(ev);
+      }
+    }
+    return result;
+  }, [events]);
+
+  // Auto-scroll to bottom when new events arrive
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [displayMessages]);
+
+  const handleGenerate = () => {
+    const text = prompt.trim();
+    if (!text || isGenerating) return;
+    generate(text, { skillType: 'social' });
+    setPrompt('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleGenerate();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        width: 320,
+        borderRight: '1px solid #2a2a3e',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#16162a',
+        flexShrink: 0,
+        height: '100%',
+      }}
+    >
+      {/* Prompt input area */}
+      <div style={{ padding: '0.75rem', borderBottom: '1px solid #2a2a3e' }}>
+        <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.35rem' }}>
+          Create with AI
+        </div>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={isGenerating}
+          placeholder="Describe what you want to create..."
+          style={{
+            width: '100%',
+            backgroundColor: '#252540',
+            border: '1px solid #3a3a52',
+            borderRadius: 6,
+            color: '#e0e0e0',
+            padding: '0.5rem 0.6rem',
+            fontSize: '0.82rem',
+            resize: 'none',
+            minHeight: 60,
+            outline: 'none',
+            boxSizing: 'border-box',
+            opacity: isGenerating ? 0.5 : 1,
+          }}
+        />
+        <button
+          onClick={handleGenerate}
+          disabled={isGenerating || !prompt.trim()}
+          style={{
+            width: '100%',
+            marginTop: '0.35rem',
+            backgroundColor: isGenerating ? '#333' : '#3b82f6',
+            color: isGenerating ? '#666' : '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: '0.45rem',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            cursor: isGenerating ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {isGenerating ? 'Generating...' : 'Generate'}
+        </button>
+      </div>
+
+      {/* Stream display */}
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '0.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+        }}
+      >
+        {status === 'idle' && displayMessages.length === 0 && (
+          <div style={{ color: '#444', fontSize: '0.75rem', textAlign: 'center', padding: '2rem 0.5rem' }}>
+            Enter a prompt above or choose a template to get started.
+          </div>
+        )}
+
+        {displayMessages.map((msg) => (
+          <StreamMessage key={msg.id} message={msg} />
+        ))}
+
+        {status === 'complete' && (
+          <div style={{ textAlign: 'center', color: '#22c55e', fontSize: '0.75rem', padding: '0.5rem 0' }}>
+            Done
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div style={{ textAlign: 'center', color: '#ef4444', fontSize: '0.75rem', padding: '0.5rem 0' }}>
+            Generation failed
+          </div>
+        )}
+      </div>
+
+      {/* Recent sessions */}
+      <div style={{ borderTop: '1px solid #2a2a3e', maxHeight: 200, overflowY: 'auto' }}>
+        <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.7rem', color: '#555', fontWeight: 600 }}>
+          Recent Sessions
+        </div>
+        {sessions.map((s: any) => (
+          <button
+            key={s.id}
+            onClick={() => setActiveSessionId(s.id)}
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'left',
+              background: s.id === activeSessionId ? '#252540' : 'none',
+              border: 'none',
+              borderBottom: '1px solid #1e1e36',
+              color: s.id === activeSessionId ? '#e0e0e0' : '#888',
+              padding: '0.4rem 0.75rem',
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+            }}
+          >
+            {s.id}
+          </button>
+        ))}
+        {sessions.length === 0 && (
+          <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.72rem', color: '#444' }}>
+            No sessions yet
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
