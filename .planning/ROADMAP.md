@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Orchestrator + Social Posts** - Orchestrator-subagent pattern proven end-to-end with social post generation (completed 2026-03-10)
 - [ ] **Phase 3: Website Sections + One-Pagers** - Extend proven orchestrator to .liquid sections and sales collateral
 - [ ] **Phase 4: Canvas + Iteration** - React app for viewing, annotating, and comparing asset variations with MCP agent bridge
-- [ ] **Phase 5: Learning Loop** - Feedback ingestion that reads iteration trajectories and updates brand rules
+- [x] **Phase 5: Learning Loop** - Feedback ingestion that reads iteration trajectories and updates brand rules (completed 2026-03-11)
 - [ ] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system
 
 ## Phase Details
@@ -152,5 +152,5 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 5 > 6
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
 | 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
-| 5. Learning Loop | 1/2 | In Progress|  |
+| 5. Learning Loop | 2/2 | Complete   | 2026-03-11 |
 | 6. Marketing Skills Integration | 0/2 | Not started | - |

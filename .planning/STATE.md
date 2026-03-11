@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-01-PLAN.md — feedback ingestion engine
-last_updated: "2026-03-11T17:03:42.902Z"
+stopped_at: Completed 05-02-PLAN.md — learning loop slash commands
+last_updated: "2026-03-11T17:39:43.309Z"
 last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
   total_phases: 7
-  completed_phases: 3
-  total_plans: 20
-  completed_plans: 17
+  completed_phases: 4
+  total_plans: 22
+  completed_plans: 18
   percent: 89
 ---
 
@@ -63,6 +63,7 @@ Progress: [█████████░] 89% (Overall: 16/18 plans)
 | Phase 04.1 P03 | 3min | 2 tasks | 6 files |
 | Phase 04.1 P01 | 3min | 2 tasks | 7 files |
 | Phase 05-learning-loop P01 | 4min | 2 tasks | 2 files |
+| Phase 05 P02 | 20min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,9 @@ Recent decisions affecting current work:
 - [Phase 05-01]: Pattern clustering uses (asset_type, topic) tuples with keyword extraction — covers 9 signal topics without NLP dependencies
 - [Phase 05-01]: Directive bypass uses DIRECTIVE_KEYWORDS list (never, always, don't, stop using, avoid) — pragmatic approach, zero-dependency
 - [Phase 05-01]: Confidence scoring: HIGH=5+ sessions or feedback file, MEDIUM=3-4 sessions, LOW=threshold bypass (1 session)
+- [Phase 05-02]: AskUserQuestion is not a real Claude Code tool — both skills use conversational prompts instead of AskUserQuestion
+- [Phase 05-02]: Audit-trail-first: engine writes proposal file BEFORE walkthrough begins (full run, no --dry-run)
+- [Phase 05-02]: Batch-apply pattern: collect ALL decisions then apply ALL approved changes atomically — no partial state mid-walkthrough
 
 ### Pending Todos
 
@@ -149,6 +153,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T17:03:42.901Z
-Stopped at: Completed 05-01-PLAN.md — feedback ingestion engine
+Last session: 2026-03-11T17:39:43.307Z
+Stopped at: Completed 05-02-PLAN.md — learning loop slash commands
 Resume file: None
