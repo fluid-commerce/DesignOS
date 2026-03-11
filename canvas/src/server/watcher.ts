@@ -102,9 +102,33 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
+          // POST /api/generate/cancel -- force-clear stuck generation lock
+          if (req.url === '/api/generate/cancel' && req.method === 'POST') {
+            if (activeChild) {
+              try { activeChild.kill('SIGKILL'); } catch { /* already dead */ }
+              activeChild = null;
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ ok: true, message: 'Generation cancelled' }));
+            } else {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ ok: true, message: 'No active generation' }));
+            }
+            return;
+          }
+
           // POST /api/generate -- spawn claude CLI and stream SSE
           if (req.url === '/api/generate' && req.method === 'POST') {
-            // Concurrent generation lock
+            // Concurrent generation lock -- with stale process detection
+            if (activeChild) {
+              // Check if the child is actually still running
+              try {
+                // kill(0) tests if process exists without killing it
+                process.kill(activeChild.pid!, 0);
+              } catch {
+                // Process is dead but lock wasn't cleared -- release it
+                activeChild = null;
+              }
+            }
             if (activeChild) {
               res.writeHead(409, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify({ error: 'Generation already in progress' }));
@@ -160,14 +184,14 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               } catch { /* skill file not found, skip */ }
             }
 
-            // CRITICAL: stdin MUST be 'inherit', not 'pipe'
-            // Piped stdin causes claude to hang indefinitely (GitHub #771)
+            // Use 'ignore' for stdin: claude -p reads the prompt from
+            // args, not stdin. 'inherit' hangs in Vite server context
+            // because there's no interactive TTY.
             const child = spawn('claude', args, {
               cwd: projectRoot,
-              stdio: ['inherit', 'pipe', 'pipe'],
-              env: { ...process.env },
+              stdio: ['ignore', 'pipe', 'pipe'],
+              env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
             });
-
             activeChild = child;
 
             // Set SSE headers
@@ -201,15 +225,50 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               });
             }
 
+            // Handle spawn errors (e.g. binary not found).
+            // Without this, activeChild stays locked forever.
+            child.on('error', (err: Error) => {
+              activeChild = null;
+              try {
+                res.write(`event: stderr\ndata: ${JSON.stringify({ text: `Spawn error: ${err.message}` })}\n\n`);
+                res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId, error: err.message })}\n\n`);
+                res.end();
+              } catch {
+                // Response may already be closed
+              }
+            });
+
             // Send done event on close
             child.on('close', (code: number | null) => {
               activeChild = null;
-              res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId })}\n\n`);
-              res.end();
+              try {
+                res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId })}\n\n`);
+                res.end();
+              } catch {
+                // Response may already be closed (e.g. client disconnected)
+              }
             });
+
+            // Safety timeout: kill child after 5 minutes to prevent stuck locks
+            const safetyTimeout = setTimeout(() => {
+              if (activeChild === child) {
+                try {
+                  child.kill('SIGTERM');
+                  // Force kill after 5 seconds if SIGTERM doesn't work
+                  setTimeout(() => {
+                    try { child.kill('SIGKILL'); } catch { /* already dead */ }
+                  }, 5000);
+                } catch { /* already dead */ }
+              }
+            }, 5 * 60 * 1000);
+
+            // Clear safety timeout when child exits normally
+            child.on('close', () => clearTimeout(safetyTimeout));
+            child.on('error', () => clearTimeout(safetyTimeout));
 
             // Kill child if client disconnects
             req.on('close', () => {
+              clearTimeout(safetyTimeout);
               if (activeChild === child) {
                 child.kill('SIGTERM');
                 activeChild = null;

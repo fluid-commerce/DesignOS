@@ -6,9 +6,11 @@ interface GenerationStore {
   events: StreamUIMessage[];
   activeSessionId: string | null;
   activePid: number | null;
+  errorMessage: string | null;
 
   addEvent: (event: StreamUIMessage) => void;
-  startGeneration: (sessionId: string) => void;
+  startGeneration: () => void;
+  setSessionId: (sessionId: string) => void;
   completeGeneration: () => void;
   errorGeneration: (message: string) => void;
   reset: () => void;
@@ -19,6 +21,7 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
   events: [],
   activeSessionId: null,
   activePid: null,
+  errorMessage: null,
 
   addEvent: (event: StreamUIMessage) => {
     set((state) => ({
@@ -26,20 +29,25 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
     }));
   },
 
-  startGeneration: (sessionId: string) => {
+  startGeneration: () => {
     set({
       status: 'generating',
       events: [],
-      activeSessionId: sessionId,
+      activeSessionId: null,
+      errorMessage: null,
     });
+  },
+
+  setSessionId: (sessionId: string) => {
+    set({ activeSessionId: sessionId });
   },
 
   completeGeneration: () => {
     set({ status: 'complete' });
   },
 
-  errorGeneration: (_message: string) => {
-    set({ status: 'error' });
+  errorGeneration: (message: string) => {
+    set({ status: 'error', errorMessage: message });
   },
 
   reset: () => {
@@ -48,6 +56,7 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
       events: [],
       activeSessionId: null,
       activePid: null,
+      errorMessage: null,
     });
   },
 }));

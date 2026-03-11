@@ -9,6 +9,7 @@ interface SessionStore {
 
   refreshSessions: () => Promise<void>;
   selectSession: (id: string) => Promise<void>;
+  setActiveSessionId: (id: string) => Promise<void>;
   clearSelection: () => void;
 }
 
@@ -52,6 +53,10 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     } catch {
       set({ activeSessionData: null, loading: false });
     }
+  },
+
+  setActiveSessionId: async (id: string) => {
+    await get().selectSession(id);
   },
 
   clearSelection: () => {

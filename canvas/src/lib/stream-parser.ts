@@ -73,9 +73,26 @@ export function parseStreamEvent(
       };
     }
 
-    // Everything else (content_block_start for text, content_block_stop,
-    // input_json_delta) is filtered out
+    // Content block stop (tool finished executing)
+    if (inner.type === 'content_block_stop') {
+      return null; // filtered, tool-done comes from tool_result
+    }
+
+    // Everything else (content_block_start for text, input_json_delta) filtered
     return null;
+  }
+
+  // Tool result from Claude CLI
+  if (event.type === 'tool_result') {
+    return {
+      id: nextId(),
+      type: 'tool-done',
+      content: event.tool_name
+        ? `${event.tool_name} completed`
+        : 'Tool completed',
+      toolName: event.tool_name,
+      timestamp: Date.now(),
+    };
   }
 
   // Generation complete
@@ -86,6 +103,37 @@ export function parseStreamEvent(
       content: 'Generation complete',
       timestamp: Date.now(),
     };
+  }
+
+  // Assistant messages contain the actual response text
+  // Format: { type: "assistant", message: { content: [{ type: "text", text: "..." }] } }
+  if (event.type === 'assistant' && event.message?.content) {
+    const textParts = event.message.content
+      .filter((c: any) => c.type === 'text' && c.text)
+      .map((c: any) => c.text)
+      .join('');
+    if (textParts) {
+      return {
+        id: nextId(),
+        type: 'text',
+        content: textParts,
+        timestamp: Date.now(),
+      };
+    }
+
+    // Handle tool_use content blocks in assistant messages
+    const toolUses = event.message.content.filter(
+      (c: any) => c.type === 'tool_use',
+    );
+    for (const tool of toolUses) {
+      return {
+        id: nextId(),
+        type: 'tool-start',
+        content: `Using ${tool.name}...`,
+        toolName: tool.name,
+        timestamp: Date.now(),
+      };
+    }
   }
 
   // System events and anything else -- filtered

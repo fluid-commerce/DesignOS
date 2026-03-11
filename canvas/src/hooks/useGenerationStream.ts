@@ -16,15 +16,17 @@ export function useGenerationStream() {
   const {
     addEvent,
     startGeneration,
+    setSessionId,
     completeGeneration,
     errorGeneration,
     status,
     events,
+    errorMessage,
   } = useGenerationStore();
 
   const generate = useCallback(
     async (prompt: string, opts?: GenerateOptions) => {
-      startGeneration(prompt);
+      startGeneration();
 
       try {
         const response = await fetch('/api/generate', {
@@ -67,12 +69,20 @@ export function useGenerationStream() {
               continue; // skip malformed JSON
             }
 
+            // Handle done event
             if (eventType === 'done') {
               completeGeneration();
-            } else {
-              const msg = parseStreamEvent(parsed, eventType);
-              if (msg) addEvent(msg);
+              continue;
             }
+
+            // Capture session ID from the first server event
+            if (parsed.type === 'session' && parsed.sessionId) {
+              setSessionId(parsed.sessionId);
+              continue;
+            }
+
+            const msg = parseStreamEvent(parsed, eventType);
+            if (msg) addEvent(msg);
           }
         }
 
@@ -84,8 +94,15 @@ export function useGenerationStream() {
         errorGeneration(String(err));
       }
     },
-    [addEvent, startGeneration, completeGeneration, errorGeneration],
+    [addEvent, startGeneration, setSessionId, completeGeneration, errorGeneration],
   );
 
-  return { generate, status, events };
+  const cancelGeneration = useCallback(async () => {
+    try {
+      await fetch('/api/generate/cancel', { method: 'POST' });
+    } catch { /* ignore */ }
+    errorGeneration('Generation cancelled by user');
+  }, [errorGeneration]);
+
+  return { generate, cancelGeneration, status, events, errorMessage };
 }

@@ -10,7 +10,7 @@ import type { StreamUIMessage } from '../lib/stream-parser';
  * Includes a collapsible "Recent Sessions" list at the bottom.
  */
 export function PromptSidebar() {
-  const { generate, status, events } = useGenerationStream();
+  const { generate, cancelGeneration, status, events, errorMessage } = useGenerationStream();
   const [prompt, setPrompt] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +115,25 @@ export function PromptSidebar() {
         >
           {isGenerating ? 'Generating...' : 'Generate'}
         </button>
+        {isGenerating && (
+          <button
+            onClick={cancelGeneration}
+            style={{
+              width: '100%',
+              marginTop: '0.25rem',
+              backgroundColor: 'transparent',
+              color: '#ef4444',
+              border: '1px solid #ef444444',
+              borderRadius: 6,
+              padding: '0.35rem',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </button>
+        )}
       </div>
 
       {/* Stream display */}
@@ -147,7 +166,7 @@ export function PromptSidebar() {
 
         {status === 'error' && (
           <div style={{ textAlign: 'center', color: '#ef4444', fontSize: '0.75rem', padding: '0.5rem 0' }}>
-            Generation failed
+            Generation failed{errorMessage ? `: ${errorMessage}` : ''}
           </div>
         )}
       </div>
