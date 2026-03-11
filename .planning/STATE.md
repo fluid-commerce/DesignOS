@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-03-10T22:52:37.778Z"
-last_activity: 2026-03-10 -- Completed 03-04 one-pager templates + orchestrator
+stopped_at: Completed 04-02 MCP agent tools
+last_updated: "2026-03-11T00:08:25Z"
+last_activity: 2026-03-11 -- Completed 04-02 MCP stdio server with 5 agent tools
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
-  percent: 100
+  total_plans: 14
+  completed_plans: 12
+  percent: 86
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phase 3 in progress. 12 section templates + gallery + orchestrator complete. Next: one-pagers.
+**Current focus:** Phase 4 in progress. Canvas scaffold + MCP server complete. Next: annotations system.
 
 ## Current Position
 
-Phase: 3 of 5 (Website Sections + One-Pagers)
-Plan: 4 of 4 in current phase (03-04 complete -- Phase 3 COMPLETE)
+Phase: 4 of 5 (Canvas + Iteration)
+Plan: 2 of 4 in current phase (04-02 complete)
 Status: In Progress
-Last activity: 2026-03-10 -- Completed 03-04 one-pager templates + orchestrator
+Last activity: 2026-03-11 -- Completed 04-02 MCP stdio server with 5 agent tools
 
-Progress: [██████████] 100% (Overall: 10/10 plans)
+Progress: [████████░░] 86% (Overall: 12/14 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 10
 - Average duration: 7min
-- Total execution time: 0.93 hours
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -55,6 +55,8 @@ Progress: [██████████] 100% (Overall: 10/10 plans)
 | Phase 03 P02 | 5min | 2 tasks | 5 files |
 | Phase 03 P03 | 10min | 2 tasks | 14 files |
 | Phase 03 P04 | 11min | 2 tasks | 8 files |
+| Phase 04 P01 | 4min | 3 tasks | 20 files |
+| Phase 04 P02 | 5min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -97,6 +99,12 @@ Recent decisions affecting current work:
 - [03-03]: Block containers use {{ block.fluid_attributes }} per Gold Standard convention.
 - [Phase 03]: One-pagers detected as social context in brand-compliance.cjs via @page letter rule (same font stack as social)
 - [Phase 03]: One-pagers allowed multiple accent colors for stat strips and feature icons, matching reference live-editor-one-pager.html
+- [04-01]: Removed tsconfig project references in favor of single tsconfig with broader include -- simpler for self-contained app
+- [04-01]: API endpoints served via Vite middleware (not separate Express server) -- keeps single process as per CONTEXT.md
+- [04-01]: Session discovery uses dynamic import for sessions.ts to avoid bundling Node.js fs module into client
+- [04-02]: MCP tool handlers are pure functions accepting workingDir parameter for unit testability without MCP server
+- [04-02]: Zod v4 confirmed compatible with MCP SDK v1.27's zod-to-json-schema v3
+- [04-02]: Vitest environmentMatchGlobs routes mcp tests to node environment while keeping jsdom for React tests
 
 ### Pending Todos
 
@@ -110,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T22:52:37.776Z
-Stopped at: Completed 03-04-PLAN.md
-Resume file: None
+Last session: 2026-03-11T00:08:25Z
+Stopped at: Completed 04-02 MCP agent tools
+Resume file: .planning/phases/04-canvas-iteration/04-02-SUMMARY.md

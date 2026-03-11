@@ -80,11 +80,13 @@ Plans:
   2. A team member can add text annotations to any variation, and those annotations persist across page reloads
   3. The canvas displays the full iteration trajectory for an asset (initial prompt result, variations, selected winner, refinements, final) as a navigable timeline
   4. An agent can push a newly generated asset to the canvas via MCP and read back annotations, without the operator manually copying files
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [x] 04-01-PLAN.md — Canvas app scaffold, shared types, session sidebar, variation grid with iframe rendering
+- [ ] 04-02-PLAN.md — MCP stdio server with 5 agent tools (push, read annotations/statuses/history, iterate)
+- [ ] 04-03-PLAN.md — Annotation system (spatial pins + sidebar notes) and iteration timeline
+- [ ] 04-04-PLAN.md — Launcher skill (/fluid-design-OS), scripts, and end-to-end verification
 
 ### Phase 5: Learning Loop
 **Goal**: The system improves over time by reading documented iteration trajectories and updating brand rules, templates, and skills accordingly
@@ -109,5 +111,5 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 5
 | 1. Brand Intelligence + Foundation | 3/3 | Complete   | 2026-03-10 |
 | 2. Orchestrator + Social Posts | 3/3 | Complete   | 2026-03-10 |
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
-| 4. Canvas + Iteration | 0/2 | Not started | - |
+| 4. Canvas + Iteration | 1/4 | In Progress | - |
 | 5. Learning Loop | 0/1 | Not started | - |
