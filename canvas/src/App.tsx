@@ -38,24 +38,12 @@ export function App() {
     refreshSessions();
   }, [refreshSessions]);
 
-  // Winner selection: auto-reject others in same round
+  // Status change: set status directly (no auto-reject of other variations)
   const handleStatusChange = useCallback(
     (variationPath: string, newStatus: VariationStatus) => {
       setStatus(variationPath, newStatus);
-
-      if (newStatus === 'winner' && activeSessionData) {
-        // Auto-reject all other variations (unless they are already "final")
-        for (const v of activeSessionData.variations) {
-          if (v.path !== variationPath) {
-            const current = statuses[v.path] ?? 'unmarked';
-            if (current !== 'final') {
-              setStatus(v.path, 'rejected');
-            }
-          }
-        }
-      }
     },
-    [setStatus, activeSessionData, statuses]
+    [setStatus]
   );
 
   const handlePinClick = useCallback(
