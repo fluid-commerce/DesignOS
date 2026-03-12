@@ -353,9 +353,9 @@ function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort, channe
   const allChannels = ['all', ...Array.from(new Set(channels))];
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'nowrap', minWidth: 0 }}>
       {/* Channel filter tabs */}
-      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', overflowX: 'auto', flexShrink: 1, minWidth: 0 }}>
         {allChannels.map((ch) => {
           const active = filterChannel === ch;
           return (
@@ -386,7 +386,7 @@ function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort, channe
       </div>
 
       {/* Sort controls */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
         <span style={{ fontSize: '0.7rem', color: '#444', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Sort:</span>
         {[
           { key: 'updatedAt' as SortKey, label: 'Updated' },

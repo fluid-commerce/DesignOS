@@ -8,6 +8,16 @@ import { useAnnotations } from '../hooks/useAnnotations';
 import { buildIterationContext } from '../lib/context-bundler';
 import type { StreamUIMessage } from '../lib/stream-parser';
 
+/** Format a YYYYMMDD-HHMMSS session ID into a readable date string. */
+function formatSessionId(id: string): string {
+  const match = id.match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})$/);
+  if (!match) return id;
+  const [, y, mo, d, h, mi] = match;
+  const date = new Date(+y, +mo - 1, +d, +h, +mi);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    + ' ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 /**
  * Left sidebar with prompt input and streaming agent output display.
  * Always visible regardless of main pane view.
@@ -29,7 +39,7 @@ export function PromptSidebar() {
 
   // Mode detection
   const isIterateMode = !!activeSessionId && !!activeSessionData;
-  const projectTitle = activeSessionData?.lineage?.title ?? activeSessionId ?? '';
+  const projectTitle = activeSessionData?.lineage?.title ?? (activeSessionId ? formatSessionId(activeSessionId) : '');
   const annotationCount = annotations.filter((a) => a.type === 'pin').length;
 
   const isGenerating = status === 'generating';
@@ -59,9 +69,13 @@ export function PromptSidebar() {
     }
   }, [displayMessages]);
 
+  const [submittedPrompt, setSubmittedPrompt] = useState('');
+
   const handleGenerate = () => {
     const text = prompt.trim();
     if (!text || isGenerating) return;
+
+    setSubmittedPrompt(text);
 
     if (isIterateMode && activeSessionData) {
       // Iteration mode: bundle context and pass to generate
@@ -95,7 +109,20 @@ export function PromptSidebar() {
     clearSelection();
     resetGeneration();
     setPrompt('');
+    setSubmittedPrompt('');
   };
+
+  // Clear stale generation log when switching sessions
+  const prevSessionRef = useRef(activeSessionId);
+  useEffect(() => {
+    if (activeSessionId !== prevSessionRef.current) {
+      prevSessionRef.current = activeSessionId;
+      if (status !== 'generating') {
+        resetGeneration();
+        setSubmittedPrompt('');
+      }
+    }
+  }, [activeSessionId, status, resetGeneration]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -126,9 +153,9 @@ export function PromptSidebar() {
       {/* Prompt input area */}
       <div style={{ padding: '0.75rem', borderBottom: '1px solid #2a2a2e' }}>
         {/* Header with optional + New button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#666' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem', gap: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: '0.75rem', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {headerText}
             </span>
             {isIterateMode && annotationCount > 0 && (
@@ -158,6 +185,8 @@ export function PromptSidebar() {
                 borderRadius: 4,
                 cursor: 'pointer',
                 fontWeight: 500,
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
               }}
             >
               + New
@@ -165,10 +194,11 @@ export function PromptSidebar() {
           )}
         </div>
         <textarea
-          value={prompt}
+          value={isGenerating ? submittedPrompt : prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isGenerating}
+          readOnly={isGenerating}
           placeholder={placeholderText}
           style={{
             width: '100%',
@@ -279,14 +309,15 @@ export function PromptSidebar() {
               padding: '0.4rem 0.75rem',
               fontSize: '0.75rem',
               cursor: 'pointer',
+              overflow: 'hidden',
             }}
           >
-            <div>{s.title ?? s.id}</div>
-            {s.title && (
-              <div style={{ fontSize: '0.6rem', color: '#555', marginTop: '0.1rem' }}>
-                {s.id}
-              </div>
-            )}
+            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {s.title || formatSessionId(s.id)}
+            </div>
+            <div style={{ fontSize: '0.6rem', color: '#555', marginTop: '0.1rem' }}>
+              {formatSessionId(s.id)}
+            </div>
           </button>
         ))}
         {sessions.length === 0 && (
