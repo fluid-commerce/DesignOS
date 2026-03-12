@@ -118,10 +118,10 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **MRGR-05**: Unified campaign dashboard as primary organizing unit with filter/sort by content type (no separate tabs per content type)
 - [x] **MRGR-06**: Full-size preview drill-down at every level (Campaign > Asset > Frame > Iteration) using iframe rendering at native dimensions
 - [x] **MRGR-07**: Breadcrumb navigation for jumping to any level with back button for one-level-up
-- [ ] **MRGR-08**: Content editor right sidebar with schema-driven slot fields — identical editing experience for template-based and AI-generated assets
-- [ ] **MRGR-09**: Photo repositioning with Fit/Fill modes and focus point drag, applied via postMessage to iframe
-- [ ] **MRGR-10**: Brush/transform SVG overlay for one movable element per template (drag/rotate/scale), ported from Jonathan's implementation
-- [ ] **MRGR-11**: Carousel support with per-frame iteration history and slide selector in right sidebar
+- [x] **MRGR-08**: Content editor right sidebar with schema-driven slot fields — identical editing experience for template-based and AI-generated assets
+- [x] **MRGR-09**: Photo repositioning with Fit/Fill modes and focus point drag, applied via postMessage to iframe
+- [x] **MRGR-10**: Brush/transform SVG overlay for one movable element per template (drag/rotate/scale), ported from Jonathan's implementation
+- [x] **MRGR-11**: Carousel support with per-frame iteration history and slide selector in right sidebar
 - [ ] **MRGR-12**: MCP tools (push_asset, read_annotations, read_statuses, read_history, iterate_request) rewired from file access to SQLite API
 - [ ] **MRGR-13**: Jonathan's 8 templates ported as locked TypeScript configs with SlotSchema definitions
 - [x] **MRGR-14**: Collapsible left (AI chat) and right (content editor) sidebars with independent toggle controls
