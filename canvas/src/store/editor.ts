@@ -33,12 +33,31 @@ interface EditorStore {
   clearSelection: () => void;
 }
 
-/** Extract initial slot values from userState (preferred) or aiBaseline */
+/** Normalize image URL to origin-relative form for persistence (so it works across port/origin). Blob URLs become empty so reload shows template default. */
+function normalizeImageUrlForSave(value: string): string {
+  if (typeof value !== 'string') return value;
+  if (value.startsWith('blob:')) return '';
+  if (value.startsWith('data:') || !value.startsWith('http')) return value;
+  try {
+    const u = new URL(value);
+    if (u.origin === window.location.origin && u.pathname.startsWith('/template-assets/')) {
+      return u.pathname;
+    }
+  } catch {
+    /* ignore */
+  }
+  return value;
+}
+
+/** Extract initial slot values from userState (preferred) or aiBaseline; normalize template-asset URLs to path-only */
 function extractSlotValues(iteration: Iteration): Record<string, string> {
   const source = (iteration.userState || iteration.aiBaseline) as Record<string, string> | null;
   if (!source) return {};
   return Object.fromEntries(
-    Object.entries(source).map(([k, v]) => [k, String(v)])
+    Object.entries(source).map(([k, v]) => {
+      const s = String(v);
+      return [k, normalizeImageUrlForSave(s)];
+    })
   );
 }
 
@@ -89,11 +108,14 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   saveUserState: async () => {
     const { selectedIterationId, slotValues } = get();
     if (!selectedIterationId) return;
+    const normalized = Object.fromEntries(
+      Object.entries(slotValues).map(([k, v]) => [k, normalizeImageUrlForSave(v)])
+    );
     try {
       const res = await fetch(`/api/iterations/${selectedIterationId}/user-state`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userState: slotValues }),
+        body: JSON.stringify({ userState: normalized }),
       });
       if (res.ok) {
         set({ isDirty: false });

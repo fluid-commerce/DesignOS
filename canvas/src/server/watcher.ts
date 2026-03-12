@@ -160,7 +160,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       const jonathanTemplateDir = path.resolve(srv.config.root, '..', "Reference/Context/Jonathan's Codebase/templates");
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/template-assets/')) return next();
-        const assetFile = req.url.replace('/template-assets/', '');
+        const assetFile = req.url.replace('/template-assets/', '').split('?')[0];
         const assetPath = path.join(jonathanTemplateDir, 'assets', assetFile);
         try {
           const data = await fs.readFile(assetPath);
@@ -621,24 +621,125 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
-          // GET /api/iterations/:id/html — serves raw HTML for iframe preview
+          // GET /api/iterations/:id/html — serves HTML with path rewrites, saved state, and postMessage listener
           const iterHtmlMatch = url.match(/^\/api\/iterations\/([^/]+)\/html$/);
           if (iterHtmlMatch && method === 'GET') {
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare('SELECT html_path FROM iterations WHERE id = ?').get(iterHtmlMatch[1]) as { html_path: string } | undefined;
+            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterHtmlMatch[1]) as { html_path: string; user_state: string | null } | undefined;
             if (!row?.html_path) {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('Not found');
               return;
             }
+            const projectRoot = path.resolve(srv.config.root, '..');
+            const jonathanTemplatesDir = path.resolve(projectRoot, "Reference/Context/Jonathan's Codebase/templates");
+            let templatePath = path.resolve(projectRoot, row.html_path);
             try {
-              const htmlContent = await fs.readFile(
-                path.resolve(srv.config.root, '..', row.html_path),
-                'utf-8'
-              );
+              await fs.access(templatePath);
+            } catch {
+              templatePath = path.join(jonathanTemplatesDir, path.basename(row.html_path));
+            }
+            try {
+              let html = await fs.readFile(templatePath, 'utf-8');
+              // Same path rewrites as /templates/ so assets and fonts load
+              html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
+              html = html.replace(/(?<!\/fluid-)assets\//g, '/template-assets/');
+              html = html.replace(/\.\.\/fonts\//g, '/template-fonts/');
+              html = html.replace(/<script src="nav\.js"><\/script>/g, '');
+              // Ensure iframe resolves relative URLs from app origin (fixes missing assets when editing)
+              if (!/<base\s/i.test(html)) {
+                const proto = req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+                const host = req.headers.host || 'localhost';
+                const baseHref = proto + '://' + host + '/';
+                html = html.replace(/<head[^>]*>/i, (m) => m + '<base href="' + baseHref + '">');
+              }
+              const userState: Record<string, string> = row.user_state ? JSON.parse(row.user_state) : {};
+              const isDownload = req.url?.includes('download=1');
+              const templateAssetsDir = path.join(jonathanTemplatesDir, 'assets');
+
+              async function toDataUrl(assetPath: string): Promise<string> {
+                try {
+                  const data = await fs.readFile(assetPath);
+                  const ext = path.extname(assetPath).toLowerCase();
+                  const mime = ext === '.svg' ? 'image/svg+xml' : ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'application/octet-stream';
+                  return 'data:' + mime + ';base64,' + (data instanceof Buffer ? data.toString('base64') : Buffer.from(data).toString('base64'));
+                } catch {
+                  return '';
+                }
+              }
+
+              if (isDownload) {
+                const imgSrcRegex = /src="(\/template-assets\/[^"]+)"/g;
+                let match;
+                const replacements: { from: string; to: string }[] = [];
+                while ((match = imgSrcRegex.exec(html)) !== null) {
+                  const assetFile = match[1].replace(/^\/template-assets\//, '').replace(/\?.*$/, '');
+                  const dataUrl = await toDataUrl(path.join(templateAssetsDir, assetFile));
+                  if (dataUrl) replacements.push({ from: match[0], to: `src="${dataUrl}"` });
+                }
+                for (const { from, to } of replacements) {
+                  html = html.replace(from, to);
+                }
+                for (const sel of Object.keys(userState)) {
+                  const v = userState[sel];
+                  if (typeof v === 'string' && (v.startsWith('/template-assets/') || v.startsWith('http') && v.includes('/template-assets/'))) {
+                    const assetFile = v.replace(/^.*\/template-assets\//, '').replace(/\?.*$/, '');
+                    const dataUrl = await toDataUrl(path.join(templateAssetsDir, assetFile));
+                    if (dataUrl) userState[sel] = dataUrl;
+                  }
+                }
+              }
+
+              const initialValuesJson = JSON.stringify(userState).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+              // Apply saved slot values on load, then add postMessage listener for live edits
+              const listenerScript =
+                '<script id="__tmpl_listener__">' +
+                '(function(){' +
+                'var initial=' + initialValuesJson + ';' +
+                'for(var sel in initial){' +
+                'var el=document.querySelector(sel);if(!el)continue;' +
+                'var v=initial[sel];' +
+                'if(el.tagName==="IMG"&&typeof v==="string"){' +
+                'var src=null;' +
+                'if(v.indexOf("blob:")===0){src=null;}' +
+                'else if(v.indexOf("data:")===0){src=v;}' +
+                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&u.pathname.indexOf("/template-assets/")===0)src=u.pathname;else src=v;}catch(e){src=v;}}' +
+                'else if(v.indexOf("/")===0){src=v;}' +
+                'else if(v.indexOf("template-assets/")===0){src=location.origin+"/"+v;}' +
+                'else if(v.indexOf("assets/")===0){src=location.origin+"/template-assets/"+v.substring(6);}' +
+                'if(src)el.src=src;}' +
+                'else if(v.indexOf("\\n")>=0){var x=document.createElement("div");x.textContent=v;el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");}' +
+                'else{el.textContent=v;}' +
+                '}' +
+                '})();' +
+                'window.addEventListener("message",function(e){' +
+                'var d=e.data;if(!d)return;' +
+                'if(d.type==="readValues"){' +
+                'var sel=d.selectors||[],vals={};' +
+                'for(var i=0;i<sel.length;i++){' +
+                'var el=document.querySelector(sel[i]);' +
+                'if(el){vals[sel[i]]=el.tagName==="IMG"?el.src:el.textContent||"";}' +
+                '}' +
+                'window.parent.postMessage({type:"readValuesResult",values:vals},"*");' +
+                'return;' +
+                '}' +
+                'if(d.type!=="tmpl")return;' +
+                'var el=document.querySelector(d.sel);if(!el)return;' +
+                'if(d.action==="img"){el.src=d.value;}' +
+                'else if(d.action==="imgStyle"){' +
+                'if("objectFit"in d)el.style.objectFit=d.objectFit;' +
+                'if("objectPosition"in d)el.style.objectPosition=d.objectPosition;' +
+                '}else if(d.action==="transform"){' +
+                'if("transform"in d&&el.style)el.style.transform=d.transform||"";' +
+                '}else if(d.mode==="br"){' +
+                'var x=document.createElement("div");x.textContent=d.value;' +
+                'el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");' +
+                '}else{el.textContent=d.value;}'; +
+                '});</script>';
+              html = html.replace('</body>', listenerScript + '</body>');
               res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-              res.end(htmlContent);
+              res.end(html);
             } catch {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('HTML file not found on disk');

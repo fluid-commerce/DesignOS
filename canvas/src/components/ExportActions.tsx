@@ -102,8 +102,8 @@ export function ExportActions({ iteration, iframeEl }: ExportActionsProps) {
     setError(null);
 
     try {
-      // Fetch the raw HTML file from disk via the server
-      const res = await fetch(`/api/iterations/${iteration.id}/html`);
+      // Fetch HTML with assets inlined so the file works when opened locally
+      const res = await fetch(`/api/iterations/${iteration.id}/html?download=1`);
       if (!res.ok) {
         setError(`Could not fetch HTML (${res.status})`);
         return;

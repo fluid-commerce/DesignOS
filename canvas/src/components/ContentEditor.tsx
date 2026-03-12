@@ -79,15 +79,20 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
     return () => window.removeEventListener('message', handleMessage);
   }, [handleMessage]);
 
-  // On first load after schema is available, request current values from iframe
+  // On first load: either request current values from iframe (no saved state) or apply saved state is in HTML on load
   useEffect(() => {
     if (!slotSchema || !iframeEl?.contentWindow || hasInitialized.current) return;
     if (!selectedIterationId) return;
     hasInitialized.current = true;
 
-    // Only request from iframe if we have no stored values yet
+    // When we have no stored values, ask iframe for current DOM values (selectors from schema)
     if (Object.keys(slotValues).length === 0) {
-      iframeEl.contentWindow.postMessage({ type: 'readValues' }, '*');
+      const selectors = slotSchema.fields
+        .filter((f): f is { type: 'text'; sel: string } | { type: 'image'; sel: string } => f.type === 'text' || f.type === 'image')
+        .map((f) => f.sel);
+      if (selectors.length) {
+        iframeEl.contentWindow.postMessage({ type: 'readValues', selectors }, '*');
+      }
     }
   }, [slotSchema, selectedIterationId, iframeEl]); // eslint-disable-line react-hooks/exhaustive-deps
 

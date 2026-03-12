@@ -40,6 +40,8 @@ export function App() {
 
   // Ref to the active iteration's iframe element for ContentEditor
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  // When editing an iteration, we need state so ContentEditor receives the iframe after it mounts
+  const [editIframeEl, setEditIframeEl] = useState<HTMLIFrameElement | null>(null);
 
   // Auto-refresh on filesystem changes (campaign-aware)
   useFileWatcher();
@@ -55,6 +57,11 @@ export function App() {
       setRightSidebarOpen(true);
     }
   }, [activeIterationId, setRightSidebarOpen]);
+
+  // Clear edit iframe ref when leaving edit mode (deselecting iteration)
+  useEffect(() => {
+    if (!activeIterationId) setEditIframeEl(null);
+  }, [activeIterationId]);
 
   // ── Iteration selection handler ──────────────────────────────────────────
   const handleSelectIteration = useCallback(
@@ -232,6 +239,53 @@ export function App() {
         );
 
       case 'frame':
+        if (activeIterationId && activeIteration) {
+          const tmpl = activeIteration.templateId
+            ? TEMPLATE_METADATA.find((t) => t.templateId === activeIteration.templateId)
+            : null;
+          const editW = tmpl?.dimensions.width ?? 1080;
+          const editH = tmpl?.dimensions.height ?? 1080;
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+              <div style={{
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                borderBottom: '1px solid #1e1e1e',
+              }}>
+                <button
+                  type="button"
+                  onClick={() => navigateToFrame(activeFrameId!)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#888',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  ← Back to list
+                </button>
+              </div>
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                <IterationEditFrame
+                  iterationId={activeIterationId}
+                  width={editW}
+                  height={editH}
+                  onIframeRef={(el) => {
+                    iframeRef.current = el;
+                    setEditIframeEl(el);
+                  }}
+                />
+              </div>
+            </div>
+          );
+        }
         return (
           <DrillDownGrid
             items={iterationItems}
@@ -265,7 +319,7 @@ export function App() {
         rightSidebar={
           <ContentEditor
             iteration={activeIteration}
-            iframeEl={iframeRef.current}
+            iframeEl={currentView === 'frame' && activeIterationId ? editIframeEl : iframeRef.current}
           />
         }
         onNewAsset={activeCampaignId ? handleNewAsset : undefined}
@@ -658,6 +712,64 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Iteration edit view: large iframe loading /api/iterations/:id/html (same URL as preview cards) ──
+function IterationEditFrame({
+  iterationId,
+  width,
+  height,
+  onIframeRef,
+}: {
+  iterationId: string;
+  width: number;
+  height: number;
+  onIframeRef: (el: HTMLIFrameElement | null) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.5);
+
+  useEffect(() => {
+    const update = () => {
+      if (!containerRef.current) return;
+      const cw = containerRef.current.clientWidth;
+      const ch = containerRef.current.clientHeight;
+      const scaleX = cw / width;
+      const scaleY = ch / height;
+      setScale(Math.min(scaleX, scaleY, 1));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, [width, height]);
+
+  return (
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        position: 'relative',
+        width,
+        height,
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
+        border: '1px solid #2a2a2e',
+        borderRadius: 8,
+        overflow: 'hidden',
+        boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
+        backgroundColor: '#000',
+      }}>
+        <iframe
+          ref={onIframeRef}
+          src={`/api/iterations/${iterationId}/html`}
+          width={width}
+          height={height}
+          style={{ border: 'none', display: 'block' }}
+          title="Edit preview"
+          sandbox="allow-same-origin"
+        />
       </div>
     </div>
   );

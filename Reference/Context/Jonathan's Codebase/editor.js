@@ -928,26 +928,18 @@ function makeBrushSection(label) {
   texWrap.appendChild(texPanel);
   sec.appendChild(texWrap);
 
-  /* Read current state (after normalisation) */
-  var iL = 0, iT = 0, iRot = 0, iSx = 100, iSy = 100, iZ = 0;
+  /* Read current state (Rotate and Z-index only; X, Y, Scale via bounding box) */
+  var iRot = 0, iZ = 0;
   if (bEl) {
     var cs2 = iDoc.defaultView.getComputedStyle(bEl);
-    iL = Math.round(parseFloat(cs2.left) || 0);
-    iT = Math.round(parseFloat(cs2.top)  || 0);
     var p2 = _txParseTransform(cs2.transform);
     iRot = Math.round(p2.rot * 10) / 10;
-    iSx  = Math.round(p2.sx  * 100);
-    iSy  = Math.round(p2.sy  * 100);
     var zVal = cs2.zIndex;
     iZ = (zVal && zVal !== 'auto') ? parseInt(zVal, 10) : 0;
   }
 
   var fields = [
-    { id:'brush-left', lbl:'X (px)',    val:iL,   step:'1',   handler: function(v) { if (txEl) { txEl.style.left = v + 'px'; _txUpdateOverlay(); } } },
-    { id:'brush-top',  lbl:'Y (px)',    val:iT,   step:'1',   handler: function(v) { if (txEl) { txEl.style.top  = v + 'px'; _txUpdateOverlay(); } } },
     { id:'brush-rot',  lbl:'Rotate °',  val:iRot, step:'0.5', handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(v, c.sx, c.sy); _txUpdateOverlay(); } } },
-    { id:'brush-sx',   lbl:'Scale W %', val:iSx,  step:'1',   handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(c.rot, v/100, c.sy);  _txUpdateOverlay(); } } },
-    { id:'brush-sy',   lbl:'Scale H %', val:iSy,  step:'1',   handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(c.rot, c.sx,  v/100); _txUpdateOverlay(); } } },
     { id:'brush-z',    lbl:'Z-index',   val:iZ,   step:'1',   handler: function(v) {
       if (txEl) {
         var n = parseInt(v, 10);
