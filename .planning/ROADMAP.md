@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4.2: Asset Linking & Output Refactor** - Replace base64 inlining with URL-linked assets, shared brand folder, Vite static serving
 - [ ] **Phase 4.3: Install Process Safety** - Ensure sync.sh never wipes non-Fluid commands (GSD, plugins, etc.)
 - [ ] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system
+- [ ] **Phase 7: Merge Jonathan's Codebase** - Rebuild Jonathan's content creation tool inside Chey's React/Vite/Zustand canvas app
 
 ## Phase Details
 
@@ -170,13 +171,37 @@ Plans:
 - [ ] 06-01-PLAN.md — Copy 30 marketing skills + interactive skill-map.json curation
 - [ ] 06-02-PLAN.md — Update orchestrator delegation + sync.sh distribution + brand/index.md
 
+### Phase 7: Merge Jonathan's Codebase into Fluid DesignOS
+**Goal**: Rebuild Jonathan's content creation tool (template library, content editor, campaign management, carousel support, DAM integration) inside Chey's existing React/Vite/Zustand canvas app, creating a unified creative workspace where AI generation and manual editing share the same interface and data model
+**Depends on**: Phase 6
+**Requirements**: MRGR-01, MRGR-02, MRGR-03, MRGR-04, MRGR-05, MRGR-06, MRGR-07, MRGR-08, MRGR-09, MRGR-10, MRGR-11, MRGR-12, MRGR-13, MRGR-14, MRGR-15, MRGR-16, MRGR-17
+**Success Criteria** (what must be TRUE):
+  1. SQLite database stores campaign hierarchy (Campaign > Asset > Frame > Iteration) with HTML variations on disk referenced by path
+  2. Unified dashboard shows campaigns as primary organizing unit with drill-down to assets, frames, and iterations using full-size iframe previews
+  3. Right sidebar content editor with schema-driven slot fields provides identical editing experience for template-based and AI-generated assets
+  4. Jonathan's 8 templates ported as locked TypeScript configs with complete slot schemas
+  5. MCP tools rewired from file access to SQLite API
+  6. Campaign orchestrator skill generates across multiple channels from a single brief
+  7. Brush/transform, photo repositioning, carousel support, and export (JPG/WebP/HTML) all functional
+**Plans**: 7 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Wave 0: SQLite schema, TypeScript types, slot schema port, database API
+- [ ] 07-02-PLAN.md — Teammate A: Vite middleware API endpoints for campaign hierarchy
+- [ ] 07-03-PLAN.md — Teammate B: Navigation UI (dashboard, drill-down, breadcrumbs, app shell)
+- [ ] 07-04-PLAN.md — Teammate C: Content editor right sidebar (slot fields, photo, brush, carousel, export)
+- [ ] 07-05-PLAN.md — Teammate D: MCP tool rewiring + template config port
+- [ ] 07-06-PLAN.md — Wave 2: Integration wiring (App.tsx, template flow, file watcher)
+- [ ] 07-07-PLAN.md — Wave 3: Campaign orchestrator skill, DAM integration, 5-slot channel UI
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6
+Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7
 (Phase 4 depends on Phase 2, not Phase 3 -- Phases 3 and 4 could run in parallel)
 (Phase 4.3 has no dependency on 4.2 -- can run in parallel)
 (Phase 6 depends on Phase 2 -- can run in parallel with Phases 3-5)
+(Phase 7 depends on Phase 6)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -189,13 +214,4 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6
 | 4.3 Install Process Safety | 0/1 | Not Started |  |
 | 5. Learning Loop | 2/2 | Complete   | 2026-03-11 |
 | 6. Marketing Skills Integration | 1/2 | In Progress|  |
-
-### Phase 7: Merge Jonathan's codebase into Fluid DesignOS
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 6
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 7 to break down)
+| 7. Merge Jonathan's Codebase | 0/7 | Not Started |  |
