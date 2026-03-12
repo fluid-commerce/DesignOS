@@ -1,62 +1,54 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { readAnnotations } from './read-annotations.js';
-import type { Lineage, LegacyLineage, Round, RevisionHistory } from '../types.js';
+import type { Iteration, CampaignAnnotation } from '../../src/lib/campaign-types.js';
+
+/** Full iteration history for a frame, returned by read_history */
+export interface FrameHistory {
+  frameId: string;
+  iterations: Iteration[];
+  /** Flat list of all annotations across all iterations in this frame */
+  annotations: CampaignAnnotation[];
+  /** Map of iterationId -> status */
+  statuses: Record<string, Iteration['status']>;
+}
 
 /**
- * Read the full revision history for a session, combining lineage and annotation data.
- * Handles both Phase 4 (rounds[]) and Phase 2 (entries[]) lineage formats.
- * This is the tool agents use to avoid repeating rejected patterns.
+ * Read the full iteration chain for a frame from the SQLite API.
+ * Also collects all annotations across all iterations.
+ *
+ * Production: GET /api/frames/:id/iterations + GET /api/iterations/:id/annotations
+ *
+ * @param frameId   Frame ID (frm_xxx)
+ * @param apiBase   HTTP API base URL (default: http://localhost:5174)
  */
 export async function readHistory(
-  workingDir: string,
-  sessionId: string
-): Promise<RevisionHistory> {
-  const lineagePath = path.join(workingDir, sessionId, 'lineage.json');
-  const annotationData = await readAnnotations(workingDir, sessionId);
+  frameId: string,
+  apiBase = 'http://localhost:5174'
+): Promise<FrameHistory> {
+  // 1. Get all iterations for the frame
+  const iterRes = await fetch(`${apiBase}/api/frames/${frameId}/iterations`);
+  if (!iterRes.ok) {
+    const text = await iterRes.text().catch(() => '');
+    throw new Error(
+      `read_history: API returned ${iterRes.status} ${iterRes.statusText}${text ? ': ' + text : ''}`
+    );
+  }
+  const iterations = (await iterRes.json()) as Iteration[];
 
-  let rounds: Round[] = [];
-  let created = '';
-  let platform = 'unknown';
+  // 2. Collect annotations for each iteration (parallel fetch)
+  const annotationArrays = await Promise.all(
+    iterations.map(async (iter) => {
+      const aRes = await fetch(`${apiBase}/api/iterations/${iter.id}/annotations`);
+      if (!aRes.ok) return [] as CampaignAnnotation[];
+      return (await aRes.json()) as CampaignAnnotation[];
+    })
+  );
 
-  try {
-    const raw = await readFile(lineagePath, 'utf-8');
-    const lineage = JSON.parse(raw);
+  const annotations = annotationArrays.flat();
 
-    created = lineage.created ?? '';
-    platform = lineage.platform ?? 'unknown';
-
-    if (lineage.rounds && Array.isArray(lineage.rounds)) {
-      // Phase 4 format
-      rounds = lineage.rounds as Round[];
-    } else if (lineage.entries && Array.isArray(lineage.entries)) {
-      // Phase 2 legacy format -- convert entries[] to a single round
-      const legacy = lineage as LegacyLineage;
-      rounds = [
-        {
-          roundNumber: 1,
-          prompt: '',
-          variations: legacy.entries.map((entry, i) => ({
-            id: `v${i + 1}`,
-            path: entry.file ?? '',
-            status: 'unmarked' as const,
-            specCheck: 'draft' as const,
-          })),
-          winnerId: null,
-          timestamp: legacy.created ?? '',
-        },
-      ];
-    }
-  } catch {
-    // No lineage file -- return empty history
+  // 3. Build status map
+  const statuses: Record<string, Iteration['status']> = {};
+  for (const iter of iterations) {
+    statuses[iter.id] = iter.status;
   }
 
-  return {
-    sessionId,
-    created,
-    platform,
-    rounds,
-    annotations: annotationData.annotations,
-    statuses: annotationData.statuses,
-  };
+  return { frameId, iterations, annotations, statuses };
 }

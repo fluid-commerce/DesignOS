@@ -1,31 +1,26 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import type { AnnotationFile } from '../types.js';
+import type { CampaignAnnotation } from '../../src/lib/campaign-types.js';
 
 /**
- * Read all annotations for a session.
- * Returns the full annotations array and statuses, or defaults if file doesn't exist.
+ * Read annotations for a specific iteration from the SQLite API.
+ *
+ * Production: GET /api/iterations/:id/annotations via Vite dev server.
+ *
+ * @param iterationId  Iteration ID (itr_xxx)
+ * @param apiBase      HTTP API base URL (default: http://localhost:5174)
  */
 export async function readAnnotations(
-  workingDir: string,
-  sessionId: string
-): Promise<AnnotationFile> {
-  const annotationsPath = path.join(workingDir, sessionId, 'annotations.json');
+  iterationId: string,
+  apiBase = 'http://localhost:5174'
+): Promise<CampaignAnnotation[]> {
+  const res = await fetch(`${apiBase}/api/iterations/${iterationId}/annotations`);
 
-  try {
-    const raw = await readFile(annotationsPath, 'utf-8');
-    const data = JSON.parse(raw) as AnnotationFile;
-    return {
-      sessionId: data.sessionId ?? sessionId,
-      annotations: data.annotations ?? [],
-      statuses: data.statuses ?? {},
-    };
-  } catch {
-    // File doesn't exist or is malformed -- return empty defaults
-    return {
-      sessionId,
-      annotations: [],
-      statuses: {},
-    };
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(
+      `read_annotations: API returned ${res.status} ${res.statusText}${text ? ': ' + text : ''}`
+    );
   }
+
+  const data = (await res.json()) as CampaignAnnotation[];
+  return data;
 }

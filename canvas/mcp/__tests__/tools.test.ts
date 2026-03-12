@@ -1,309 +1,273 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, rm, readFile, writeFile, mkdir } from 'node:fs/promises';
+/**
+ * MCP Tools Unit Tests — SQLite/db-api behavior
+ *
+ * These tests call canvas/src/server/db-api.ts functions directly,
+ * avoiding any dependency on a running Vite dev server.
+ *
+ * Each test suite sets FLUID_DB_PATH to an isolated temp file so DB state
+ * is fully independent across test runs.
+ */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { pushAsset } from '../tools/push-asset.js';
-import { readAnnotations } from '../tools/read-annotations.js';
-import { readStatuses } from '../tools/read-statuses.js';
-import { readHistory } from '../tools/read-history.js';
-import { readIterationRequest } from '../tools/iterate.js';
-import type { AnnotationFile, Lineage, IterateRequest } from '../types.js';
+// ─── DB API helpers ─────────────────────────────────────────────────────────
 
-let workingDir: string;
+// We import db-api lazily after setting FLUID_DB_PATH so the singleton
+// initialises against the correct test database.
+
+type DbApi = typeof import('../../src/server/db-api.js');
+
+let dbApi: DbApi;
+let tmpDir: string;
+let dbPath: string;
 
 beforeEach(async () => {
-  workingDir = await mkdtemp(path.join(tmpdir(), 'fluid-mcp-test-'));
+  tmpDir = await mkdtemp(path.join(tmpdir(), 'fluid-mcp-test-'));
+  dbPath = path.join(tmpDir, 'test.db');
+  process.env.FLUID_DB_PATH = dbPath;
+
+  // Force fresh db singleton per test by clearing module cache via dynamic import
+  // (Vitest re-imports when env var changes thanks to test isolation)
+  const { closeDb } = await import('../../src/lib/db.js');
+  closeDb();
+
+  dbApi = await import('../../src/server/db-api.js');
 });
 
 afterEach(async () => {
-  await rm(workingDir, { recursive: true, force: true });
+  const { closeDb } = await import('../../src/lib/db.js');
+  closeDb();
+  delete process.env.FLUID_DB_PATH;
+  await rm(tmpDir, { recursive: true, force: true });
+  vi.resetModules();
 });
 
-// --- push_asset tests ---
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-describe('push_asset', () => {
-  it('creates session directory and styled.html with provided HTML content', async () => {
-    const html = '<html><body>Test Asset</body></html>';
-    const result = await pushAsset(workingDir, {
-      sessionId: '20260310-143022',
-      variationId: 'v1',
-      html,
+function scaffoldCampaignHierarchy() {
+  const campaign = dbApi.createCampaign({ title: 'Test Campaign', channels: ['instagram'] });
+  const asset = dbApi.createAsset({
+    campaignId: campaign.id,
+    title: 'Test Asset',
+    assetType: 'instagram-square',
+    frameCount: 1,
+  });
+  const frame = dbApi.createFrame({ assetId: asset.id, frameIndex: 0 });
+  return { campaign, asset, frame };
+}
+
+// ─── push_asset — creates Iteration in SQLite ─────────────────────────────
+
+describe('push_asset (db-api layer)', () => {
+  it('creates an Iteration record in SQLite via createIteration', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
+
+    const iteration = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 0,
+      htmlPath: `campaigns/cmp/ast/${frame.id}/itr.html`,
+      source: 'ai',
     });
 
-    expect(result.message).toContain('20260310-143022/v1/styled.html');
-
-    const written = await readFile(
-      path.join(workingDir, '20260310-143022', 'v1', 'styled.html'),
-      'utf-8'
-    );
-    expect(written).toBe(html);
+    expect(iteration.id).toBeTruthy();
+    expect(iteration.frameId).toBe(frame.id);
+    expect(iteration.iterationIndex).toBe(0);
+    expect(iteration.status).toBe('unmarked');
+    expect(iteration.source).toBe('ai');
   });
 
-  it('creates lineage.json if it does not exist', async () => {
-    await pushAsset(workingDir, {
-      sessionId: '20260310-143022',
-      variationId: 'v1',
-      html: '<html></html>',
-      platform: 'instagram-square',
+  it('stores slotSchema as JSON and returns it parsed', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
+
+    const schema = { templateId: 't1-quote', width: 1080, height: 1080, fields: [] };
+    const iteration = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 0,
+      htmlPath: 'campaigns/c/a/f/i.html',
+      slotSchema: schema,
+      source: 'template',
+      templateId: 't1-quote',
     });
 
-    const lineagePath = path.join(workingDir, '20260310-143022', 'lineage.json');
-    const lineage = JSON.parse(await readFile(lineagePath, 'utf-8'));
-
-    expect(lineage.sessionId).toBe('20260310-143022');
-    expect(lineage.platform).toBe('instagram-square');
-    expect(lineage.rounds).toHaveLength(1);
-    expect(lineage.rounds[0].variations).toHaveLength(1);
-    expect(lineage.rounds[0].variations[0].id).toBe('v1');
+    expect(iteration.slotSchema).toEqual(schema);
+    expect(iteration.templateId).toBe('t1-quote');
   });
 
-  it('appends variation to existing round in lineage.json', async () => {
-    await pushAsset(workingDir, {
-      sessionId: 'sess-1',
-      variationId: 'v1',
-      html: '<html>v1</html>',
+  it('multiple push_asset calls create separate iteration records', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
+
+    dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 0,
+      htmlPath: 'path/to/0.html',
+      source: 'ai',
     });
-    await pushAsset(workingDir, {
-      sessionId: 'sess-1',
-      variationId: 'v2',
-      html: '<html>v2</html>',
+    dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 1,
+      htmlPath: 'path/to/1.html',
+      source: 'ai',
     });
 
-    const lineage = JSON.parse(
-      await readFile(path.join(workingDir, 'sess-1', 'lineage.json'), 'utf-8')
-    );
-    expect(lineage.rounds).toHaveLength(1);
-    expect(lineage.rounds[0].variations).toHaveLength(2);
+    const iterations = dbApi.getIterations(frame.id);
+    expect(iterations).toHaveLength(2);
+    expect(iterations[0].iterationIndex).toBe(0);
+    expect(iterations[1].iterationIndex).toBe(1);
   });
 });
 
-// --- read_annotations tests ---
+// ─── read_annotations — returns annotations by iterationId ───────────────
 
-describe('read_annotations', () => {
-  it('returns empty array when no annotations.json exists', async () => {
-    await mkdir(path.join(workingDir, 'sess-empty'), { recursive: true });
+describe('read_annotations (db-api layer)', () => {
+  it('returns empty array when no annotations exist for an iteration', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
+    const iteration = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 0,
+      htmlPath: 'p.html',
+      source: 'ai',
+    });
 
-    const result = await readAnnotations(workingDir, 'sess-empty');
-    expect(result.annotations).toEqual([]);
-    expect(result.statuses).toEqual({});
+    const annotations = dbApi.getAnnotations(iteration.id);
+    expect(annotations).toEqual([]);
   });
 
-  it('returns parsed annotations when file exists', async () => {
-    const sessionDir = path.join(workingDir, 'sess-annotated');
-    await mkdir(sessionDir, { recursive: true });
+  it('returns annotations linked to the correct iterationId', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
+    const iter1 = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 0,
+      htmlPath: 'p1.html',
+      source: 'ai',
+    });
+    const iter2 = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 1,
+      htmlPath: 'p2.html',
+      source: 'ai',
+    });
 
-    const data: AnnotationFile = {
-      sessionId: 'sess-annotated',
-      annotations: [
-        {
-          id: 'ann-1',
-          type: 'sidebar',
-          author: 'Chey',
-          authorType: 'human',
-          variationPath: 'v1/styled.html',
-          text: 'Great contrast',
-          createdAt: '2026-03-10T14:30:00Z',
-        },
-      ],
-      statuses: {
-        'v1/styled.html': 'winner',
-        'v2/styled.html': 'rejected',
-      },
-    };
-    await writeFile(
-      path.join(sessionDir, 'annotations.json'),
-      JSON.stringify(data),
-      'utf-8'
-    );
+    dbApi.createAnnotation({
+      iterationId: iter1.id,
+      type: 'pin',
+      author: 'human',
+      text: 'Make headline bigger',
+      x: 50,
+      y: 20,
+    });
+    dbApi.createAnnotation({
+      iterationId: iter2.id,
+      type: 'sidebar',
+      author: 'agent',
+      text: 'Strong typography',
+    });
 
-    const result = await readAnnotations(workingDir, 'sess-annotated');
-    expect(result.annotations).toHaveLength(1);
-    expect(result.annotations[0].text).toBe('Great contrast');
-    expect(result.statuses['v1/styled.html']).toBe('winner');
-  });
-});
+    const ann1 = dbApi.getAnnotations(iter1.id);
+    expect(ann1).toHaveLength(1);
+    expect(ann1[0].text).toBe('Make headline bigger');
+    expect(ann1[0].type).toBe('pin');
+    expect(ann1[0].x).toBe(50);
+    expect(ann1[0].y).toBe(20);
 
-// --- read_statuses tests ---
-
-describe('read_statuses', () => {
-  it('returns status map from annotations.json', async () => {
-    const sessionDir = path.join(workingDir, 'sess-status');
-    await mkdir(sessionDir, { recursive: true });
-
-    const data: AnnotationFile = {
-      sessionId: 'sess-status',
-      annotations: [],
-      statuses: {
-        'v1/styled.html': 'winner',
-        'v2/styled.html': 'rejected',
-        'v3/styled.html': 'unmarked',
-      },
-    };
-    await writeFile(
-      path.join(sessionDir, 'annotations.json'),
-      JSON.stringify(data),
-      'utf-8'
-    );
-
-    const statuses = await readStatuses(workingDir, 'sess-status');
-    expect(statuses['v1/styled.html']).toBe('winner');
-    expect(statuses['v2/styled.html']).toBe('rejected');
-    expect(statuses['v3/styled.html']).toBe('unmarked');
-  });
-
-  it('returns empty object when no annotations exist', async () => {
-    const statuses = await readStatuses(workingDir, 'nonexistent');
-    expect(statuses).toEqual({});
+    const ann2 = dbApi.getAnnotations(iter2.id);
+    expect(ann2).toHaveLength(1);
+    expect(ann2[0].text).toBe('Strong typography');
   });
 });
 
-// --- read_history tests ---
+// ─── read_statuses — returns status map for frame's iterations ────────────
 
-describe('read_history', () => {
-  it('combines lineage.json rounds with annotation data', async () => {
-    const sessionDir = path.join(workingDir, 'sess-history');
-    await mkdir(sessionDir, { recursive: true });
+describe('read_statuses (db-api layer)', () => {
+  it('returns status map keyed by iterationId', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
 
-    const lineage: Lineage = {
-      sessionId: 'sess-history',
-      created: '2026-03-10T14:00:00Z',
-      platform: 'instagram-square',
-      product: null,
-      template: null,
-      rounds: [
-        {
-          roundNumber: 1,
-          prompt: 'Create a social post about FLFont',
-          variations: [
-            { id: 'v1', path: 'v1/styled.html', status: 'winner', specCheck: 'pass' },
-            { id: 'v2', path: 'v2/styled.html', status: 'rejected', specCheck: 'pass' },
-          ],
-          winnerId: 'v1',
-          timestamp: '2026-03-10T14:00:00Z',
-        },
-      ],
-    };
-    await writeFile(
-      path.join(sessionDir, 'lineage.json'),
-      JSON.stringify(lineage),
-      'utf-8'
-    );
+    const iter1 = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 0,
+      htmlPath: 'p1.html',
+      source: 'ai',
+    });
+    const iter2 = dbApi.createIteration({
+      frameId: frame.id,
+      iterationIndex: 1,
+      htmlPath: 'p2.html',
+      source: 'ai',
+    });
 
-    const annotations: AnnotationFile = {
-      sessionId: 'sess-history',
-      annotations: [
-        {
-          id: 'ann-1',
-          type: 'pin',
-          author: 'agent',
-          authorType: 'agent',
-          variationPath: 'v1/styled.html',
-          text: 'Strong typography',
-          createdAt: '2026-03-10T14:05:00Z',
-          x: 50,
-          y: 30,
-          pinNumber: 1,
-        },
-      ],
-      statuses: { 'v1/styled.html': 'winner' },
-    };
-    await writeFile(
-      path.join(sessionDir, 'annotations.json'),
-      JSON.stringify(annotations),
-      'utf-8'
-    );
+    dbApi.updateIterationStatus(iter1.id, 'winner');
+    dbApi.updateIterationStatus(iter2.id, 'rejected');
 
-    const history = await readHistory(workingDir, 'sess-history');
-    expect(history.platform).toBe('instagram-square');
-    expect(history.rounds).toHaveLength(1);
-    expect(history.rounds[0].variations).toHaveLength(2);
-    expect(history.annotations).toHaveLength(1);
-    expect(history.statuses['v1/styled.html']).toBe('winner');
+    const iterations = dbApi.getIterations(frame.id);
+    const statusMap: Record<string, string> = {};
+    for (const iter of iterations) {
+      statusMap[iter.id] = iter.status;
+    }
+
+    expect(statusMap[iter1.id]).toBe('winner');
+    expect(statusMap[iter2.id]).toBe('rejected');
   });
 
-  it('handles Phase 2 legacy format (entries[] instead of rounds[])', async () => {
-    const sessionDir = path.join(workingDir, 'sess-legacy');
-    await mkdir(sessionDir, { recursive: true });
-
-    const legacyLineage = {
-      sessionId: 'sess-legacy',
-      created: '2026-03-09T10:00:00Z',
-      platform: 'linkedin-landscape',
-      entries: [
-        { step: 'generate', file: 'v1/styled.html', timestamp: '2026-03-09T10:00:00Z' },
-        { step: 'generate', file: 'v2/styled.html', timestamp: '2026-03-09T10:01:00Z' },
-      ],
-    };
-    await writeFile(
-      path.join(sessionDir, 'lineage.json'),
-      JSON.stringify(legacyLineage),
-      'utf-8'
-    );
-
-    const history = await readHistory(workingDir, 'sess-legacy');
-    expect(history.platform).toBe('linkedin-landscape');
-    expect(history.rounds).toHaveLength(1);
-    expect(history.rounds[0].roundNumber).toBe(1);
-    expect(history.rounds[0].variations).toHaveLength(2);
-    expect(history.rounds[0].variations[0].path).toBe('v1/styled.html');
-    expect(history.rounds[0].variations[1].path).toBe('v2/styled.html');
-  });
-
-  it('returns empty history when no lineage exists', async () => {
-    const history = await readHistory(workingDir, 'nonexistent');
-    expect(history.rounds).toEqual([]);
-    expect(history.annotations).toEqual([]);
+  it('returns empty for a frame with no iterations', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
+    const iterations = dbApi.getIterations(frame.id);
+    expect(iterations).toHaveLength(0);
   });
 });
 
-// --- read_iteration_request tests ---
+// ─── read_history — returns full iteration chain ──────────────────────────
 
-describe('read_iteration_request', () => {
-  it('returns null when no request file exists', async () => {
-    await mkdir(path.join(workingDir, 'sess-no-req'), { recursive: true });
+describe('read_history (db-api layer)', () => {
+  it('returns all iterations for a frame in order', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
 
-    const result = await readIterationRequest(workingDir, 'sess-no-req');
-    expect(result).toBeNull();
+    dbApi.createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
+    dbApi.createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
+    dbApi.createIteration({ frameId: frame.id, iterationIndex: 2, htmlPath: 'r2.html', source: 'ai' });
+
+    const iterations = dbApi.getIterations(frame.id);
+    expect(iterations).toHaveLength(3);
+    expect(iterations.map(i => i.iterationIndex)).toEqual([0, 1, 2]);
   });
 
-  it('returns request and renames file after reading', async () => {
-    const sessionDir = path.join(workingDir, 'sess-iterate');
-    await mkdir(sessionDir, { recursive: true });
+  it('can retrieve annotations for each iteration in the chain', async () => {
+    const { frame } = scaffoldCampaignHierarchy();
 
-    const request: IterateRequest = {
-      sessionId: 'sess-iterate',
-      feedback: 'Make the headline bigger and bolder',
-      winnerPath: 'v1/styled.html',
-      context: {
-        annotations: [],
-        statuses: { 'v1/styled.html': 'winner' },
-        rejectedVariations: ['v2/styled.html'],
-      },
-      createdAt: '2026-03-10T15:00:00Z',
-    };
-    await writeFile(
-      path.join(sessionDir, 'iterate-request.json'),
-      JSON.stringify(request),
-      'utf-8'
-    );
+    const iter0 = dbApi.createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
+    const iter1 = dbApi.createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
 
-    const result = await readIterationRequest(workingDir, 'sess-iterate');
-    expect(result).not.toBeNull();
-    expect(result!.feedback).toBe('Make the headline bigger and bolder');
-    expect(result!.winnerPath).toBe('v1/styled.html');
+    dbApi.createAnnotation({ iterationId: iter0.id, type: 'pin', author: 'human', text: 'Too dark', x: 10, y: 10 });
+    dbApi.createAnnotation({ iterationId: iter1.id, type: 'sidebar', author: 'human', text: 'Perfect' });
 
-    // Original file should be renamed
-    const { access } = await import('node:fs/promises');
-    await expect(
-      access(path.join(sessionDir, 'iterate-request.json'))
-    ).rejects.toThrow();
+    const ann0 = dbApi.getAnnotations(iter0.id);
+    const ann1 = dbApi.getAnnotations(iter1.id);
 
-    // Renamed file should exist
-    const renamed = await readFile(
-      path.join(sessionDir, 'iterate-request-read.json'),
-      'utf-8'
-    );
-    expect(JSON.parse(renamed).feedback).toBe('Make the headline bigger and bolder');
+    expect(ann0[0].text).toBe('Too dark');
+    expect(ann1[0].text).toBe('Perfect');
+  });
+});
+
+// ─── Backward compatibility — legacy sessionId params ────────────────────
+
+describe('push_asset backward compatibility', () => {
+  it('handleLegacyPushAsset throws a descriptive deprecation error', async () => {
+    const { handleLegacyPushAsset } = await import('../tools/push-asset.js');
+
+    expect(() =>
+      handleLegacyPushAsset({
+        sessionId: '20260310-143022',
+        variationId: 'v1',
+        html: '<html></html>',
+      })
+    ).toThrow(/DEPRECATED/);
+
+    expect(() =>
+      handleLegacyPushAsset({
+        sessionId: '20260310-143022',
+        variationId: 'v1',
+        html: '<html></html>',
+      })
+    ).toThrow(/sessionId/);
   });
 });
