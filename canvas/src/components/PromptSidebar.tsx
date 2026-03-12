@@ -88,6 +88,8 @@ export function PromptSidebar() {
     prevStatusRef.current = generationStatus;
   }, [generationStatus, activeCampaignId, navigateToCampaign]);
 
+  const [submittedPrompt, setSubmittedPrompt] = useState('');
+
   const handleGenerate = () => {
     const text = prompt.trim();
     if (!text || isGenerating) return;
