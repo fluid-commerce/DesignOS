@@ -7,6 +7,8 @@
  * - createFrame / getFrames (by assetId)
  * - createIteration / getIterations (by frameId)
  * - updateIterationStatus / updateIterationUserState
+ * - updateAsset (title rename)
+ * - getCampaignPreviewUrls (up to 4 preview entries)
  * - createAnnotation / getAnnotations (by iterationId)
  * - createCampaignWithAssets (atomic transaction)
  * - FK constraint enforcement
@@ -31,6 +33,8 @@ import {
   getIterations,
   updateIterationStatus,
   updateIterationUserState,
+  updateAsset,
+  getCampaignPreviewUrls,
   createAnnotation,
   getAnnotations,
   createCampaignWithAssets,
@@ -361,5 +365,108 @@ describe('createCampaignWithAssets — atomic transaction', () => {
     expect(getCampaigns().length).toBe(1);
     expect(assets.length).toBe(0);
     expect(getAssets(campaign.id).length).toBe(0);
+  });
+});
+
+describe('updateAsset — PATCH /api/assets/:id', () => {
+  beforeEach(() => {
+    resetDb();
+  });
+
+  function makeAsset() {
+    const campaign = createCampaign({ title: 'Cam', channels: ['instagram'] });
+    return createAsset({ campaignId: campaign.id, title: 'instagram 1', assetType: 'instagram', frameCount: 1 });
+  }
+
+  it('updateAsset changes the title in the database', () => {
+    const asset = makeAsset();
+    const originalTitle = asset.title;
+    expect(originalTitle).toBe('instagram 1');
+
+    updateAsset(asset.id, { title: 'Bold Product Launch — IG Square' });
+
+    // Verify via getAssets
+    const assets = getAssets(asset.campaignId);
+    expect(assets[0].title).toBe('Bold Product Launch — IG Square');
+  });
+
+  it('updateAsset with undefined title does not change anything', () => {
+    const asset = makeAsset();
+    updateAsset(asset.id, {}); // no title provided
+    const assets = getAssets(asset.campaignId);
+    expect(assets[0].title).toBe('instagram 1'); // unchanged
+  });
+
+  it('updateAsset on nonexistent id does not throw', () => {
+    // updateAsset is a fire-and-forget UPDATE — no FK constraint on id
+    expect(() => updateAsset('nonexistent-id', { title: 'Ghost' })).not.toThrow();
+  });
+});
+
+describe('getCampaignPreviewUrls — GET /api/campaigns/:id/preview-urls', () => {
+  beforeEach(() => {
+    resetDb();
+  });
+
+  function makeFullCampaign(assetCount = 4) {
+    const { campaign, assets } = createCampaignWithAssets(
+      { title: 'Preview Cam', channels: ['instagram', 'linkedin'] },
+      Array.from({ length: assetCount }, (_, i) => ({
+        title: `asset ${i + 1}`,
+        assetType: i % 2 === 0 ? 'instagram' : 'linkedin',
+        frameCount: 1,
+      }))
+    );
+    const entries: Array<{ iterationId: string; assetType: string }> = [];
+    for (const asset of assets) {
+      const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+      const iter = createIteration({
+        frameId: frame.id,
+        iterationIndex: 0,
+        htmlPath: `.fluid/campaigns/${campaign.id}/${asset.id}/${frame.id}/iter.html`,
+        source: 'ai',
+        generationStatus: 'complete',
+      });
+      entries.push({ iterationId: iter.id, assetType: asset.assetType });
+    }
+    return { campaign, entries };
+  }
+
+  it('returns up to 4 preview entries with correct structure', () => {
+    const { campaign, entries } = makeFullCampaign(4);
+    const urls = getCampaignPreviewUrls(campaign.id);
+
+    expect(urls.length).toBe(4);
+    for (const url of urls) {
+      expect(url.iterationId).toBeDefined();
+      expect(url.htmlPath).toContain('.fluid/campaigns/');
+      expect(['instagram', 'linkedin']).toContain(url.assetType);
+    }
+  });
+
+  it('caps results at 4 even if campaign has more assets', () => {
+    const { campaign } = makeFullCampaign(7);
+    const urls = getCampaignPreviewUrls(campaign.id);
+    expect(urls.length).toBeLessThanOrEqual(4);
+  });
+
+  it('returns correct iterationIds that match the created iterations', () => {
+    const { campaign, entries } = makeFullCampaign(2);
+    const urls = getCampaignPreviewUrls(campaign.id);
+    const expectedIds = new Set(entries.map((e) => e.iterationId));
+    for (const url of urls) {
+      expect(expectedIds.has(url.iterationId)).toBe(true);
+    }
+  });
+
+  it('returns empty array for campaign with no frames/iterations', () => {
+    const campaign = createCampaign({ title: 'Empty', channels: [] });
+    const urls = getCampaignPreviewUrls(campaign.id);
+    expect(urls).toEqual([]);
+  });
+
+  it('returns empty array for nonexistent campaign', () => {
+    const urls = getCampaignPreviewUrls('nonexistent-id');
+    expect(urls).toEqual([]);
   });
 });
