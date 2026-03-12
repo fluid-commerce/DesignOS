@@ -3,3 +3,7 @@ canvas/node_modules/
 canvas/.pid
 .fluid/working/
 .DS_Store
+# SQLite database files
+canvas/fluid.db
+canvas/fluid.db-wal
+canvas/fluid.db-shm
