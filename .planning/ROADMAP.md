@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4.3: Install Process Safety** - Ensure sync.sh never wipes non-Fluid commands (GSD, plugins, etc.)
 - [x] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system (completed 2026-03-11)
 - [x] **Phase 7: Merge Jonathan's Codebase** - Rebuild Jonathan's content creation tool inside Chey's React/Vite/Zustand canvas app (completed 2026-03-12)
-- [ ] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths
+- [ ] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths (Jonathan's 2026-03-12 commits partially address: edit-mode iteration view, asset path rewriting, postMessage live edits)
 
 ## Phase Details
 
@@ -207,12 +207,15 @@ Plans:
   4. Sidebar detects campaign context and offers "Add to existing campaign" mode
   5. Auto-navigate to campaign view on generation completion
   6. Per-asset status badges show pending/generating/complete
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Schema migration (generationStatus), type updates, db-api helpers
-- [ ] 08-02-PLAN.md — /api/generate multi-asset refactor, parallel subagent spawning, canonical paths, new API endpoints
-- [ ] 08-03-PLAN.md — Iframe previews at all levels, campaign mosaic, sidebar campaign integration
+- [x] 08-01-PLAN.md — Schema migration (generationStatus), type updates, db-api helpers
+- [x] 08-02-PLAN.md — /api/generate multi-asset refactor, parallel subagent spawning, canonical paths, new API endpoints
+- [x] 08-03-PLAN.md — Iframe previews at all levels, campaign mosaic, sidebar campaign integration
+- [ ] 08-04-PLAN.md — Gap closure: fix mosaic response unwrap + render StatusBadge on asset cards
+
+**Note:** Jonathan's 2026-03-12 commit (`0ee0688`) added inline edit mode in App.tsx, improved /api/iterations/:id/html with asset path rewriting + user_state injection + postMessage listener, and normalized image URLs in editor.ts. These changes partially fulfill 08-03 preview rendering goals. Review before executing to avoid conflicts.
 
 ## Progress
 
@@ -236,7 +239,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7 > 8
 | 5. Learning Loop | 2/2 | Complete | 2026-03-11 |
 | 6. Marketing Skills Integration | 2/2 | Complete | 2026-03-11 |
 | 7. Merge Jonathan's Codebase | 7/7 | Complete | 2026-03-12 |
-| 8. AI Sidebar to Campaign Dashboard E2E | 1/3 | In Progress|  |
+| 8. AI Sidebar to Campaign Dashboard E2E | 3/4 | Gap closure pending |  |
 
 ### Phase 9: Conversational chat UI — bottom input, message bubbles, auto-scroll
 
