@@ -160,13 +160,14 @@ export function PromptSidebar() {
   return (
     <div
       style={{
-        width: 320,
+        width: '100%',
         borderRight: '1px solid #2a2a2e',
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: '#111111',
         flexShrink: 0,
         height: '100%',
+        overflow: 'hidden',
       }}
     >
       {/* Prompt input area */}
