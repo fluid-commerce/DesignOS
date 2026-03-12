@@ -39,7 +39,20 @@ export function PromptSidebar() {
   const activeCampaignId = useGenerationStore((s) => s.activeCampaignId);
   const generationStatus = useGenerationStore((s) => s.status);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
+  const campaignCurrentView = useCampaignStore((s) => s.currentView);
+  const campaignActiveCampaignId = useCampaignStore((s) => s.activeCampaignId);
+  const campaigns = useCampaignStore((s) => s.campaigns);
   const { annotations } = useAnnotations();
+
+  // "Add to existing campaign" mode — active when user is viewing a campaign
+  const isAddToCampaignMode =
+    campaignCurrentView === 'campaign' && !!campaignActiveCampaignId;
+  const [addToCampaignDismissed, setAddToCampaignDismissed] = useState(false);
+  const showAddToCampaignBanner = isAddToCampaignMode && !addToCampaignDismissed;
+
+  // Find the campaign title for the banner
+  const activeCampaignTitle = campaigns.find((c) => c.id === campaignActiveCampaignId)?.title
+    ?? campaignActiveCampaignId ?? '';
 
   // Mode detection
   const isIterateMode = !!activeSessionId && !!activeSessionData;
@@ -75,24 +88,34 @@ export function PromptSidebar() {
 
   const [submittedPrompt, setSubmittedPrompt] = useState('');
 
-  // Navigate to the newly created campaign when generation completes
+  // Navigate to the newly created/updated campaign when generation completes.
+  // No delay — the 'done' SSE event fires only after all subagents complete (Plan 02).
   const prevStatusRef = useRef(generationStatus);
   useEffect(() => {
     if (prevStatusRef.current === 'generating' && generationStatus === 'complete' && activeCampaignId) {
-      // Small delay to let the server finish writing iteration records
-      const timer = setTimeout(() => {
-        navigateToCampaign(activeCampaignId);
-      }, 500);
-      return () => clearTimeout(timer);
+      navigateToCampaign(activeCampaignId);
     }
     prevStatusRef.current = generationStatus;
   }, [generationStatus, activeCampaignId, navigateToCampaign]);
+
+  // Reset "Add to campaign" dismissed state when campaign view changes
+  useEffect(() => {
+    setAddToCampaignDismissed(false);
+  }, [campaignActiveCampaignId]);
 
   const handleGenerate = () => {
     const text = prompt.trim();
     if (!text || isGenerating) return;
 
     setSubmittedPrompt(text);
+
+    // Base generate options — include existingCampaignId when in add-to-campaign mode
+    const baseOpts = {
+      skillType: 'social' as const,
+      ...(showAddToCampaignBanner && campaignActiveCampaignId
+        ? { existingCampaignId: campaignActiveCampaignId }
+        : {}),
+    };
 
     if (isIterateMode && activeSessionData) {
       // Iteration mode: bundle context and pass to generate
@@ -108,16 +131,16 @@ export function PromptSidebar() {
           originalPrompt: activeSessionData.lineage.rounds?.[0]?.prompt || '',
         });
         generate(text, {
-          skillType: 'social',
+          ...baseOpts,
           sessionId: activeSessionId!,
           iterationContext: iterCtx,
         });
       } catch (err) {
         // If no winner selected, fall through to normal generation
-        generate(text, { skillType: 'social' });
+        generate(text, baseOpts);
       }
     } else {
-      generate(text, { skillType: 'social' });
+      generate(text, baseOpts);
     }
     setPrompt('');
   };
@@ -170,6 +193,51 @@ export function PromptSidebar() {
     >
       {/* Prompt input area */}
       <div style={{ padding: '0.75rem', borderBottom: '1px solid #2a2a2e' }}>
+        {/* "Adding to existing campaign" banner */}
+        {showAddToCampaignBanner && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: 'rgba(68,178,255,0.08)',
+            border: '1px solid rgba(68,178,255,0.2)',
+            borderRadius: 5,
+            padding: '0.3rem 0.5rem',
+            marginBottom: '0.5rem',
+            gap: '0.35rem',
+          }}>
+            <span style={{
+              fontSize: '0.7rem',
+              color: '#44B2FF',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: 1,
+              fontFamily: "'Inter', sans-serif",
+            }}>
+              Adding to: <strong>{activeCampaignTitle}</strong>
+            </span>
+            <button
+              onClick={() => setAddToCampaignDismissed(true)}
+              title="Clear — generate new campaign instead"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#44B2FF',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                lineHeight: 1,
+                padding: '0 2px',
+                flexShrink: 0,
+                opacity: 0.7,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
+            >
+              ×
+            </button>
+          </div>
+        )}
         {/* Header with optional + New button */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem', gap: '0.4rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1 }}>

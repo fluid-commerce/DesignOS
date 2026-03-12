@@ -150,12 +150,16 @@ export function App() {
   };
 
   // ── Map store data to DrillDownItem arrays ───────────────────────────────
-  const assetItems: DrillDownItem<Asset>[] = assets.map((a) => ({
-    id: a.id,
-    title: a.title,
-    subtitle: a.assetType,
-    data: a,
-  }));
+  const assetItems: DrillDownItem<Asset>[] = assets.map((a) => {
+    const latestIter = latestIterationByAssetId[a.id];
+    const genStatus = latestIter?.generationStatus;
+    return {
+      id: a.id,
+      title: a.title,
+      subtitle: genStatus ? `${a.assetType} · ${genStatus}` : a.assetType,
+      data: a,
+    };
+  });
 
   const frameItems: DrillDownItem<Frame>[] = frames.map((f) => ({
     id: f.id,
