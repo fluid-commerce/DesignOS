@@ -12,6 +12,7 @@ import { useRef } from 'react';
 import type { SlotField as SlotFieldType, TextField, ImageField } from '../lib/slot-schema';
 import { useEditorStore } from '../store/editor';
 import { PhotoReposition } from './PhotoReposition';
+import { DAMPicker } from './DAMPicker';
 import { useState } from 'react';
 
 interface SlotFieldProps {
@@ -58,66 +59,42 @@ function ImageSlotField({ field }: { field: ImageField }) {
   const { slotValues, updateSlotValue, iframeRef } = useEditorStore();
   const [showReposition, setShowReposition] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(slotValues[field.sel] ?? null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // fileInputRef kept for PhotoReposition (not used by DAMPicker directly)
+  const _fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string;
-      setPreviewSrc(dataUrl);
-      updateSlotValue(field.sel, dataUrl, 'img');
-      // Also send img action for src update
-      if (iframeRef?.contentWindow) {
-        iframeRef.contentWindow.postMessage(
-          { type: 'tmpl', action: 'img', sel: field.sel, value: dataUrl },
-          '*'
-        );
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleSelect = (url: string) => {
+    setPreviewSrc(url);
+    updateSlotValue(field.sel, url, 'img');
+    // Send img postMessage for live iframe preview
+    if (iframeRef?.contentWindow) {
+      iframeRef.contentWindow.postMessage(
+        { type: 'tmpl', action: 'img', sel: field.sel, value: url },
+        '*'
+      );
+    }
   };
 
   return (
     <div style={styles.formGroup}>
-      <label style={styles.label}>{field.label}</label>
-      {field.dims && (
-        <div style={styles.sublabel}>Recommended: {field.dims}</div>
-      )}
-
-      {/* Thumbnail preview */}
-      <div
-        style={styles.imageThumbnail}
-        onClick={() => previewSrc && setShowReposition(true)}
-        title={previewSrc ? 'Click to reposition' : undefined}
-      >
-        {previewSrc ? (
-          <img
-            src={previewSrc}
-            alt={field.label}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
-        ) : (
-          <div style={styles.imageEmpty}>No image loaded</div>
-        )}
-      </div>
-
-      {/* File browse button */}
-      <button
-        type="button"
-        style={styles.uploadBtn}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        Browse...
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
+      {/* DAMPicker handles label, dims hint, drag-drop zone, Browse Assets, and local upload */}
+      <DAMPicker
+        sel={field.sel}
+        currentSrc={previewSrc}
+        onSelect={handleSelect}
+        label={field.label}
+        dims={field.dims}
       />
+
+      {/* Reposition trigger (shown when image is loaded) */}
+      {previewSrc && (
+        <button
+          type="button"
+          style={{ ...styles.uploadBtn, marginTop: '0.3rem' }}
+          onClick={() => setShowReposition(true)}
+        >
+          Reposition...
+        </button>
+      )}
 
       {/* Photo reposition panel */}
       {showReposition && previewSrc && (
@@ -191,24 +168,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'inherit',
     outline: 'none',
     boxSizing: 'border-box',
-  },
-  imageThumbnail: {
-    width: '100%',
-    height: 80,
-    backgroundColor: '#161616',
-    border: '1px solid #2a2a2e',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: '0.4rem',
-    cursor: 'pointer',
-  },
-  imageEmpty: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    fontSize: '0.75rem',
-    color: '#555',
   },
   uploadBtn: {
     backgroundColor: '#1e1e1e',

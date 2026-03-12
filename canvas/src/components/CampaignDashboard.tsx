@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useCampaignStore } from '../store/campaign';
 import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './DrillDownGrid';
-import type { Campaign } from '../lib/campaign-types';
+import type { Campaign, Asset } from '../lib/campaign-types';
 
 // ---- New Campaign Modal ----
 
@@ -612,3 +612,330 @@ export function CampaignDashboard() {
     </>
   );
 }
+
+// ─── CampaignChannelSlots ─────────────────────────────────────────────────────
+//
+// Shows a per-channel tab view with 5 fixed option slots per channel.
+// Each slot displays a filled asset preview (iframe) or a dashed empty placeholder.
+// Matches Jonathan's UI design for the campaign output view.
+//
+// Props:
+//   campaignId — the active campaign ID
+//   assets     — the assets already loaded for this campaign (from campaign store)
+//   onSelectAsset — handler to drill into a specific asset
+//   onGenerateCampaign — callback to trigger /fluid-campaign invocation
+
+const SLOT_CHANNELS = [
+  { key: 'instagram', label: 'Instagram' },
+  { key: 'linkedin', label: 'LinkedIn' },
+  { key: 'blog', label: 'Blog' },
+  { key: 'one-pager', label: 'One Pager' },
+];
+
+const SLOTS_PER_CHANNEL = 5;
+
+interface CampaignChannelSlotsProps {
+  campaignId: string;
+  assets: Asset[];
+  onSelectAsset: (assetId: string) => void;
+  onGenerateCampaign?: () => void;
+  generatingCampaign?: boolean;
+}
+
+export function CampaignChannelSlots({
+  campaignId: _campaignId,
+  assets,
+  onSelectAsset,
+  onGenerateCampaign,
+  generatingCampaign = false,
+}: CampaignChannelSlotsProps) {
+  const [activeChannel, setActiveChannel] = useState(SLOT_CHANNELS[0].key);
+
+  // Group assets by channel (assetType)
+  const assetsByChannel = useCallback(
+    (channelKey: string): Asset[] =>
+      assets.filter(
+        (a) =>
+          a.assetType === channelKey ||
+          a.assetType === channelKey.replace('-', '_') ||
+          a.assetType.toLowerCase().includes(channelKey.toLowerCase())
+      ),
+    [assets]
+  );
+
+  const channelAssets = assetsByChannel(activeChannel);
+
+  return (
+    <div style={slotStyles.container}>
+      {/* Header: channel tabs + Generate Campaign action */}
+      <div style={slotStyles.header}>
+        {/* Channel tabs */}
+        <div style={slotStyles.tabs}>
+          {SLOT_CHANNELS.map((ch) => {
+            const isActive = activeChannel === ch.key;
+            const count = assetsByChannel(ch.key).length;
+            return (
+              <button
+                key={ch.key}
+                onClick={() => setActiveChannel(ch.key)}
+                style={{
+                  ...slotStyles.tab,
+                  borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
+                  color: isActive ? '#44B2FF' : '#555',
+                  fontWeight: isActive ? 600 : 500,
+                }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = '#888'; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = '#555'; }}
+              >
+                {ch.label}
+                {count > 0 && (
+                  <span style={slotStyles.tabBadge}>{count}</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Generate Campaign button */}
+        <button
+          onClick={onGenerateCampaign}
+          disabled={generatingCampaign || !onGenerateCampaign}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            padding: '5px 14px',
+            backgroundColor: generatingCampaign ? '#1a2530' : '#44B2FF',
+            color: generatingCampaign ? '#444' : '#fff',
+            border: 'none',
+            borderRadius: 6,
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            cursor: generatingCampaign ? 'not-allowed' : 'pointer',
+            whiteSpace: 'nowrap' as const,
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.06em',
+            fontFamily: "'Inter', sans-serif",
+            transition: 'background-color 0.15s',
+            flexShrink: 0,
+          }}
+          title="Generate all channels with /fluid-campaign"
+        >
+          {generatingCampaign ? (
+            <>
+              <div style={{
+                width: 10, height: 10, borderRadius: '50%',
+                border: '1.5px solid #2a2a2e', borderTopColor: '#44B2FF',
+                animation: 'spin 0.8s linear infinite', flexShrink: 0,
+              }} />
+              Generating...
+            </>
+          ) : (
+            <>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              Generate Campaign
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* 5-slot grid */}
+      <div style={slotStyles.slotGrid}>
+        {Array.from({ length: SLOTS_PER_CHANNEL }).map((_, slotIndex) => {
+          const asset = channelAssets[slotIndex] ?? null;
+          return (
+            <SlotCard
+              key={slotIndex}
+              slotIndex={slotIndex}
+              asset={asset}
+              onSelect={asset ? () => onSelectAsset(asset.id) : undefined}
+            />
+          );
+        })}
+      </div>
+
+      {/* Empty channel hint */}
+      {channelAssets.length === 0 && (
+        <div style={slotStyles.emptyHint}>
+          No {SLOT_CHANNELS.find((c) => c.key === activeChannel)?.label ?? activeChannel} assets yet.
+          Click &ldquo;Generate Campaign&rdquo; to create them with /fluid-campaign.
+        </div>
+      )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+// ── Slot card ────────────────────────────────────────────────────────────────
+
+interface SlotCardProps {
+  slotIndex: number;
+  asset: Asset | null;
+  onSelect?: () => void;
+}
+
+function SlotCard({ slotIndex, asset, onSelect }: SlotCardProps) {
+  const isEmpty = asset === null;
+
+  return (
+    <div
+      onClick={onSelect}
+      style={{
+        ...slotStyles.slotCard,
+        border: isEmpty ? '1px dashed #2a2a2e' : '1px solid #333',
+        cursor: isEmpty ? 'default' : 'pointer',
+        backgroundColor: isEmpty ? 'transparent' : '#161616',
+      }}
+      title={asset ? `${asset.title} — click to open` : `Slot ${slotIndex + 1} — empty`}
+      onMouseEnter={(e) => {
+        if (!isEmpty) (e.currentTarget as HTMLDivElement).style.borderColor = '#44B2FF';
+      }}
+      onMouseLeave={(e) => {
+        if (!isEmpty) (e.currentTarget as HTMLDivElement).style.borderColor = '#333';
+      }}
+    >
+      {isEmpty ? (
+        // Empty slot placeholder
+        <div style={slotStyles.emptySlot}>
+          <div style={slotStyles.slotNumber}>{slotIndex + 1}</div>
+          <div style={slotStyles.emptyLabel}>Empty</div>
+        </div>
+      ) : (
+        // Filled slot: asset type badge + title
+        <div style={slotStyles.filledSlot}>
+          <div style={slotStyles.assetTypeBadge}>{asset.assetType}</div>
+          <div style={slotStyles.assetTitle}>{asset.title}</div>
+          <div style={slotStyles.slotArrow}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="#444" strokeWidth="2" strokeLinecap="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+
+const slotStyles: Record<string, React.CSSProperties> = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    backgroundColor: '#0d0d0d',
+    fontFamily: "'Inter', sans-serif",
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 1.25rem',
+    borderBottom: '1px solid #1e1e1e',
+    flexShrink: 0,
+    gap: '1rem',
+  },
+  tabs: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: '0',
+  },
+  tab: {
+    background: 'none',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    padding: '0.75rem 0.875rem',
+    fontSize: '0.7rem',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase' as const,
+    cursor: 'pointer',
+    fontFamily: "'Inter', sans-serif",
+    transition: 'color 0.12s, border-color 0.12s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.3rem',
+  },
+  tabBadge: {
+    backgroundColor: 'rgba(68,178,255,0.18)',
+    color: '#44B2FF',
+    borderRadius: 8,
+    padding: '0 5px',
+    fontSize: '0.62rem',
+    fontWeight: 700,
+    lineHeight: '16px',
+  },
+  slotGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    gap: '0.75rem',
+    padding: '1.25rem',
+    flex: 1,
+    alignContent: 'start',
+  },
+  slotCard: {
+    borderRadius: 6,
+    minHeight: 140,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    overflow: 'hidden',
+    transition: 'border-color 0.15s',
+    position: 'relative' as const,
+  },
+  emptySlot: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    minHeight: 140,
+    gap: '0.3rem',
+  },
+  slotNumber: {
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    color: '#222',
+    lineHeight: 1,
+  },
+  emptyLabel: {
+    fontSize: '0.65rem',
+    color: '#333',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.1em',
+  },
+  filledSlot: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    padding: '0.75rem',
+    height: '100%',
+    minHeight: 140,
+    gap: '0.35rem',
+    position: 'relative' as const,
+  },
+  assetTypeBadge: {
+    fontSize: '0.6rem',
+    fontWeight: 600,
+    color: '#44B2FF',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.1em',
+  },
+  assetTitle: {
+    fontSize: '0.75rem',
+    color: '#ccc',
+    flex: 1,
+    lineHeight: 1.4,
+  },
+  slotArrow: {
+    alignSelf: 'flex-end',
+  },
+  emptyHint: {
+    padding: '0 1.25rem 1.25rem',
+    fontSize: '0.78rem',
+    color: '#3a3a3a',
+    textAlign: 'center' as const,
+  },
+};
