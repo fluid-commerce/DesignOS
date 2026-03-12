@@ -6,6 +6,22 @@ import fs from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline';
 import type { TemplateInfo } from '../lib/templates';
+import {
+  createCampaign,
+  getCampaigns,
+  getCampaign,
+  createAsset,
+  getAssets,
+  createFrame,
+  getFrames,
+  createIteration,
+  getIterations,
+  updateIterationStatus,
+  updateIterationUserState,
+  createAnnotation,
+  getAnnotations,
+  createCampaignWithAssets,
+} from './db-api';
 
 /**
  * Vite plugin that watches .fluid/working/ and pushes HMR custom events
@@ -87,6 +103,268 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           res.writeHead(404, { 'Content-Type': 'text/plain' });
           res.end('Not found');
         }
+      });
+
+      // ─── Campaign hierarchy API middleware ────────────────────────────────
+      // All /api/campaigns/* routes. Handled BEFORE the session-based routes.
+      // DB calls are sync (better-sqlite3). Returns JSON with proper status codes.
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/')) return next();
+
+        const url = req.url.split('?')[0]; // strip query string
+        const method = req.method ?? 'GET';
+
+        try {
+          // ── Campaigns ───────────────────────────────────────────────────
+
+          // GET /api/campaigns
+          if (url === '/api/campaigns' && method === 'GET') {
+            const campaigns = getCampaigns();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(campaigns));
+            return;
+          }
+
+          // POST /api/campaigns
+          if (url === '/api/campaigns' && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.title || !Array.isArray(body.channels)) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'title and channels are required' }));
+              return;
+            }
+            // Atomic creation with assets if assets array provided
+            if (Array.isArray(body.assets)) {
+              const result = createCampaignWithAssets(
+                { title: body.title, channels: body.channels },
+                body.assets
+              );
+              res.writeHead(201, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(result));
+            } else {
+              const campaign = createCampaign({ title: body.title, channels: body.channels });
+              res.writeHead(201, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(campaign));
+            }
+            return;
+          }
+
+          // GET /api/campaigns/:id
+          const campaignIdMatch = url.match(/^\/api\/campaigns\/([^/]+)$/);
+          if (campaignIdMatch && method === 'GET') {
+            const campaign = getCampaign(campaignIdMatch[1]);
+            if (!campaign) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Campaign not found' }));
+              return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(campaign));
+            return;
+          }
+
+          // ── Assets ──────────────────────────────────────────────────────
+
+          // GET /api/campaigns/:id/assets
+          const campaignAssetsMatch = url.match(/^\/api\/campaigns\/([^/]+)\/assets$/);
+          if (campaignAssetsMatch && method === 'GET') {
+            const assets = getAssets(campaignAssetsMatch[1]);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(assets));
+            return;
+          }
+
+          // POST /api/campaigns/:id/assets
+          if (campaignAssetsMatch && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.title || !body.assetType || body.frameCount == null) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'title, assetType, and frameCount are required' }));
+              return;
+            }
+            const asset = createAsset({
+              campaignId: campaignAssetsMatch[1],
+              title: body.title,
+              assetType: body.assetType,
+              frameCount: body.frameCount,
+            });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(asset));
+            return;
+          }
+
+          // ── Frames ──────────────────────────────────────────────────────
+
+          // GET /api/assets/:id/frames
+          const assetFramesMatch = url.match(/^\/api\/assets\/([^/]+)\/frames$/);
+          if (assetFramesMatch && method === 'GET') {
+            const frames = getFrames(assetFramesMatch[1]);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(frames));
+            return;
+          }
+
+          // POST /api/assets/:id/frames
+          if (assetFramesMatch && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (body.frameIndex == null) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'frameIndex is required' }));
+              return;
+            }
+            const frame = createFrame({ assetId: assetFramesMatch[1], frameIndex: body.frameIndex });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(frame));
+            return;
+          }
+
+          // ── Iterations ──────────────────────────────────────────────────
+
+          // GET /api/frames/:id/iterations
+          const frameIterationsMatch = url.match(/^\/api\/frames\/([^/]+)\/iterations$/);
+          if (frameIterationsMatch && method === 'GET') {
+            const iterations = getIterations(frameIterationsMatch[1]);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(iterations));
+            return;
+          }
+
+          // POST /api/frames/:id/iterations
+          if (frameIterationsMatch && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (body.iterationIndex == null || !body.htmlPath || !body.source) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'iterationIndex, htmlPath, and source are required' }));
+              return;
+            }
+            const iteration = createIteration({
+              frameId: frameIterationsMatch[1],
+              iterationIndex: body.iterationIndex,
+              htmlPath: body.htmlPath,
+              slotSchema: body.slotSchema ?? null,
+              aiBaseline: body.aiBaseline ?? null,
+              source: body.source,
+              templateId: body.templateId ?? null,
+            });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(iteration));
+            return;
+          }
+
+          // GET /api/iterations/:id — returns iteration + html content from disk
+          const iterationByIdMatch = url.match(/^\/api\/iterations\/([^/]+)$/);
+          if (iterationByIdMatch && method === 'GET') {
+            const iterationId = iterationByIdMatch[1];
+            // Find the iteration by scanning all frames is complex; instead we look it
+            // up by querying the frame that holds it. Use a direct DB approach:
+            // getIterations returns by frameId, but we need by iterationId.
+            // Use the db-api's getIterationById helper if available, or implement inline.
+            const { getDb } = await import('../lib/db.js');
+            const db = getDb();
+            const row = db.prepare('SELECT * FROM iterations WHERE id = ?').get(iterationId) as Record<string, unknown> | undefined;
+            if (!row) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Iteration not found' }));
+              return;
+            }
+            const iteration = {
+              id: row.id as string,
+              frameId: row.frame_id as string,
+              iterationIndex: row.iteration_index as number,
+              htmlPath: row.html_path as string,
+              slotSchema: row.slot_schema ? JSON.parse(row.slot_schema as string) : null,
+              aiBaseline: row.ai_baseline ? JSON.parse(row.ai_baseline as string) : null,
+              userState: row.user_state ? JSON.parse(row.user_state as string) : null,
+              status: row.status as string,
+              source: row.source as string,
+              templateId: (row.template_id as string | null) ?? null,
+              createdAt: row.created_at as number,
+            };
+            // Load HTML content from disk
+            let htmlContent: string | null = null;
+            if (iteration.htmlPath) {
+              try {
+                htmlContent = await fs.readFile(
+                  path.resolve(srv.config.root, '..', iteration.htmlPath),
+                  'utf-8'
+                );
+              } catch { /* file may not exist */ }
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ...iteration, htmlContent }));
+            return;
+          }
+
+          // PATCH /api/iterations/:id/status
+          const iterStatusMatch = url.match(/^\/api\/iterations\/([^/]+)\/status$/);
+          if (iterStatusMatch && method === 'PATCH') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.status) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'status is required' }));
+              return;
+            }
+            updateIterationStatus(iterStatusMatch[1], body.status);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // PATCH /api/iterations/:id/user-state
+          const iterUserStateMatch = url.match(/^\/api\/iterations\/([^/]+)\/user-state$/);
+          if (iterUserStateMatch && method === 'PATCH') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.userState) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'userState is required' }));
+              return;
+            }
+            updateIterationUserState(iterUserStateMatch[1], body.userState);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // ── Annotations ─────────────────────────────────────────────────
+
+          // GET /api/iterations/:id/annotations
+          const iterAnnotsMatch = url.match(/^\/api\/iterations\/([^/]+)\/annotations$/);
+          if (iterAnnotsMatch && method === 'GET') {
+            const annotations = getAnnotations(iterAnnotsMatch[1]);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(annotations));
+            return;
+          }
+
+          // POST /api/iterations/:id/annotations
+          if (iterAnnotsMatch && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.type || !body.author || !body.text) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'type, author, and text are required' }));
+              return;
+            }
+            const annotation = createAnnotation({
+              iterationId: iterAnnotsMatch[1],
+              type: body.type,
+              author: body.author,
+              text: body.text,
+              x: body.x,
+              y: body.y,
+            });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(annotation));
+            return;
+          }
+
+        } catch (err) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: String(err) }));
+          return;
+        }
+
+        // Not a campaign route — pass to next middleware
+        next();
       });
 
       // API middleware for session discovery
