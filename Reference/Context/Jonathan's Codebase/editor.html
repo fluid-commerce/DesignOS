@@ -390,6 +390,115 @@
   .btn-upload-label:hover { border-color: #333; color: #888; }
   .btn-upload-label input { display: none; }
 
+  /* ── Texture dropdown (brush section) ── */
+  .texture-dropdown-wrap {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .texture-dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border: 1px solid #1a1a1a;
+    border-radius: 3px;
+    background: #050505;
+    color: #888;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .texture-dropdown-trigger:hover {
+    border-color: #2a2a2a;
+  }
+  .texture-dropdown-selected {
+    flex: 1;
+    text-align: left;
+  }
+  .texture-dropdown-chevron {
+    width: 0;
+    height: 0;
+    margin-left: 8px;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #555;
+  }
+  .texture-dropdown-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: 4px;
+    padding: 12px;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    z-index: 100;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .texture-dropdown-panel[hidden] {
+    display: none;
+  }
+  .texture-dropdown-header {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  .texture-category {
+    margin-bottom: 14px;
+  }
+  .texture-category:last-child { margin-bottom: 0; }
+  .texture-category-title {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 6px;
+  }
+  .texture-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .texture-grid-dropdown {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .texture-thumb {
+    aspect-ratio: 1;
+    padding: 0;
+    border: 2px solid #1a1a1a;
+    border-radius: 3px;
+    background: #111;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .texture-thumb:hover {
+    border-color: #333;
+  }
+  .texture-thumb.selected {
+    border-color: #44B2FF;
+    box-shadow: 0 0 0 1px #44B2FF;
+  }
+  .texture-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
   /* ── Brush section ── */
   .brush-hint {
     font-size: 10px;

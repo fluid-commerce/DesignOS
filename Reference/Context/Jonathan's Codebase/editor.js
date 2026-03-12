@@ -168,6 +168,103 @@ var TEMPLATES = {
   }
 };
 
+/* ── Texture library (sketch/circle brush images), by category ──────────── */
+var TEXTURE_CATEGORIES = [
+  {
+    category: 'Circles',
+    items: [
+      { id: 'circle-sketch-blue', label: 'Circle sketch (blue)', path: '/template-assets/textures/circles/circle-sketch-blue.png' },
+      { id: 'circle-001', label: 'Circle 001', path: '/template-assets/textures/circles/circle-001.png' },
+      { id: 'circle-002', label: 'Circle 002', path: '/template-assets/textures/circles/circle-002.png' },
+      { id: 'circle-003', label: 'Circle 003', path: '/template-assets/textures/circles/circle-003.png' },
+      { id: 'circle-004', label: 'Circle 004', path: '/template-assets/textures/circles/circle-004.png' },
+      { id: 'circle-005', label: 'Circle 005', path: '/template-assets/textures/circles/circle-005.png' },
+      { id: 'circle-006', label: 'Circle 006', path: '/template-assets/textures/circles/circle-006.png' },
+      { id: 'circle-007', label: 'Circle 007', path: '/template-assets/textures/circles/circle-007.png' },
+      { id: 'circle-008', label: 'Circle 008', path: '/template-assets/textures/circles/circle-008.png' },
+      { id: 'circle-009', label: 'Circle 009', path: '/template-assets/textures/circles/circle-009.png' },
+      { id: 'circle-010', label: 'Circle 010', path: '/template-assets/textures/circles/circle-010.png' },
+      { id: 'circle-011', label: 'Circle 011', path: '/template-assets/textures/circles/circle-011.png' }
+    ]
+  },
+  {
+    category: 'Brush',
+    items: [
+      { id: 'brush-01', label: 'Brush 01', path: '/template-assets/textures/brush/brush-texture-01.png' },
+      { id: 'brush-02', label: 'Brush 02', path: '/template-assets/textures/brush/brush-texture-02.png' },
+      { id: 'brush-03', label: 'Brush 03', path: '/template-assets/textures/brush/brush-texture-03.png' },
+      { id: 'brush-04', label: 'Brush 04', path: '/template-assets/textures/brush/brush-texture-04.png' },
+      { id: 'brush-05', label: 'Brush 05', path: '/template-assets/textures/brush/brush-texture-05.png' },
+      { id: 'brush-06', label: 'Brush 06', path: '/template-assets/textures/brush/brush-texture-06.png' },
+      { id: 'brush-07', label: 'Brush 07', path: '/template-assets/textures/brush/brush-texture-07.png' },
+      { id: 'brush-08', label: 'Brush 08', path: '/template-assets/textures/brush/brush-texture-08.png' },
+      { id: 'brush-09', label: 'Brush 09', path: '/template-assets/textures/brush/brush-texture-09.png' },
+      { id: 'brush-10', label: 'Brush 10', path: '/template-assets/textures/brush/brush-texture-10.png' }
+    ]
+  },
+  {
+    category: 'X',
+    items: [
+      { id: 'x-199', label: '199', path: '/template-assets/textures/x/199.png' },
+      { id: 'x-218', label: '218', path: '/template-assets/textures/x/218.png' },
+      { id: 'x-coss-004', label: 'Coss 004', path: '/template-assets/textures/x/Coss_004.png' },
+      { id: 'x-coss-007', label: 'Coss 007', path: '/template-assets/textures/x/Coss_007.png' },
+      { id: 'x-coss-014', label: 'Coss 014', path: '/template-assets/textures/x/Coss_014.png' }
+    ]
+  },
+  {
+    category: 'Scribble',
+    items: [
+      { id: 'scribble-017', label: 'Scribble 017', path: '/template-assets/textures/scribble/scribble-017.png' },
+      { id: 'scribble-023', label: 'Scribble 023', path: '/template-assets/textures/scribble/scribble-023.png' },
+      { id: 'scribble-062', label: 'Scribble 062', path: '/template-assets/textures/scribble/scribble-062.png' },
+      { id: 'scribble-063', label: 'Scribble 063', path: '/template-assets/textures/scribble/scribble-063.png' },
+      { id: 'scribble-064', label: 'Scribble 064', path: '/template-assets/textures/scribble/scribble-064.png' },
+      { id: 'scribble-072', label: 'Scribble 072', path: '/template-assets/textures/scribble/scribble-072.png' },
+      { id: 'scribble-104', label: 'Scribble 104', path: '/template-assets/textures/scribble/scribble-104.png' },
+      { id: 'scribble-117', label: 'Scribble 117', path: '/template-assets/textures/scribble/scribble-117.png' },
+      { id: 'scribble-163', label: 'Scribble 163', path: '/template-assets/textures/scribble/scribble-163.png' },
+      { id: 'scribble-224', label: 'Scribble 224', path: '/template-assets/textures/scribble/scribble-224.png' },
+      { id: 'scribble-228', label: 'Scribble 228', path: '/template-assets/textures/scribble/scribble-228.png' },
+      { id: 'scribble-313', label: 'Scribble 313', path: '/template-assets/textures/scribble/scribble-313.png' },
+      { id: 'scribble-344', label: 'Scribble 344', path: '/template-assets/textures/scribble/scribble-344.png' },
+      { id: 'scribble-405', label: 'Scribble 405', path: '/template-assets/textures/scribble/scribble-405.png' },
+      { id: 'scribble-409', label: 'Scribble 409', path: '/template-assets/textures/scribble/scribble-409.png' },
+      { id: 'scribble-438', label: 'Scribble 438', path: '/template-assets/textures/scribble/scribble-438.png' },
+      { id: 'scribble-482', label: 'Scribble 482', path: '/template-assets/textures/scribble/scribble-482.png' },
+      { id: 'scribble-498', label: 'Scribble 498', path: '/template-assets/textures/scribble/scribble-498.png' },
+      { id: 'scribble-499', label: 'Scribble 499', path: '/template-assets/textures/scribble/scribble-499.png' }
+    ]
+  },
+  {
+    category: 'Lines',
+    items: [
+      { id: 'line-004', label: 'Line 004', path: '/template-assets/textures/lines/Line-004.png' },
+      { id: 'line-036', label: 'Line 036', path: '/template-assets/textures/lines/Line-036.png' },
+      { id: 'line-046', label: 'Line 046', path: '/template-assets/textures/lines/Line-046.png' },
+      { id: 'line-049', label: 'Line 049', path: '/template-assets/textures/lines/line-049.png' },
+      { id: 'line-056', label: 'Line 056', path: '/template-assets/textures/lines/line-056.png' },
+      { id: 'line-059', label: 'Line 059', path: '/template-assets/textures/lines/line-059.png' },
+      { id: 'line-060', label: 'Line 060', path: '/template-assets/textures/lines/line-060.png' },
+      { id: 'line-061', label: 'Line 061', path: '/template-assets/textures/lines/line-061.png' },
+      { id: 'line-062', label: 'Line 062', path: '/template-assets/textures/lines/line-062.png' },
+      { id: 'line-067', label: 'Line 067', path: '/template-assets/textures/lines/line-067.png' },
+      { id: 'line-069', label: 'Line 069', path: '/template-assets/textures/lines/line-069.png' },
+      { id: 'line-072', label: 'Line 072', path: '/template-assets/textures/lines/line-072.png' },
+      { id: 'line-074', label: 'Line 074', path: '/template-assets/textures/lines/line-074.png' },
+      { id: 'line-077', label: 'Line 077', path: '/template-assets/textures/lines/line-077.png' },
+      { id: 'line-087', label: 'Line 087', path: '/template-assets/textures/lines/line-087.png' },
+      { id: 'line-167', label: 'Line 167', path: '/template-assets/textures/lines/line-167.png' },
+      { id: 'line-170', label: 'Line 170', path: '/template-assets/textures/lines/line-170.png' },
+      { id: 'line-173', label: 'Line 173', path: '/template-assets/textures/lines/line-173.png' },
+      { id: 'line-204', label: 'Line 204', path: '/template-assets/textures/lines/line-204.png' },
+      { id: 'line-233', label: 'Line 233', path: '/template-assets/textures/lines/line-233.png' },
+      { id: 'line-238', label: 'Line 238', path: '/template-assets/textures/lines/line-238.png' },
+      { id: 'line-288', label: 'Line 288', path: '/template-assets/textures/lines/line-288.png' }
+    ]
+  }
+];
+
 /* ── State ───────────────────────────────────────────────────────────────── */
 var tid     = null;   // template id key
 var config  = null;   // TEMPLATES[tid]
@@ -715,15 +812,124 @@ function makeBrushSection(label) {
   var title = label ? (label.charAt(0).toUpperCase() + label.slice(1)) : 'Circle Brush';
   var sec  = makeSection(title);
 
+  var iDoc = iframe.contentDocument;
+  var bEl  = iDoc ? iDoc.querySelector(config.brush) : null;
+
   var hint = document.createElement('div');
   hint.className = 'brush-hint';
   hint.innerHTML = 'Drag the <span class="brush-chip">' + displayName + '</span> to move &mdash; use handles to scale &amp; rotate:';
   sec.appendChild(hint);
 
+  /* Texture dropdown: trigger opens panel with categorized grid (reference style) */
+  var currentSrc = (bEl && bEl.querySelector('img')) ? (bEl.querySelector('img').src || '') : '';
+  var currentFile = currentSrc.split('/').pop() || '';
+
+  function pathMatchesCurrent(path) {
+    return path.split('/').pop() === currentFile || currentSrc.indexOf(path) !== -1;
+  }
+
+  function setBrushTexture(path) {
+    var doc = iframe.contentDocument;
+    var brushEl = doc && config.brush ? doc.querySelector(config.brush) : null;
+    var img = brushEl ? brushEl.querySelector('img') : null;
+    if (img) {
+      img.src = path;
+      if (typeof _txUpdateOverlay === 'function') _txUpdateOverlay();
+    }
+    var panel = sec.querySelector('.texture-dropdown-panel');
+    if (panel) {
+      panel.querySelectorAll('.texture-thumb').forEach(function(btn) {
+        btn.classList.toggle('selected', btn.getAttribute('data-path') === path);
+      });
+    }
+    var sel = sec.querySelector('.texture-dropdown-selected');
+    if (sel) {
+      var match = (function() {
+        for (var c = 0; c < TEXTURE_CATEGORIES.length; c++) {
+          for (var i = 0; i < TEXTURE_CATEGORIES[c].items.length; i++) {
+            if (TEXTURE_CATEGORIES[c].items[i].path === path) return TEXTURE_CATEGORIES[c].items[i].label;
+          }
+        }
+        return 'Texture';
+      })();
+      sel.textContent = match;
+    }
+  }
+
+  var texWrap = document.createElement('div');
+  texWrap.className = 'texture-dropdown-wrap';
+
+  var texTrigger = document.createElement('button');
+  texTrigger.type = 'button';
+  texTrigger.className = 'texture-dropdown-trigger';
+  var selLabel = (function() {
+    for (var c = 0; c < TEXTURE_CATEGORIES.length; c++) {
+      for (var i = 0; i < TEXTURE_CATEGORIES[c].items.length; i++) {
+        if (pathMatchesCurrent(TEXTURE_CATEGORIES[c].items[i].path))
+          return TEXTURE_CATEGORIES[c].items[i].label;
+      }
+    }
+    return 'Texture';
+  })();
+  texTrigger.innerHTML = '<span class="texture-dropdown-selected">' + selLabel + '</span><span class="texture-dropdown-chevron"></span>';
+  texWrap.appendChild(texTrigger);
+
+  var texPanel = document.createElement('div');
+  texPanel.className = 'texture-dropdown-panel';
+  texPanel.setAttribute('hidden', '');
+  var texHeader = document.createElement('div');
+  texHeader.className = 'texture-dropdown-header';
+  texHeader.textContent = 'TEXTURE';
+  texPanel.appendChild(texHeader);
+
+  TEXTURE_CATEGORIES.forEach(function(cat) {
+    var catDiv = document.createElement('div');
+    catDiv.className = 'texture-category';
+    var catTitle = document.createElement('div');
+    catTitle.className = 'texture-category-title';
+    catTitle.textContent = cat.category.toUpperCase();
+    catDiv.appendChild(catTitle);
+    var grid = document.createElement('div');
+    grid.className = 'texture-grid texture-grid-dropdown';
+    cat.items.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'texture-thumb';
+      btn.setAttribute('data-path', opt.path);
+      btn.title = opt.label;
+      if (pathMatchesCurrent(opt.path)) btn.classList.add('selected');
+      var thumbImg = document.createElement('img');
+      thumbImg.src = opt.path;
+      thumbImg.alt = opt.label;
+      btn.appendChild(thumbImg);
+      btn.addEventListener('click', function() {
+        setBrushTexture(opt.path);
+        texPanel.setAttribute('hidden', '');
+      });
+      grid.appendChild(btn);
+    });
+    catDiv.appendChild(grid);
+    texPanel.appendChild(catDiv);
+  });
+
+  texTrigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var open = !texPanel.hasAttribute('hidden');
+    if (open) texPanel.setAttribute('hidden', '');
+    else texPanel.removeAttribute('hidden');
+  });
+  document.addEventListener('click', function closeTexDropdown(e) {
+    if (texPanel.hasAttribute('hidden')) return;
+    if (!texWrap.contains(e.target)) {
+      texPanel.setAttribute('hidden', '');
+    }
+  });
+
+  texWrap.appendChild(texPanel);
+  sec.appendChild(texWrap);
+
   /* Read current state (after normalisation) */
-  var iDoc = iframe.contentDocument;
-  var bEl  = iDoc ? iDoc.querySelector(config.brush) : null;
-  var iL = 0, iT = 0, iRot = 0, iSx = 100, iSy = 100;
+  var iL = 0, iT = 0, iRot = 0, iSx = 100, iSy = 100, iZ = 0;
   if (bEl) {
     var cs2 = iDoc.defaultView.getComputedStyle(bEl);
     iL = Math.round(parseFloat(cs2.left) || 0);
@@ -732,6 +938,8 @@ function makeBrushSection(label) {
     iRot = Math.round(p2.rot * 10) / 10;
     iSx  = Math.round(p2.sx  * 100);
     iSy  = Math.round(p2.sy  * 100);
+    var zVal = cs2.zIndex;
+    iZ = (zVal && zVal !== 'auto') ? parseInt(zVal, 10) : 0;
   }
 
   var fields = [
@@ -739,7 +947,14 @@ function makeBrushSection(label) {
     { id:'brush-top',  lbl:'Y (px)',    val:iT,   step:'1',   handler: function(v) { if (txEl) { txEl.style.top  = v + 'px'; _txUpdateOverlay(); } } },
     { id:'brush-rot',  lbl:'Rotate °',  val:iRot, step:'0.5', handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(v, c.sx, c.sy); _txUpdateOverlay(); } } },
     { id:'brush-sx',   lbl:'Scale W %', val:iSx,  step:'1',   handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(c.rot, v/100, c.sy);  _txUpdateOverlay(); } } },
-    { id:'brush-sy',   lbl:'Scale H %', val:iSy,  step:'1',   handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(c.rot, c.sx,  v/100); _txUpdateOverlay(); } } }
+    { id:'brush-sy',   lbl:'Scale H %', val:iSy,  step:'1',   handler: function(v) { if (txEl) { var c = _txGetState(); _txApply(c.rot, c.sx,  v/100); _txUpdateOverlay(); } } },
+    { id:'brush-z',    lbl:'Z-index',   val:iZ,   step:'1',   handler: function(v) {
+      if (txEl) {
+        var n = parseInt(v, 10);
+        if (isNaN(n)) txEl.style.zIndex = '';
+        else txEl.style.zIndex = String(n);
+      }
+    } }
   ];
 
   var grid = document.createElement('div');
@@ -861,10 +1076,15 @@ function _txGetState() {
   var p  = _txParseTransform(cs.transform);
   /* offsetWidth/Height are 0 for elements in a display:none ancestor;
      fall back to the CSS width/height so the overlay draws correctly. */
-  var nW = txEl.offsetWidth  || parseFloat(cs.width)  || 0;
-  var nH = txEl.offsetHeight || parseFloat(cs.height) || 0;
-  var l  = parseFloat(cs.left) || 0, t = parseFloat(cs.top) || 0;
-  return { cx: l + nW/2, cy: t + nH/2, nW: nW, nH: nH,
+  var outerNW = txEl.offsetWidth  || parseFloat(cs.width)  || 0;
+  var outerNH = txEl.offsetHeight || parseFloat(cs.height) || 0;
+  var l = parseFloat(cs.left) || 0, t = parseFloat(cs.top) || 0;
+  /* Use inner texture element for overlay size when present (e.g. .circle-sketch-inner)
+     so the bounding box fits the visible brush instead of the outer wrapper. */
+  var inner = txEl.querySelector && txEl.querySelector('.circle-sketch-inner');
+  var nW = inner ? (inner.offsetWidth  || outerNW) : outerNW;
+  var nH = inner ? (inner.offsetHeight || outerNH) : outerNH;
+  return { cx: l + outerNW/2, cy: t + outerNH/2, nW: nW, nH: nH,
            left: l, top: t, rot: p.rot, sx: p.sx, sy: p.sy };
 }
 
