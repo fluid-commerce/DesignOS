@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-05-PLAN.md
-last_updated: "2026-03-12T17:12:00.927Z"
+stopped_at: "Checkpoint: 07-06 Task 2 — awaiting human verification of integrated app at localhost:5174"
+last_updated: "2026-03-12T17:19:44.499Z"
 last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
   total_phases: 11
   completed_phases: 7
   total_plans: 33
-  completed_plans: 28
+  completed_plans: 29
   percent: 73
 ---
 
@@ -71,6 +71,7 @@ Progress: [███████░░░] 73% (Overall: 19/26 plans)
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P02 | 5min | 1 tasks | 3 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P04 | 4min | 2 tasks | 8 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P05 | 7min | 2 tasks | 9 files |
+| Phase 07-merge-jonathan-s-codebase-into-fluid-designos P06 | 4min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -164,6 +165,7 @@ Recent decisions affecting current work:
 - [Phase 07-05]: MCP tools call Vite HTTP API in production; tests bypass HTTP via db-api direct calls with FLUID_DB_PATH isolation
 - [Phase 07-05]: Template configs locked as Record<string, SlotSchema>; 8 templates ported faithfully from Jonathan's editor.js with brush config and gallery metadata
 - [Phase 07-05]: Legacy sessionId/variationId MCP params detected and rejected with descriptive deprecation error pointing to V2 campaign params
+- [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: TemplateGallery uses TEMPLATE_METADATA from template-configs.ts (no /api/templates fetch); TemplateCustomizer creates Asset+Frame+Iteration via 3 REST calls; creation flow is modal overlay; useFileWatcher refreshes campaign view data by checking currentView
 
 ### Pending Todos
 
@@ -185,6 +187,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T17:12:00.925Z
-Stopped at: Completed 07-05-PLAN.md
+Last session: 2026-03-12T17:19:44.497Z
+Stopped at: Checkpoint: 07-06 Task 2 — awaiting human verification of integrated app at localhost:5174
 Resume file: None
