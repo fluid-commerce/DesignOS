@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Not Started (2 plans ready, 0 executed)
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-03-12T22:52:41.567Z"
+stopped_at: Completed 08-03-PLAN.md
+last_updated: "2026-03-12T22:55:14.120Z"
 last_activity: 2026-03-12 -- Retroactive close of phases 3, 4, 4.1, 6 after audit
 progress:
   total_phases: 13
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 36
-  completed_plans: 33
+  completed_plans: 34
   percent: 92
 ---
 
@@ -74,6 +74,7 @@ Progress: [█████████░] 92% (Overall: 33/36 plans)
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P07 | 5min | 2 tasks | 5 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P01 | 8min | 1 tasks | 4 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P02 | 9 | 2 tasks | 3 files |
+| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P03 | 25 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -176,6 +177,9 @@ Recent decisions affecting current work:
 - [Phase 08-02]: activeCampaignGeneration lock covers full-campaign generations only; iterate mode uses legacy activeChild lock and is not blocked
 - [Phase 08-02]: parseChannelHints uses regex for channel detection; no hint defaults to 3 IG + 3 LI + 1 one-pager (7 total assets)
 - [Phase 08-02]: done SSE event fires only when all N children close — counter per child.on(close) prevents auto-navigate race
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: buildAssetPreview/buildFramePreview extracted to preview-utils.ts as pure functions for testability; renderPreview closures in App.tsx stay thin
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: Campaign mosaic uses html srcDoc in PreviewDescriptor with nested iframes — avoids DrillDownGrid refactor
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: 500ms auto-navigate delay removed from PromptSidebar — Plan 02 done event is reliable
 
 ### Pending Todos
 
@@ -199,6 +203,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T22:52:41.565Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-03-12T22:55:14.118Z
+Stopped at: Completed 08-03-PLAN.md
 Resume file: None
