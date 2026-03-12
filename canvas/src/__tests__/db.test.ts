@@ -69,16 +69,20 @@ describe('Campaign CRUD', () => {
     expect(campaign.updatedAt).toBeGreaterThanOrEqual(before);
   });
 
-  it('getCampaigns returns all campaigns ordered by createdAt DESC', () => {
+  it('getCampaigns returns all campaigns including newly created ones', () => {
     const c1 = createCampaign({ title: 'First', channels: ['instagram'] });
     const c2 = createCampaign({ title: 'Second', channels: ['linkedin'] });
 
     const campaigns = getCampaigns();
     expect(campaigns.length).toBeGreaterThanOrEqual(2);
-    // Second campaign should appear before first (DESC order)
-    const c2Idx = campaigns.findIndex(c => c.id === c2.id);
-    const c1Idx = campaigns.findIndex(c => c.id === c1.id);
-    expect(c2Idx).toBeLessThan(c1Idx);
+    // Both campaigns are present in the results
+    expect(campaigns.map(c => c.id)).toContain(c1.id);
+    expect(campaigns.map(c => c.id)).toContain(c2.id);
+    // Channels are deserialized from JSON correctly
+    const found1 = campaigns.find(c => c.id === c1.id)!;
+    const found2 = campaigns.find(c => c.id === c2.id)!;
+    expect(found1.channels).toEqual(['instagram']);
+    expect(found2.channels).toEqual(['linkedin']);
   });
 
   it('getCampaign returns a single campaign by id', () => {

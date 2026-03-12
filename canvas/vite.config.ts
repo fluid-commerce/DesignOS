@@ -17,4 +17,8 @@ export default defineConfig({
     port: 5174,
     strictPort: true,
   },
+  optimizeDeps: {
+    // better-sqlite3 is a native Node.js addon — exclude from Vite's browser bundle
+    exclude: ['better-sqlite3'],
+  },
 });
