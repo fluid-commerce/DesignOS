@@ -111,20 +111,20 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Merger (Jonathan's Codebase Integration)
 
-- [ ] **MRGR-01**: SQLite database with better-sqlite3 stores all metadata (Campaign > Asset > Frame > Iteration hierarchy, annotations, statuses) with HTML variations on disk referenced by path
-- [ ] **MRGR-02**: TypeScript type system defines Campaign, Asset, Frame, Iteration, CampaignAnnotation interfaces matching the SQLite schema
-- [ ] **MRGR-03**: Slot schema types faithfully port Jonathan's field config format (text/image/divider fields, brush element, carousel count) to TypeScript
-- [ ] **MRGR-04**: Thin API layer via Vite middleware — all data access (agents, MCP tools, UI) goes through /api/ endpoints, not direct file or DB writes
-- [ ] **MRGR-05**: Unified campaign dashboard as primary organizing unit with filter/sort by content type (no separate tabs per content type)
-- [ ] **MRGR-06**: Full-size preview drill-down at every level (Campaign > Asset > Frame > Iteration) using iframe rendering at native dimensions
-- [ ] **MRGR-07**: Breadcrumb navigation for jumping to any level with back button for one-level-up
+- [x] **MRGR-01**: SQLite database with better-sqlite3 stores all metadata (Campaign > Asset > Frame > Iteration hierarchy, annotations, statuses) with HTML variations on disk referenced by path
+- [x] **MRGR-02**: TypeScript type system defines Campaign, Asset, Frame, Iteration, CampaignAnnotation interfaces matching the SQLite schema
+- [x] **MRGR-03**: Slot schema types faithfully port Jonathan's field config format (text/image/divider fields, brush element, carousel count) to TypeScript
+- [x] **MRGR-04**: Thin API layer via Vite middleware — all data access (agents, MCP tools, UI) goes through /api/ endpoints, not direct file or DB writes
+- [x] **MRGR-05**: Unified campaign dashboard as primary organizing unit with filter/sort by content type (no separate tabs per content type)
+- [x] **MRGR-06**: Full-size preview drill-down at every level (Campaign > Asset > Frame > Iteration) using iframe rendering at native dimensions
+- [x] **MRGR-07**: Breadcrumb navigation for jumping to any level with back button for one-level-up
 - [ ] **MRGR-08**: Content editor right sidebar with schema-driven slot fields — identical editing experience for template-based and AI-generated assets
 - [ ] **MRGR-09**: Photo repositioning with Fit/Fill modes and focus point drag, applied via postMessage to iframe
 - [ ] **MRGR-10**: Brush/transform SVG overlay for one movable element per template (drag/rotate/scale), ported from Jonathan's implementation
 - [ ] **MRGR-11**: Carousel support with per-frame iteration history and slide selector in right sidebar
 - [ ] **MRGR-12**: MCP tools (push_asset, read_annotations, read_statuses, read_history, iterate_request) rewired from file access to SQLite API
 - [ ] **MRGR-13**: Jonathan's 8 templates ported as locked TypeScript configs with SlotSchema definitions
-- [ ] **MRGR-14**: Collapsible left (AI chat) and right (content editor) sidebars with independent toggle controls
+- [x] **MRGR-14**: Collapsible left (AI chat) and right (content editor) sidebars with independent toggle controls
 - [ ] **MRGR-15**: Campaign orchestrator skill (/fluid-campaign) takes a brief, decomposes into per-channel tasks, dispatches to existing skill pipelines
 - [ ] **MRGR-16**: DAM integration UI elements merged from Jonathan's codebase (Fluid DAM indicator, Browse Assets button, file attachment flow)
 - [ ] **MRGR-17**: 5 fixed option slots per channel matching Jonathan's UI design

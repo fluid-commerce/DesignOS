@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-12T17:01:06.113Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-12T17:08:16.352Z"
 last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
 progress:
   total_phases: 11
   completed_phases: 7
   total_plans: 33
-  completed_plans: 24
+  completed_plans: 26
   percent: 73
 ---
 
@@ -67,6 +67,8 @@ Progress: [███████░░░] 73% (Overall: 19/26 plans)
 | Phase 06-marketing-skills-integration P02 | 4min | 2 tasks | 5 files |
 | Phase 07 P01 | 4min | 4 tasks | 5 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P01 | 6min | 2 tasks | 9 files |
+| Phase 07-merge-jonathan-s-codebase-into-fluid-designos P03 | 4min | 2 tasks | 6 files |
+| Phase 07-merge-jonathan-s-codebase-into-fluid-designos P02 | 5min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -149,6 +151,11 @@ Recent decisions affecting current work:
 - [Phase 07-01]: FLUID_DB_PATH env var overrides default DB path for test isolation — no ORM, no in-memory DB complexity
 - [Phase 07-01]: JSON serialization pattern for array/object SQLite columns (channels, slotSchema, aiBaseline, userState)
 - [Phase 07-01]: vite.config.ts optimizeDeps.exclude prevents Vite bundling native better-sqlite3 .node addon
+- [Phase 07-03]: DrillDownGrid uses full-size iframe scale() pattern (same as AssetFrame) — not thumbnails, per locked plan decision
+- [Phase 07-03]: AppShell extension points: rightSidebar prop (ReactNode) and onNewAsset callback for Plan 04/06 integration
+- [Phase 07-02]: Campaign routes inserted as separate middleware block BEFORE session routes — clean separation, existing routes untouched
+- [Phase 07-02]: FLUID_DB_PATH read lazily inside getDb() (not at module load) — enables per-test DB isolation after closeDb() reset
+- [Phase 07-02]: POST /api/campaigns with assets[] routes to createCampaignWithAssets() for atomic campaign+assets creation
 
 ### Pending Todos
 
@@ -170,6 +177,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T17:01:06.111Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-12T17:08:16.350Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
