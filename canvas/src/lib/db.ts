@@ -13,16 +13,16 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Default DB path: canvas/fluid.db (two levels up from canvas/src/lib/)
-// Override with FLUID_DB_PATH env var for isolated test databases.
-const DB_PATH =
-  process.env.FLUID_DB_PATH ||
-  path.resolve(__dirname, '../../fluid.db');
+const DEFAULT_DB_PATH = path.resolve(__dirname, '../../fluid.db');
 
 let _db: Database.Database | null = null;
 
 export function getDb(): Database.Database {
   if (!_db) {
-    _db = new Database(DB_PATH);
+    // Read FLUID_DB_PATH lazily so tests can set it before calling getDb()
+    // after a closeDb() reset.
+    const dbPath = process.env.FLUID_DB_PATH || DEFAULT_DB_PATH;
+    _db = new Database(dbPath);
     _db.pragma('journal_mode = WAL');      // concurrent reads from MCP + Vite simultaneously
     _db.pragma('foreign_keys = ON');       // enforce referential integrity
     _db.pragma('synchronous = NORMAL');    // safe + faster than FULL
