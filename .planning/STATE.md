@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 8 context gathered (merged)
-last_updated: "2026-03-12T20:38:44.163Z"
-last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
+status: Not Started (2 plans ready, 0 executed)
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-12T22:43:18.962Z"
+last_activity: 2026-03-12 -- Retroactive close of phases 3, 4, 4.1, 6 after audit
 progress:
   total_phases: 13
-  completed_phases: 8
-  total_plans: 33
-  completed_plans: 30
-  percent: 73
+  completed_phases: 9
+  total_plans: 36
+  completed_plans: 32
+  percent: 92
 ---
 
 # Project State
@@ -21,16 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phase 4 in progress. Canvas scaffold + MCP server + annotations/timeline complete. Next: end-to-end integration.
+**Current focus:** Phases 1-7 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 8 (sidebar-to-dashboard E2E), 9 (chat UI).
 
 ## Current Position
 
-Phase: 4.1 of 5 (Canvas Polish & Integration Hardening)
-Plan: 4 of 4 in current phase (04.1-01, 04.1-02, 04.1-03 complete)
-Status: In Progress
-Last activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
+Phase: 4.2 (Asset Linking & Output Refactor) — next unexecuted phase
+Status: Not Started (2 plans ready, 0 executed)
+Last activity: 2026-03-12 -- Retroactive close of phases 3, 4, 4.1, 6 after audit
 
-Progress: [███████░░░] 73% (Overall: 19/26 plans)
+Progress: [█████████░] 92% (Overall: 33/36 plans)
 
 ## Performance Metrics
 
@@ -73,6 +72,7 @@ Progress: [███████░░░] 73% (Overall: 19/26 plans)
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P05 | 7min | 2 tasks | 9 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P06 | 4min | 1 tasks | 5 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P07 | 5min | 2 tasks | 5 files |
+| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P01 | 8min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -170,6 +170,8 @@ Recent decisions affecting current work:
 - [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: /fluid-campaign blog channel uses inline Agent (Markdown output) — not fluid-social
 - [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: DAM token is env-var gated (VITE_FLUID_DAM_TOKEN); graceful fallback to local file picker when absent
 - [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: CampaignChannelSlots: 5 slots per channel is a hard constant matching Jonathan's locked decision
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: generationStatus is optional on Iteration interface so existing code compiles without changes; DB DEFAULT 'complete' ensures backward compatibility
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: getCampaignPreviewUrls uses INNER JOIN with MAX(iteration_index) subquery then GROUP BY asset for one preview per asset, LIMIT 4
 
 ### Pending Todos
 
@@ -193,6 +195,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T20:38:44.160Z
-Stopped at: Phase 8 context gathered (merged)
-Resume file: .planning/phases/08-ai-sidebar-to-campaign-dashboard-end-to-end/08-CONTEXT.md
+Last session: 2026-03-12T22:43:18.960Z
+Stopped at: Completed 08-01-PLAN.md
+Resume file: None
