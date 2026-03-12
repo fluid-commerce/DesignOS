@@ -42,11 +42,11 @@
     text-align: center;
   }
 
-  /* ── Rotated label: left:1026 top:88 w:19 h:224 ── */
+  /* ── Rotated label: left:1026 top:45 (no slide number on non-carousel) ── */
   .category {
     position: absolute;
     left: 1026px;
-    top: 88px;
+    top: 45px;
     width: 19px;
     height: 224px;
     display: flex;
@@ -62,21 +62,6 @@
     white-space: nowrap;
     transform: rotate(90deg);
     display: block;
-  }
-
-  /* ── Slide number: right-aligned, top:45 ── */
-  /* left-[calc(50%+524px)] with -translate-x-full → right edge at 1064px */
-  .slide-num {
-    position: absolute;
-    right: 16px;
-    top: 45px;
-    font-family: 'NeueHaas', sans-serif;
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 0.8;
-    color: #ffffff;
-    text-align: right;
-    white-space: nowrap;
   }
 
   /* ── Phone mockup: left:-1 top:450 w:1105 h:829 ── */
@@ -183,9 +168,6 @@
 </head>
 <body>
 <div class="canvas">
-
-  <!-- Slide number -->
-  <p class="slide-num">01/12</p>
 
   <!-- Category label (rotated) -->
   <div class="category">

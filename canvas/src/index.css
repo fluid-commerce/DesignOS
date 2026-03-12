@@ -22,10 +22,18 @@
   box-sizing: border-box;
 }
 
+/* ─── Root (React mount point) ──────────────────────────────────────────── */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ─── Body reset ────────────────────────────────────────────────────────── */
 body {
   margin: 0;
   padding: 0;
+  min-height: 100vh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Inter', 'Neue Haas Grotesk Display Pro', -apple-system, BlinkMacSystemFont, sans-serif;

@@ -86,8 +86,59 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         clearInterval(rescanInterval);
       });
 
-      // Static asset serving for /fluid-assets/ -- serves from project assets/ dir
       const projectRoot = path.resolve(srv.config.root, '..');
+      const jonathanLibraryDir = path.resolve(projectRoot, "Reference/Context/Jonathan's Codebase");
+
+      // Home page: serve Template Library at / and its static assets (run first)
+      srv.middlewares.use(async (req, res, next) => {
+        if (req.method !== 'GET' || !req.url) return next();
+        const pathname = req.url.split('?')[0];
+        // Let /app, /api, Vite internals, and existing prefixes through
+        if (
+          pathname.startsWith('/app') ||
+          pathname.startsWith('/api') ||
+          pathname.startsWith('/@') ||
+          pathname.startsWith('/src') ||
+          pathname.startsWith('/node_modules') ||
+          pathname.startsWith('/fluid-assets') ||
+          pathname.startsWith('/template-assets') ||
+          pathname.startsWith('/template-fonts') ||
+          pathname.startsWith('/templates/') ||
+          pathname.startsWith('/preview/')
+        ) {
+          return next();
+        }
+        try {
+          if (pathname === '/') {
+            const html = await fs.readFile(path.join(jonathanLibraryDir, 'index.html'), 'utf-8');
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(html);
+            return;
+          }
+          if (pathname === '/editor' || pathname.startsWith('/editor?')) {
+            const html = await fs.readFile(path.join(jonathanLibraryDir, 'editor.html'), 'utf-8');
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(html);
+            return;
+          }
+          const relative = pathname.slice(1) || '';
+          const fullPath = path.resolve(jonathanLibraryDir, relative);
+          if (!fullPath.startsWith(jonathanLibraryDir + path.sep) && fullPath !== jonathanLibraryDir) return next();
+          const stat = await fs.stat(fullPath);
+          if (!stat.isFile()) return next();
+          const data = await fs.readFile(fullPath);
+          const ext = path.extname(fullPath).toLowerCase();
+          const mime = ext === '.js' ? 'application/javascript' : ext === '.html' ? 'text/html; charset=utf-8' : serveFluidAsset(relative).contentType;
+          res.writeHead(200, { 'Content-Type': mime });
+          res.end(data);
+          return;
+        } catch {
+          /* file not found or not readable */
+        }
+        next();
+      });
+
+      // Static asset serving for /fluid-assets/ -- serves from project assets/ dir
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/fluid-assets/')) return next();
 
@@ -154,6 +205,226 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           res.writeHead(404, { 'Content-Type': 'text/plain' });
           res.end('Template not found');
         }
+      });
+
+      // Full-size preview screen: /preview/templates/:name.html — top bar, decorative bg, iframe, bottom bar with prev/next
+      const previewTemplateOrder = [
+        't1-quote', 't2-app-highlight', 't3-partner-alert', 't4-fluid-ad',
+        't5-partner-announcement', 't6-employee-spotlight', 't7-carousel', 't8-quarterly-stats',
+      ];
+      const previewMeta: Record<string, { w: number; h: number; label: string; carouselTotal?: number }> = {
+        't1-quote': { w: 1080, h: 1080, label: '01 Client Testimonial / Quote' },
+        't2-app-highlight': { w: 1080, h: 1080, label: '02 App Feature / Product Highlight' },
+        't3-partner-alert': { w: 1340, h: 630, label: '03 Partner Alert (Landscape)' },
+        't4-fluid-ad': { w: 1080, h: 1080, label: '04 Fluid Capabilities — Instagram Ad' },
+        't5-partner-announcement': { w: 1340, h: 630, label: '05 Partner Announcement (Landscape)' },
+        't6-employee-spotlight': { w: 1080, h: 1080, label: '06 Employee Spotlight' },
+        't7-carousel': { w: 1080, h: 1080, label: '07 Carousel — Insights', carouselTotal: 4 },
+        't8-quarterly-stats': { w: 1080, h: 1080, label: '08 Quarterly Stats — Carousel', carouselTotal: 4 },
+      };
+      srv.middlewares.use(async (req, res, next) => {
+        if (req.method !== 'GET' || !req.url?.startsWith('/preview/templates/') || !req.url.endsWith('.html')) return next();
+        const fileName = req.url.replace('/preview/templates/', '').split('?')[0];
+        const templateSlug = fileName.replace(/\.html$/, '');
+        const meta = previewMeta[templateSlug] || { w: 1080, h: 1080, label: templateSlug };
+        const idx = previewTemplateOrder.indexOf(templateSlug);
+        const prevSlug = idx >= 0 ? previewTemplateOrder[(idx - 1 + previewTemplateOrder.length) % previewTemplateOrder.length] : null;
+        const nextSlug = idx >= 0 ? previewTemplateOrder[(idx + 1) % previewTemplateOrder.length] : null;
+        const prevLabel = prevSlug ? previewMeta[prevSlug]?.label ?? prevSlug : null;
+        const nextLabel = nextSlug ? previewMeta[nextSlug]?.label ?? nextSlug : null;
+        const prevHref = prevSlug ? '/preview/templates/' + prevSlug + '.html' : '#';
+        const nextHref = nextSlug ? '/preview/templates/' + nextSlug + '.html' : '#';
+        const iframeSrc = '/templates/' + fileName;
+        const previewHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Preview — ${templateSlug}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; margin: 0; background: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #fff; overflow: hidden; }
+    .preview-top {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      height: 52px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+      background: rgba(10,10,10,0.97); border-bottom: 1px solid #1c1c1c;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .preview-top .left { display: flex; align-items: center; gap: 20px; }
+    .preview-top .right { display: flex; align-items: center; gap: 20px; }
+    .preview-top a { color: #44B2FF; text-decoration: none; }
+    .preview-top a:hover { text-decoration: underline; }
+    .preview-top .back { color: rgba(255,255,255,0.7); }
+    .preview-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+    .preview-bg-text { position: absolute; font-size: clamp(20px, 3.5vw, 42px); font-weight: 800; color: rgba(255,255,255,0.05); white-space: nowrap; pointer-events: none; }
+    .preview-bg-text.a { top: 14%; left: 4%; }
+    .preview-bg-text.b { bottom: 20%; right: 6%; }
+    .preview-bg-accent { position: absolute; width: 35%; height: 5px; background: linear-gradient(90deg, transparent, rgba(68,178,255,0.2), transparent); border-radius: 3px; pointer-events: none; }
+    .preview-bg-accent.one { top: 24%; left: 4%; transform: rotate(-3deg); }
+    .preview-bg-accent.two { bottom: 24%; right: 8%; transform: rotate(2deg); }
+    .preview-logos { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+    .preview-logos .flag { position: absolute; bottom: 60px; left: 20px; width: 24px; height: 24px; opacity: 0.4; object-fit: contain; }
+    .preview-logos .wc { position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%); font-size: 9px; letter-spacing: 0.25em; color: rgba(255,255,255,0.3); }
+    .preview-logos .fluid { position: absolute; bottom: 54px; right: 20px; width: 48px; height: 18px; opacity: 0.4; object-fit: contain; }
+    .preview-wrap {
+      position: fixed; inset: 52px 0 56px 0; z-index: 10;
+      height: calc(100vh - 108px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+    .preview-stage {
+      flex: 0 0 auto;
+      /* Size to fit within 80vh and available width while keeping aspect ratio */
+      width: min(80vw, 80vh * ${meta.w} / ${meta.h});
+      height: min(80vh, 80vw * ${meta.h} / ${meta.w});
+      max-width: ${meta.w}px;
+      max-height: ${meta.h}px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+      background: #000;
+    }
+    .preview-scale-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .preview-scale-wrap iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: ${meta.w}px;
+      height: ${meta.h}px;
+      border: none;
+      transform-origin: 0 0;
+    }
+    .preview-bottom {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      background: rgba(10,10,10,0.97); border-top: 1px solid #1c1c1c;
+      font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.05em;
+    }
+    .preview-bottom .label { color: rgba(255,255,255,0.85); font-weight: 600; }
+    .preview-bottom .brand { color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 0.08em; }
+    .preview-bottom a { color: #44B2FF; text-decoration: none; font-size: 11px; max-width: 28%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-bottom a:hover { text-decoration: underline; }
+    .preview-bottom .prev { text-align: left; min-width: 0; flex: 1; }
+    .preview-bottom .next { text-align: right; min-width: 0; flex: 1; }
+    .preview-bottom .center { flex-shrink: 0; padding: 0 16px; }
+    .preview-carousel-arrow {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      width: 48px; height: 48px; z-index: 25;
+      background: rgba(10,10,10,0.9); border: 1px solid #333; border-radius: 50%;
+      color: #44B2FF; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s, background .15s;
+    }
+    .preview-carousel-arrow:hover { border-color: #44B2FF; background: rgba(68,178,255,0.1); }
+    .preview-carousel-prev { left: 20px; }
+    .preview-carousel-next { right: 20px; }
+    .preview-slide-indicator { color: rgba(255,255,255,0.5); font-size: 10px; margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <nav class="preview-top">
+    <div class="left">
+      <a class="back" href="/">← Back to library</a>
+    </div>
+    <div class="right">
+      <a href="/app/">Create new asset</a>
+      <a href="/" id="preview-dl">Download</a>
+      <a href="#" id="preview-share">Share link</a>
+    </div>
+  </nav>
+  <div class="preview-bg">
+    <div class="preview-bg-text a">YOUR ONE STOP SHOP FOR</div>
+    <div class="preview-bg-text b">APP FEATURE HIGHLIGHT</div>
+    <div class="preview-bg-accent one"></div>
+    <div class="preview-bg-accent two"></div>
+  </div>
+  <div class="preview-logos">
+    <img class="flag" src="/template-assets/flag-icon.svg" alt="" />
+    <span class="wc">WE-COMMERCE</span>
+    <img class="fluid" src="/template-assets/fluid-logo.svg" alt="fluid" />
+  </div>
+  <div class="preview-wrap" data-carousel-total="${meta.carouselTotal || 0}">
+    <div class="preview-stage" data-native-w="${meta.w}" data-native-h="${meta.h}">
+      <div class="preview-scale-wrap">
+        <iframe id="preview-iframe" src="${iframeSrc}" title="Template preview"></iframe>
+      </div>
+    </div>
+  </div>
+  ${meta.carouselTotal ? `<button type="button" class="preview-carousel-arrow preview-carousel-prev" id="preview-carousel-prev" aria-label="Previous slide">←</button><button type="button" class="preview-carousel-arrow preview-carousel-next" id="preview-carousel-next" aria-label="Next slide">→</button>` : ''}
+  <footer class="preview-bottom">
+    <span class="prev">${prevLabel ? `<a href="${prevHref}">← ${prevLabel}</a>` : '<span class="label">' + meta.label + '</span>'}</span>
+    <span class="center label">${meta.label}${meta.carouselTotal ? ' <span id="preview-slide-indicator" class="preview-slide-indicator">01 / ' + String(meta.carouselTotal).padStart(2, '0') + '</span>' : ''}</span>
+    <span class="next">${nextLabel ? `<a href="${nextHref}">${nextLabel} →</a>` : '<span class="label">' + meta.label + '</span>'}</span>
+  </footer>
+  <script>
+    document.getElementById('preview-share').addEventListener('click', function(e) {
+      e.preventDefault();
+      navigator.clipboard.writeText(window.location.href);
+      var el = this;
+      el.textContent = 'Link copied!';
+      setTimeout(function() { el.textContent = 'Share link'; }, 1500);
+    });
+    (function scalePreview() {
+      var stage = document.querySelector('.preview-stage');
+      var wrap = document.querySelector('.preview-scale-wrap');
+      var iframe = wrap && wrap.querySelector('iframe');
+      if (!stage || !wrap || !iframe) return;
+      var nw = parseInt(stage.getAttribute('data-native-w'), 10) || 1080;
+      var nh = parseInt(stage.getAttribute('data-native-h'), 10) || 1080;
+      function updateScale() {
+        var w = wrap.offsetWidth;
+        var h = wrap.offsetHeight;
+        var s = Math.min(w / nw, h / nh);
+        iframe.style.transform = 'scale(' + s + ')';
+      }
+      updateScale();
+      var ro = new ResizeObserver(updateScale);
+      ro.observe(wrap);
+    })();
+    (function carouselNav() {
+      var wrap = document.querySelector('.preview-wrap');
+      var total = parseInt(wrap && wrap.getAttribute('data-carousel-total'), 10) || 0;
+      if (total < 1) return;
+      var iframe = document.getElementById('preview-iframe');
+      var prevBtn = document.getElementById('preview-carousel-prev');
+      var nextBtn = document.getElementById('preview-carousel-next');
+      var ind = document.getElementById('preview-slide-indicator');
+      var current = 1;
+      function sendSlide(n) {
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ type: 'setSlide', slide: n }, '*');
+        }
+      }
+      function updateIndicator() {
+        if (ind) ind.textContent = String(current).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+      }
+      if (prevBtn) prevBtn.addEventListener('click', function() {
+        current = (current - 2 + total) % total + 1;
+        sendSlide(current);
+        updateIndicator();
+      });
+      if (nextBtn) nextBtn.addEventListener('click', function() {
+        current = (current % total) + 1;
+        sendSlide(current);
+        updateIndicator();
+      });
+      if (iframe) iframe.addEventListener('load', function() { sendSlide(1); current = 1; updateIndicator(); });
+      updateIndicator();
+    })();
+  </script>
+</body>
+</html>`;
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(previewHtml);
       });
 
       // ─── Campaign hierarchy API middleware ────────────────────────────────
