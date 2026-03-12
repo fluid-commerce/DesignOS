@@ -105,6 +105,57 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
       });
 
+      // Serve template assets and fonts from Jonathan's codebase
+      const jonathanTemplateDir = path.resolve(srv.config.root, '..', "Reference/Context/Jonathan's Codebase/templates");
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/template-assets/')) return next();
+        const assetFile = req.url.replace('/template-assets/', '');
+        const assetPath = path.join(jonathanTemplateDir, 'assets', assetFile);
+        try {
+          const data = await fs.readFile(assetPath);
+          const { contentType } = serveFluidAsset(assetFile);
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(data);
+        } catch {
+          res.writeHead(404); res.end('Not found');
+        }
+      });
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/template-fonts/')) return next();
+        const fontFile = req.url.replace('/template-fonts/', '');
+        const fontPath = path.resolve(jonathanTemplateDir, '..', 'fonts', fontFile);
+        try {
+          const data = await fs.readFile(fontPath);
+          const ext = path.extname(fontFile).toLowerCase();
+          const ct = ext === '.ttf' ? 'font/ttf' : ext === '.woff2' ? 'font/woff2' : ext === '.woff' ? 'font/woff' : 'application/octet-stream';
+          res.writeHead(200, { 'Content-Type': ct });
+          res.end(data);
+        } catch {
+          res.writeHead(404); res.end('Not found');
+        }
+      });
+
+      // Serve Jonathan's template HTML files at /templates/:id.html with asset path rewriting
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/templates/') || !req.url.endsWith('.html')) return next();
+        const fileName = req.url.replace('/templates/', '');
+        const templatePath = path.resolve(srv.config.root, '..', 'Reference/Context/Jonathan\'s Codebase/templates', fileName);
+        try {
+          let html = await fs.readFile(templatePath, 'utf-8');
+          // Rewrite asset paths for serving
+          html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
+          html = html.replace(/(?<!\/fluid-)assets\//g, '/template-assets/');
+          html = html.replace(/\.\.\/fonts\//g, '/template-fonts/');
+          // Remove nav.js script (not needed in preview)
+          html = html.replace(/<script src="nav\.js"><\/script>/g, '');
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(html);
+        } catch {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Template not found');
+        }
+      });
+
       // ─── Campaign hierarchy API middleware ────────────────────────────────
       // All /api/campaigns/* routes. Handled BEFORE the session-based routes.
       // DB calls are sync (better-sqlite3). Returns JSON with proper status codes.
