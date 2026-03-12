@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "결제하기",
+    "order_summary": "주문 요약",
+    "shipping": "배송비 예상",
+    "ships_in": "3-5영업일 내 배송",
+    "shopping_cart": "장바구니",
+    "subtotal": "소계",
+    "tax": "세금 예상",
+    "total": "총 주문금액"
+  },
+  "components": {
+    "comment_form": {
+      "email": "이메일",
+      "full_name": "성명",
+      "leave_info": "{{ company }}에서 고객님을 식별할 수 있도록 정보를 남겨주세요. 한 번만 하시면 됩니다.",
+      "placeholder": "댓글을 추가하세요",
+      "post": "게시",
+      "want_to_leave_comment": "댓글을 남기시겠습니까?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "동의합니다",
+    "all_products": "모든 제품",
+    "checkout": "결제하기",
+    "first_payment": "첫 번째 결제일: {{ date }}",
+    "learn_more": "자세히 보기",
+    "monthly_subscription": "월 구독",
+    "todays_purchase": "오늘의 구매"
+  },
+  "footer": {
+    "all_rights_reserved": "모든 권리 보유",
+    "cookies_settings": "쿠키 설정",
+    "link_1": "링크 1",
+    "link_2": "링크 2",
+    "link_3": "링크 3",
+    "link_4": "링크 4",
+    "privacy_policy": "개인정보처리방침",
+    "terms_of_service": "서비스 약관"
+  },
+  "library": {
+    "commented": "댓글을 달았습니다",
+    "comments": "댓글",
+    "playlist": "재생목록"
+  },
+  "medium": {
+    "commented": "댓글을 달았습니다",
+    "comments": "댓글",
+    "products": "제품"
+  },
+  "navbar": {
+    "button_1": "버튼 1",
+    "button_2": "버튼 2",
+    "countries": "국가",
+    "country": "국가",
+    "country_and_language": "국가 및 언어",
+    "done": "완료",
+    "language": "언어",
+    "languages": "언어",
+    "link_1": "링크 1",
+    "link_2": "링크 2",
+    "link_3": "링크 3",
+    "link_4": "링크 4",
+    "save_and_close": "저장 후 닫기",
+    "select_country": "국가를 선택하세요",
+    "select_language": "언어 선택",
+    "shop": "쇼핑",
+    "enrollments": "등록 상품",
+    "view_my_site": "내 사이트 보기"
+  },
+  "product": {
+    "add_to_cart": "장바구니 담기",
+    "buy_now": "지금 구매",
+    "details": "상세정보",
+    "free_shipping": "{{amount}} 이상 무료배송",
+    "product_name": "제품명",
+    "quantity": "수량",
+    "related_products": "제품",
+    "related_products_intro": "고객님의 구매와 완벽하게 어울리는 엄선된 관련 제품들을 만나보세요.",
+    "return": "반품",
+    "return_content": "구매 후 30일 이내 반품이 가능합니다. 제품은 미사용 상태로 원래 포장 상태를 유지해야 합니다. 반송비는 고객 부담이며, 제품 결함의 경우는 예외입니다. 반품 접수 및 검수 완료 후 전액 환불해드립니다.",
+    "reviews": "{{reviews}}개 리뷰",
+    "shipping": "배송",
+    "shipping_content": "전 세계 배송 서비스를 제공하며, 표준 배송기간은 3-7영업일입니다. 추가 요금으로 빠른 배송이 가능합니다. 모든 택배는 보험 처리되며 추적 가능합니다. 배송비는 무게와 목적지에 따라 결제 시 계산됩니다.",
+    "shop_all": "전체 보기",
+    "stars": "{{stars}}점",
+    "tagline": "슬로건",
+    "testimonials": "고객 후기",
+    "testimonials_intro": "저희 제품을 사용해보신 고객들의 경험담을 확인해보세요.",
+    "variant": "옵션",
+    "one_time_purchase":"일회성 구매",
+    "subscribe":"구독"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "구독하고 {{save}}% 할인받기",
+    "update_subscription": "언제든 구독을 업데이트하세요"
+  },
+  "shared": {
+    "button": "버튼",
+    "medium_heading": "중간 길이의 제목이 여기에 들어갑니다",
+    "medium_intro": "품질과 우아함으로 고객님의 모든 요구를 충족시키는 뛰어난 제품 라인업을 만나보세요.",
+    "short_heading": "짧은 제목",
+    "short_intro": "저희 제품의 핵심을 명확하고 임팩트 있게 전달하는 간결한 소개입니다.",
+    "tagline": "슬로건",
+    "view_all": "전체 보기"
+  },
+  "shop_page": {
+    "button": "버튼",
+    "heading": "짧은 제목",
+    "intro": "엄선된 고품질 제품 컬렉션을 살펴보세요.",
+    "products": "제품",
+    "products_intro": "저희 라인업의 모든 제품은 뛰어난 품질로 선별되었습니다.",
+    "tagline": "슬로건"
+  }
+}

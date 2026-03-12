@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Finalizare comandă",
+    "order_summary": "Rezumatul comenzii",
+    "shipping": "Estimare transport",
+    "ships_in": "Se expediază în 3-5 zile lucrătoare",
+    "shopping_cart": "Coș de cumpărături",
+    "subtotal": "Subtotal",
+    "tax": "Estimare taxe",
+    "total": "Total comandă"
+  },
+  "components": {
+    "comment_form": {
+      "email": "E-mail",
+      "full_name": "Nume complet",
+      "leave_info": "Vă rugăm să lăsați informațiile dumneavoastră pentru ca {{ company }} să știe cine sunteți. Trebuie să faceți acest lucru doar o dată.",
+      "placeholder": "Adăugați comentariul",
+      "post": "Postează",
+      "want_to_leave_comment": "Doriți să lăsați un comentariu?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Sunt de acord cu",
+    "all_products": "Toate produsele",
+    "checkout": "Finalizare comandă",
+    "first_payment": "Prima plată pe {{ date }}",
+    "learn_more": "Află mai multe",
+    "monthly_subscription": "Abonament lunar",
+    "todays_purchase": "Cumpărătura de astăzi"
+  },
+  "footer": {
+    "all_rights_reserved": "Toate drepturile rezervate",
+    "cookies_settings": "Setări cookie-uri",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Politica de confidențialitate",
+    "terms_of_service": "Termeni și condiții"
+  },
+  "library": {
+    "commented": "a comentat",
+    "comments": "Comentarii",
+    "playlist": "Playlist"
+  },
+  "medium": {
+    "commented": "a comentat",
+    "comments": "Comentarii",
+    "products": "Produse"
+  },
+  "navbar": {
+    "button_1": "Buton 1",
+    "button_2": "Buton 2",
+    "countries": "Țări",
+    "country": "Țară",
+    "country_and_language": "Țară și limbă",
+    "done": "Gata",
+    "language": "Limbă",
+    "languages": "Limbi",
+    "link_1": "Link unu",
+    "link_2": "Link doi",
+    "link_3": "Link trei",
+    "link_4": "Link patru",
+    "save_and_close": "Salvează și închide",
+    "select_country": "Selectați țara",
+    "select_language": "Selectare limbă",
+    "shop": "Magazin",
+    "enrollments": "Înscrieri",
+    "view_my_site": "Vizualizare site"
+  },
+  "product": {
+    "add_to_cart": "Adaugă în coș",
+    "buy_now": "Cumpără acum",
+    "details": "Detalii",
+    "free_shipping": "Transport gratuit peste {{amount}}",
+    "product_name": "Nume produs",
+    "quantity": "Cantitate",
+    "related_products": "Produse",
+    "related_products_intro": "Descoperiți selecția noastră de produse complementare atent alese care se potrivesc perfect cu achiziția dumneavoastră.",
+    "return": "Returnare",
+    "return_content": "Acceptăm returnări în termen de 30 de zile de la cumpărare. Produsele trebuie să fie în starea originală, nefolosite și în ambalajul original. Costurile de returnare sunt suportate de client, cu excepția cazurilor de defecte ale produsului. După primirea și verificarea returnării, vom rambursa întreaga sumă a achiziției.",
+    "reviews": "{{reviews}} recenzii",
+    "shipping": "Transport",
+    "shipping_content": "Livrăm în întreaga lume cu un timp standard de livrare de 3-7 zile lucrătoare. Transportul express este disponibil contra cost suplimentar. Toate coletele sunt asigurate și pot fi urmărite. Costurile de transport sunt calculate pe baza greutății și destinației la finalizarea comenzii.",
+    "shop_all": "Vezi toate",
+    "stars": "{{stars}} stele",
+    "tagline": "Slogan",
+    "testimonials": "Mărturii ale clienților",
+    "testimonials_intro": "Descoperiți ce spun clienții noștri despre experiențele lor cu produsele noastre.",
+    "variant": "Variantă",
+    "one_time_purchase":"Cumpărare unică",
+    "subscribe":"Abonează-te"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Abonează-te și economisește {{save}}%",
+    "update_subscription": "Actualizează-ți abonamentul oricând"
+  },
+  "shared": {
+    "button": "Buton",
+    "medium_heading": "Un titlu de lungime medie apare aici",
+    "medium_intro": "Descoperiți gama noastră excepțională de produse concepută pentru a satisface toate nevoile dumneavoastră cu calitate și eleganță.",
+    "short_heading": "Titlu scurt aici",
+    "short_intro": "O introducere concisă care prezintă esența ofertei noastre cu claritate și impact.",
+    "tagline": "Slogan",
+    "view_all": "Vezi toate"
+  },
+  "shop_page": {
+    "button": "Buton",
+    "heading": "Titlu scurt aici",
+    "intro": "Explorați colecția noastră atent selectată de produse de înaltă calitate.",
+    "products": "Produse",
+    "products_intro": "Fiecare produs din gama noastră a fost ales pentru calitatea sa excepțională.",
+    "tagline": "Slogan"
+  }
+}

@@ -1,0 +1,201 @@
+/* ─── Fluid Social Post — Shared Base ─── */
+
+/* Asset paths */
+/* Fonts: ../fonts/ */
+/* Textures: from /Downloads/Lane Fluid Sandbox/Logos, textures/ */
+
+@font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Black.ttf') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Mediu.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'NeueHaasDisplay'; src: url('../fonts/NeueHaasDisplay-Light.ttf') format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'FLFont'; src: url('../fonts/flfontbold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #FF8B58;
+  --green: #44b574;
+  --blue: #42b1ff;
+  --purple: #c985e5;
+  --white: #ffffff;
+  --gray-light: rgba(255,255,255,0.45);
+  --gray-dim: rgba(255,255,255,0.25);
+  --card-bg: rgba(255,255,255,0.03);
+  --card-border: rgba(255,255,255,0.06);
+  --font-display: 'NeueHaasDisplay', -apple-system, sans-serif;
+  --font-hand: 'FLFont', cursive;
+  --tex: '../../Logos, textures';
+}
+
+body {
+  font-family: var(--font-display);
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Card shells ─── */
+.card {
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.card-ig { width: 1080px; height: 1080px; padding: 80px 68px 90px; }
+.card-li { width: 1200px; height: 627px; padding: 60px 72px 80px; }
+
+.card > *:not(.brush):not(.circle-sketch):not(.footer):not(.side-label):not(.slide-num) {
+  position: relative; z-index: 2;
+}
+
+/* ─── Brushstroke textures (positioned per-post) ─── */
+.brush {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+  object-fit: contain;
+}
+
+/* ─── Circle sketch overlays ─── */
+.circle-sketch {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+  object-fit: contain;
+}
+/* Hue-shift filters to recolor the blue circle sketch */
+.circle-sketch-orange { filter: hue-rotate(-160deg) saturate(1.8) brightness(1.1); }
+.circle-sketch-green  { filter: hue-rotate(100deg) saturate(1.2) brightness(1.1); }
+.circle-sketch-purple { filter: hue-rotate(60deg) saturate(1.4) brightness(1.0); }
+/* Blue = no filter needed */
+
+/* ─── Side label ─── */
+.side-label {
+  position: absolute;
+  top: 50%;
+  right: 22px;
+  transform: translateY(-50%) rotate(90deg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+  z-index: 5;
+}
+
+/* ─── Slide number ─── */
+.slide-num {
+  position: absolute;
+  top: 28px; right: 28px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  z-index: 5;
+}
+
+/* ─── Typography ─── */
+.headline {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 4;
+}
+.headline-ig { font-size: 82px; margin-bottom: 28px; }
+.headline-li { font-size: 58px; margin-bottom: 20px; }
+.headline-mega { font-size: 100px; margin-bottom: 20px; }
+.headline-lg { font-size: 68px; margin-bottom: 24px; }
+
+.headline-accent {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 4;
+}
+
+.body-copy {
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1.45;
+  color: var(--gray-light);
+  max-width: 720px;
+  position: relative;
+  z-index: 4;
+}
+.body-copy strong { color: var(--white); font-weight: 700; }
+
+.sub-text {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  position: relative;
+  z-index: 4;
+}
+.sub-text-lg { font-size: 30px; }
+.sub-text-md { font-size: 24px; }
+
+/* ─── Utility cards ─── */
+.dark-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  position: relative;
+  z-index: 4;
+}
+
+.pill {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  padding: 5px 12px;
+  border-radius: 4px;
+}
+
+/* ─── Footer ─── */
+.footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+}
+.footer-ig { padding: 22px 68px; }
+.footer-li { padding: 18px 72px; }
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.footer-left img { height: 18px; width: auto; }
+.footer-left .sep { color: rgba(255,255,255,0.2); font-weight: 300; font-size: 14px; }
+
+.footer-center img { height: 16px; width: auto; }
+
+.footer-right img { height: 22px; width: auto; }
+
+/* ─── Color helpers ─── */
+.text-orange { color: var(--orange); }
+.text-green { color: var(--green); }
+.text-blue { color: var(--blue); }
+.text-purple { color: var(--purple); }
+.text-dim { color: var(--gray-dim); }
+.text-gray { color: var(--gray-light); }

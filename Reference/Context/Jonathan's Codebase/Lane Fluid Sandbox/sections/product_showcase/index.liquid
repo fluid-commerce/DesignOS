@@ -1,0 +1,983 @@
+<!-- Product Showcase Section -->
+<section class="product-showcase {{ section.settings.background_color | default: 'bg-neutral-light' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_padding_y_mobile | default: 'py-xl' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      
+      <div class="max-w-7xl mx-auto">
+        
+        <!-- Main Content -->
+        <div class="product-showcase-content space-y-3xl">
+          
+          <!-- Main Heading -->
+          {% if section.settings.show_heading %}
+          <div class="heading-wrapper text-center mb-2xl">
+            <h2 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-3xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-5xl' }} {{ section.settings.heading_font_weight | default: 'font-black' }} {{ section.settings.heading_color | default: 'text-black' }} leading-tight max-w-4xl mx-auto">
+              {{ section.settings.heading | default: "Relief that supports recovery and fits your lifestyle" }}
+            </h2>
+          </div>
+          {% endif %}
+          
+          <!-- Description -->
+          {% if section.settings.show_description %}
+          <div class="description-wrapper text-center mb-2xl">
+            <p class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-neutral-dark' }} leading-relaxed max-w-3xl mx-auto">
+              {{ section.settings.description | default: "Whether you're looking to soothe sore muscles with therapeutic massage or relieve lower back pain with powerful infrared LED, our solutions help you relax, recover and keep moving — every day." }}
+            </p>
+          </div>
+          {% endif %}
+          
+          <!-- Product Cards -->
+          <div class="products-wrapper">
+            <div class="products-grid">
+              
+              <!-- Product Card 1 -->
+              {% if section.settings.show_product_one %}
+              <div class="product-card {{ section.settings.product_card_border_radius | default: 'rounded-xl' }} overflow-hidden relative">
+                
+                <!-- Product Image (Background) -->
+                <div class="product-hero-wrapper aspect-video relative">
+                  {% if section.settings.product_one_image %}
+                    <img src="{{ section.settings.product_one_image | image_url }}"
+                         alt="{{ section.settings.product_one_image_alt | default: section.settings.product_one_title }}"
+                         class="product-hero-image w-full h-full object-cover">
+                  {% else %}
+                    <img src="{{ 'placeholder-image.png' | asset_url }}"
+                         alt="{{ section.settings.product_one_title | default: 'Product 1 placeholder image' }}"
+                         class="product-hero-image w-full h-full object-cover">
+                  {% endif %}
+                  
+                  <!-- Dark Overlay for Text Readability -->
+                  <div class="product-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                  
+                  <!-- Product Badge -->
+                  {% if section.settings.show_product_one_badge and section.settings.product_one_badge_text != blank %}
+                  <div class="product-badge absolute top-lg left-lg z-20">
+                    <span class="badge {{ section.settings.badge_background_color | default: 'bg-white' }} {{ section.settings.badge_text_color | default: 'text-black' }} {{ section.settings.badge_font_family | default: 'font-body' }} {{ section.settings.badge_font_size | default: 'text-sm' }} {{ section.settings.badge_font_weight | default: 'font-medium' }} px-md py-xs {{ section.settings.badge_border_radius | default: 'rounded' }}">
+                      {{ section.settings.product_one_badge_text }}
+                    </span>
+                  </div>
+                  {% endif %}
+                  
+                  <!-- Product Content Overlay -->
+                  <div class="product-content-overlay absolute inset-0 p-lg lg:p-xl flex flex-col justify-end z-10">
+                    <div class="product-text-content space-y-md">
+                      
+                      <!-- Product Title -->
+                      {% if section.settings.product_one_title != blank %}
+                      <h3 class="{{ section.settings.product_title_font_family | default: 'font-primary' }} {{ section.settings.product_title_font_size | default: 'text-2xl' }} {{ section.settings.product_title_font_size_desktop | default: 'lg:text-3xl' }} {{ section.settings.product_title_font_weight | default: 'font-bold' }} text-white leading-tight">
+                        {{ section.settings.product_one_title | default: "Lorem Ipsum Product" }}
+                      </h3>
+                      {% endif %}
+                      
+                      <!-- Product Description -->
+                      {% if section.settings.product_one_description != blank %}
+                      <p class="{{ section.settings.product_description_font_family | default: 'font-body' }} {{ section.settings.product_description_font_size | default: 'text-sm' }} {{ section.settings.product_description_font_size_desktop | default: 'lg:text-base' }} {{ section.settings.product_description_font_weight | default: 'font-normal' }} text-white/90 leading-relaxed">
+                        {{ section.settings.product_one_description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." }}
+                      </p>
+                      {% endif %}
+                      
+                      <!-- Product Button -->
+                      {% if section.settings.show_product_one_button and section.settings.product_one_button_text != blank %}
+                      <div class="product-button-wrapper mt-lg">
+                        <a href="{{ section.settings.product_one_button_url | default: '#' }}"
+                           class="btn btn-{{ section.settings.product_button_style | default: 'filled' }}-{{ section.settings.product_button_color | default: 'white' }} {{ section.settings.product_button_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}">
+                          {{ section.settings.product_one_button_text | default: "Shop Product" }}
+                        </a>
+                      </div>
+                      {% endif %}
+                      
+                    </div>
+                  </div>
+                  
+                </div>
+                
+              </div>
+              {% endif %}
+              
+              <!-- Product Card 2 -->
+              {% if section.settings.show_product_two %}
+              <div class="product-card {{ section.settings.product_card_border_radius | default: 'rounded-xl' }} overflow-hidden relative">
+                
+                <!-- Product Image (Background) -->
+                <div class="product-hero-wrapper aspect-video relative">
+                  {% if section.settings.product_two_image %}
+                    <img src="{{ section.settings.product_two_image | image_url }}"
+                         alt="{{ section.settings.product_two_image_alt | default: section.settings.product_two_title }}"
+                         class="product-hero-image w-full h-full object-cover">
+                  {% else %}
+                    <img src="{{ 'placeholder-image.png' | asset_url }}"
+                         alt="{{ section.settings.product_two_title | default: 'Product 2 placeholder image' }}"
+                         class="product-hero-image w-full h-full object-cover">
+                  {% endif %}
+                  
+                  <!-- Dark Overlay for Text Readability -->
+                  <div class="product-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                  
+                  <!-- Product Badge -->
+                  {% if section.settings.show_product_two_badge and section.settings.product_two_badge_text != blank %}
+                  <div class="product-badge absolute top-lg left-lg z-20">
+                    <span class="badge {{ section.settings.badge_background_color | default: 'bg-white' }} {{ section.settings.badge_text_color | default: 'text-black' }} {{ section.settings.badge_font_family | default: 'font-body' }} {{ section.settings.badge_font_size | default: 'text-sm' }} {{ section.settings.badge_font_weight | default: 'font-medium' }} px-md py-xs {{ section.settings.badge_border_radius | default: 'rounded' }}">
+                      {{ section.settings.product_two_badge_text }}
+                    </span>
+                  </div>
+                  {% endif %}
+                  
+                  <!-- Product Content Overlay -->
+                  <div class="product-content-overlay absolute inset-0 p-lg lg:p-xl flex flex-col justify-end z-10">
+                    <div class="product-text-content space-y-md">
+                      
+                      <!-- Product Title -->
+                      {% if section.settings.product_two_title != blank %}
+                      <h3 class="{{ section.settings.product_title_font_family | default: 'font-primary' }} {{ section.settings.product_title_font_size | default: 'text-2xl' }} {{ section.settings.product_title_font_size_desktop | default: 'lg:text-3xl' }} {{ section.settings.product_title_font_weight | default: 'font-bold' }} text-white leading-tight">
+                        {{ section.settings.product_two_title | default: "Dolor Sit Product" }}
+                      </h3>
+                      {% endif %}
+                      
+                      <!-- Product Description -->
+                      {% if section.settings.product_two_description != blank %}
+                      <p class="{{ section.settings.product_description_font_family | default: 'font-body' }} {{ section.settings.product_description_font_size | default: 'text-sm' }} {{ section.settings.product_description_font_size_desktop | default: 'lg:text-base' }} {{ section.settings.product_description_font_weight | default: 'font-normal' }} text-white/90 leading-relaxed">
+                        {{ section.settings.product_two_description | default: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." }}
+                      </p>
+                      {% endif %}
+                      
+                      <!-- Product Button -->
+                      {% if section.settings.show_product_two_button and section.settings.product_two_button_text != blank %}
+                      <div class="product-button-wrapper mt-lg">
+                        <a href="{{ section.settings.product_two_button_url | default: '#' }}"
+                           class="btn btn-{{ section.settings.product_button_style | default: 'filled' }}-{{ section.settings.product_button_color | default: 'white' }} {{ section.settings.product_button_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}">
+                          {{ section.settings.product_two_button_text | default: "Shop Product" }}
+                        </a>
+                      </div>
+                      {% endif %}
+                      
+                    </div>
+                  </div>
+                  
+                </div>
+                
+              </div>
+              {% endif %}
+              
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Showcase",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show Main Heading",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Main Heading Text",
+      "default": "Relief that supports recovery and fits your lifestyle"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Whether you're looking to soothe sore muscles with therapeutic massage or relieve lower back pain with powerful infrared LED, our solutions help you relax, recover and keep moving — every day."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Product Cards Styling"
+    },
+    {
+      "type": "select",
+      "id": "product_card_background",
+      "label": "Product Card Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "product_card_border_radius",
+      "label": "Product Card Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-xl"
+    },
+    {
+      "type": "header",
+      "content": "Product Badge Styling"
+    },
+    {
+      "type": "select",
+      "id": "badge_background_color",
+      "label": "Badge Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "badge_text_color",
+      "label": "Badge Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "badge_font_family",
+      "label": "Badge Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "badge_font_size",
+      "label": "Badge Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "badge_font_weight",
+      "label": "Badge Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "badge_border_radius",
+      "label": "Badge Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-full", "label": "Full (Pills)" }
+      ],
+      "default": "rounded"
+    },
+    {
+      "type": "header",
+      "content": "Product Titles"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_family",
+      "label": "Product Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_size",
+      "label": "Product Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_size_desktop",
+      "label": "Product Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" },
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" }
+      ],
+      "default": "lg:text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_weight",
+      "label": "Product Title Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "product_title_color",
+      "label": "Product Title Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Product Descriptions"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_family",
+      "label": "Product Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_size",
+      "label": "Product Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_size_desktop",
+      "label": "Product Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_weight",
+      "label": "Product Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "product_description_color",
+      "label": "Product Description Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-light"
+    },
+    {
+      "type": "header",
+      "content": "Product Buttons"
+    },
+    {
+      "type": "select",
+      "id": "product_button_style",
+      "label": "Product Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "product_button_color",
+      "label": "Product Button Color",
+      "options": [
+        { "value": "white", "label": "White" },
+        { "value": "black", "label": "Black" },
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" }
+      ],
+      "default": "white"
+    },
+    {
+      "type": "select",
+      "id": "product_button_size",
+      "label": "Product Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "header",
+      "content": "Product 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_one",
+      "label": "Show Product 1",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "product_one_image",
+      "label": "Product 1 Image"
+    },
+    {
+      "type": "text",
+      "id": "product_one_image_alt",
+      "label": "Product 1 Image Alt Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_one_badge",
+      "label": "Show Product 1 Badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "product_one_badge_text",
+      "label": "Product 1 Badge Text",
+      "default": "Coupon"
+    },
+    {
+      "type": "text",
+      "id": "product_one_title",
+      "label": "Product 1 Title",
+      "default": "ThermBack LED"
+    },
+    {
+      "type": "textarea",
+      "id": "product_one_description",
+      "label": "Product 1 Description",
+      "default": "The most advanced back wrap with heat, far infrared, vibration and LED light therapy for fast-acting lower back relief."
+    },
+    {
+      "type": "text",
+      "id": "product_one_button_text",
+      "label": "Product 1 Button Text",
+      "default": "Shop ThermBack LED"
+    },
+    {
+      "type": "url",
+      "id": "product_one_button_url",
+      "label": "Product 1 Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_one_button",
+      "label": "Show Product 1 Button",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Product 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_two",
+      "label": "Show Product 2",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "product_two_image",
+      "label": "Product 2 Image"
+    },
+    {
+      "type": "text",
+      "id": "product_two_image_alt",
+      "label": "Product 2 Image Alt Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_two_badge",
+      "label": "Show Product 2 Badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "product_two_badge_text",
+      "label": "Product 2 Badge Text",
+      "default": "Coupon"
+    },
+    {
+      "type": "text",
+      "id": "product_two_title",
+      "label": "Product 2 Title",
+      "default": "Theragun Sense"
+    },
+    {
+      "type": "textarea",
+      "id": "product_two_description",
+      "label": "Product 2 Description",
+      "default": "Relaxing massage therapy with guided routines to relieve pain, reduce stress and improve sleep."
+    },
+    {
+      "type": "text",
+      "id": "product_two_button_text",
+      "label": "Product 2 Button Text",
+      "default": "Shop Sense"
+    },
+    {
+      "type": "url",
+      "id": "product_two_button_url",
+      "label": "Product 2 Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_two_button",
+      "label": "Show Product 2 Button",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Showcase"
+    }
+  ]
+}
+{% endschema %}

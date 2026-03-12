@@ -1,0 +1,28 @@
+.testimonial-section .testimonial-grid.grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 991px) {
+    .testimonial-section .testimonial-grid.grid-cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .testimonial-section .testimonial-col .company-logo img {
+    height: 50px;
+    object-fit: contain;
+  }
+  
+  .testimonial-section .testimonial-col .author figure {
+    width: 50px;
+    height: 50px;
+    border-radius: 99999px;
+    overflow: hidden;
+  }
+  
+  .testimonial-section .testimonial-col .author figure img {
+    object-fit: fill;
+    height: 100%;
+    width: 100%;
+    border-radius: 9999px;
+  }

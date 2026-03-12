@@ -1,0 +1,193 @@
+/* FAQ Section Styles */
+
+.faq-section {
+  /* Section background image support */
+}
+
+.faq-section .inner-container {
+  /* Container background image support */
+}
+
+/* FAQ Item Styling - Clean design without shadows */
+.faq-section .faq-item {
+  /* Remove all borders and shadows for clean look */
+  border: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease-in-out;
+  /* Set reasonable defaults that utility classes can override */
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  overflow: hidden; /* Ensure border radius clips content properly */
+}
+
+/* Override utility classes when user changes settings */
+.faq-section .faq-item.bg-primary { background-color: var(--color-primary) !important; }
+.faq-section .faq-item.bg-secondary { background-color: var(--color-secondary) !important; }
+.faq-section .faq-item.bg-tertiary { background-color: var(--color-tertiary) !important; }
+.faq-section .faq-item.bg-quaternary { background-color: var(--color-quaternary) !important; }
+.faq-section .faq-item.bg-success { background-color: var(--color-success) !important; }
+.faq-section .faq-item.bg-warning { background-color: var(--color-warning) !important; }
+.faq-section .faq-item.bg-error { background-color: var(--color-error) !important; }
+.faq-section .faq-item.bg-info { background-color: var(--color-info) !important; }
+.faq-section .faq-item.bg-neutral { background-color: var(--color-neutral) !important; }
+.faq-section .faq-item.bg-neutral-light { background-color: var(--color-neutral-light) !important; }
+.faq-section .faq-item.bg-black { background-color: var(--color-black) !important; }
+
+/* Border radius overrides - Force them to work properly */
+.faq-section .faq-item.rounded-none { border-radius: var(--radius-none) !important; overflow: hidden; }
+.faq-section .faq-item.rounded-sm { border-radius: var(--radius-sm) !important; overflow: hidden; }
+.faq-section .faq-item.rounded { border-radius: var(--radius-md) !important; overflow: hidden; }
+.faq-section .faq-item.rounded-md { border-radius: var(--radius-md) !important; overflow: hidden; }
+.faq-section .faq-item.rounded-lg { border-radius: var(--radius-lg) !important; overflow: hidden; }
+.faq-section .faq-item.rounded-xl { border-radius: var(--radius-xl) !important; overflow: hidden; }
+.faq-section .faq-item.rounded-2xl { border-radius: var(--radius-2xl) !important; overflow: hidden; }
+.faq-section .faq-item.rounded-3xl { border-radius: var(--radius-3xl) !important; overflow: hidden; }
+
+.faq-section .faq-item:hover {
+  /* Remove hover shadow for clean design */
+}
+
+/* Question Button Styling */
+.faq-section .faq-question {
+  cursor: pointer;
+  background-color: transparent;
+  border: none !important;
+  outline: none !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.faq-section .faq-question:focus {
+  outline: none !important;
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.faq-section .faq-question:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Icon Animation */
+.faq-section .faq-icon {
+  transition: transform 0.3s ease-in-out;
+  transform-origin: center;
+}
+
+.faq-section .faq-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Answer Animation */
+.faq-section .faq-answer {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.faq-section .faq-answer-content {
+  /* Ensures proper spacing and typography for answer content */
+}
+
+/* Content spacing improvements */
+.faq-section .heading-wrapper {
+  margin-bottom: var(--space-2xl);
+}
+
+.faq-section .description-wrapper {
+  margin-bottom: var(--space-2xl);
+}
+
+.faq-section .faq-list {
+  gap: var(--space-xl);
+}
+
+/* Ensure space-y utility works properly */
+.faq-section .faq-list.space-y-xl > * + * {
+  margin-top: var(--space-xl) !important;
+}
+
+/* Typography enhancements */
+.faq-section .heading-wrapper h2 {
+  line-height: 1.1;
+  margin: 0;
+}
+
+.faq-section .description-wrapper p {
+  line-height: 1.6;
+  margin: 0 auto;
+}
+
+.faq-section .faq-question span {
+  line-height: 1.4;
+}
+
+.faq-section .faq-answer-content {
+  line-height: 1.6;
+}
+
+/* Responsive improvements */
+@media (min-width: 768px) {
+  .faq-section .faq-list {
+    gap: var(--space-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .faq-section .faq-list {
+    gap: var(--space-xl);
+  }
+  
+  .faq-section .faq-question {
+    padding: var(--space-xl);
+  }
+  
+  .faq-section .faq-answer-content {
+    padding-left: var(--space-xl);
+    padding-right: var(--space-xl);
+    padding-bottom: var(--space-xl);
+  }
+}
+
+/* Accessibility improvements */
+.faq-section .faq-question[aria-expanded="true"] .faq-icon {
+  transform: rotate(180deg);
+}
+
+.faq-section .faq-question:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Rich text content in answers */
+.faq-section .faq-answer-content p {
+  margin-bottom: var(--space-sm);
+}
+
+.faq-section .faq-answer-content p:last-child {
+  margin-bottom: 0;
+}
+
+.faq-section .faq-answer-content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.faq-section .faq-answer-content a:hover {
+  text-decoration: none;
+}
+
+.faq-section .faq-answer-content ul,
+.faq-section .faq-answer-content ol {
+  margin-bottom: var(--space-sm);
+  padding-left: var(--space-lg);
+}
+
+.faq-section .faq-answer-content li {
+  margin-bottom: var(--space-xs);
+}
+
+.faq-section .faq-answer-content strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.faq-section .faq-answer-content em {
+  font-style: italic;
+}

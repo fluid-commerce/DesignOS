@@ -1,0 +1,865 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="testimonial4-section section-t-spacing section-{{ section.id }}-padding" 
+         style="background-color: {{ section.settings.background_color | default: '#f8f9fa' }};
+                {% if section.settings.background_image != blank %}
+                background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                {% endif %}
+                position: relative;
+                padding-bottom: {{ section.settings.padding_top }}px;">
+  
+  {% if section.settings.background_image != blank %}
+    <div class="testimonials4-overlay" 
+         style="background-color: {{ section.settings.overlay_color | default: '#000000' }}; 
+                opacity: {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }}; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                z-index: 1;"></div>
+  {% endif %}
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="testimonials4-card" 
+         style="background-color: {{ section.settings.card_background_color | default: '#ffffff' }};">
+      
+      <div class="testimonials4-wrapper grid grid-cols-1 sm-desktop-grid-cols-2 gap-12 align-center">
+        
+        <!-- Column 1: CTA Content -->
+        <div class="testimonials4-content">
+          <h2 class="customer_testimonials4__heading {{ section.settings.heading_size }} mb-6" 
+              style="color: {{ section.settings.heading_color | default: '#1a1a1a' }};">
+            {{ section.settings.heading }}
+          </h2>
+          
+          {% if section.settings.description != blank %}
+            <p class="text-lg mb-8" 
+               style="color: {{ section.settings.description_color | default: '#6b7280' }};">
+              {{ section.settings.description }}
+            </p>
+          {% endif %}
+
+          <div class="testimonials4-buttons flex flex-wrap gap-4">
+            {% if section.settings.show_primary_button and section.settings.primary_button_text != blank %}
+              <a href="{{ section.settings.primary_button_link | default: '#' }}" 
+                 class="btn btn-bg-primary btn-border-primary"
+                 style="background-color: {{ section.settings.primary_button_bg | default: 'var(--clr-primary)' }};
+                        color: {{ section.settings.primary_button_text_color | default: '#ffffff' }};
+                        border-color: {{ section.settings.primary_button_bg | default: 'var(--clr-primary)' }};">
+                {{ section.settings.primary_button_text }}
+              </a>
+            {% endif %}
+            
+            {% if section.settings.show_secondary_button and section.settings.secondary_button_text != blank %}
+              <a href="{{ section.settings.secondary_button_link | default: '#' }}" 
+                 class="btn btn-border-black"
+                 style="color: {{ section.settings.secondary_button_text_color | default: '#000000' }};
+                        border-color: {{ section.settings.secondary_button_border_color | default: '#000000' }};">
+                {{ section.settings.secondary_button_text }}
+              </a>
+            {% endif %}
+          </div>
+        </div>
+
+                 <!-- Column 2: Vertical Scrolling Testimonials -->
+         <div class="testimonials4-testimonials-column">
+           <div class="testimonials4-scroll-container">
+             <div class="testimonials4-scroll-track">
+               <div class="testimonials4-grid">
+                 <!-- Column 1 -->
+                 <div class="testimonials4-column">
+                   {% assign column_1_testimonials = '1,3,5' | split: ',' %}
+                   {% for testimonial_num in column_1_testimonials %}
+                     {% assign testimonial_text = 'testimonial_' | append: testimonial_num | append: '_text' %}
+                     {% assign testimonial_name = 'testimonial_' | append: testimonial_num | append: '_name' %}
+                     {% assign testimonial_position = 'testimonial_' | append: testimonial_num | append: '_position' %}
+                     {% assign testimonial_image = 'testimonial_' | append: testimonial_num | append: '_image' %}
+                     
+                     <div class="testimonial4-testimonial-card" 
+                          style="background-color: {{ section.settings.testimonial_card_background | default: 'transparent' }};">
+                       
+                       <!-- Testimonial Text -->
+                       <div class="testimonial-content mb-4">
+                         <p class="text-sm" 
+                            style="color: {{ section.settings.testimonial_text_color | default: '#374151' }};">
+                           {% if section.settings[testimonial_text] != blank %}
+                             "{{ section.settings[testimonial_text] }}"
+                           {% else %}
+                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."
+                           {% endif %}
+                         </p>
+                       </div>
+
+                       <!-- Author Info -->
+                       <div class="author-info flex align-center gap-3">
+                         <div class="author-avatar">
+                           {% if section.settings[testimonial_image] != blank %}
+                             <img src="{{ section.settings[testimonial_image] | image_url: width: 64 }}" 
+                                  alt="{{ section.settings[testimonial_name] | default: 'Customer' }}"
+                                  class="avatar-image">
+                           {% else %}
+                             <div class="avatar-placeholder">
+                               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                               </svg>
+                             </div>
+                           {% endif %}
+                         </div>
+                         <div class="author-details">
+                           {% if section.settings.show_name %}
+                             <p class="text-sm font-semibold mb-1" style="color: {{ section.settings.author_name_color | default: '#111827' }};">
+                               {% if section.settings[testimonial_name] != blank %}
+                                 {{ section.settings[testimonial_name] }}
+                               {% else %}
+                                 Name Surname
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                           {% if section.settings.show_position %}
+                             <p class="text-xs" style="color: {{ section.settings.author_position_color | default: '#6b7280' }};">
+                               {% if section.settings[testimonial_position] != blank %}
+                                 {{ section.settings[testimonial_position] }}
+                               {% else %}
+                                 Position, Company name
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                         </div>
+                       </div>
+                     </div>
+                   {% endfor %}
+
+                   <!-- Duplicate for seamless loop -->
+                   {% for testimonial_num in column_1_testimonials %}
+                     {% assign testimonial_text = 'testimonial_' | append: testimonial_num | append: '_text' %}
+                     {% assign testimonial_name = 'testimonial_' | append: testimonial_num | append: '_name' %}
+                     {% assign testimonial_position = 'testimonial_' | append: testimonial_num | append: '_position' %}
+                     {% assign testimonial_image = 'testimonial_' | append: testimonial_num | append: '_image' %}
+                     
+                     <div class="testimonial4-testimonial-card" 
+                          style="background-color: {{ section.settings.testimonial_card_background | default: 'transparent' }};">
+                       
+                       <!-- Testimonial Text -->
+                       <div class="testimonial-content mb-4">
+                         <p class="text-sm" 
+                            style="color: {{ section.settings.testimonial_text_color | default: '#374151' }};">
+                           {% if section.settings[testimonial_text] != blank %}
+                             "{{ section.settings[testimonial_text] }}"
+                           {% else %}
+                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."
+                           {% endif %}
+                         </p>
+                       </div>
+
+                       <!-- Author Info -->
+                       <div class="author-info flex align-center gap-3">
+                         <div class="author-avatar">
+                           {% if section.settings[testimonial_image] != blank %}
+                             <img src="{{ section.settings[testimonial_image] | image_url: width: 64 }}" 
+                                  alt="{{ section.settings[testimonial_name] | default: 'Customer' }}"
+                                  class="avatar-image">
+                           {% else %}
+                             <div class="avatar-placeholder">
+                               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                               </svg>
+                             </div>
+                           {% endif %}
+                         </div>
+                         <div class="author-details">
+                           {% if section.settings.show_name %}
+                             <p class="text-sm font-semibold mb-1" style="color: {{ section.settings.author_name_color | default: '#111827' }};">
+                               {% if section.settings[testimonial_name] != blank %}
+                                 {{ section.settings[testimonial_name] }}
+                               {% else %}
+                                 Name Surname
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                           {% if section.settings.show_position %}
+                             <p class="text-xs" style="color: {{ section.settings.author_position_color | default: '#6b7280' }};">
+                               {% if section.settings[testimonial_position] != blank %}
+                                 {{ section.settings[testimonial_position] }}
+                               {% else %}
+                                 Position, Company name
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                         </div>
+                       </div>
+                     </div>
+                   {% endfor %}
+                 </div>
+
+                 <!-- Column 2 -->
+                 <div class="testimonials4-column">
+                   {% assign column_2_testimonials = '2,4,6' | split: ',' %}
+                   {% for testimonial_num in column_2_testimonials %}
+                     {% assign testimonial_text = 'testimonial_' | append: testimonial_num | append: '_text' %}
+                     {% assign testimonial_name = 'testimonial_' | append: testimonial_num | append: '_name' %}
+                     {% assign testimonial_position = 'testimonial_' | append: testimonial_num | append: '_position' %}
+                     {% assign testimonial_image = 'testimonial_' | append: testimonial_num | append: '_image' %}
+                     
+                     <div class="testimonial4-testimonial-card" 
+                          style="background-color: {{ section.settings.testimonial_card_background | default: 'transparent' }};">
+                       
+                       <!-- Testimonial Text -->
+                       <div class="testimonial-content mb-4">
+                         <p class="text-sm" 
+                            style="color: {{ section.settings.testimonial_text_color | default: '#374151' }};">
+                           {% if section.settings[testimonial_text] != blank %}
+                             "{{ section.settings[testimonial_text] }}"
+                           {% else %}
+                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."
+                           {% endif %}
+                         </p>
+                       </div>
+
+                       <!-- Author Info -->
+                       <div class="author-info flex align-center gap-3">
+                         <div class="author-avatar">
+                           {% if section.settings[testimonial_image] != blank %}
+                             <img src="{{ section.settings[testimonial_image] | image_url: width: 64 }}" 
+                                  alt="{{ section.settings[testimonial_name] | default: 'Customer' }}"
+                                  class="avatar-image">
+                           {% else %}
+                             <div class="avatar-placeholder">
+                               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                               </svg>
+                             </div>
+                           {% endif %}
+                         </div>
+                         <div class="author-details">
+                           {% if section.settings.show_name %}
+                             <p class="text-sm font-semibold mb-1" style="color: {{ section.settings.author_name_color | default: '#111827' }};">
+                               {% if section.settings[testimonial_name] != blank %}
+                                 {{ section.settings[testimonial_name] }}
+                               {% else %}
+                                 Name Surname
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                           {% if section.settings.show_position %}
+                             <p class="text-xs" style="color: {{ section.settings.author_position_color | default: '#6b7280' }};">
+                               {% if section.settings[testimonial_position] != blank %}
+                                 {{ section.settings[testimonial_position] }}
+                               {% else %}
+                                 Position, Company name
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                         </div>
+                       </div>
+                     </div>
+                   {% endfor %}
+
+                   <!-- Duplicate for seamless loop -->
+                   {% for testimonial_num in column_2_testimonials %}
+                     {% assign testimonial_text = 'testimonial_' | append: testimonial_num | append: '_text' %}
+                     {% assign testimonial_name = 'testimonial_' | append: testimonial_num | append: '_name' %}
+                     {% assign testimonial_position = 'testimonial_' | append: testimonial_num | append: '_position' %}
+                     {% assign testimonial_image = 'testimonial_' | append: testimonial_num | append: '_image' %}
+                     
+                     <div class="testimonial4-testimonial-card" 
+                          style="background-color: {{ section.settings.testimonial_card_background | default: 'transparent' }};">
+                       
+                       <!-- Testimonial Text -->
+                       <div class="testimonial-content mb-4">
+                         <p class="text-sm" 
+                            style="color: {{ section.settings.testimonial_text_color | default: '#374151' }};">
+                           {% if section.settings[testimonial_text] != blank %}
+                             "{{ section.settings[testimonial_text] }}"
+                           {% else %}
+                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."
+                           {% endif %}
+                         </p>
+                       </div>
+
+                       <!-- Author Info -->
+                       <div class="author-info flex align-center gap-3">
+                         <div class="author-avatar">
+                           {% if section.settings[testimonial_image] != blank %}
+                             <img src="{{ section.settings[testimonial_image] | image_url: width: 64 }}" 
+                                  alt="{{ section.settings[testimonial_name] | default: 'Customer' }}"
+                                  class="avatar-image">
+                           {% else %}
+                             <div class="avatar-placeholder">
+                               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                               </svg>
+                             </div>
+                           {% endif %}
+                         </div>
+                         <div class="author-details">
+                           {% if section.settings.show_name %}
+                             <p class="text-sm font-semibold mb-1" style="color: {{ section.settings.author_name_color | default: '#111827' }};">
+                               {% if section.settings[testimonial_name] != blank %}
+                                 {{ section.settings[testimonial_name] }}
+                               {% else %}
+                                 Name Surname
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                           {% if section.settings.show_position %}
+                             <p class="text-xs" style="color: {{ section.settings.author_position_color | default: '#6b7280' }};">
+                               {% if section.settings[testimonial_position] != blank %}
+                                 {{ section.settings[testimonial_position] }}
+                               {% else %}
+                                 Position, Company name
+                               {% endif %}
+                             </p>
+                           {% endif %}
+                         </div>
+                       </div>
+                     </div>
+                   {% endfor %}
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.testimonial4-section .testimonials4-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0 40px 0 0;
+  background-color: #ffffff;
+}
+
+.testimonial4-section .testimonials4-wrapper {
+  min-height: 500px;
+}
+
+.testimonial4-section .testimonials4-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0 48px 40px;
+}
+
+.testimonial4-section .testimonials4-testimonials-column {
+  position: relative;
+  height: 500px;
+}
+
+.testimonial4-section .testimonials4-scroll-container {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  border-radius: 0 8px 8px 0;
+  padding: 20px;
+}
+
+.testimonial4-section .testimonials4-scroll-track {
+  animation: testimonials4-vertical-scroll 30s linear infinite;
+}
+
+.testimonial4-section .testimonials4-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.testimonial4-section .testimonials4-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial4-section .testimonials4-card:hover .testimonials4-scroll-track {
+  animation-play-state: paused;
+}
+
+@keyframes testimonials4-vertical-scroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.testimonial4-section .testimonial4-testimonial-card {
+  padding: 20px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial4-section .testimonial-content {
+  flex: 1;
+}
+
+.testimonial4-section .author-info {
+  margin-top: auto;
+}
+
+.testimonial4-section .avatar-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.testimonial4-section .avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+@media (max-width: 959px) {
+  .testimonial4-section .testimonials4-card {
+    padding: 0 24px 0 0;
+  }
+
+  .testimonial4-section .testimonials4-content {
+    padding: 32px 0 32px 24px;
+  }
+  
+  .testimonial4-section .testimonials4-wrapper {
+    min-height: auto;
+    gap: 32px;
+  }
+  
+  .testimonial4-section .testimonials4-testimonials-column {
+    height: 300px;
+  }
+  
+  .testimonial4-section .testimonials4-scroll-track {
+    animation-duration: 25s;
+  }
+
+  .testimonial4-section .testimonials4-grid {
+    gap: 12px;
+  }
+
+  .testimonial4-section .testimonials4-scroll-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .testimonial4-section .testimonials4-card {
+    padding: 0 20px 0 0;
+  }
+
+  .testimonial4-section .testimonials4-content {
+    padding: 24px 0 24px 20px;
+  }
+  
+  .testimonial4-section .testimonials4-wrapper {
+    gap: 24px;
+  }
+  
+  .testimonial4-section .testimonials4-testimonials-column {
+    height: 250px;
+  }
+  
+  .testimonial4-section .testimonials4-scroll-track {
+    animation-duration: 20s;
+  }
+  
+  .testimonial4-section .testimonial4-testimonial-card {
+    padding: 16px 12px;
+    margin-bottom: 12px;
+    min-height: 100px;
+  }
+
+  .testimonial4-section .testimonials4-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .testimonial4-section .testimonials4-scroll-container {
+    padding: 12px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Customer Testimonials 4",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "What Our Customers Say",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "default": "Don't just take our word for it. See what our customers have to say about their experience.",
+      "label": "Description"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "Heading 2"
+        },
+        {
+          "value": "h1",
+          "label": "Heading 1"
+        },
+        {
+          "value": "h3",
+          "label": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "label": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "label": "Heading 5"
+        }
+      ],
+      "default": "h1",
+      "label": "Heading Size"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "default": "Get Started",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "default": "#",
+      "label": "Primary Button Link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "default": "Learn More",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "default": "#",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_primary_button",
+      "default": true,
+      "label": "Show Primary Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "default": true,
+      "label": "Show Secondary Button"
+    },
+    {
+      "type": "range",
+      "id": "testimonials_to_show",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 6,
+      "label": "Testimonials to Show"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_1_text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.",
+      "label": "Testimonial 1 - Text"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_1_name",
+      "default": "Sarah Johnson",
+      "label": "Testimonial 1 - Name"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_1_position",
+      "default": "CEO, TechCorp",
+      "label": "Testimonial 1 - Position"
+    },
+    {
+      "type": "image_picker",
+      "id": "testimonial_1_image",
+      "label": "Testimonial 1 - Avatar"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_2_text",
+      "default": "Duis cursus mi quis viverra ornare. Eros dolor interdum nulla, ut commodo diam libero vitae erat.",
+      "label": "Testimonial 2 - Text"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_2_name",
+      "default": "Mike Chen",
+      "label": "Testimonial 2 - Name"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_2_position",
+      "default": "Marketing Director, StartupXYZ",
+      "label": "Testimonial 2 - Position"
+    },
+    {
+      "type": "image_picker",
+      "id": "testimonial_2_image",
+      "label": "Testimonial 2 - Avatar"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_3_text",
+      "default": "Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere.",
+      "label": "Testimonial 3 - Text"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_3_name",
+      "default": "Lisa Rodriguez",
+      "label": "Testimonial 3 - Name"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_3_position",
+      "default": "Product Manager, InnovateCo",
+      "label": "Testimonial 3 - Position"
+    },
+    {
+      "type": "image_picker",
+      "id": "testimonial_3_image",
+      "label": "Testimonial 3 - Avatar"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_4_text",
+      "default": "Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Vivamus magna justo lacinia eget consectetur sed.",
+      "label": "Testimonial 4 - Text"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_4_name",
+      "default": "David Kim",
+      "label": "Testimonial 4 - Name"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_4_position",
+      "default": "Operations Lead, ScaleCorp",
+      "label": "Testimonial 4 - Position"
+    },
+    {
+      "type": "image_picker",
+      "id": "testimonial_4_image",
+      "label": "Testimonial 4 - Avatar"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_5_text",
+      "default": "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
+      "label": "Testimonial 5 - Text"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_5_name",
+      "default": "Emma Thompson",
+      "label": "Testimonial 5 - Name"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_5_position",
+      "default": "Creative Director, DesignStudio",
+      "label": "Testimonial 5 - Position"
+    },
+    {
+      "type": "image_picker",
+      "id": "testimonial_5_image",
+      "label": "Testimonial 5 - Avatar"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_6_text",
+      "default": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec velit neque.",
+      "label": "Testimonial 6 - Text"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_6_name",
+      "default": "James Wilson",
+      "label": "Testimonial 6 - Name"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_6_position",
+      "default": "Sales Manager, GrowthCo",
+      "label": "Testimonial 6 - Position"
+    },
+    {
+      "type": "image_picker",
+      "id": "testimonial_6_image",
+      "label": "Testimonial 6 - Avatar"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#f8f9fa",
+      "label": "Background Color"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional background image (will override background color)"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "default": "#000000",
+      "label": "Background Overlay Color",
+      "info": "Color overlay on top of background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 40,
+      "info": "0% = transparent, 100% = solid color"
+    },
+    {
+      "type": "color_background",
+      "id": "card_background_color",
+      "default": "#ffffff",
+      "label": "Card Background Color"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "default": "#1a1a1a",
+      "label": "Heading Color"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "default": "#6b7280",
+      "label": "Description Color"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_bg",
+      "default": "#000000",
+      "label": "Primary Button Background"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_text_color",
+      "default": "#ffffff",
+      "label": "Primary Button Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_text_color",
+      "default": "#000000",
+      "label": "Secondary Button Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_border_color",
+      "default": "#000000",
+      "label": "Secondary Button Border Color"
+    },
+         {
+       "type": "color_background",
+       "id": "testimonial_card_background",
+       "default": "transparent",
+       "label": "Testimonial Card Background"
+     },
+    {
+      "type": "color_background",
+      "id": "testimonial_text_color",
+      "default": "#374151",
+      "label": "Testimonial Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "author_name_color",
+      "default": "#111827",
+      "label": "Author Name Color"
+    },
+    {
+      "type": "color_background",
+      "id": "author_position_color",
+      "default": "#6b7280",
+      "label": "Author Position Color"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_name",
+      "default": true,
+      "label": "Show author name"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_position",
+      "default": true,
+      "label": "Show author position"
+    }
+  ]
+}
+{% endschema %} 

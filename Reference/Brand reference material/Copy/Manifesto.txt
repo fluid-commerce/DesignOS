@@ -1,0 +1,95 @@
+Every Transaction Matters
+A different way to think about direct selling technology
+
+The conventional wisdom is wrong
+Everyone tells direct selling companies to use Shopify. Or Stripe. Or Square. "That's what real e-commerce companies use," they say.
+But here's the thing: you're not a real e-commerce company.
+You're something different. Something those platforms weren't built for. And pretending otherwise is costing you more than you realize.
+
+About half your transactions can't even happen on Shopify
+That's not a typo. Roughly 50% of the transactions a direct selling company needs to process—subscriptions with commission structures, international orders with rep attribution, downline purchases—Shopify literally can't handle.
+So why does everyone keep recommending it?
+Because it's familiar. Because it's what they know. Because nobody stopped to ask whether "industry standard" actually fits your industry.
+
+A 2% failure rate sounds small until you think about it
+Traditional e-commerce treats failed transactions as statistics. Acceptable losses. Cost of doing business.
+They can afford to think that way. They're selling to strangers. There's always another stranger.
+You're not selling to strangers.
+When a transaction fails in your world, it's not a stranger who shrugs and buys somewhere else. It's your rep's sister. Her best friend from college. The person she's been nurturing for three months.
+That failed transaction doesn't just cost you a sale. It costs your rep her confidence. It teaches her that the system doesn't work. That her effort doesn't matter.
+She'll share less next time. Maybe she'll stop sharing altogether.
+One failed transaction. Ripples everywhere.
+
+Higher risk means lower acceptance
+Here's something the Shopify evangelists don't mention: your industry is classified as "higher risk" by payment processors.
+That means your baseline decline rate is already worse than a typical online store. What's "normal" for them is catastrophic for you.
+On a million dollars in monthly volume, you might be losing an extra $30,000-$50,000 to failed transactions. Every single month.
+That's not a rounding error. That's a business problem hiding in plain sight.
+
+We decided to care about every single one
+Most platforms optimize for the average. They're fine with acceptable losses because they're playing a volume game.
+We don't think that way.
+We think about the mom who placed her first order at 11:47pm while nursing her baby. If her card declines and nobody tries again, she's not coming back. And her sister—your rep—just learned that sending people to your website is a gamble.
+So we built a system that tries up to six times.
+Six different merchant accounts. Six different routing options. Six chances to make sure that transaction actually happens.
+Because for that mom, and for your rep, there is no "acceptable loss rate."
+
+Friction is a transaction killer
+Someone's ready to buy. They pull out their phone. The checkout wants them to create an account. They're at a red light. The moment passes.
+You'll never know that transaction almost happened.
+We eliminated the friction. Apple Pay. Google Pay. Buy Now, Pay Later. One click. No passwords. No forced account creation.
+Every unnecessary step is a transaction at risk. So we removed the unnecessary steps.
+
+Attribution isn't a technical problem. It's a trust problem.
+Here's the real issue: reps don't trust that they'll get credit.
+So they don't share corporate content. They build their own bootleg versions. Or they just stop sharing altogether.
+Can you blame them? If you'd been burned before—sent a customer to the website only to watch someone else get credit—you'd be skeptical too.
+We built Fair Share to fix this.
+It doesn't just track the last click. It tracks the whole journey. First touch. Multiple touchpoints. Cross-device. Delayed purchases.
+If your rep planted the seed three weeks ago and the customer finally buys through a Google search, your rep still gets credit.
+When reps trust the system, they share. When they share, you get traffic.
+Simple as that.
+
+Your content is probably collecting dust
+Marketing teams create beautiful assets that nobody uses.
+Not because they're bad. Because reps don't see the point. Why share corporate content when you're not sure you'll get credit?
+We made every piece of content shareable. Trackable. Attributed automatically.
+Reps can add their face and their story. Customers see a human they trust. Everything connects.
+Suddenly, your marketing budget actually does something.
+
+Sync failures are silent killers
+The order went through on the website but didn't sync to the commission engine. Or it synced with the wrong sponsor.
+Now you're manually fixing records while reps lose faith that anything works the way it should.
+We built one clean connection to your back office. Automatic sync. Real-time visibility. No mystery scripts that only one person understands.
+When everything syncs correctly, nobody notices. That's the point.
+
+You shouldn't need a developer to fix a landing page
+Someone clicks through, ready to buy, and lands on a page that loads slowly and looks dated.
+You know it's hurting conversions. But fixing it requires a developer, and they're busy, and it takes weeks to get anything done.
+So the bad page stays up. Transactions leak out the bottom.
+We built a drag-and-drop editor. Change the page yourself. Test what works. Launch in minutes instead of weeks.
+Your landing pages should help you sell. If they're not, you should be able to fix them today.
+
+Reps deserve real tools
+Your reps are trying to run a business. Give them business tools.
+Logged-in ordering. Subscription management. A CRM that shows who visited their links. Suggestions for when and how to follow up.
+When reps can see what's happening and respond to it, more transactions happen.
+This isn't complicated. It's just usually ignored.
+
+We think differently about what matters
+Shopify optimizes for scale. They're playing a game where individual transactions are statistics and 2% losses are acceptable.
+That game doesn't work for you.
+In direct selling, every transaction carries compound potential. A new customer might become a rep. That rep might become a leader. That leader might build a team of hundreds.
+It all starts with one transaction. The first one that works.
+
+Here's what we believe
+We believe every transaction matters.
+We believe the mom placing her first order at midnight matters.
+We believe the rep who spent three months nurturing a relationship matters.
+We believe the syncs and the attribution and the checkout flow and the landing pages all matter—because they're all places where transactions go to die.
+We believe "acceptable loss rates" are only acceptable if you're selling to strangers.
+We believe direct selling deserves technology that understands what's actually at stake.
+
+This is We-Commerce
+One platform. Every transaction.
+Built for companies who refuse to treat their reps and customers as statistics.

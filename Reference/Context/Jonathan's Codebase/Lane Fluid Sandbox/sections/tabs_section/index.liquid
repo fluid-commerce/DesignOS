@@ -1,0 +1,1558 @@
+<!-- Modular Tabs Section -->
+<section class="modular-tabs-section {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }} {{ section.settings.background_color }}" 
+         id="{{ section.id }}"
+         {% if section.settings.background_image != blank %}
+         style="background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');"
+         {% endif %}>
+  
+  <div class="container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+       {% if section.settings.container_background_image != blank %}
+       style="background-image: url('{{ section.settings.container_background_image | image_url: width: 1200 }}');"
+       {% endif %}>
+    
+    <!-- Section Header -->
+    {% if section.settings.show_section_header %}
+      <div class="section-header {{ section.settings.header_text_align }} {{ section.settings.heading_margin_bottom }}">
+        {% if section.settings.section_heading != blank %}
+          <div class="heading-wrapper {{ section.settings.heading_margin_bottom }}">
+            <h2 class="section-heading {{ section.settings.heading_font_size }} {{ section.settings.heading_font_size_desktop }} {{ section.settings.heading_font_weight }} {{ section.settings.heading_line_height }} {{ section.settings.heading_text_color | default: 'text-black' }}">
+              {{ section.settings.section_heading }}
+            </h2>
+          </div>
+        {% endif %}
+        
+        {% if section.settings.section_description != blank %}
+          <div class="description-wrapper">
+            <p class="section-description {{ section.settings.description_font_size }} {{ section.settings.description_font_size_desktop }} {{ section.settings.description_line_height }} {{ section.settings.description_text_color | default: 'text-neutral' }}">
+              {{ section.settings.section_description }}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    <!-- Navigation Tabs -->
+    {% if section.settings.show_navigation %}
+      <div class="navigation-wrapper">
+        
+        <!-- Desktop Tab Navigation -->
+        <nav class="tab-navigation desktop-tabs {{ section.settings.nav_text_align }}" role="tablist">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'tab_content' %}
+                <button class="nav-tab {{ section.settings.nav_font_size }} {{ section.settings.nav_font_weight }} {{ section.settings.nav_text_color }} {{ section.settings.nav_padding }} {{ section.settings.nav_background_color }} {% if forloop.first %}active{% endif %}" 
+                        data-tab="tab-{{ forloop.index }}"
+                        data-active-bg="{{ section.settings.nav_active_background_color }}"
+                        data-active-text="{{ section.settings.nav_active_text_color }}"
+                        data-inactive-bg="{{ section.settings.nav_background_color }}"
+                        data-inactive-text="{{ section.settings.nav_text_color }}"
+                        onclick="switchTab(this, 'tab-{{ forloop.index }}')"
+                        role="tab"
+                        aria-controls="tabpanel-{{ forloop.index }}"
+                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                        tabindex="0">
+                  {{ block.settings.tab_title }}
+                </button>
+            {% endcase %}
+          {% endfor %}
+        </nav>
+        
+        <!-- Mobile/Tablet Dropdown Navigation -->
+        <div class="mobile-tab-dropdown">
+          <button class="dropdown-toggle {{ section.settings.nav_font_size }} {{ section.settings.nav_font_weight }} {{ section.settings.nav_text_color }} {{ section.settings.nav_padding }} {{ section.settings.nav_active_background_color }}" 
+                  onclick="toggleDropdown(this)"
+                  aria-expanded="false"
+                  aria-haspopup="true">
+            <span class="dropdown-text">{{ section.blocks.first.settings.tab_title }}</span>
+            <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4.427 6.427L8 10l3.573-3.573a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 1 1 .708-.708z"/>
+            </svg>
+          </button>
+          
+          <div class="dropdown-menu {{ section.settings.card_background_color }}" role="menu">
+            {% for block in section.blocks %}
+              {% case block.type %}
+                {% when 'tab_content' %}
+                  <button class="dropdown-item {{ section.settings.nav_font_size }} {{ section.settings.nav_font_weight }} {{ section.settings.nav_text_color }} {{ section.settings.nav_padding }} {% if forloop.first %}active{% endif %}"
+                          data-tab="tab-{{ forloop.index }}"
+                          data-active-bg="{{ section.settings.nav_active_background_color }}"
+                          data-active-text="{{ section.settings.nav_active_text_color }}"
+                          data-inactive-bg="{{ section.settings.nav_background_color }}"
+                          data-inactive-text="{{ section.settings.nav_text_color }}"
+                          onclick="selectDropdownItem(this, 'tab-{{ forloop.index }}')"
+                          role="menuitem">
+                    {{ block.settings.tab_title }}
+                  </button>
+              {% endcase %}
+            {% endfor %}
+          </div>
+        </div>
+        
+      </div>
+    {% endif %}
+    
+    <!-- Tab Content Cards -->
+    <div class="tab-content-wrapper">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'tab_content' %}
+            <div class="tab-content-card {{ section.settings.card_background_color }} {{ section.settings.card_padding }} {% if forloop.first %}active{% endif %}" 
+                 id="tabpanel-{{ forloop.index }}"
+                 data-tab="tab-{{ forloop.index }}"
+                 data-block-id="{{ block.id }}"
+                 role="tabpanel"
+                 aria-labelledby="tab-{{ forloop.index }}"
+                 {{ block.fluid_attributes }}>
+              
+              <div class="card-content-grid">
+                
+                <!-- Text Content -->
+                <div class="text-content">
+                  
+                  <!-- Tag/Label -->
+                  {% if block.settings.show_tag and block.settings.tag_text != blank %}
+                    <div class="content-tag {{ section.settings.tag_font_size }} {{ section.settings.tag_font_weight }} {{ block.settings.tag_text_color | default: section.settings.tag_text_color | default: 'text-neutral' }} {{ section.settings.tag_margin_bottom }}">
+                      {{ block.settings.tag_text }}
+                    </div>
+                  {% endif %}
+                  
+                  <!-- Heading -->
+                  {% if block.settings.content_heading != blank %}
+                    <h3 class="content-heading {{ section.settings.content_heading_font_size }} {{ section.settings.content_heading_font_size_desktop }} {{ section.settings.content_heading_font_weight }} {{ section.settings.content_heading_line_height }} {{ block.settings.heading_text_color | default: section.settings.content_text_color | default: 'text-black' }} {{ section.settings.content_heading_margin_bottom }}">
+                      {{ block.settings.content_heading }}
+                    </h3>
+                  {% endif %}
+                  
+                  <!-- Description -->
+                  {% if block.settings.content_description != blank %}
+                    <div class="content-description {{ section.settings.content_description_font_size }} {{ section.settings.content_description_font_size_desktop }} {{ section.settings.content_description_line_height }} {{ block.settings.description_text_color | default: section.settings.content_text_color | default: 'text-neutral-dark' }}">
+                      {{ block.settings.content_description }}
+                    </div>
+                  {% endif %}
+                  
+                </div>
+                
+                <!-- Media Content (Image or Video) -->
+                <div class="media-content">
+                  {% if block.settings.media_type == 'video' and block.settings.video_url != blank %}
+                    <!-- Video Content -->
+                    <div class="media-wrapper {{ section.settings.image_border_radius }}">
+                      <video class="content-media content-video"
+                             {% if block.settings.video_autoplay %}autoplay muted{% endif %}
+                             {% unless block.settings.video_autoplay %}controls{% endunless %}
+                             {% if block.settings.video_loop %}loop{% endif %}
+                             playsinline
+                             preload="auto"
+                             {% if block.settings.video_thumbnail != blank %}
+                             poster="{{ block.settings.video_thumbnail | image_url: width: 600 }}"
+                             {% endif %}>
+                        <source src="{{ block.settings.video_url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  {% elsif block.settings.media_type == 'image' and block.settings.content_image != blank %}
+                    <!-- Image Content -->
+                    <div class="media-wrapper {{ section.settings.image_border_radius }}">
+                      <img src="{{ block.settings.content_image | image_url: width: 600 }}"
+                           alt="{{ block.settings.content_heading }}"
+                           class="content-media content-image"
+                           loading="lazy">
+                    </div>
+                  {% else %}
+                    <!-- Placeholder -->
+                    <div class="media-wrapper {{ section.settings.image_border_radius }}">
+                      <img src="{{ 'placeholder-image.png' | asset_url }}"
+                           alt="Placeholder media for {{ block.settings.tab_title }}"
+                           class="content-media content-image"
+                           loading="lazy">
+                    </div>
+                  {% endif %}
+                </div>
+                
+              </div>
+            </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+    
+  </div>
+</section>
+
+<!-- Tab Switching JavaScript -->
+<script>
+  // Switch between tabs
+  function switchTab(button, tabId) {
+    const section = button.closest('.modular-tabs-section');
+    const allTabs = section.querySelectorAll('.nav-tab');
+    const allContent = section.querySelectorAll('.tab-content-card');
+    
+    // Remove active class and colors from all tabs and content
+    allTabs.forEach(tab => {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+      
+      // Remove active colors
+      const activeBg = tab.getAttribute('data-active-bg');
+      const activeText = tab.getAttribute('data-active-text');
+      if (activeBg) tab.classList.remove(activeBg);
+      if (activeText) tab.classList.remove(activeText);
+      
+      // Restore original inactive colors
+      const inactiveBg = tab.getAttribute('data-inactive-bg');
+      const inactiveText = tab.getAttribute('data-inactive-text');
+      if (inactiveBg && inactiveBg !== '' && !tab.classList.contains(inactiveBg)) {
+        tab.classList.add(inactiveBg);
+      }
+      if (inactiveText && inactiveText !== '' && !tab.classList.contains(inactiveText)) {
+        tab.classList.add(inactiveText);
+      }
+    });
+    
+    allContent.forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab and corresponding content
+    button.classList.add('active');
+    button.setAttribute('aria-selected', 'true');
+    
+    // Apply active colors
+    const activeBg = button.getAttribute('data-active-bg');
+    const activeText = button.getAttribute('data-active-text');
+    if (activeBg) button.classList.add(activeBg);
+    if (activeText) button.classList.add(activeText);
+    
+    const targetContent = section.querySelector(`.tab-content-card[data-tab="${tabId}"]`);
+    if (targetContent) {
+      targetContent.classList.add('active');
+    }
+    
+    // Log for analytics
+    console.log('Tab switched to:', tabId);
+  }
+  
+  // Switch to tab when block is selected in Shopify theme editor
+  function switchToTabByBlockId(blockId) {
+    const section = document.querySelector('.modular-tabs-section');
+    if (!section) return;
+    
+    const targetContent = section.querySelector(`.tab-content-card[data-block-id="${blockId}"]`);
+    if (!targetContent) return;
+    
+    const tabId = targetContent.getAttribute('data-tab');
+    const targetButton = section.querySelector(`.nav-tab[data-tab="${tabId}"]`);
+    
+    if (targetButton && tabId) {
+      switchTab(targetButton, tabId);
+    }
+  }
+  
+  // Toggle dropdown menu
+  function toggleDropdown(button) {
+    const dropdown = button.closest('.mobile-tab-dropdown');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    const arrow = dropdown.querySelector('.dropdown-arrow');
+    const isOpen = button.getAttribute('aria-expanded') === 'true';
+    
+    if (isOpen) {
+      // Close dropdown
+      button.setAttribute('aria-expanded', 'false');
+      menu.classList.remove('open');
+      arrow.style.transform = 'rotate(0deg)';
+    } else {
+      // Open dropdown
+      button.setAttribute('aria-expanded', 'true');
+      menu.classList.add('open');
+      arrow.style.transform = 'rotate(180deg)';
+    }
+  }
+  
+  // Select dropdown item and switch tab
+  function selectDropdownItem(item, tabId) {
+    const dropdown = item.closest('.mobile-tab-dropdown');
+    const toggle = dropdown.querySelector('.dropdown-toggle');
+    const toggleText = toggle.querySelector('.dropdown-text');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    const arrow = dropdown.querySelector('.dropdown-arrow');
+    const section = item.closest('.modular-tabs-section');
+    
+    // Update dropdown text
+    toggleText.textContent = item.textContent;
+    
+    // Close dropdown
+    toggle.setAttribute('aria-expanded', 'false');
+    menu.classList.remove('open');
+    arrow.style.transform = 'rotate(0deg)';
+    
+    // Update active states in dropdown
+    const allDropdownItems = dropdown.querySelectorAll('.dropdown-item');
+    allDropdownItems.forEach(dropdownItem => {
+      dropdownItem.classList.remove('active');
+      const activeBg = dropdownItem.getAttribute('data-active-bg');
+      const activeText = dropdownItem.getAttribute('data-active-text');
+      if (activeBg) dropdownItem.classList.remove(activeBg);
+      if (activeText) dropdownItem.classList.remove(activeText);
+      
+      // Restore original inactive colors
+      const inactiveBg = dropdownItem.getAttribute('data-inactive-bg');
+      const inactiveText = dropdownItem.getAttribute('data-inactive-text');
+      if (inactiveBg && inactiveBg !== '' && !dropdownItem.classList.contains(inactiveBg)) {
+        dropdownItem.classList.add(inactiveBg);
+      }
+      if (inactiveText && inactiveText !== '' && !dropdownItem.classList.contains(inactiveText)) {
+        dropdownItem.classList.add(inactiveText);
+      }
+    });
+    
+    item.classList.add('active');
+    const activeBg = item.getAttribute('data-active-bg');
+    const activeText = item.getAttribute('data-active-text');
+    if (activeBg) item.classList.add(activeBg);
+    if (activeText) item.classList.add(activeText);
+    
+    // Switch tab content (reuse existing function logic)
+    const allContent = section.querySelectorAll('.tab-content-card');
+    allContent.forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    const targetContent = section.querySelector(`.tab-content-card[data-tab="${tabId}"]`);
+    if (targetContent) {
+      targetContent.classList.add('active');
+    }
+    
+    // Log for analytics
+    console.log('Tab switched via dropdown to:', tabId);
+  }
+  
+  // Initialize tabs on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.modular-tabs-section');
+    
+    sections.forEach(section => {
+      const tabs = section.querySelectorAll('.nav-tab');
+      
+      // Initialize active tab colors
+      const activeTab = section.querySelector('.nav-tab.active');
+      if (activeTab) {
+        const activeBg = activeTab.getAttribute('data-active-bg');
+        const activeText = activeTab.getAttribute('data-active-text');
+        if (activeBg) activeTab.classList.add(activeBg);
+        if (activeText) activeTab.classList.add(activeText);
+      }
+      
+      // Add keyboard navigation
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('keydown', function(e) {
+          let newIndex = index;
+          
+          switch(e.key) {
+            case 'ArrowLeft':
+              e.preventDefault();
+              newIndex = index > 0 ? index - 1 : tabs.length - 1;
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              newIndex = index < tabs.length - 1 ? index + 1 : 0;
+              break;
+            case 'Home':
+              e.preventDefault();
+              newIndex = 0;
+              break;
+            case 'End':
+              e.preventDefault();
+              newIndex = tabs.length - 1;
+              break;
+            default:
+              return;
+          }
+          
+          const targetTab = tabs[newIndex];
+          const tabId = targetTab.getAttribute('data-tab');
+          switchTab(targetTab, tabId);
+          targetTab.focus();
+        });
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdowns = document.querySelectorAll('.mobile-tab-dropdown');
+      dropdowns.forEach(dropdown => {
+        if (!dropdown.contains(e.target)) {
+          const toggle = dropdown.querySelector('.dropdown-toggle');
+          const menu = dropdown.querySelector('.dropdown-menu');
+          const arrow = dropdown.querySelector('.dropdown-arrow');
+          
+          toggle.setAttribute('aria-expanded', 'false');
+          menu.classList.remove('open');
+          arrow.style.transform = 'rotate(0deg)';
+        }
+      });
+    });
+    
+    console.log('Modular tabs section initialized');
+  });
+  
+  // Shopify theme editor integration
+  if (typeof Shopify !== 'undefined' && Shopify.designMode) {
+    // Listen for block selection events in the theme editor
+    document.addEventListener('shopify:block:select', function(event) {
+      const blockId = event.detail.blockId;
+      console.log('Block selected in theme editor:', blockId);
+      
+      // Switch to the corresponding tab
+      setTimeout(() => {
+        switchToTabByBlockId(blockId);
+      }, 100); // Small delay to ensure DOM is ready
+    });
+    
+    // Listen for section load events
+    document.addEventListener('shopify:section:load', function(event) {
+      if (event.target.classList.contains('modular-tabs-section')) {
+        console.log('Modular tabs section loaded in theme editor');
+        
+        // Re-initialize tabs after section reload
+        setTimeout(() => {
+          const sections = document.querySelectorAll('.modular-tabs-section');
+          sections.forEach(section => {
+            const tabs = section.querySelectorAll('.nav-tab');
+            
+            tabs.forEach((tab, index) => {
+              tab.addEventListener('keydown', function(e) {
+                let newIndex = index;
+                
+                switch(e.key) {
+                  case 'ArrowLeft':
+                    e.preventDefault();
+                    newIndex = index > 0 ? index - 1 : tabs.length - 1;
+                    break;
+                  case 'ArrowRight':
+                    e.preventDefault();
+                    newIndex = index < tabs.length - 1 ? index + 1 : 0;
+                    break;
+                  case 'Home':
+                    e.preventDefault();
+                    newIndex = 0;
+                    break;
+                  case 'End':
+                    e.preventDefault();
+                    newIndex = tabs.length - 1;
+                    break;
+                  default:
+                    return;
+                }
+                
+                const targetTab = tabs[newIndex];
+                const tabId = targetTab.getAttribute('data-tab');
+                switchTab(targetTab, tabId);
+                targetTab.focus();
+              });
+            });
+          });
+        }, 100);
+      }
+    });
+    
+    console.log('Shopify theme editor integration enabled');
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Modular Tabs Section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" },
+        { "value": "lg:py-4xl", "label": "4X Large" },
+        { "value": "lg:py-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-none"
+    },
+    
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" },
+        { "value": "lg:py-4xl", "label": "4X Large" },
+        { "value": "lg:py-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" },
+        { "value": "px-4xl", "label": "4X Large" },
+        { "value": "px-5xl", "label": "5X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" },
+        { "value": "lg:px-4xl", "label": "4X Large" },
+        { "value": "lg:px-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:px-xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_header",
+      "label": "Show Section Header",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": ""
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description",
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "header_text_align",
+      "label": "Header Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" },
+        { "value": "text-3xl", "label": "3X-Large" },
+        { "value": "text-4xl", "label": "4X-Large" },
+        { "value": "text-5xl", "label": "5X-Large" },
+        { "value": "text-6xl", "label": "6X-Large" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" },
+        { "value": "lg:text-3xl", "label": "3X-Large" },
+        { "value": "lg:text-4xl", "label": "4X-Large" },
+        { "value": "lg:text-5xl", "label": "5X-Large" },
+        { "value": "lg:text-6xl", "label": "6X-Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_line_height",
+      "label": "Heading Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-tight"
+    },
+    {
+      "type": "select",
+      "id": "heading_margin_bottom",
+      "label": "Heading Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" },
+        { "value": "mb-3xl", "label": "3X Large" },
+        { "value": "mb-4xl", "label": "4X Large" },
+        { "value": "mb-5xl", "label": "5X Large" }
+      ],
+      "default": "mb-xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_line_height",
+      "label": "Description Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-relaxed"
+    },
+    {
+      "type": "select",
+      "id": "description_text_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    
+    {
+      "type": "header",
+      "content": "Navigation Tabs"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_navigation",
+      "label": "Show Navigation Tabs",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "nav_text_align",
+      "label": "Navigation Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "nav_font_size",
+      "label": "Navigation Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "nav_font_weight",
+      "label": "Navigation Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "nav_text_color",
+      "label": "Navigation Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "select",
+      "id": "nav_padding",
+      "label": "Navigation Tab Padding",
+      "options": [
+        { "value": "p-xs", "label": "Extra Small" },
+        { "value": "p-sm", "label": "Small" },
+        { "value": "p-md", "label": "Medium" },
+        { "value": "p-lg", "label": "Large" },
+        { "value": "p-xl", "label": "Extra Large" },
+        { "value": "p-2xl", "label": "2X Large" },
+        { "value": "p-3xl", "label": "3X Large" }
+      ],
+      "default": "p-md"
+    },
+    {
+      "type": "select",
+      "id": "nav_background_color",
+      "label": "Navigation Tab Background Color (Inactive)",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "nav_active_background_color",
+      "label": "Active Tab Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "nav_active_text_color",
+      "label": "Active Tab Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "nav_margin_bottom",
+      "label": "Navigation Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" },
+        { "value": "mb-3xl", "label": "3X Large" }
+      ],
+      "default": "mb-xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Content Cards"
+    },
+    {
+      "type": "select",
+      "id": "content_margin_top",
+      "label": "Content Margin Top",
+      "options": [
+        { "value": "mt-xs", "label": "Extra Small" },
+        { "value": "mt-sm", "label": "Small" },
+        { "value": "mt-md", "label": "Medium" },
+        { "value": "mt-lg", "label": "Large" },
+        { "value": "mt-xl", "label": "Extra Large" },
+        { "value": "mt-2xl", "label": "2X Large" },
+        { "value": "mt-3xl", "label": "3X Large" },
+        { "value": "mt-4xl", "label": "4X Large" },
+        { "value": "mt-5xl", "label": "5X Large" }
+      ],
+      "default": "mt-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_background_color",
+      "label": "Card Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "card_border_radius",
+      "label": "Card Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_padding",
+      "label": "Card Padding",
+      "options": [
+        { "value": "p-xs", "label": "Extra Small" },
+        { "value": "p-sm", "label": "Small" },
+        { "value": "p-md", "label": "Medium" },
+        { "value": "p-lg", "label": "Large" },
+        { "value": "p-xl", "label": "Extra Large" },
+        { "value": "p-2xl", "label": "2X Large" },
+        { "value": "p-3xl", "label": "3X Large" },
+        { "value": "p-4xl", "label": "4X Large" },
+        { "value": "p-5xl", "label": "5X Large" }
+      ],
+      "default": "p-2xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Tag/Label Settings"
+    },
+    {
+      "type": "select",
+      "id": "tag_font_size",
+      "label": "Tag Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "tag_font_weight",
+      "label": "Tag Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "tag_text_color",
+      "label": "Tag Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "select",
+      "id": "tag_margin_bottom",
+      "label": "Tag Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" }
+      ],
+      "default": "mb-sm"
+    },
+    
+    {
+      "type": "header",
+      "content": "Content Typography"
+    },
+    {
+      "type": "select",
+      "id": "content_text_color",
+      "label": "Content Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "content_heading_font_size",
+      "label": "Content Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" },
+        { "value": "text-3xl", "label": "3X-Large" },
+        { "value": "text-4xl", "label": "4X-Large" },
+        { "value": "text-5xl", "label": "5X-Large" },
+        { "value": "text-6xl", "label": "6X-Large" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "content_heading_font_size_desktop",
+      "label": "Content Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" },
+        { "value": "lg:text-3xl", "label": "3X-Large" },
+        { "value": "lg:text-4xl", "label": "4X-Large" },
+        { "value": "lg:text-5xl", "label": "5X-Large" },
+        { "value": "lg:text-6xl", "label": "6X-Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "content_heading_font_weight",
+      "label": "Content Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "content_heading_line_height",
+      "label": "Content Heading Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-tight"
+    },
+    {
+      "type": "select",
+      "id": "content_heading_margin_bottom",
+      "label": "Content Heading Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" },
+        { "value": "mb-3xl", "label": "3X Large" }
+      ],
+      "default": "mb-lg"
+    },
+    {
+      "type": "select",
+      "id": "content_description_font_size",
+      "label": "Content Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "content_description_font_size_desktop",
+      "label": "Content Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "content_description_line_height",
+      "label": "Content Description Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-relaxed"
+    },
+    
+    {
+      "type": "header",
+      "content": "Media Settings"
+    },
+    {
+      "type": "select",
+      "id": "image_border_radius",
+      "label": "Media Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab_content",
+      "name": "Tab Content",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Tab Settings"
+        },
+        {
+          "type": "text",
+          "id": "tab_title",
+          "label": "Tab Title",
+          "default": "Launch"
+        },
+        
+        {
+          "type": "header",
+          "content": "Tag/Label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tag",
+          "label": "Show Tag",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "tag_text",
+          "label": "Tag Text",
+          "default": "Education"
+        },
+        {
+          "type": "select",
+          "id": "tag_text_color",
+          "label": "Tag Text Color",
+          "options": [
+            { "value": "", "label": "Default" },
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": ""
+        },
+        
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "content_heading",
+          "label": "Content Heading",
+          "default": "Build pages that guide, not just sell"
+        },
+        {
+          "type": "select",
+          "id": "heading_text_color",
+          "label": "Heading Text Color",
+          "options": [
+            { "value": "", "label": "Default" },
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "textarea",
+          "id": "content_description",
+          "label": "Content Description",
+          "default": "Every successful journey starts with the right foundation. Our intuitive page builder helps you create landing pages that meet people where they are—whether they're just curious or ready to buy. You don't need technical skills or a big budget. Just drag, drop, and watch as your pages become the first step in building genuine connection with your customers."
+        },
+        {
+          "type": "select",
+          "id": "description_text_color",
+          "label": "Description Text Color",
+          "options": [
+            { "value": "", "label": "Default" },
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": ""
+        },
+        
+        {
+          "type": "header",
+          "content": "Media Content"
+        },
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media Type",
+          "options": [
+            { "value": "image", "label": "Image" },
+            { "value": "video", "label": "Video" }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "content_image",
+          "label": "Content Image",
+          "info": "Upload an image file"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL",
+          "info": "Enter the URL of your video file (e.g., from ImageKit or other CDN)"
+        },
+        {
+          "type": "image_picker",
+          "id": "video_thumbnail",
+          "label": "Video Thumbnail",
+          "info": "Upload a thumbnail image for the video"
+        },
+        {
+          "type": "header",
+          "content": "Video Settings (Only applies to videos)"
+        },
+        {
+          "type": "checkbox",
+          "id": "video_autoplay",
+          "label": "Video Autoplay",
+          "default": false,
+          "info": "Note: Most browsers require videos to be muted for autoplay to work"
+        },
+        {
+          "type": "checkbox",
+          "id": "video_muted",
+          "label": "Video Muted",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "video_loop",
+          "label": "Video Loop",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modular Tabs Section",
+      "blocks": [
+        {
+          "type": "tab_content",
+          "settings": {
+            "tab_title": "Launch",
+            "tag_text": "Education",
+            "content_heading": "Build pages that guide, not just sell",
+            "content_description": "Every successful journey starts with the right foundation. Our intuitive page builder helps you create landing pages that meet people where they are—whether they're just curious or ready to buy. You don't need technical skills or a big budget. Just drag, drop, and watch as your pages become the first step in building genuine connection with your customers."
+          }
+        },
+        {
+          "type": "tab_content",
+          "settings": {
+            "tab_title": "Create Buzz",
+            "tag_text": "Connection",
+            "content_heading": "Organize your best content",
+            "content_description": "Transform scattered resources into a centralized hub that works for everyone. Our content library gives your team instant access to the materials they need, when they need them. No more hunting through folders or outdated links; just organized, up-to-date content that helps your business grow."
+          }
+        },
+        {
+          "type": "tab_content",
+          "settings": {
+            "tab_title": "Share Easily",
+            "tag_text": "Empowerment",
+            "content_heading": "Give your reps tools that work",
+            "content_description": "Empower your sales team with resources that actually make a difference. Our platform puts everything they need at their fingertips—from product information to customer success stories. When your team has the right tools, they can focus on what they do best: building relationships and closing deals."
+          }
+        },
+        {
+          "type": "tab_content",
+          "settings": {
+            "tab_title": "Checkout Fast",
+            "tag_text": "Efficiency",
+            "content_heading": "Streamline your sales process",
+            "content_description": "Remove friction from every step of the customer journey. Our streamlined checkout process reduces abandonment and increases conversions. With fewer clicks and clearer paths to purchase, your customers can complete their transactions quickly and confidently."
+          }
+        },
+        {
+          "type": "tab_content",
+          "settings": {
+            "tab_title": "Get Credit",
+            "tag_text": "Recognition",
+            "content_heading": "Track what matters most",
+            "content_description": "Get the recognition you deserve with comprehensive tracking and reporting. Our analytics show exactly how your efforts contribute to business growth. From lead generation to final sale, see your impact and get credit for the results you drive."
+          }
+        },
+        {
+          "type": "tab_content",
+          "settings": {
+            "tab_title": "Stay Synced",
+            "tag_text": "Collaboration",
+            "content_heading": "Keep everyone aligned",
+            "content_description": "Maintain perfect synchronization across your entire team. Our collaboration tools ensure everyone stays on the same page, from marketing to sales to customer success. When your team is aligned, your customers notice the difference."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

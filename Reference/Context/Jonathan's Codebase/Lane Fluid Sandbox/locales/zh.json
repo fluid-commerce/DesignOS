@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "结算",
+    "order_summary": "订单摘要",
+    "shipping": "运费估算",
+    "ships_in": "3-5个工作日内发货",
+    "shopping_cart": "购物车",
+    "subtotal": "小计",
+    "tax": "税费估算",
+    "total": "订单总额"
+  },
+  "components": {
+    "comment_form": {
+      "email": "邮箱",
+      "full_name": "姓名",
+      "leave_info": "请留下您的信息，让{{ company }}知道您是谁。您只需要做一次。",
+      "placeholder": "添加您的评论",
+      "post": "发布",
+      "want_to_leave_comment": "想要留下评论吗？"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "我同意",
+    "all_products": "所有产品",
+    "checkout": "结算",
+    "first_payment": "首次付款日期：{{ date }}",
+    "learn_more": "了解更多",
+    "monthly_subscription": "月度订阅",
+    "todays_purchase": "今日购买"
+  },
+  "footer": {
+    "all_rights_reserved": "版权所有",
+    "cookies_settings": "Cookie设置",
+    "link_1": "链接1",
+    "link_2": "链接2",
+    "link_3": "链接3",
+    "link_4": "链接4",
+    "privacy_policy": "隐私政策",
+    "terms_of_service": "服务条款"
+  },
+  "library": {
+    "commented": "评论了",
+    "comments": "评论",
+    "playlist": "播放列表"
+  },
+  "medium": {
+    "commented": "评论了",
+    "comments": "评论",
+    "products": "产品"
+  },
+  "navbar": {
+    "button_1": "按钮1",
+    "button_2": "按钮2",
+    "countries": "国家",
+    "country": "国家",
+    "country_and_language": "国家和语言",
+    "done": "完成",
+    "language": "语言",
+    "languages": "语言",
+    "link_1": "链接一",
+    "link_2": "链接二",
+    "link_3": "链接三",
+    "link_4": "链接四",
+    "save_and_close": "保存并关闭",
+    "select_country": "选择您的国家",
+    "select_language": "选择语言",
+    "shop": "商店",
+    "enrollments": "注册产品",
+    "view_my_site": "查看我的网站"
+  },
+  "product": {
+    "add_to_cart": "加购物车",
+    "buy_now": "立即购买",
+    "details": "详情",
+    "free_shipping": "满{{amount}}包邮",
+    "product_name": "产品名称",
+    "quantity": "数量",
+    "related_products": "产品",
+    "related_products_intro": "发现我们精心挑选的配套产品，与您的购买完美搭配。",
+    "return": "退货",
+    "return_content": "我们接受购买后30天内的退货。商品必须保持原始状态，未使用且包装完整。退货运费由客户承担，产品缺陷除外。收到并检查您的退货后，我们将退还全部购买金额。",
+    "reviews": "{{reviews}}条评价",
+    "shipping": "配送",
+    "shipping_content": "我们提供全球配送，标准配送时间为3-7个工作日。快递配送需额外收费。所有包裹均已投保并可追踪。配送费用根据重量和目的地在结算时计算。",
+    "shop_all": "查看全部",
+    "stars": "{{stars}}星",
+    "tagline": "标语",
+    "testimonials": "客户评价",
+    "testimonials_intro": "了解我们的客户对产品使用体验的评价。",
+    "variant": "规格",
+    "one_time_purchase":"一次性购买",
+    "subscribe":"订阅"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "订阅并节省 {{save}}%",
+    "update_subscription": "随时更新您的订阅"
+  },
+  "shared": {
+    "button": "按钮",
+    "medium_heading": "中等长度标题在这里",
+    "medium_intro": "发现我们卓越的产品系列，以品质和优雅满足您的所有需求。",
+    "short_heading": "简短标题",
+    "short_intro": "简洁的介绍，清晰而有力地展示我们产品的精髓。",
+    "tagline": "标语",
+    "view_all": "查看全部"
+  },
+  "shop_page": {
+    "button": "按钮",
+    "heading": "简短标题",
+    "intro": "探索我们精心策划的高品质产品系列。",
+    "products": "产品",
+    "products_intro": "我们产品系列中的每一款都因其卓越品质而被精选。",
+    "tagline": "标语"
+  }
+}

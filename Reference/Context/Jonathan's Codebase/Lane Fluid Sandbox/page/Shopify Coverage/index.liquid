@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ Shopify Revenue Coverage Calculator</h1>
+            <p>Discover how much of your revenue Shopify supports out of the box</p>
+        </div>
+
+        <div class="calculator">
+            <div class="intro-text">
+                <p><strong>Considering Shopify for Direct Sales?</strong></p>
+                <p>Most companies aren't aware of how much customization is needed to make network marketing work on Shopify. Every custom line of code is a point of failure that increases cost and decreases trust. Attribution is the key to e-commerce growth for your field.</p>
+            </div>
+
+            <div class="revenue-types">
+                <h2>Your Revenue Breakdown</h2>
+
+                <div class="revenue-item" id="subscriptions-item">
+                    <div class="revenue-header">
+                        <span class="revenue-label">Subscriptions</span>
+                        <span class="revenue-badge not-supported" id="subscriptions-badge">Requires Custom Solution</span>
+                    </div>
+                    <div class="input-row">
+                        <div class="slider-container">
+                            <input type="range" id="subscriptions" min="0" max="100" step="1" value="46">
+                        </div>
+                        <input type="number" class="percentage-input" id="subscriptions-input" min="0" max="100" value="46">
+                        <span style="font-weight: 600; color: #667eea;">%</span>
+                    </div>
+                    <div class="revenue-description">
+                        Recurring revenue from subscription-based products or services (e.g., monthly boxes, memberships, auto-replenishment)
+                    </div>
+                </div>
+
+                <div class="revenue-item" id="enrollments-item">
+                    <div class="revenue-header">
+                        <span class="revenue-label">Enrollments</span>
+                        <span class="revenue-badge not-supported" id="enrollments-badge">Requires Custom Solution</span>
+                    </div>
+                    <div class="input-row">
+                        <div class="slider-container">
+                            <input type="range" id="enrollments" min="0" max="100" step="1" value="27">
+                        </div>
+                        <input type="number" class="percentage-input" id="enrollments-input" min="0" max="100" value="27">
+                        <span style="font-weight: 600; color: #667eea;">%</span>
+                    </div>
+                    <div class="revenue-description">
+                        Customer sign-ups for programs, courses, or services that require enrollment (e.g., training programs, loyalty tiers, club memberships)
+                    </div>
+                </div>
+
+                <div class="revenue-item" id="member-item">
+                    <div class="revenue-header">
+                        <span class="revenue-label">Member (Wholesale Logged In) One-Time</span>
+                        <span class="revenue-badge not-supported" id="member-badge">Requires Custom Solution</span>
+                    </div>
+                    <div class="input-row">
+                        <div class="slider-container">
+                            <input type="range" id="member" min="0" max="100" step="1" value="14">
+                        </div>
+                        <input type="number" class="percentage-input" id="member-input" min="0" max="100" value="14">
+                        <span style="font-weight: 600; color: #667eea;">%</span>
+                    </div>
+                    <div class="revenue-description">
+                        One-time purchases by logged-in members who receive special pricing (e.g., wholesale customers, B2B accounts, VIP members)
+                    </div>
+                </div>
+
+                <div class="revenue-item" id="guest-item">
+                    <div class="revenue-header">
+                        <span class="revenue-label">Customer (Guest) One-Time</span>
+                        <span class="revenue-badge supported" id="guest-badge">✓ Shopify Native</span>
+                    </div>
+                    <div class="input-row">
+                        <div class="slider-container">
+                            <input type="range" id="guest" min="0" max="100" step="1" value="13">
+                        </div>
+                        <input type="number" class="percentage-input" id="guest-input" min="0" max="100" value="13">
+                        <span style="font-weight: 600; color: #667eea;">%</span>
+                    </div>
+                    <div class="revenue-description">
+                        Standard one-time purchases from customers checking out without special pricing or memberships
+                    </div>
+                </div>
+            </div>
+
+            <div class="total-indicator" id="totalIndicator">
+                Total: <span class="total-value" id="totalValue">100%</span>
+            </div>
+
+            <button class="calculate-button" id="calculateButton" onclick="showResults()">
+                Calculate Shopify Coverage
+            </button>
+
+            <div class="results">
+                <h2>Shopify Coverage Analysis</h2>
+                
+                <div class="result-grid">
+                    <div class="result-card shopify-native">
+                        <h3>Shopify Native Support</h3>
+                        <div class="result-percentage" id="nativePercentage">13%</div>
+                        <div class="result-label">of your revenue</div>
+                    </div>
+
+                    <div class="result-card requires-custom">
+                        <h3>Requires Custom Solutions</h3>
+                        <div class="result-percentage" id="customPercentage">87%</div>
+                        <div class="result-label">of your revenue</div>
+                    </div>
+                </div>
+
+                <div class="breakdown">
+                    <h3>Revenue Requiring Custom Solutions</h3>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            Subscriptions
+                            <span class="custom-badge">CUSTOM</span>
+                        </span>
+                        <span class="breakdown-value" id="subscriptionsBreakdown">46%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            Enrollments
+                            <span class="custom-badge">CUSTOM</span>
+                        </span>
+                        <span class="breakdown-value" id="enrollmentsBreakdown">27%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">
+                            Member One-Time Purchases
+                            <span class="custom-badge">CUSTOM</span>
+                        </span>
+                        <span class="breakdown-value" id="memberBreakdown">14%</span>
+                    </div>
+                </div>
+
+                <div class="insight-box" id="insightBox">
+                    <h3>💡 Impact Analysis</h3>
+                    <p id="insightText">
+                        <span class="insight-stat">87%</span> of your revenue requires custom development, third-party apps, or workarounds beyond Shopify's native capabilities. This means higher development costs, increased maintenance complexity, and potential integration challenges.
+                    </p>
+                    <p id="insightDetail">
+                        For a business doing <strong>$1M in annual revenue</strong>, that's <strong class="insight-stat">$870,000</strong> in transactions that need custom solutions to process properly.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isUpdating = false;
+        let resultsShown = false;
+
+        const revenueTypes = {
+            subscriptions: {
+                slider: document.getElementById('subscriptions'),
+                input: document.getElementById('subscriptions-input'),
+                breakdown: document.getElementById('subscriptionsBreakdown'),
+                badge: document.getElementById('subscriptions-badge'),
+                item: document.getElementById('subscriptions-item')
+            },
+            enrollments: {
+                slider: document.getElementById('enrollments'),
+                input: document.getElementById('enrollments-input'),
+                breakdown: document.getElementById('enrollmentsBreakdown'),
+                badge: document.getElementById('enrollments-badge'),
+                item: document.getElementById('enrollments-item')
+            },
+            member: {
+                slider: document.getElementById('member'),
+                input: document.getElementById('member-input'),
+                breakdown: document.getElementById('memberBreakdown'),
+                badge: document.getElementById('member-badge'),
+                item: document.getElementById('member-item')
+            },
+            guest: {
+                slider: document.getElementById('guest'),
+                input: document.getElementById('guest-input'),
+                badge: document.getElementById('guest-badge'),
+                item: document.getElementById('guest-item')
+            }
+        };
+
+        // Hide all badges initially
+        Object.keys(revenueTypes).forEach(key => {
+            if (revenueTypes[key].badge) {
+                revenueTypes[key].badge.style.display = 'none';
+            }
+        });
+
+        function getTotal() {
+            return Object.keys(revenueTypes).reduce((sum, key) => {
+                return sum + parseInt(revenueTypes[key].slider.value);
+            }, 0);
+        }
+
+        function updateDisplay() {
+            const total = getTotal();
+            const totalIndicator = document.getElementById('totalIndicator');
+            const totalValue = document.getElementById('totalValue');
+            const calculateButton = document.getElementById('calculateButton');
+            
+            totalValue.textContent = total + '%';
+            
+            if (total === 100) {
+                totalIndicator.className = 'total-indicator valid';
+                calculateButton.disabled = false;
+            } else {
+                totalIndicator.className = 'total-indicator invalid';
+                calculateButton.disabled = true;
+            }
+
+            // Update result cards if results are shown
+            if (resultsShown) {
+                updateResults();
+            }
+        }
+
+        function updateResults() {
+            const guestValue = parseInt(revenueTypes.guest.slider.value);
+            const customValue = 100 - guestValue;
+
+            document.getElementById('nativePercentage').textContent = guestValue + '%';
+            document.getElementById('customPercentage').textContent = customValue + '%';
+
+            // Update breakdown
+            document.getElementById('subscriptionsBreakdown').textContent = 
+                revenueTypes.subscriptions.slider.value + '%';
+            document.getElementById('enrollmentsBreakdown').textContent = 
+                revenueTypes.enrollments.slider.value + '%';
+            document.getElementById('memberBreakdown').textContent = 
+                revenueTypes.member.slider.value + '%';
+
+            // Update insight text
+            const customValueFormatted = customValue;
+            const revenueAmount = (customValue * 10000).toLocaleString();
+            
+            document.getElementById('insightText').innerHTML = `
+                <span class="insight-stat">${customValueFormatted}%</span> of your revenue requires custom development, third-party apps, or workarounds beyond Shopify's native capabilities. This means higher development costs, increased maintenance complexity, and potential integration challenges.
+            `;
+            
+            document.getElementById('insightDetail').innerHTML = `
+                For a business doing <strong>$1M in annual revenue</strong>, that's <strong class="insight-stat">$${revenueAmount}</strong> in transactions that need custom solutions to process properly.
+            `;
+        }
+
+        function showResults() {
+            const total = getTotal();
+            if (total !== 100) return;
+
+            resultsShown = true;
+
+            // Show and animate badges
+            Object.keys(revenueTypes).forEach(key => {
+                const { badge, item } = revenueTypes[key];
+                if (badge) {
+                    badge.style.display = 'inline-block';
+                    setTimeout(() => {
+                        badge.classList.add('visible');
+                    }, 100);
+                }
+
+                // Add highlighting to items
+                if (key === 'guest') {
+                    item.classList.add('highlight-supported');
+                } else {
+                    item.classList.add('highlight-custom');
+                }
+            });
+
+            // Show results section
+            const resultsSection = document.querySelector('.results');
+            resultsSection.classList.add('visible');
+
+            // Update results
+            updateResults();
+
+            // Scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 200);
+        }
+
+        function normalizeValues(changedKey) {
+            if (isUpdating) return;
+            isUpdating = true;
+
+            // If guest was changed, adjust others proportionally
+            if (changedKey === 'guest') {
+                const total = getTotal();
+                
+                if (total !== 100) {
+                    const difference = total - 100;
+                    const otherKeys = ['subscriptions', 'enrollments', 'member'];
+                    
+                    // Distribute the difference proportionally among other values
+                    let remaining = difference;
+                    const otherValues = otherKeys.map(k => parseInt(revenueTypes[k].slider.value));
+                    const otherTotal = otherValues.reduce((a, b) => a + b, 0);
+                    
+                    if (otherTotal > 0) {
+                        otherKeys.forEach((key, index) => {
+                            const currentValue = parseInt(revenueTypes[key].slider.value);
+                            const proportion = currentValue / otherTotal;
+                            let adjustment = Math.round(proportion * difference);
+                            
+                            // Make sure we don't go below 0
+                            const newValue = Math.max(0, currentValue - adjustment);
+                            revenueTypes[key].slider.value = newValue;
+                            revenueTypes[key].input.value = newValue;
+                            
+                            remaining -= (currentValue - newValue);
+                        });
+                        
+                        // Handle any remaining rounding differences
+                        if (remaining !== 0) {
+                            for (let key of otherKeys) {
+                                const currentValue = parseInt(revenueTypes[key].slider.value);
+                                if (remaining > 0 && currentValue > 0) {
+                                    const adjustment = Math.min(remaining, currentValue);
+                                    revenueTypes[key].slider.value = currentValue - adjustment;
+                                    revenueTypes[key].input.value = currentValue - adjustment;
+                                    remaining -= adjustment;
+                                } else if (remaining < 0) {
+                                    const adjustment = Math.abs(remaining);
+                                    revenueTypes[key].slider.value = currentValue + adjustment;
+                                    revenueTypes[key].input.value = currentValue + adjustment;
+                                    remaining = 0;
+                                }
+                                if (remaining === 0) break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // If any other slider changed, just adjust guest to make it 100%
+                const subscriptionsValue = parseInt(revenueTypes.subscriptions.slider.value);
+                const enrollmentsValue = parseInt(revenueTypes.enrollments.slider.value);
+                const memberValue = parseInt(revenueTypes.member.slider.value);
+                
+                const guestValue = 100 - subscriptionsValue - enrollmentsValue - memberValue;
+                const clampedGuestValue = Math.max(0, Math.min(100, guestValue));
+                
+                revenueTypes.guest.slider.value = clampedGuestValue;
+                revenueTypes.guest.input.value = clampedGuestValue;
+            }
+
+            updateDisplay();
+            isUpdating = false;
+        }
+
+        // Set up event listeners for all revenue types
+        Object.keys(revenueTypes).forEach(key => {
+            const { slider, input } = revenueTypes[key];
+            
+            slider.addEventListener('input', function() {
+                input.value = this.value;
+                normalizeValues(key);
+            });
+            
+            input.addEventListener('input', function() {
+                let value = parseInt(this.value) || 0;
+                value = Math.max(0, Math.min(100, value));
+                this.value = value;
+                slider.value = value;
+                normalizeValues(key);
+            });
+        });
+
+        // Initial display update
+        updateDisplay();
+    </script>
+</body>
+</html>

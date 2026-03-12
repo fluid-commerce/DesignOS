@@ -1,0 +1,941 @@
+<!-- Sticky Scroll FAQ Section -->
+<section class="sticky-scroll-faq section {{ section.settings.section_background_color | default: 'bg-neutral-light' }} {{ section.settings.section_padding | default: 'py-2xl' }}">
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: 'bg-transparent' }} {{ section.settings.container_border_radius | default: 'rounded-none' }} {{ section.settings.container_padding | default: 'p-0' }}">
+      
+      <!-- Sticky Scroll Grid -->
+      <div class="sticky-grid-wrapper">
+        <div class="sticky-grid grid grid-cols-1 lg:grid-cols-2 gap-2xl lg:gap-3xl">
+          
+          <!-- Left Side - Sticky Content -->
+          <div class="sticky-content-wrapper">
+            <div class="sticky-content">
+              
+              <!-- Main Heading -->
+              {% if section.settings.heading != blank %}
+              <div class="heading-wrapper mb-2xl">
+                <h2 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-3xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.heading_font_weight | default: 'font-black' }} {{ section.settings.heading_color | default: 'text-black' }} leading-tight">
+                  {{ section.settings.heading | default: "We're not in the business of expensive failures." }}
+                </h2>
+              </div>
+              {% endif %}
+              
+              <!-- Quote Content -->
+              <div class="quote-content-wrapper">
+                
+                <!-- Quote Text -->
+                {% if section.settings.quote_text != blank %}
+                <div class="quote-text-wrapper mb-xl">
+                  <blockquote class="{{ section.settings.quote_font_family | default: 'font-body' }} {{ section.settings.quote_font_size | default: 'text-lg' }} {{ section.settings.quote_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.quote_font_weight | default: 'font-normal' }} {{ section.settings.quote_color | default: 'text-black' }} leading-relaxed">
+                    <span class="quote-mark {{ section.settings.quote_mark_color | default: 'text-primary' }}">"</span>{{ section.settings.quote_text | default: "Too many founders in the e-commerce space are afraid to take a stand. They'll integrate with anything, work around any limitation, say yes to any request. The result? Broken systems that cost millions and satisfy no one. We built We-Commerce as one connected platform because that's the only way it actually works—and I'm not sorry for refusing to compromise on that." }}<span class="quote-mark {{ section.settings.quote_mark_color | default: 'text-primary' }}">"</span>
+                  </blockquote>
+                </div>
+                {% endif %}
+                
+                <!-- Author Info -->
+                <div class="author-info-wrapper">
+                  <div class="author-info flex items-center gap-md">
+                    
+                    <!-- Author Avatar -->
+                    {% if section.settings.author_avatar %}
+                    <div class="author-avatar">
+                      <img src="{{ section.settings.author_avatar | image_url: width: 60 }}"
+                           alt="{{ section.settings.author_name }}"
+                           class="w-12 h-12 rounded-full object-cover">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Author Details -->
+                    <div class="author-details">
+                      {% if section.settings.author_name != blank %}
+                      <p class="{{ section.settings.author_name_font_family | default: 'font-primary' }} {{ section.settings.author_name_font_size | default: 'text-lg' }} {{ section.settings.author_name_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.author_name_font_weight | default: 'font-bold' }} {{ section.settings.author_name_color | default: 'text-black' }} handwritten-style">
+                        {{ section.settings.author_name | default: "MIKE TINGEY" }}
+                      </p>
+                      {% endif %}
+                      
+                      {% if section.settings.author_title != blank %}
+                      <p class="{{ section.settings.author_title_font_family | default: 'font-body' }} {{ section.settings.author_title_font_size | default: 'text-base' }} {{ section.settings.author_title_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.author_title_font_weight | default: 'font-normal' }} {{ section.settings.author_title_color | default: 'text-neutral-dark' }}">
+                        {{ section.settings.author_title | default: "Founder & CEO of We-Commerce" }}
+                      </p>
+                      {% endif %}
+                    </div>
+                    
+                  </div>
+                </div>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Right Side - Stacked Cards -->
+          <div class="cards-scroll-wrapper">
+            <div class="cards-scroll-container">
+              <div class="card-stack">
+                
+                {% for block in section.blocks %}
+                  {% case block.type %}
+                    {% when 'faq_card' %}
+                      <div class="faq-card card-stack-item" data-card-index="{{ forloop.index0 }}" {{ block.fluid_attributes }}>
+                        
+                        <!-- Card Icon -->
+                        {% if block.settings.show_icon %}
+                        <div class="card-icon-wrapper mb-lg">
+                          <div class="card-icon {{ section.settings.icon_background_color | default: 'bg-black' }} {{ section.settings.icon_border_radius | default: 'rounded-lg' }} w-12 h-12 flex items-center justify-center overflow-hidden">
+                            {% if block.settings.icon_image %}
+                              <img src="{{ block.settings.icon_image | image_url: width: 48 }}"
+                                   alt="{{ block.settings.icon_alt | default: 'Card icon' }}"
+                                   class="w-full h-full object-cover">
+                            {% else %}
+                              <img src="{{ 'placeholder-image.png' | asset_url }}"
+                                   alt="{{ block.settings.icon_alt | default: 'Card icon placeholder' }}"
+                                   class="w-full h-full object-cover">
+                            {% endif %}
+                          </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Card Question -->
+                        {% if block.settings.question != blank %}
+                        <div class="card-question-wrapper mb-lg">
+                          <h3 class="{{ section.settings.card_question_font_family | default: 'font-primary' }} {{ section.settings.card_question_font_size | default: 'text-xl' }} {{ section.settings.card_question_font_size_desktop | default: 'lg:text-2xl' }} {{ section.settings.card_question_font_weight | default: 'font-bold' }} {{ section.settings.card_question_color | default: 'text-black' }} leading-tight">
+                            {{ block.settings.question | default: "Lorem ipsum dolor sit amet consectetur adipiscing elit?" }}
+                          </h3>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Card Answer -->
+                        {% if block.settings.answer != blank %}
+                        <div class="card-answer-wrapper">
+                          <div class="{{ section.settings.card_answer_font_family | default: 'font-body' }} {{ section.settings.card_answer_font_size | default: 'text-base' }} {{ section.settings.card_answer_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.card_answer_font_weight | default: 'font-normal' }} {{ section.settings.card_answer_color | default: 'text-neutral-dark' }} leading-relaxed">
+                            {{ block.settings.answer | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." }}
+                          </div>
+                        </div>
+                        {% endif %}
+                        
+                      </div>
+                  {% endcase %}
+                {% endfor %}
+                
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<style>
+  {% render 'section-css', section_id: 'sticky_scroll_faq' %}
+</style>
+
+<script>
+// Sticky Scroll FAQ - 3D Card Stack Animation
+document.addEventListener('DOMContentLoaded', function() {
+  const initStickyScrollFAQ = () => {
+    const section = document.querySelector('.sticky-scroll-faq');
+    if (!section) return;
+
+    const cardsWrapper = section.querySelector('.cards-scroll-wrapper');
+    const cards = section.querySelectorAll('.card-stack-item');
+    
+    if (!cards.length) return;
+
+    let currentCardIndex = 0;
+    let isTransitioning = false;
+    
+    // Calculate and set dynamic card stack height
+    const setCardStackHeight = () => {
+      if (window.innerWidth < 1024) return; // Skip on mobile
+      
+      const cardStack = section.querySelector('.card-stack');
+      if (!cardStack) return;
+      
+      // Temporarily show all cards to measure their natural heights
+      cards.forEach(card => {
+        card.style.position = 'relative';
+        card.style.transform = 'none';
+        card.style.opacity = '1';
+        card.classList.remove('card-removed');
+      });
+      
+      // Find the tallest card
+      let maxHeight = 400; // Minimum height
+      cards.forEach(card => {
+        const cardHeight = card.offsetHeight;
+        if (cardHeight > maxHeight) {
+          maxHeight = cardHeight;
+        }
+      });
+      
+      // Set the stack height based on tallest card plus stacking offset
+      const stackHeight = maxHeight + (cards.length * 32); // 32px for stacking effect
+      cardStack.style.height = `${stackHeight}px`;
+      
+      // Reset cards to absolute positioning
+      cards.forEach((card, index) => {
+        card.style.position = 'absolute';
+        card.style.height = 'auto';
+        card.style.minHeight = `${maxHeight}px`;
+      });
+    };
+    
+    // Calculate scroll positions for each card removal
+    const getScrollThresholds = () => {
+      const sectionRect = section.getBoundingClientRect();
+      const sectionTop = window.pageYOffset + sectionRect.top;
+      const cardHeight = window.innerHeight * 0.5; // Each card takes 50% of viewport height
+      
+      return cards.map((_, index) => ({
+        start: sectionTop + (index * cardHeight),
+        end: sectionTop + ((index + 1) * cardHeight)
+      }));
+    };
+
+    // Update card positions based on scroll
+    const updateCardStack = () => {
+      if (window.innerWidth < 1024) return; // Skip on mobile
+      
+      const scrollTop = window.pageYOffset;
+      const sectionRect = section.getBoundingClientRect();
+      const sectionTop = window.pageYOffset + sectionRect.top;
+      const sectionBottom = sectionTop + sectionRect.height;
+      
+      // Only animate when section is in view
+      if (scrollTop < sectionTop - window.innerHeight || scrollTop > sectionBottom) {
+        return;
+      }
+      
+      const progressThroughSection = Math.max(0, Math.min(1, 
+        (scrollTop - sectionTop) / (sectionRect.height - window.innerHeight)
+      ));
+      
+      const totalCards = cards.length;
+      const cardProgressStep = 1 / totalCards;
+      
+      // Find which card should be animating (the topmost visible card)
+      let activeCardIndex = Math.floor(progressThroughSection * totalCards);
+      activeCardIndex = Math.min(activeCardIndex, totalCards - 1);
+      
+      cards.forEach((card, index) => {
+        const cardStartProgress = index * cardProgressStep;
+        const cardEndProgress = (index + 1) * cardProgressStep;
+        
+        // Cards that have already been removed - stay invisible
+        if (index < activeCardIndex) {
+          if (!card.classList.contains('card-removed')) {
+            card.classList.add('card-removed');
+          }
+          card.style.transform = '';
+          card.style.opacity = '0';
+        }
+        // The currently animating card
+        else if (index === activeCardIndex && progressThroughSection >= cardStartProgress && progressThroughSection < cardEndProgress) {
+          const cardProgress = (progressThroughSection - cardStartProgress) / cardProgressStep;
+          
+          // Only animate the active card
+          const translateX = cardProgress * 100; // Move right
+          const rotateZ = cardProgress * 15; // Rotation
+          const opacity = 1 - (cardProgress * 0.9); // Fade out
+          
+          card.style.transform = `translateX(${translateX}vw) rotateZ(${rotateZ}deg)`;
+          card.style.opacity = opacity;
+          card.classList.remove('card-removed');
+        }
+        // Cards that should be visible and stationary
+        else if (index > activeCardIndex) {
+          // Reset any inline transforms and make sure it's visible
+          // This allows CSS to control the stacked positioning
+          card.style.transform = '';
+          card.style.opacity = '1';
+          card.classList.remove('card-removed');
+        }
+      });
+    };
+
+    // Throttled scroll handler
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateCardStack();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Initialize
+    setCardStackHeight();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Initial call
+    updateCardStack();
+    
+    // Recalculate on resize
+    window.addEventListener('resize', () => {
+      setTimeout(() => {
+        setCardStackHeight();
+        updateCardStack();
+      }, 100);
+    });
+  };
+
+  // Initialize
+  initStickyScrollFAQ();
+});
+</script>
+
+{% schema %}
+{
+  "name": "Sticky Scroll FAQ",
+  "tag": "section",
+  "class": "sticky-scroll-faq-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Main Heading",
+      "default": "We're not in the business of expensive failures."
+    },
+    {
+      "type": "textarea",
+      "id": "quote_text",
+      "label": "Quote Text",
+      "default": "Too many founders in the e-commerce space are afraid to take a stand. They'll integrate with anything, work around any limitation, say yes to any request. The result? Broken systems that cost millions and satisfy no one. We built We-Commerce as one connected platform because that's the only way it actually works—and I'm not sorry for refusing to compromise on that."
+    },
+    {
+      "type": "text",
+      "id": "author_name",
+      "label": "Author Name",
+      "default": "MIKE TINGEY"
+    },
+    {
+      "type": "text",
+      "id": "author_title",
+      "label": "Author Title",
+      "default": "Founder & CEO of We-Commerce"
+    },
+    {
+      "type": "image_picker",
+      "id": "author_avatar",
+      "label": "Author Avatar"
+    },
+    {
+      "type": "header",
+      "content": "Heading Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Quote Typography"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_family",
+      "label": "Quote Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_size",
+      "label": "Quote Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_size_desktop",
+      "label": "Quote Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_weight",
+      "label": "Quote Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "quote_color",
+      "label": "Quote Text Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "quote_mark_color",
+      "label": "Quote Mark Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-black", "label": "Black" }
+      ],
+      "default": "text-primary"
+    },
+    {
+      "type": "header",
+      "content": "Author Typography"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_family",
+      "label": "Author Name Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_size",
+      "label": "Author Name Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_size_desktop",
+      "label": "Author Name Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_weight",
+      "label": "Author Name Font Weight",
+      "options": [
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "author_name_color",
+      "label": "Author Name Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_family",
+      "label": "Author Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_size",
+      "label": "Author Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_size_desktop",
+      "label": "Author Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_weight",
+      "label": "Author Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "author_title_color",
+      "label": "Author Title Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Card Question Typography"
+    },
+    {
+      "type": "select",
+      "id": "card_question_font_family",
+      "label": "Card Question Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "card_question_font_size",
+      "label": "Card Question Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "card_question_font_size_desktop",
+      "label": "Card Question Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" }
+      ],
+      "default": "lg:text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_question_font_weight",
+      "label": "Card Question Font Weight",
+      "options": [
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "card_question_color",
+      "label": "Card Question Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-white", "label": "White" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Card Answer Typography"
+    },
+    {
+      "type": "select",
+      "id": "card_answer_font_family",
+      "label": "Card Answer Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "card_answer_font_size",
+      "label": "Card Answer Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "card_answer_font_size_desktop",
+      "label": "Card Answer Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "card_answer_font_weight",
+      "label": "Card Answer Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "card_answer_color",
+      "label": "Card Answer Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Card Styling"
+    },
+    {
+      "type": "select",
+      "id": "card_background_color",
+      "label": "Card Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "card_border_radius",
+      "label": "Card Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" }
+      ],
+      "default": "rounded-xl"
+    },
+    {
+      "type": "select",
+      "id": "card_padding",
+      "label": "Card Padding",
+      "options": [
+        { "value": "p-lg", "label": "Large" },
+        { "value": "p-xl", "label": "Extra Large" },
+        { "value": "p-2xl", "label": "2X Large" }
+      ],
+      "default": "p-xl"
+    },
+    {
+      "type": "header",
+      "content": "Icon Settings"
+    },
+    {
+      "type": "select",
+      "id": "icon_background_color",
+      "label": "Icon Background Color",
+      "options": [
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-white", "label": "White" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "select",
+      "id": "icon_color",
+      "label": "Icon Color",
+      "options": [
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "select",
+      "id": "icon_border_radius",
+      "label": "Icon Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-full", "label": "Full" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "section_background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "select",
+      "id": "section_padding",
+      "label": "Section Padding",
+      "options": [
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-2xl"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding",
+      "label": "Container Padding",
+      "options": [
+        { "value": "p-0", "label": "None" },
+        { "value": "p-lg", "label": "Large" },
+        { "value": "p-xl", "label": "Extra Large" },
+        { "value": "p-2xl", "label": "2X Large" }
+      ],
+      "default": "p-0"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_card",
+      "name": "FAQ Card",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_icon",
+          "label": "Show Icon",
+          "default": true
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Icon Image"
+        },
+        {
+          "type": "text",
+          "id": "icon_alt",
+          "label": "Icon Alt Text"
+        },
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Can I just use your mobile app with my existing ecommerce platform?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "No. We're not going to help you build an expensive failure. The app only works when it's connected to our attribution system, which only works when it's connected to our checkout system. Break that chain anywhere, and FairShare™ stops working. Without proper attribution, reps lose trust, sharing drops, and you're back where you started—with a broken system and frustrated reps."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sticky Scroll FAQ",
+      "blocks": [
+        {
+          "type": "faq_card",
+          "settings": {
+            "question": "Can I just use your mobile app with my existing ecommerce platform?",
+            "answer": "No. We're not going to help you build an expensive failure. The app only works when it's connected to our attribution system, which only works when it's connected to our checkout system. Break that chain anywhere, and FairShare™ stops working. Without proper attribution, reps lose trust, sharing drops, and you're back where you started—with a broken system and frustrated reps."
+          }
+        },
+        {
+          "type": "faq_card", 
+          "settings": {
+            "question": "What if I want to use my own merchant account instead of Fluid Payments?",
+            "answer": "That piecemeal thinking is exactly what's gotten this industry so far behind. Every 'integration' you add creates another failure point. Your merchant account doesn't talk to our attribution system the same way. Data gets lost. Attribution breaks. Reps don't get credited. Trust erodes. We'd rather say no than help you recreate the same problems everyone else has."
+          }
+        },
+        {
+          "type": "faq_card",
+          "settings": {
+            "question": "Can we start with just one feature and add others later?",
+            "answer": "That's like asking to buy just the engine of a car and add wheels later. Each feature is designed to work with the others. The website builder creates pages that feed data to FairShare™. The content library enables effective sharing tracked by FairShare™. The checkout system completes the loop back to FairShare™. Start with pieces, and you'll spend months trying to make them work together—and they never will, because they weren't designed to be Frankensteined together."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,404 @@
+{%- style -%}
+  .cta-banner5-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | default: 64 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 64 }}px;
+    background-color: {{ section.settings.background_color | default: '#444444' }} !important;
+  }
+  
+  .cta-banner5-section-{{ section.id }} .cta-heading {
+    color: {{ section.settings.heading_color | default: '#ffffff' }} !important;
+  }
+  
+  .cta-banner5-section-{{ section.id }} .cta-description {
+    color: {{ section.settings.description_color | default: '#ffffff' }} !important;
+  }
+  
+  .cta-banner5-section-{{ section.id }} .cta-terms {
+    color: {{ section.settings.terms_color | default: '#ffffff' }} !important;
+  }
+  
+  .cta-banner5-section-{{ section.id }} .cta-terms a {
+    color: {{ section.settings.terms_link_color | default: '#ffffff' }} !important;
+  }
+  
+  .cta-banner5-section-{{ section.id }} .cta-terms a:hover {
+    color: {{ section.settings.terms_link_color | default: '#ffffff' }} !important;
+    opacity: 0.8;
+  }
+{%- endstyle -%}
+
+<!-- Cta section -->
+<section class="cta-section cta-banner5-section-{{ section.id }} py-16 xl-tab-py-20">
+    <div class="container">
+      <div class="grid grid-cols-1 md-tab-grid-cols-2 gap-12 md-tab-grid-20">
+        <h2 class="cta-heading {{ section.settings.heading_font_size | default: 'text-h2' }} {{ section.settings.heading_font_size_desktop | default: 'text-h2' }} {{ section.settings.heading_font_weight | default: 'font-bold' }}">
+          {{ section.settings.heading | default: "Medium length heading goes here" }}
+        </h2>
+        <div class="cta-content">
+          <p class="cta-description {{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_size_desktop | default: 'xl-tab-text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }}">
+            {{ section.settings.description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat." }}
+          </p>
+          {% if section.settings.show_form %}
+          <form class="cta-signup mt-6 flex-col xl-phone-flex-row flex gap-4" action="{{ section.settings.form_action | default: '#' }}" method="POST">
+            <div class="flex-1">
+              <input
+                type="email"
+                name="email"
+                placeholder="{{ section.settings.input_placeholder | default: 'Enter your email' }}"
+                class="input-border-white"
+                required
+              />
+            </div>
+            <button class="btn btn-bg-white {{ section.settings.button_font_size | default: 'text-base' }} {{ section.settings.button_font_size_desktop | default: 'xl-tab-text-base' }} {{ section.settings.button_font_weight | default: 'font-medium' }}" type="submit">
+              {{ section.settings.button_text | default: "sign up" }}
+            </button>
+          </form>
+          {% endif %}
+          {% if section.settings.show_terms %}
+          <div class="cta-terms {{ section.settings.terms_font_size | default: 'text-xs' }} {{ section.settings.terms_font_size_desktop | default: 'xl-tab-text-xs' }} {{ section.settings.terms_font_weight | default: 'font-normal' }} mt-4">
+            {{ section.settings.terms_text | default: "By clicking Sign Up you're confirming that you agree with our" }}
+            {% if section.settings.terms_link_url != blank %}
+            <a href="{{ section.settings.terms_link_url }}" class="underline">{{ section.settings.terms_link_text | default: "Terms and Conditions" }}</a>.
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "CTA Banner",
+  "tag": "section",
+  "class": "cta-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Medium length heading goes here"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat."
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" },
+        { "value": "text-h3", "label": "H3" }
+      ],
+      "default": "text-h2"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" },
+        { "value": "xl-tab-text-3xl", "label": "3X Large" },
+        { "value": "xl-tab-text-4xl", "label": "4X Large" },
+        { "value": "xl-tab-text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" },
+        { "value": "text-h3", "label": "H3" }
+      ],
+      "default": "text-h2"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" }
+      ],
+      "default": "xl-tab-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "label": "Description Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Signup Form"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_form",
+      "label": "Show Signup Form",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Email Input Placeholder",
+      "default": "Enter your email"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "sign up"
+    },
+    {
+      "type": "url",
+      "id": "form_action",
+      "label": "Form Action URL",
+      "info": "Leave blank to prevent form submission"
+    },
+    {
+      "type": "select",
+      "id": "button_font_size",
+      "label": "Button Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "button_font_size_desktop",
+      "label": "Button Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-base"
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "header",
+      "content": "Terms & Conditions"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_terms",
+      "label": "Show Terms Text",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "terms_text",
+      "label": "Terms Text",
+      "default": "By clicking Sign Up you're confirming that you agree with our"
+    },
+    {
+      "type": "text",
+      "id": "terms_link_text",
+      "label": "Terms Link Text",
+      "default": "Terms and Conditions"
+    },
+    {
+      "type": "url",
+      "id": "terms_link_url",
+      "label": "Terms Link URL",
+      "default": "#"
+    },
+    {
+      "type": "select",
+      "id": "terms_font_size",
+      "label": "Terms Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-xs"
+    },
+    {
+      "type": "select",
+      "id": "terms_font_size_desktop",
+      "label": "Terms Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-xs", "label": "Extra Small" },
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" }
+      ],
+      "default": "xl-tab-text-xs"
+    },
+    {
+      "type": "select",
+      "id": "terms_font_weight",
+      "label": "Terms Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "terms_color",
+      "label": "Terms Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_background",
+      "id": "terms_link_color",
+      "label": "Terms Link Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout & Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#444"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "CTA Banner",
+      "settings": {
+        "heading": "Medium length heading goes here",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat.",
+        "heading_font_size": "text-h2",
+        "heading_font_size_desktop": "text-h2",
+        "heading_font_weight": "font-bold",
+        "heading_color": "#ffffff",
+        "description_font_size": "text-lg",
+        "description_font_size_desktop": "xl-tab-text-lg",
+        "description_font_weight": "font-normal",
+        "description_color": "#ffffff",
+        "show_form": true,
+        "input_placeholder": "Enter your email",
+        "button_text": "sign up",
+        "button_font_size": "text-base",
+        "button_font_size_desktop": "xl-tab-text-base",
+        "button_font_weight": "font-medium",
+        "show_terms": true,
+        "terms_text": "By clicking Sign Up you're confirming that you agree with our",
+        "terms_link_text": "Terms and Conditions",
+        "terms_link_url": "#",
+        "terms_font_size": "text-xs",
+        "terms_font_size_desktop": "xl-tab-text-xs",
+        "terms_font_weight": "font-normal",
+        "terms_color": "#ffffff",
+        "terms_link_color": "#ffffff",
+        "background_color": "#444",
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,223 @@
+.fw-timeline-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.fw-timeline-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.fw-timeline-header {
+  max-width: 800px;
+  margin: 0 auto 2.5rem;
+}
+
+.fw-timeline-accent-bar {
+  display: flex;
+  justify-content: center;
+}
+
+.fw-accent-bar-img {
+  height: 6px;
+  width: 80px;
+  object-fit: cover;
+  box-shadow: none !important;
+}
+
+.fw-accent-bar-fallback {
+  height: 4px;
+  width: 60px;
+  border-radius: 2px;
+  background: var(--clr-secondary);
+}
+
+.fw-timeline-eyebrow {
+  letter-spacing: 0.04em;
+}
+
+.fw-timeline-headline {
+  line-height: 1.2;
+}
+
+/* ── Timeline Row ────────────────────────────────── */
+
+.fw-timeline-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.fw-step-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-step-item:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.fw-step-item.fw-step-highlighted {
+  border-color: var(--step-border-color, var(--clr-success));
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.fw-step-item.fw-step-highlighted:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
+              0 0 24px color-mix(in srgb, var(--step-border-color, var(--clr-success)) 20%, transparent);
+}
+
+/* ── Step Label ──────────────────────────────────── */
+
+.fw-step-label {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  opacity: 0.25;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-step-highlighted .fw-step-label {
+  opacity: 1;
+}
+
+/* ── Step Title ──────────────────────────────────── */
+
+.fw-step-title {
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Step Body ───────────────────────────────────── */
+
+.fw-step-body {
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+/* ── Footer ──────────────────────────────────────── */
+
+.fw-timeline-footer {
+  margin-top: 2.5rem;
+}
+
+.fw-timeline-footer-note {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ── Mobile: vertical stack with connecting line ─── */
+
+@media (max-width: 1023px) {
+  .fw-timeline-row {
+    gap: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .fw-timeline-row::before {
+    content: '';
+    position: absolute;
+    left: 0.375rem;
+    top: 1.75rem;
+    bottom: 1.75rem;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.12) 50%,
+      rgba(255, 255, 255, 0.06)
+    );
+    border-radius: 1px;
+  }
+
+  .fw-step-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 1.75rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transform: translateX(-2.5px);
+    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .fw-step-item.fw-step-highlighted::before {
+    background: var(--step-border-color, var(--clr-success));
+    border-color: var(--step-border-color, var(--clr-success));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--step-border-color, var(--clr-success)) 40%, transparent);
+  }
+
+  .fw-step-label {
+    font-size: 1.75rem;
+  }
+
+  .fw-timeline-header {
+    margin-bottom: 2rem;
+  }
+
+  .fw-timeline-footer {
+    margin-top: 2rem;
+  }
+}
+
+/* ── Desktop: horizontal flex row ────────────────── */
+
+@media (min-width: 1024px) {
+  .fw-timeline-row {
+    flex-direction: row;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .fw-step-item {
+    flex: 1;
+    padding: 2rem;
+  }
+
+  .fw-step-item:not(.fw-step-last)::after {
+    content: '\2192';
+    position: absolute;
+    right: -1.125rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.2);
+    z-index: 2;
+    pointer-events: none;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .fw-step-label {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .fw-timeline-header {
+    margin-bottom: 3rem;
+  }
+
+  .fw-timeline-footer {
+    margin-top: 3rem;
+  }
+}

@@ -1,0 +1,598 @@
+{%- style -%}
+  .shop-product-{{ section.id }} {
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 64 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 64 }}px;
+    background-color: {{ section.settings.background_color | default: 'transparent' }};
+  }
+  
+  @media (min-width: 1280px) {
+    .shop-product-{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 100 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 100 }}px;
+    }
+  }
+  
+  .shop-product-{{ section.id }} .section-tagline {
+    color: {{ section.settings.tagline_color | default: '#666666' }};
+  }
+  
+  .shop-product-{{ section.id }} .section-heading {
+    color: {{ section.settings.heading_color | default: '#000000' }};
+  }
+  
+  .shop-product-{{ section.id }} .section-description {
+    color: {{ section.settings.description_color | default: '#666666' }};
+  }
+  
+  .shop-product-{{ section.id }} .view-all-button {
+    background-color: {{ section.settings.button_background_color | default: 'transparent' }};
+    color: {{ section.settings.button_text_color | default: '#000000' }};
+    border: {{ section.settings.button_border_width | default: 1 }}px solid {{ section.settings.button_border_color | default: '#000000' }};
+  }
+  
+  .shop-product-{{ section.id }} .product-title {
+    color: {{ section.settings.product_title_color | default: '#000000' }};
+  }
+  
+  .shop-product-{{ section.id }} .product-variant {
+    color: {{ section.settings.product_variant_color | default: '#666666' }};
+  }
+  
+  .shop-product-{{ section.id }} .product-price {
+    color: {{ section.settings.product_price_color | default: '#000000' }};
+  }
+{%- endstyle -%}
+
+<section class="product-collection-section section-y-spacing shop-product-{{ section.id }}">
+  <div class="container">
+    <div class="header-section">
+      <div class="wrapper sm-desktop-flex flex-wrap align-end">
+        <div class="desc">
+          {% if section.settings.show_tagline %}
+            <h6 class="section-tagline {{ section.settings.tagline_font_size | default: 'text-base' }} {{ section.settings.tagline_font_size_desktop | default: 'sm-desktop-text-base' }} {{ section.settings.tagline_font_weight | default: 'font-normal' }}">
+              {% if section.settings.tagline contains 'shop_page.' or section.settings.tagline contains 'shared.' %}
+                {{ section.settings.tagline | t }}
+              {% else %}
+                {{ section.settings.tagline }}
+              {% endif %}
+            </h6>
+          {% endif %}
+          
+          <div class="section-heading {{ section.settings.heading_font_size | default: 'text-5xl' }} {{ section.settings.heading_font_size_desktop | default: 'sm-desktop-text-5xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} py-3 sm-desktop-py-4">
+            {% if section.settings.heading contains 'shop_page.' or section.settings.heading contains 'shared.' %}
+              {{ section.settings.heading | t }}
+            {% else %}
+              {{ section.settings.heading }}
+            {% endif %}
+          </div>
+          
+          {% if section.settings.show_description %}
+            <p class="section-description {{ section.settings.description_font_size | default: 'text-base' }} {{ section.settings.description_font_size_desktop | default: 'sm-desktop-text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }}">
+              {% if section.settings.description contains 'shop_page.' or section.settings.description contains 'shared.' %}
+                {{ section.settings.description | t }}
+              {% else %}
+                {{ section.settings.description }}
+              {% endif %}
+            </p>
+          {% endif %}
+        </div>
+        
+        {% if section.settings.show_view_all_button %}
+          <div class="btn-section text-right hidden sm-desktop-block">
+            <a href="{{ section.settings.view_all_button_url | default: '#' }}" class="view-all-button btn {{ section.settings.button_style | default: 'btn-border-black' }}">
+              {% if section.settings.view_all_button_text contains 'shop_page.' or section.settings.view_all_button_text contains 'shared.' %}
+                {{ section.settings.view_all_button_text | t }}
+              {% else %}
+                {{ section.settings.view_all_button_text }}
+              {% endif %}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="product-list-section mt-12">
+      <ul class="grid grid-cols-1 xl-phone-grid-cols-2 lg-tab-grid-cols-3 gap-x-8 sm-desktop-gap-x-12 gap-y-12 sm-desktop-gap-y-16">
+        {% for product in collection.products limit: section.settings.products_limit %}
+          <li>
+            <a href="{{ product.url }}" class="product">
+              <div class="image-section product-image-height">
+                <img
+                  src="{{ product.featured_media.url }}"
+                  alt="{{ product.title }}"
+                  class="image-cover"
+                />
+              </div>
+              <div class="desc pt-4">
+                <div class="product-title {{ section.settings.product_title_font_size | default: 'text-base' }} {{ section.settings.product_title_font_size_desktop | default: 'sm-desktop-text-lg' }} {{ section.settings.product_title_font_weight | default: 'font-semibold' }}">
+                  {{ product.title }}
+                </div>
+                {% if section.settings.show_product_variant %}
+                  <p class="product-variant {{ section.settings.product_variant_font_size | default: 'text-sm' }} {{ section.settings.product_variant_font_size_desktop | default: 'sm-desktop-text-sm' }} {{ section.settings.product_variant_font_weight | default: 'font-normal' }} pt-1">
+                    {{ product.selected_or_first_available_variant.title }}
+                  </p>
+                {% endif %}
+                {% unless product.price == 0 or section.settings.hide_price %}
+                  <div class="product-price {{ section.settings.product_price_font_size | default: 'text-lg' }} {{ section.settings.product_price_font_size_desktop | default: 'sm-desktop-text-xl' }} {{ section.settings.product_price_font_weight | default: 'font-bold' }} pt-2">
+                    {{ product.price }}
+                  </div>
+                {% endunless %}
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shop Products",
+  "tag": "section",
+  "class": "shop-product-section",
+  "enabled_on": {
+    "templates": ["shop_page"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline",
+      "label": "Show Tagline",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Our Collection"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Featured Products"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Discover our handpicked selection of premium products that combine quality, style, and functionality."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all_button",
+      "label": "Show View All Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_button_text",
+      "label": "View All Button Text",
+      "default": "View All Products"
+    },
+    {
+      "type": "url",
+      "id": "view_all_button_url",
+      "label": "View All Button URL",
+      "default": "#"
+    },
+    {
+      "type": "header",
+      "content": "Product Display Settings"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "min": 3,
+      "max": 24,
+      "step": 3,
+      "label": "Number of Products to Show",
+      "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_variant",
+      "label": "Show Product Variant",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_price",
+      "label": "Hide Product Price",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Tagline Typography"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size",
+      "label": "Tagline Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size_desktop",
+      "label": "Tagline Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-sm", "label": "Small" },
+        { "value": "sm-desktop-text-base", "label": "Base" },
+        { "value": "sm-desktop-text-lg", "label": "Large" },
+        { "value": "sm-desktop-text-xl", "label": "Extra Large" }
+      ],
+      "default": "sm-desktop-text-base"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_weight",
+      "label": "Tagline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "tagline_color",
+      "label": "Tagline Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Heading Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-xl", "label": "Extra Large" },
+        { "value": "sm-desktop-text-2xl", "label": "2X Large" },
+        { "value": "sm-desktop-text-3xl", "label": "3X Large" },
+        { "value": "sm-desktop-text-4xl", "label": "4X Large" },
+        { "value": "sm-desktop-text-5xl", "label": "5X Large" },
+        { "value": "sm-desktop-text-h2", "label": "H2" }
+      ],
+      "default": "sm-desktop-text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Description Typography"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-sm", "label": "Small" },
+        { "value": "sm-desktop-text-base", "label": "Base" },
+        { "value": "sm-desktop-text-lg", "label": "Large" },
+        { "value": "sm-desktop-text-xl", "label": "Extra Large" }
+      ],
+      "default": "sm-desktop-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "label": "Description Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "btn-border-primary", "label": "Primary Border" },
+        { "value": "btn-bg-primary", "label": "Primary Background" },
+        { "value": "btn-border-black", "label": "Black Border" },
+        { "value": "btn-bg-black", "label": "Black Background" }
+      ],
+      "default": "btn-border-black"
+    },
+    {
+      "type": "color_background",
+      "id": "button_background_color",
+      "label": "Button Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "color_background",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color_background",
+      "id": "button_border_color",
+      "label": "Button Border Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Border Width",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Product Title Typography"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_size",
+      "label": "Product Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_size_desktop",
+      "label": "Product Title Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-sm", "label": "Small" },
+        { "value": "sm-desktop-text-base", "label": "Base" },
+        { "value": "sm-desktop-text-lg", "label": "Large" },
+        { "value": "sm-desktop-text-xl", "label": "Extra Large" }
+      ],
+      "default": "sm-desktop-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "product_title_font_weight",
+      "label": "Product Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-semibold"
+    },
+    {
+      "type": "color_background",
+      "id": "product_title_color",
+      "label": "Product Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Product Variant Typography"
+    },
+    {
+      "type": "select",
+      "id": "product_variant_font_size",
+      "label": "Product Variant Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "product_variant_font_size_desktop",
+      "label": "Product Variant Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-xs", "label": "Extra Small" },
+        { "value": "sm-desktop-text-sm", "label": "Small" },
+        { "value": "sm-desktop-text-base", "label": "Base" },
+        { "value": "sm-desktop-text-lg", "label": "Large" }
+      ],
+      "default": "sm-desktop-text-sm"
+    },
+    {
+      "type": "select",
+      "id": "product_variant_font_weight",
+      "label": "Product Variant Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "product_variant_color",
+      "label": "Product Variant Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Product Price Typography"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_size",
+      "label": "Product Price Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_size_desktop",
+      "label": "Product Price Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-sm", "label": "Small" },
+        { "value": "sm-desktop-text-base", "label": "Base" },
+        { "value": "sm-desktop-text-lg", "label": "Large" },
+        { "value": "sm-desktop-text-xl", "label": "Extra Large" }
+      ],
+      "default": "sm-desktop-text-xl"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_weight",
+      "label": "Product Price Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "product_price_color",
+      "label": "Product Price Color",
+      "default": "#000000"
+    }
+  ]
+}
+{% endschema %}

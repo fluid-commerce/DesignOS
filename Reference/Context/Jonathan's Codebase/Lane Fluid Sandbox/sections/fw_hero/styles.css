@@ -1,0 +1,265 @@
+/* ============================================
+   FW Hero Section
+   ============================================ */
+
+.fw-hero-section {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Ghost / Watermark Background Text */
+.fw-hero-ghost-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(8rem, 20vw, 28rem);
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  opacity: 0.035;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  color: white;
+}
+
+/* ============================================
+   Marquee
+   ============================================ */
+
+.fw-hero-marquee {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0.12;
+  padding-bottom: var(--space-lg);
+}
+
+.fw-hero-marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: fw-hero-marquee-scroll 30s linear infinite;
+}
+
+.fw-hero-marquee-track span {
+  display: inline-block;
+  letter-spacing: 0.15em;
+}
+
+@keyframes fw-hero-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.fw-hero-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.fw-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ============================================
+   Eyebrow
+   ============================================ */
+
+.fw-hero-eyebrow {
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+}
+
+/* ============================================
+   Headline
+   ============================================ */
+
+.fw-hero-headline-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--space-lg);
+}
+
+.fw-hero-headline {
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+/* Paint Stroke Underline */
+.fw-hero-paint-stroke {
+  position: absolute;
+  bottom: -0.15em;
+  left: 0;
+  width: 100%;
+  max-height: 24px;
+  object-fit: contain;
+  object-position: left bottom;
+  pointer-events: none;
+}
+
+/* ============================================
+   Description
+   ============================================ */
+
+.fw-hero-description {
+  line-height: 1.7;
+  max-width: 680px;
+  margin-bottom: var(--space-xl);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.fw-hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.fw-hero-buttons .btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-hero-buttons .btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   Small Text
+   ============================================ */
+
+.fw-hero-small-text {
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+/* ============================================
+   Decoration Images
+   ============================================ */
+
+.fw-hero-decoration {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+  box-shadow: none !important;
+}
+
+.fw-hero-decoration-1 {
+  top: 8%;
+  right: 3%;
+  max-width: 120px;
+}
+
+.fw-hero-decoration-2 {
+  bottom: 12%;
+  left: 2%;
+  max-width: 100px;
+}
+
+/* ============================================
+   Scroll Indicator
+   ============================================ */
+
+.fw-hero-scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fw-hero-scroll-indicator-line {
+  display: block;
+  width: 1px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.fw-hero-scroll-indicator-line::after {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  animation: fw-hero-scroll-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes fw-hero-scroll-pulse {
+  0% {
+    top: -100%;
+  }
+  50% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* ============================================
+   Desktop (lg: 1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .fw-hero-paint-stroke {
+    max-height: 36px;
+    bottom: -0.2em;
+  }
+
+  .fw-hero-decoration-1 {
+    max-width: 220px;
+    top: 6%;
+    right: 4%;
+  }
+
+  .fw-hero-decoration-2 {
+    max-width: 180px;
+    bottom: 10%;
+    left: 3%;
+  }
+
+  .fw-hero-scroll-indicator {
+    bottom: 3rem;
+    right: 3rem;
+  }
+
+  .fw-hero-scroll-indicator-line {
+    height: 64px;
+  }
+
+  .fw-hero-description {
+    max-width: 720px;
+  }
+}

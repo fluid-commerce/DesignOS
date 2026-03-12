@@ -1,0 +1,236 @@
+.fw-card-grid-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.fw-card-grid-section[data-bg] {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.fw-card-grid-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fw-card-grid-container[data-bg] {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Header */
+.fw-card-grid-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto var(--space-2xl, 3rem);
+}
+
+.fw-card-grid__eyebrow {
+  margin-bottom: var(--space-sm, 0.5rem);
+  letter-spacing: 0.02em;
+}
+
+.fw-card-grid__headline {
+  line-height: 1.15;
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.fw-card-grid__body {
+  line-height: 1.7;
+  opacity: 0.85;
+}
+
+/* =============================================
+   GRID BASE
+   ============================================= */
+
+.fw-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* =============================================
+   GRID STYLE: BORDERED
+   Industrial 1px gap using background-color trick
+   ============================================= */
+
+.fw-card-grid--bordered {
+  gap: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fw-card-grid--bordered .fw-card {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.fw-card-grid--bordered .fw-card:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* =============================================
+   GRID STYLE: SPACED
+   Gap between cards, subtle border, optional radius
+   ============================================= */
+
+.fw-card-grid--spaced {
+  gap: var(--space-md, 1rem);
+}
+
+.fw-card-grid--spaced .fw-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg, 0.75rem);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.fw-card-grid--spaced .fw-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* =============================================
+   GRID STYLE: MINIMAL
+   No card backgrounds, bottom borders only
+   ============================================= */
+
+.fw-card-grid--minimal {
+  gap: 0;
+}
+
+.fw-card-grid--minimal .fw-card {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.fw-card-grid--minimal .fw-card:hover {
+  background-color: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+/* =============================================
+   MOBILE COLUMN OVERRIDES
+   ============================================= */
+
+.fw-card-grid--mobile-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* =============================================
+   CARD
+   ============================================= */
+
+.fw-card {
+  padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tag */
+.fw-card__tag {
+  display: inline-block;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md, 1rem);
+  line-height: 1;
+}
+
+/* Icon */
+.fw-card__icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md, 0.5rem);
+  font-size: 1.15rem;
+  line-height: 1;
+  margin-bottom: var(--space-md, 1rem);
+  flex-shrink: 0;
+}
+
+/* Title */
+.fw-card__title {
+  line-height: 1.25;
+  margin-bottom: var(--space-sm, 0.5rem);
+}
+
+/* Body */
+.fw-card__body {
+  line-height: 1.7;
+  opacity: 0.75;
+  flex-grow: 1;
+}
+
+/* Link */
+.fw-card__link {
+  display: inline-block;
+  margin-top: var(--space-md, 1rem);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-card__link:hover {
+  opacity: 0.7;
+}
+
+.fw-card__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* =============================================
+   RESPONSIVE — TABLET
+   ============================================= */
+
+@media (min-width: 768px) {
+  .fw-card-grid--cols-2,
+  .fw-card-grid--cols-3,
+  .fw-card-grid--cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fw-card {
+    padding: var(--space-xl, 2rem);
+  }
+}
+
+/* =============================================
+   RESPONSIVE — DESKTOP
+   ============================================= */
+
+@media (min-width: 1024px) {
+  .fw-card-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fw-card-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .fw-card-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .fw-card {
+    padding: var(--space-2xl, 3rem) var(--space-xl, 2rem);
+  }
+
+  .fw-card-grid-header {
+    margin-bottom: var(--space-3xl, 4rem);
+  }
+}

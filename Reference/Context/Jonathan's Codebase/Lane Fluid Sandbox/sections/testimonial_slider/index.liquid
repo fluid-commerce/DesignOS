@@ -1,0 +1,513 @@
+<!-- Customer Testimonials -->
+{%- style -%}
+  .testimonial-section-{{ section.id }} {
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px;
+    background-color: {{ section.settings.background_color | default: '#ffffff' }};
+  }
+
+  @media (min-width: 1280px) {
+    .testimonial-section-{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 100 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 80 }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="testimonial-section testimonial-section-{{ section.id }}">
+  <div class="container">
+    <div class="header text-center">
+      <div class="{{ section.settings.heading_font_size | default: 'text-h1' }} {{ section.settings.heading_font_size_desktop | default: 'text-h1' }} {{ section.settings.heading_font_weight | default: 'font-bold' }}" style="color: {{ section.settings.heading_color | default: '#000000' }};">{{ section.settings.heading | default: "Customer Testimonials" }}</div>
+      {% if section.settings.intro_text != blank %}
+      <p class="{{ section.settings.intro_font_size | default: 'text-base' }} {{ section.settings.intro_font_size_desktop | default: 'xl-tab-text-lg' }} {{ section.settings.intro_font_weight | default: 'font-normal' }} pt-5" style="color: {{ section.settings.intro_color | default: '#000000' }};">{{ section.settings.intro_text }}</p>
+      {% endif %}
+    </div>
+
+    {% if section.blocks.size > 0 %}
+    <div class="carousel-section pt-12 sm-desktop-pt-20">
+      <div class="testimonial-carousel splide" id="testimonial-slider-{{ section.id }}">
+        <div class="splide__track">
+          <ul class="splide__list">
+            {% for block in section.blocks %}
+              {% case block.type %}
+                {% when 'testimonial' %}
+                  <li class="splide__slide" {{ block.fluid_attributes }}>
+                    <div class="testimonial-post px-6 py-6 xl-phone-px-8 xl-phone-py-8 border border-solid flex flex-col gap-y-5 xl-phone-gap-y-6" style="
+                      background-color: {{ block.settings.card_background_color | default: '#ffffff' }};
+                      border-color: {{ block.settings.card_border_color | default: '#000000' }};
+                      border-width: {{ block.settings.card_border_width | default: 1 }}px;
+                    ">
+                      {% if block.settings.show_rating %}
+                      <div class="rating">
+                        {% assign rating = block.settings.rating | default: 5 %}
+                        {% for i in (1..5) %}
+                          {% if i <= rating %}
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; margin-right: 4px;">
+                              <path d="M9.07088 0.612343C9.41462 -0.204115 10.5854 -0.204114 10.9291 0.612346L12.9579 5.43123C13.1029 5.77543 13.4306 6.01061 13.8067 6.0404L19.0727 6.45748C19.9649 6.52814 20.3267 7.62813 19.6469 8.2034L15.6348 11.5987C15.3482 11.8412 15.223 12.2218 15.3106 12.5843L16.5363 17.661C16.744 18.5211 15.7969 19.201 15.033 18.7401L10.5245 16.0196C10.2025 15.8252 9.7975 15.8252 9.47548 16.0196L4.96699 18.7401C4.20311 19.201 3.25596 18.5211 3.46363 17.661L4.68942 12.5843C4.77698 12.2218 4.65182 11.8412 4.36526 11.5987L0.353062 8.2034C-0.326718 7.62813 0.0350679 6.52814 0.927291 6.45748L6.19336 6.0404C6.5695 6.01061 6.89716 5.77543 7.04207 5.43123L9.07088 0.612343Z" fill="{{ block.settings.star_color | default: '#000000' }}"/>
+                            </svg>
+                          {% else %}
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; margin-right: 4px;">
+                              <path d="M9.07088 0.612343C9.41462 -0.204115 10.5854 -0.204114 10.9291 0.612346L12.9579 5.43123C13.1029 5.77543 13.4306 6.01061 13.8067 6.0404L19.0727 6.45748C19.9649 6.52814 20.3267 7.62813 19.6469 8.2034L15.6348 11.5987C15.3482 11.8412 15.223 12.2218 15.3106 12.5843L16.5363 17.661C16.744 18.5211 15.7969 19.201 15.033 18.7401L10.5245 16.0196C10.2025 15.8252 9.7975 15.8252 9.47548 16.0196L4.96699 18.7401C4.20311 19.201 3.25596 18.5211 3.46363 17.661L4.68942 12.5843C4.77698 12.2218 4.65182 11.8412 4.36526 11.5987L0.353062 8.2034C-0.326718 7.62813 0.0350679 6.52814 0.927291 6.45748L6.19336 6.0404C6.5695 6.01061 6.89716 5.77543 7.04207 5.43123L9.07088 0.612343Z" fill="#e5e5e5"/>
+                            </svg>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      {% endif %}
+                      <p class="{{ block.settings.testimonial_font_size | default: 'text-base' }} {{ block.settings.testimonial_font_size_desktop | default: 'xl-tab-text-base' }} {{ block.settings.testimonial_font_weight | default: 'font-normal' }}" style="color: {{ block.settings.testimonial_color | default: '#000000' }};">
+                        "{{ block.settings.testimonial_text | default: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.' }}"
+                      </p>
+
+                      <div class="review-author-post flex flex-wrap align-center gap-y-4">
+                        {% if block.settings.author_image != blank %}
+                        <div class="image-section testi-author-image">
+                          <img src="{{ block.settings.author_image | image_url: width: 60 }}" alt="{{ block.settings.author_name | default: 'Reviewer' }}" class="image-cover rounded-full" loading="lazy">
+                        </div>
+                        {% endif %}
+                        <div class="desc col-12 xl-phone-pl-4">
+                          {% if block.settings.author_name != blank %}
+                            <p class="{{ block.settings.author_font_size | default: 'text-base' }} {{ block.settings.author_font_size_desktop | default: 'xl-tab-text-base' }} font-semibold" style="color: {{ block.settings.author_color | default: '#000000' }};">{{ block.settings.author_name }}</p>
+                          {% endif %}
+                          {% if block.settings.author_position != blank %}
+                            <p class="{{ block.settings.author_font_size | default: 'text-base' }} {{ block.settings.author_font_size_desktop | default: 'xl-tab-text-base' }} {{ block.settings.author_font_weight | default: 'font-normal' }}" style="color: {{ block.settings.author_color | default: '#000000' }};">{{ block.settings.author_position }}</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+              {% endcase %}
+            {% endfor %}
+          </ul>
+
+          <div class="splide__arrows splide-arrow-section">
+            <button class="slide-arrow splide__arrow splide__arrow--prev arrow-prev-btn">
+              <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 11.4004H7.83L13.42 5.81039L12 4.40039L4 12.4004L12 20.4004L13.41 18.9904L7.83 13.4004H20V11.4004Z" fill="currentColor"/>
+              </svg>
+            </button>
+            <button class="slide-arrow splide__arrow splide__arrow--next arrow-next-btn">
+              <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 11.4004H7.83L13.42 5.81039L12 4.40039L4 12.4004L12 20.4004L13.41 18.9904L7.83 13.4004H20V11.4004Z" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div><!-- .carousel-section -->
+    {% endif %}
+  </div>
+</section>
+
+<script>
+  function testimonialCarousel() {
+    const testimonialCarousel = new Splide('.testimonial-carousel', {
+      perPage: 1,
+      perMove: 1,
+      speed: 500,
+      mediaQuery: "min",
+      interval: 5000,
+      gap: "32px",
+      arrows: false,
+      breakpoints: {
+        576:{
+          perPage: 2,
+        },
+        768: {
+          perPage: 3,
+          arrows: true,
+        },
+      }
+    });
+    testimonialCarousel.mount();
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    testimonialCarousel();
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Customer Testimonials",
+  "tag": "section",
+  "class": "testimonial-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Customer Testimonials"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "label": "Intro Text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" },
+        { "value": "xl-tab-text-3xl", "label": "3X Large" },
+        { "value": "xl-tab-text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "intro_font_size",
+      "label": "Intro Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "intro_font_size_desktop",
+      "label": "Intro Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "intro_font_weight",
+      "label": "Intro Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "intro_color",
+      "label": "Intro Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Layout & Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+   
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "textarea",
+          "id": "testimonial_text",
+          "label": "Testimonial Text",
+          "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."
+        },
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Author Image",
+          "info": "Recommended size: 60x60px"
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Author Name",
+          "default": "Name Surname"
+        },
+        {
+          "type": "text",
+          "id": "author_position",
+          "label": "Author Position",
+          "default": "Position, Company name"
+        },
+        {
+          "type": "header",
+          "content": "Rating"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_rating",
+          "label": "Show Rating",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Rating (Stars)",
+          "default": 5
+        },
+        {
+          "type": "color_background",
+          "id": "star_color",
+          "label": "Star Color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "select",
+          "id": "testimonial_font_size",
+          "label": "Testimonial Font Size (Mobile)",
+          "options": [
+            { "value": "text-sm", "label": "Small" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "Large" },
+            { "value": "text-xl", "label": "Extra Large" }
+          ],
+          "default": "text-base"
+        },
+        {
+          "type": "select",
+          "id": "testimonial_font_size_desktop",
+          "label": "Testimonial Font Size (Desktop)",
+          "options": [
+            { "value": "xl-tab-text-sm", "label": "Small" },
+            { "value": "xl-tab-text-base", "label": "Base" },
+            { "value": "xl-tab-text-lg", "label": "Large" },
+            { "value": "xl-tab-text-xl", "label": "Extra Large" }
+          ],
+          "default": "xl-tab-text-base"
+        },
+        {
+          "type": "select",
+          "id": "testimonial_font_weight",
+          "label": "Testimonial Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-normal"
+        },
+        {
+          "type": "color_background",
+          "id": "testimonial_color",
+          "label": "Testimonial Text Color",
+          "default": "#000000"
+        },
+        {
+          "type": "select",
+          "id": "author_font_size",
+          "label": "Author Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "Extra Small" },
+            { "value": "text-sm", "label": "Small" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "Large" }
+          ],
+          "default": "text-base"
+        },
+        {
+          "type": "select",
+          "id": "author_font_size_desktop",
+          "label": "Author Font Size (Desktop)",
+          "options": [
+            { "value": "xl-tab-text-xs", "label": "Extra Small" },
+            { "value": "xl-tab-text-sm", "label": "Small" },
+            { "value": "xl-tab-text-base", "label": "Base" },
+            { "value": "xl-tab-text-lg", "label": "Large" }
+          ],
+          "default": "xl-tab-text-base"
+        },
+        {
+          "type": "select",
+          "id": "author_font_weight",
+          "label": "Author Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-normal"
+        },
+        {
+          "type": "color_background",
+          "id": "author_color",
+          "label": "Author Text Color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "Card Styling"
+        },
+        {
+          "type": "color_background",
+          "id": "card_background_color",
+          "label": "Card Background Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color_background",
+          "id": "card_border_color",
+          "label": "Card Border Color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "card_border_width",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "unit": "px",
+          "label": "Card Border Width",
+          "default": 1
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "testimonial_text": "This product has completely transformed our business operations. The customer service is exceptional and the results speak for themselves. Highly recommended!",
+            "author_name": "Sarah Mitchell",
+            "author_position": "CEO, TechStart Solutions",
+            "show_rating": true,
+            "rating": 5
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "testimonial_text": "Outstanding quality and incredible value. The team went above and beyond to ensure we had everything we needed. Best investment we've made this year.",
+            "author_name": "James Rodriguez",
+            "author_position": "Marketing Director, Growth Co",
+            "show_rating": true,
+            "rating": 5
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "testimonial_text": "Professional, reliable, and results-driven. They delivered exactly what they promised and exceeded our expectations. We're thrilled with the outcome.",
+            "author_name": "Emily Thompson",
+            "author_position": "Founder, Creative Agency Pro",
+            "show_rating": true,
+            "rating": 5
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

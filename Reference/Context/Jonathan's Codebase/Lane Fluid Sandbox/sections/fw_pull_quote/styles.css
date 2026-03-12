@@ -1,0 +1,110 @@
+/* ============================================
+   FW Pull Quote Section
+   ============================================ */
+
+.fw-pull-quote-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.fw-pull-quote-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ============================================
+   Pull Quote Inner
+   ============================================ */
+
+.fw-pull-quote {
+  position: relative;
+  margin: 0 auto;
+  padding: 32px 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-pull-quote--bordered {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   Accent / Decorative Image
+   ============================================ */
+
+.fw-pull-quote-accent {
+  display: block;
+  max-width: 80px;
+  margin-bottom: var(--space-md);
+  pointer-events: none;
+  box-shadow: none !important;
+}
+
+.text-center .fw-pull-quote-accent {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================================
+   Blockquote
+   ============================================ */
+
+.fw-pull-quote-blockquote {
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.fw-pull-quote-blockquote p {
+  margin: 0;
+}
+
+.fw-pull-quote-blockquote em,
+.fw-pull-quote-blockquote strong {
+  color: var(--emphasize-color, inherit);
+  font-style: normal;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   Attribution
+   ============================================ */
+
+.fw-pull-quote-attribution {
+  margin: var(--space-lg) 0 0;
+  letter-spacing: 0.15em;
+  font-family: monospace;
+  line-height: 1.5;
+  opacity: 0.7;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   Desktop (lg: 1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .fw-pull-quote {
+    padding: 60px 80px;
+  }
+
+  .fw-pull-quote-accent {
+    max-width: 120px;
+    margin-bottom: var(--space-lg);
+  }
+
+  .fw-pull-quote-blockquote {
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .fw-pull-quote-attribution {
+    margin-top: var(--space-xl);
+  }
+}

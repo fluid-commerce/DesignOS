@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid — Built for companies that sell through people.</title>
+  <style>
+    /* ── Print ── */
+    @page { size: letter; margin: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Brand Fonts ── */
+    @font-face {
+      font-family: 'NeueHaasDisplay';
+      src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'NeueHaasDisplay';
+      src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'NeueHaasDisplay';
+      src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'NeueHaasDisplay';
+      src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'FLFont';
+      src: url('../../assets/fonts/flfontbold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      /* Brand palette */
+      --black:       #000000;
+      --white:       #ffffff;
+      --blue:        #42b1ff;
+      --green:       #44b574;
+      --orange:      #FF8B58;
+      --purple:      #c985e5;
+
+      /* Semantic aliases — accent: blue (from copy.md) */
+      --accent:      var(--blue);
+      --gray-light:  rgba(255,255,255,0.45);
+      --gray-dim:    rgba(255,255,255,0.25);
+      --card-bg:     rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+
+      /* Typography */
+      --font-display: 'NeueHaasDisplay', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-hand:    'FLFont', cursive;
+      --font-body:    'NeueHaasDisplay', Arial, system-ui, sans-serif;
+
+      /* Radii */
+      --radius-sm: 6px;
+      --radius-md: 11px;
+      --radius-lg: 17px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--black);
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page Container ── */
+    .page {
+      width: 8.5in;
+      height: 11in;
+      margin: 0 auto;
+      padding: 0.45in 0.55in 0.35in;
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Content layers above brushstrokes */
+    .page > *:not(.brush):not(.side-label) {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── Brushstrokes ── */
+    .brush {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: screen;
+      object-fit: contain;
+    }
+
+    /* ── Side Label ── */
+    .side-label {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%) rotate(90deg);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      white-space: nowrap;
+      z-index: 5;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ZONE 1 — HEADER
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.2in;
+      padding-bottom: 0.1in;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-area img {
+      height: 22px;
+      width: auto;
+    }
+
+    .logo-separator {
+      color: rgba(255,255,255,0.2);
+      font-size: 1rem;
+      font-weight: 300;
+    }
+
+    .header-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-dim);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ZONE 2 — HERO
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .hero {
+      margin-bottom: 0.18in;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-hand);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 7px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 38px;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      color: var(--white);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 .accent { color: var(--accent); }
+
+    .hero-subheadline {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--gray-light);
+      margin-bottom: 9px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-intro {
+      font-weight: 300;
+      font-size: 10px;
+      line-height: 1.6;
+      color: var(--gray-dim);
+      max-width: 5.2in;
+    }
+
+    .hero-intro strong { color: var(--white); font-weight: 700; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ZONE 3 — BODY GRID
+       Left: pillars text blocks
+       Right: 3 stat callouts
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .body-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 0.28in;
+      margin-bottom: 0.15in;
+      flex: 1;
+    }
+
+    .section-label {
+      font-family: var(--font-hand);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--accent);
+    }
+
+    /* Pillars column */
+    .pillars-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .pillar-block {
+      margin-bottom: 11px;
+    }
+
+    .pillar-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pillar-body {
+      font-weight: 300;
+      font-size: 9.5px;
+      line-height: 1.55;
+      color: var(--gray-light);
+    }
+
+    .pillar-body strong { color: var(--white); font-weight: 700; }
+
+    /* Stats column */
+    .stats-col { display: flex; flex-direction: column; gap: 9px; }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 13px 16px;
+      flex: 1;
+    }
+
+    .stat-card-text {
+      font-weight: 300;
+      font-size: 9.5px;
+      line-height: 1.5;
+      color: var(--gray-light);
+    }
+
+    .stat-card-text strong {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 34px;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 4px;
+      color: var(--accent);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ZONE 4 — PILLARS STRIP
+       4 differentiator cards in a row
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .pillars-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 0.12in;
+    }
+
+    .pillar-card {
+      text-align: left;
+      padding: 10px 10px 11px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+    }
+
+    .pillar-card-eyebrow {
+      font-family: var(--font-hand);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .pillar-card-title {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .pillar-card-desc {
+      font-size: 8px;
+      line-height: 1.45;
+      color: var(--gray-dim);
+      font-weight: 300;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ZONE 5 — FOOTER
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.1in;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .footer-left { display: flex; flex-direction: column; gap: 4px; }
+
+    .footer-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-logo-row img {
+      height: 16px;
+      width: auto;
+    }
+
+    .footer-sep { color: rgba(255,255,255,0.2); font-weight: 300; font-size: 13px; }
+
+    .footer-tagline {
+      font-size: 8px;
+      color: var(--gray-dim);
+      font-weight: 300;
+    }
+
+    .footer-cta { text-align: right; }
+
+    .footer-cta-label {
+      font-size: 9px;
+      color: var(--gray-light);
+      font-weight: 300;
+      margin-bottom: 6px;
+    }
+
+    .footer-cta-btn {
+      display: inline-block;
+      padding: 7px 20px;
+      border-radius: 9999px;
+      background: var(--accent);
+      color: var(--white);
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Print override ── */
+    @media print {
+      body { background: var(--black); }
+      .page { width: 100%; height: 100vh; padding: 0.4in; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- BRUSHSTROKE 1: diagonal sweep across the body grid zone — mix-blend-mode: screen -->
+    <img
+      class="brush"
+      src="../../assets/brushstrokes/brushstroke-diagonal-upward.png"
+      alt=""
+      aria-hidden="true"
+      style="top: 34%; left: -50px; width: 112%; opacity: 0.12; transform: rotate(-7deg);"
+    >
+
+    <!-- BRUSHSTROKE 2: bottom-grounding texture below pillars strip — bleeds off bottom edge -->
+    <img
+      class="brush"
+      src="../../assets/brushstrokes/brushstroke-bottom-grounding.png"
+      alt=""
+      aria-hidden="true"
+      style="bottom: -10px; left: -20px; width: 105%; opacity: 0.10; transform: rotate(1deg);"
+    >
+
+    <!-- SIDE LABEL -->
+    <div class="side-label" aria-hidden="true">Fluid Commerce</div>
+
+    <!-- ━━ ZONE 1: HEADER ━━ -->
+    <header class="header">
+      <div class="logo-area">
+        <img src="../../assets/logos/wecommerce-flags.png" alt="Fluid">
+        <span class="logo-separator">|</span>
+        <img src="../../assets/logos/wecommerce-logos.png" alt="We-Commerce">
+      </div>
+      <div class="header-label">Company Overview</div>
+    </header>
+
+    <!-- ━━ ZONE 2: HERO ━━ -->
+    <section class="hero" aria-label="Hero">
+      <div class="hero-eyebrow">The only complete direct sales platform</div>
+      <h1>Built for companies<br>that sell <span class="accent">through people.</span></h1>
+      <p class="hero-subheadline">The only complete commerce platform purpose-built for direct sales.</p>
+      <p class="hero-intro">
+        Direct sales companies don't have a sales problem. They have a <strong>technology problem</strong>.
+        Fifteen vendors. Constant integration failures. Reps who don't trust attribution, so the best ones leave.
+        Fluid is the <strong>we-commerce platform</strong> that changes this — one connected system built from day one
+        for the way relationship-driven businesses actually operate.
+      </p>
+    </section>
+
+    <!-- ━━ ZONE 3: BODY GRID ━━ -->
+    <div class="body-grid" aria-label="Platform capabilities and proof points">
+
+      <!-- Left column: key pillars as text blocks -->
+      <div class="pillars-col">
+        <div class="section-label">What Makes Fluid Different</div>
+
+        <div class="pillar-block">
+          <div class="pillar-title">Complete Platform</div>
+          <p class="pillar-body">
+            Commerce, payments, commissions, mobile, and themes — in one system.
+            <strong>No duct tape. No 3am integration failures.</strong>
+            Everything works together because everything was built together.
+          </p>
+        </div>
+
+        <div class="pillar-block">
+          <div class="pillar-title">Fair Share Attribution</div>
+          <p class="pillar-body">
+            Every order, every rep, every downline purchase tracked accurately.
+            <strong>When reps trust the system, they share. When they share, you grow.</strong>
+            It starts with getting attribution right.
+          </p>
+        </div>
+
+        <div class="pillar-block">
+          <div class="pillar-title">One-Click Checkout</div>
+          <p class="pillar-body">
+            APMs, international address verification, currency conversion — the checkout experience
+            your customers expect, with the sales data your field needs.
+            <strong>No 15-click flows. No lost moments at red lights.</strong>
+          </p>
+        </div>
+
+        <div class="pillar-block">
+          <div class="pillar-title">Blitz Week</div>
+          <p class="pillar-body">
+            Most platforms take 90–120 days to implement.
+            <strong>We've launched companies in an afternoon.</strong>
+            Our 4-day intensive gets you live faster than your competitors can schedule a kickoff call.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right column: stats / social proof -->
+      <div class="stats-col">
+        <div class="section-label">By the Numbers</div>
+
+        <div class="stat-card">
+          <div class="stat-card-text">
+            <strong>6+</strong>
+            Disconnected vendors replaced by one unified platform
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-text">
+            <strong>85%</strong>
+            Of direct sales revenue — enrollments, subscriptions, logged-in shopping — that Shopify wasn't built for
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-text">
+            <strong>40+</strong>
+            Countries supported — multi-currency, multi-language, global-ready from day one
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /body-grid -->
+
+    <!-- ━━ ZONE 4: PILLARS STRIP ━━ -->
+    <section class="pillars-strip" aria-label="Key differentiators">
+
+      <div class="pillar-card">
+        <div class="pillar-card-eyebrow">01</div>
+        <div class="pillar-card-title">Complete Platform</div>
+        <p class="pillar-card-desc">Commerce, payments, commissions, mobile, and themes. All in one. No duct tape.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-card-eyebrow">02</div>
+        <div class="pillar-card-title">Fair Share Attribution</div>
+        <p class="pillar-card-desc">Every rep, every order, every downline purchase — tracked accurately so reps trust and share.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-card-eyebrow">03</div>
+        <div class="pillar-card-title">One-Click Checkout</div>
+        <p class="pillar-card-desc">APMs, currency conversion, global address verification. No 15-click flows.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-card-eyebrow">04</div>
+        <div class="pillar-card-title">Blitz Week</div>
+        <p class="pillar-card-desc">From kickoff to live in 4 days. Launch faster than competitors can schedule a call.</p>
+      </div>
+
+    </section>
+
+    <!-- ━━ ZONE 5: FOOTER ━━ -->
+    <footer class="footer">
+      <div class="footer-left">
+        <div class="footer-logo-row">
+          <img src="../../assets/logos/wecommerce-flags.png" alt="Fluid">
+          <span class="footer-sep">|</span>
+          <img src="../../assets/logos/wecommerce-logos.png" alt="We-Commerce">
+        </div>
+        <div class="footer-tagline">fluidcommerce.com — Every transaction matters.</div>
+      </div>
+
+      <div class="footer-cta">
+        <div class="footer-cta-label">See why leading direct sellers choose Fluid.</div>
+        <span class="footer-cta-btn">Learn More &rarr;</span>
+      </div>
+    </footer>
+
+  </div><!-- /page -->
+</body>
+</html>

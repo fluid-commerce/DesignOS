@@ -1,0 +1,258 @@
+/* ============================================
+   FW Platform Tabs Section
+   ============================================ */
+
+.fw-platform-tabs-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.fw-platform-tabs-container {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   Header (Eyebrow + Headline)
+   ============================================ */
+
+.fw-platform-tabs-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.fw-platform-tabs-eyebrow {
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+}
+
+.fw-platform-tabs-headline {
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+/* ============================================
+   Tabs Row
+   ============================================ */
+
+.fw-tabs-row {
+  display: flex;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fw-tabs-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   Tab Item
+   ============================================ */
+
+.fw-tab-item {
+  flex-shrink: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  bottom: -1px;
+}
+
+.fw-tab-item:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.fw-tab-item:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.fw-tab-item.active {
+  color: rgba(255, 255, 255, 1);
+  border-bottom-color: var(--clr-primary);
+}
+
+/* ============================================
+   Tab Content Panels
+   ============================================ */
+
+.fw-tab-content {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-tab-content.active {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+  opacity: 1;
+  animation: fw-tabs-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fw-tabs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Tab Panel: Text Column
+   ============================================ */
+
+.fw-tab-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.fw-tab-title {
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.fw-tab-body {
+  line-height: 1.75;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.fw-tab-body p {
+  margin: 0 0 var(--space-md) 0;
+}
+
+.fw-tab-body p:last-child {
+  margin-bottom: 0;
+}
+
+.fw-tab-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  align-self: flex-start;
+}
+
+.fw-tab-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   Tab Panel: Media Column
+   ============================================ */
+
+.fw-tab-media {
+  position: relative;
+  width: 100%;
+}
+
+.fw-tab-media-inner {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.fw-tab-media-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  box-shadow: none !important;
+}
+
+/* Video Placeholder */
+.fw-tab-video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.fw-tab-play-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--clr-warning, #f97316);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.fw-tab-play-btn:hover {
+  background: rgba(0, 0, 0, 0.6);
+  transform: scale(1.08);
+}
+
+.fw-tab-play-btn svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+  margin-left: 4px;
+}
+
+/* ============================================
+   Desktop (lg: 1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .fw-platform-tabs-header {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .fw-tabs-row {
+    justify-content: center;
+    overflow-x: visible;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .fw-tab-item {
+    padding: var(--space-sm) var(--space-lg);
+  }
+
+  .fw-tab-content.active {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+
+  .fw-tab-play-btn {
+    width: 88px;
+    height: 88px;
+  }
+
+  .fw-tab-play-btn svg {
+    width: 34px;
+    height: 34px;
+  }
+}

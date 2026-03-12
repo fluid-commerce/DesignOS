@@ -1,0 +1,392 @@
+<div class="flex flex-col">
+{% section 'fw_hero', id: 'platform_hero' %}
+{% section 'fw_card_grid', id: 'module_grid' %}
+{% section 'fw_card_grid', id: 'differentiators' %}
+</div>
+
+{% schema %}
+{
+  "name": "Platform Overview",
+  "sections": {
+    "platform_hero": {
+      "type": "fw_hero",
+      "settings": {
+        "eyebrow": "The We-Commerce Platform",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-2xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-info",
+        "headline": "One platform. Every tool. Zero duct tape.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-6xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "description": "You're managing five vendors, twelve integrations, and a tech stack held together by hope. Every tool was 'best in class' when you bought it — and now none of them talk to each other. We-Commerce replaces the duct tape with a single platform built from the ground up for direct selling. Everything connected. Everything working. Everything in one place.",
+        "description_font_family": "font-body",
+        "description_font_size": "text-base",
+        "description_font_size_desktop": "lg:text-lg",
+        "description_font_weight": "font-normal",
+        "description_color": "text-neutral",
+        "show_button_one": false,
+        "show_button_two": false,
+        "show_scroll_indicator": true,
+        "show_marquee": false,
+        "show_ghost_text": false,
+        "show_paint_stroke": false,
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-xl",
+        "container_padding_x_mobile": "px-lg",
+        "container_padding_x_desktop": "lg:px-3xl"
+      }
+    },
+    "module_grid": {
+      "type": "fw_card_grid",
+      "settings": {
+        "eyebrow": "The Platform",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-info",
+        "headline": "Every module. One connected system.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-4xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "grid_columns_desktop": "4",
+        "grid_columns_mobile": "1",
+        "grid_style": "bordered",
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-lg",
+        "container_padding_x_mobile": "px-md",
+        "container_padding_x_desktop": "lg:px-xl"
+      },
+      "blocks": {
+        "module_fairshare": {
+          "id": "module_fairshare",
+          "type": "card",
+          "settings": {
+            "card_tag": "Attribution",
+            "card_tag_color": "text-info",
+            "card_title": "Fair Share",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Full-journey attribution that tracks every touchpoint from first share to final sale. Reps get credit for the relationships they build — not just the last click before checkout.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_payments": {
+          "id": "module_payments",
+          "type": "card",
+          "settings": {
+            "card_tag": "Payments",
+            "card_tag_color": "text-info",
+            "card_title": "Fluid Payments",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Purpose-built payment infrastructure for direct selling. Cascading decline recovery, one-click checkout, and processing that doesn't flag your business model as high-risk.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_mobile": {
+          "id": "module_mobile",
+          "type": "card",
+          "settings": {
+            "card_tag": "Mobile",
+            "card_tag_color": "text-info",
+            "card_title": "Mobile App",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "A branded iOS and Android app your reps are proud to show prospects. Share content, track attribution, manage their business — all from their pocket.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_desktop": {
+          "id": "module_desktop",
+          "type": "card",
+          "settings": {
+            "card_tag": "Desktop",
+            "card_tag_color": "text-info",
+            "card_title": "Desktop App",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Full platform functionality for power users who need larger screens and advanced features. Genealogy management, bulk operations, detailed analytics — everything the mobile app can't fit.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_editor": {
+          "id": "module_editor",
+          "type": "card",
+          "settings": {
+            "card_tag": "Builder",
+            "card_tag_color": "text-info",
+            "card_title": "Live Editor",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Drag-and-drop page building that doesn't require a developer. Create landing pages, product pages, and marketing campaigns that convert — and update them in real time.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_liveshopping": {
+          "id": "module_liveshopping",
+          "type": "card",
+          "settings": {
+            "card_tag": "Live",
+            "card_tag_color": "text-info",
+            "card_title": "Live Shopping",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Broadcast live selling events with integrated checkout. Your reps demo products, viewers buy in real time, and attribution tracks every sale back to the host.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_synctool": {
+          "id": "module_synctool",
+          "type": "card",
+          "settings": {
+            "card_tag": "Sync",
+            "card_tag_color": "text-info",
+            "card_title": "Sync Tool",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "We-Commerce Connect keeps your commission engine, CRM, and analytics perfectly aligned. Bi-directional sync means no manual exports, no data drift, no midnight reconciliation spreadsheets.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-info",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "module_marketplace": {
+          "id": "module_marketplace",
+          "type": "card",
+          "settings": {
+            "card_tag": "Marketplace",
+            "card_tag_color": "text-success",
+            "card_title": "Droplet Marketplace",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Pre-built components, templates, and integrations created by the Fluid community. Install with one click and customize to match your brand. Skip the build phase entirely.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_link_show": true,
+            "card_link_text": "Explore →",
+            "card_link_color": "text-success",
+            "card_background_color": "bg-transparent"
+          }
+        }
+      }
+    },
+    "differentiators": {
+      "type": "fw_card_grid",
+      "settings": {
+        "eyebrow": "Unique to Fluid — These Are Not Better Claims. These Are Different Claims.",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-info",
+        "headline": "Things no one else in direct selling tech can say.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-4xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "grid_columns_desktop": "2",
+        "grid_columns_mobile": "1",
+        "grid_style": "spaced",
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-lg",
+        "container_padding_x_mobile": "px-md",
+        "container_padding_x_desktop": "lg:px-xl"
+      },
+      "blocks": {
+        "diff_fairshare": {
+          "id": "diff_fairshare",
+          "type": "card",
+          "settings": {
+            "card_tag": "Attribution",
+            "card_tag_color": "text-info",
+            "card_title": "Fair Share Attribution",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "No other platform tracks the full customer journey and credits the rep who started it. Last-click attribution is a lie that punishes your best relationship builders. Fair Share tells the truth.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-neutral-dark"
+          }
+        },
+        "diff_blitzweek": {
+          "id": "diff_blitzweek",
+          "type": "card",
+          "settings": {
+            "card_tag": "Implementation",
+            "card_tag_color": "text-info",
+            "card_title": "Blitz Week",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "No other platform will put their best people in a room with yours for four days and go live before the week is over. Everyone else sells you a timeline. We sell you a date.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-neutral-dark"
+          }
+        },
+        "diff_portability": {
+          "id": "diff_portability",
+          "type": "card",
+          "settings": {
+            "card_tag": "Flexibility",
+            "card_tag_color": "text-info",
+            "card_title": "Token Portability",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Your payment tokens belong to you, not us. If you ever leave, your stored cards and payment data come with you. No other platform in direct selling will say that — because they use your data as a lock-in.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-neutral-dark"
+          }
+        },
+        "diff_storefront": {
+          "id": "diff_storefront",
+          "type": "card",
+          "settings": {
+            "card_tag": "Architecture",
+            "card_tag_color": "text-info",
+            "card_title": "Single Global Storefront",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "One storefront that handles every market, every currency, every language, every compliance requirement. No more spinning up separate instances per country. Global scale without global complexity.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-neutral-dark"
+          }
+        }
+      }
+    }
+  }
+}
+{% endschema %}

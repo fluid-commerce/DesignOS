@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Procedi al pagamento",
+    "order_summary": "Riepilogo ordine",
+    "shipping": "Stima spedizione",
+    "ships_in": "Spedito in 3-5 giorni lavorativi",
+    "shopping_cart": "Carrello della spesa",
+    "subtotal": "Subtotale",
+    "tax": "Stima tasse",
+    "total": "Totale ordine"
+  },
+  "components": {
+    "comment_form": {
+      "email": "E-mail",
+      "full_name": "Nome completo",
+      "leave_info": "Per favore lascia le tue informazioni in modo che {{ company }} sappia chi sei. Devi farlo solo una volta.",
+      "placeholder": "Aggiungi il tuo commento",
+      "post": "Pubblica",
+      "want_to_leave_comment": "Vuoi lasciare un commento?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Accetto i",
+    "all_products": "Tutti i prodotti",
+    "checkout": "Procedi al pagamento",
+    "first_payment": "Primo pagamento il {{ date }}",
+    "learn_more": "Scopri di più",
+    "monthly_subscription": "Abbonamento mensile",
+    "todays_purchase": "Acquisto di oggi"
+  },
+  "footer": {
+    "all_rights_reserved": "Tutti i diritti riservati",
+    "cookies_settings": "Impostazioni cookie",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Informativa sulla privacy",
+    "terms_of_service": "Termini di servizio"
+  },
+  "library": {
+    "commented": "ha commentato",
+    "comments": "Commenti",
+    "playlist": "Playlist"
+  },
+  "medium": {
+    "commented": "ha commentato",
+    "comments": "Commenti",
+    "products": "Prodotti"
+  },
+  "navbar": {
+    "button_1": "Pulsante 1",
+    "button_2": "Pulsante 2",
+    "countries": "Paesi",
+    "country": "Paese",
+    "country_and_language": "Paese e lingua",
+    "done": "Fatto",
+    "language": "Lingua",
+    "languages": "Lingue",
+    "link_1": "Link uno",
+    "link_2": "Link due",
+    "link_3": "Link tre",
+    "link_4": "Link quattro",
+    "save_and_close": "Salva e chiudi",
+    "select_country": "Seleziona il tuo paese",
+    "select_language": "Seleziona lingua",
+    "shop": "Negozio",
+    "enrollments": "Iscrizioni",
+    "view_my_site": "Visualizza il mio sito"
+  },
+  "product": {
+    "add_to_cart": "Aggiungi al carrello",
+    "buy_now": "Acquista ora",
+    "details": "Dettagli",
+    "free_shipping": "Spedizione gratuita oltre {{amount}}",
+    "product_name": "Nome prodotto",
+    "quantity": "Quantità",
+    "related_products": "Prodotti",
+    "related_products_intro": "Scopri la nostra selezione di prodotti complementari accuratamente scelti che si abbinano perfettamente al tuo acquisto.",
+    "return": "Reso",
+    "return_content": "Accettiamo resi entro 30 giorni dall'acquisto. I prodotti devono essere nelle condizioni originali, non utilizzati e nella confezione originale. I costi di spedizione per il reso sono a carico del cliente, eccetto in caso di difetti del prodotto. Dopo aver ricevuto e ispezionato il tuo reso, rimborseremo l'intero importo dell'acquisto.",
+    "reviews": "{{reviews}} recensioni",
+    "shipping": "Spedizione",
+    "shipping_content": "Spediamo in tutto il mondo con tempi di consegna standard di 3-7 giorni lavorativi. La spedizione espressa è disponibile con costo aggiuntivo. Tutti i pacchi sono assicurati e tracciabili. I costi di spedizione sono calcolati in base al peso e alla destinazione al momento del pagamento.",
+    "shop_all": "Vedi tutto",
+    "stars": "{{stars}} stelle",
+    "tagline": "Slogan",
+    "testimonials": "Testimonianze dei clienti",
+    "testimonials_intro": "Scopri cosa dicono i nostri clienti delle loro esperienze con i nostri prodotti.",
+    "variant": "Variante",
+    "one_time_purchase":"Acquisto una tantum",
+    "subscribe":"Abbonati"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Abbonati e risparmia {{save}}%",
+    "update_subscription": "Aggiorna il tuo abbonamento in qualsiasi momento"
+  },
+  "shared": {
+    "button": "Pulsante",
+    "medium_heading": "Un titolo di media lunghezza va qui",
+    "medium_intro": "Scopri la nostra eccezionale gamma di prodotti progettata per soddisfare tutte le tue esigenze con qualità ed eleganza.",
+    "short_heading": "Titolo breve qui",
+    "short_intro": "Un'introduzione concisa che presenta l'essenza della nostra offerta con chiarezza e impatto.",
+    "tagline": "Slogan",
+    "view_all": "Vedi tutto"
+  },
+  "shop_page": {
+    "button": "Pulsante",
+    "heading": "Titolo breve qui",
+    "intro": "Esplora la nostra collezione accuratamente curata di prodotti di alta qualità.",
+    "products": "Prodotti",
+    "products_intro": "Ogni prodotto della nostra gamma è stato scelto per la sua qualità eccezionale.",
+    "tagline": "Slogan"
+  }
+}

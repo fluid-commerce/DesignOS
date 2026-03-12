@@ -1,0 +1,137 @@
+/* ===== STATISTICS HERO SECTION STYLES ===== */
+
+.statistics-hero {
+  position: relative;
+  width: 100%;
+}
+
+/* Inner container positioning */
+.statistics-hero .inner-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.statistics-hero .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Content Layout */
+.statistics-hero .statistics-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Small Heading */
+.statistics-hero .small-heading-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.statistics-hero .small-heading-wrapper p {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Main Statistic Wrapper */
+.statistics-hero .main-statistic-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.statistics-hero .main-statistic-wrapper h2 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+/* Description Wrapper */
+.statistics-hero .description-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.statistics-hero .description-wrapper p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Supporting Statistics */
+.statistics-hero .supporting-stats-wrapper {
+  width: 100%;
+}
+
+.statistics-hero .stats-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  .statistics-hero .stats-grid.md\:grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .statistics-hero .stats-grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .statistics-hero .stats-grid.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .statistics-hero .stats-grid {
+    gap: var(--space-2xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .statistics-hero .stats-grid {
+    gap: var(--space-3xl);
+  }
+}
+
+.statistics-hero .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.statistics-hero .stat-number {
+  line-height: 1;
+  margin-bottom: var(--space-md);
+}
+
+.statistics-hero .stat-text {
+  line-height: 1.4;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .statistics-hero .main-statistic-wrapper h2 {
+    line-height: 1.2;
+  }
+  
+  .statistics-hero .description-wrapper p {
+    line-height: 1.5;
+  }
+  
+  .statistics-hero .stat-text {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .statistics-hero .stats-grid {
+    align-items: flex-start;
+  }
+}

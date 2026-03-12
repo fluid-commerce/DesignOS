@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 E-commerce Conversion Calculator</h1>
+            <p>Compare conversion funnel performance and revenue potential</p>
+        </div>
+
+        <div class="calculator">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="aov">Average Order Value (AOV)</label>
+                    <input type="number" id="aov" value="150" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="platform-section">
+                <div class="platform">
+                    <h3>E-commerce A</h3>
+                    
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Visitors</span>
+                            <span class="slider-value" id="visitorsA-display">100,000</span>
+                        </div>
+                        <input type="range" id="visitorsA" min="50000" max="150000" step="1000" value="100000">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Add to Cart Rate</span>
+                            <span class="slider-value" id="atcA-display">7.30%</span>
+                        </div>
+                        <input type="range" id="atcA" min="1" max="10" step="0.1" value="7.3">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Cart Completion Rate</span>
+                            <span class="slider-value" id="completionA-display">29.50%</span>
+                        </div>
+                        <input type="range" id="completionA" min="10" max="60" step="0.5" value="29.5">
+                    </div>
+
+                    <div class="optimizations">
+                        <h4>Optimizations</h4>
+                        
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="applePayA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Apple Pay + PayPal</div>
+                                    <div class="checkbox-description">Reduces friction with one-tap checkout and familiar payment options customers trust</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="apmsA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">International APMs</div>
+                                    <div class="checkbox-description">Enables local payment methods customers prefer in their region (iDEAL, Klarna, etc.)</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="ugcA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">UGC on PDPs</div>
+                                    <div class="checkbox-description">User-generated content builds trust and social proof, encouraging purchase decisions</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="messagingA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Optimized Messaging</div>
+                                    <div class="checkbox-description">Clear value propositions and benefit-focused copy that resonates with your audience</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="aiRecoveryA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">AI Revenue Recovery</div>
+                                    <div class="checkbox-description">Intelligent cart abandonment campaigns that automatically re-engage customers at optimal times</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="accountA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Require Account to Purchase</div>
+                                    <div class="checkbox-description">Creates significant friction - many customers abandon rather than create accounts</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="ssnA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Require SSN & DOB</div>
+                                    <div class="checkbox-description">Major privacy concern that causes trust issues and immediate cart abandonment</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="shippingA">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Shipping Protection Offer</div>
+                                    <div class="checkbox-description">Optional insurance that increases average order value with minimal impact on conversion</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <h3>E-commerce B</h3>
+                    
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Visitors</span>
+                            <span class="slider-value" id="visitorsB-display">100,000</span>
+                        </div>
+                        <input type="range" id="visitorsB" min="50000" max="150000" step="1000" value="100000">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Add to Cart Rate</span>
+                            <span class="slider-value" id="atcB-display">7.30%</span>
+                        </div>
+                        <input type="range" id="atcB" min="1" max="10" step="0.1" value="7.3">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Cart Completion Rate</span>
+                            <span class="slider-value" id="completionB-display">29.50%</span>
+                        </div>
+                        <input type="range" id="completionB" min="10" max="60" step="0.5" value="29.5">
+                    </div>
+
+                    <div class="optimizations">
+                        <h4>Optimizations</h4>
+                        
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="applePayB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Apple Pay + PayPal</div>
+                                    <div class="checkbox-description">Reduces friction with one-tap checkout and familiar payment options customers trust</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="apmsB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">International APMs</div>
+                                    <div class="checkbox-description">Enables local payment methods customers prefer in their region (iDEAL, Klarna, etc.)</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="ugcB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">UGC on PDPs</div>
+                                    <div class="checkbox-description">User-generated content builds trust and social proof, encouraging purchase decisions</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="messagingB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Optimized Messaging</div>
+                                    <div class="checkbox-description">Clear value propositions and benefit-focused copy that resonates with your audience</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="aiRecoveryB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">AI Revenue Recovery</div>
+                                    <div class="checkbox-description">Intelligent cart abandonment campaigns that automatically re-engage customers at optimal times</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="accountB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Require Account to Purchase</div>
+                                    <div class="checkbox-description">Creates significant friction - many customers abandon rather than create accounts</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="ssnB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Require SSN & DOB</div>
+                                    <div class="checkbox-description">Major privacy concern that causes trust issues and immediate cart abandonment</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="shippingB">
+                                <div class="toggle-switch">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                                <div class="toggle-content">
+                                    <div class="checkbox-label">Shipping Protection Offer</div>
+                                    <div class="checkbox-description">Optional insurance that increases average order value with minimal impact on conversion</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <h2>Revenue Comparison</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>E-commerce A</h3>
+                        <div class="result-item">
+                            <div class="result-label">Total Revenue</div>
+                            <div class="result-value" id="totalRevenueA">$0</div>
+                            <div class="result-subtext" id="ordersA">0 completed orders</div>
+                        </div>
+                        
+                        <div class="funnel-breakdown">
+                            <div class="funnel-step">
+                                <span>Visitors:</span>
+                                <strong id="visitorsCountA">0</strong>
+                            </div>
+                            <div class="funnel-step">
+                                <span>Add to Cart:</span>
+                                <strong id="atcCountA">0</strong>
+                            </div>
+                            <div class="funnel-step">
+                                <span>Completed Orders:</span>
+                                <strong id="completedCountA">0</strong>
+                            </div>
+                        </div>
+
+                        <div class="effective-rates">
+                            <div><strong>Effective Rates (with optimizations):</strong></div>
+                            <div id="effectiveAtcA">Add to Cart: 0%</div>
+                            <div id="effectiveCompletionA">Cart Completion: 0%</div>
+                            <div id="effectiveConversionA">Overall Conversion: 0%</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>E-commerce B</h3>
+                        <div class="result-item">
+                            <div class="result-label">Total Revenue</div>
+                            <div class="result-value" id="totalRevenueB">$0</div>
+                            <div class="result-subtext" id="ordersB">0 completed orders</div>
+                        </div>
+                        
+                        <div class="funnel-breakdown">
+                            <div class="funnel-step">
+                                <span>Visitors:</span>
+                                <strong id="visitorsCountB">0</strong>
+                            </div>
+                            <div class="funnel-step">
+                                <span>Add to Cart:</span>
+                                <strong id="atcCountB">0</strong>
+                            </div>
+                            <div class="funnel-step">
+                                <span>Completed Orders:</span>
+                                <strong id="completedCountB">0</strong>
+                            </div>
+                        </div>
+
+                        <div class="effective-rates">
+                            <div><strong>Effective Rates (with optimizations):</strong></div>
+                            <div id="effectiveAtcB">Add to Cart: 0%</div>
+                            <div id="effectiveCompletionB">Cart Completion: 0%</div>
+                            <div id="effectiveConversionB">Overall Conversion: 0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison" id="comparison">
+                    <h3>Comparison</h3>
+                    <p id="comparisonText">Adjust the values to see the comparison.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function formatPercent(value) {
+            return value.toFixed(2) + '%';
+        }
+
+        function calculate() {
+            const aov = parseFloat(document.getElementById('aov').value) || 0;
+
+            // Platform A values
+            const visitorsA = parseInt(document.getElementById('visitorsA').value);
+            const baseAtcA = parseFloat(document.getElementById('atcA').value);
+            const baseCompletionA = parseFloat(document.getElementById('completionA').value);
+
+            // Platform A optimizations
+            const applePayA = document.getElementById('applePayA').checked;
+            const apmsA = document.getElementById('apmsA').checked;
+            const ugcA = document.getElementById('ugcA').checked;
+            const messagingA = document.getElementById('messagingA').checked;
+            const aiRecoveryA = document.getElementById('aiRecoveryA').checked;
+            const accountA = document.getElementById('accountA').checked;
+            const ssnA = document.getElementById('ssnA').checked;
+            const shippingA = document.getElementById('shippingA').checked;
+
+            // Calculate effective rates for A
+            let effectiveAtcA = baseAtcA;
+            if (ugcA) effectiveAtcA *= 1.085;
+            if (messagingA) effectiveAtcA *= 1.09;
+
+            let effectiveCompletionA = baseCompletionA;
+            if (applePayA) effectiveCompletionA *= 1.20;
+            if (apmsA) effectiveCompletionA *= 1.10;
+            if (aiRecoveryA) effectiveCompletionA *= 1.12;
+            if (accountA) effectiveCompletionA *= 0.76;
+            if (ssnA) effectiveCompletionA *= 0.74;
+
+            // Calculate funnel for A
+            const atcCountA = visitorsA * (effectiveAtcA / 100);
+            const completedOrdersA = atcCountA * (effectiveCompletionA / 100);
+            let totalRevenueA = completedOrdersA * aov;
+            if (shippingA) totalRevenueA *= 1.01;
+
+            // Platform B values
+            const visitorsB = parseInt(document.getElementById('visitorsB').value);
+            const baseAtcB = parseFloat(document.getElementById('atcB').value);
+            const baseCompletionB = parseFloat(document.getElementById('completionB').value);
+
+            // Platform B optimizations
+            const applePayB = document.getElementById('applePayB').checked;
+            const apmsB = document.getElementById('apmsB').checked;
+            const ugcB = document.getElementById('ugcB').checked;
+            const messagingB = document.getElementById('messagingB').checked;
+            const aiRecoveryB = document.getElementById('aiRecoveryB').checked;
+            const accountB = document.getElementById('accountB').checked;
+            const ssnB = document.getElementById('ssnB').checked;
+            const shippingB = document.getElementById('shippingB').checked;
+
+            // Calculate effective rates for B
+            let effectiveAtcB = baseAtcB;
+            if (ugcB) effectiveAtcB *= 1.085;
+            if (messagingB) effectiveAtcB *= 1.09;
+
+            let effectiveCompletionB = baseCompletionB;
+            if (applePayB) effectiveCompletionB *= 1.20;
+            if (apmsB) effectiveCompletionB *= 1.10;
+            if (aiRecoveryB) effectiveCompletionB *= 1.12;
+            if (accountB) effectiveCompletionB *= 0.76;
+            if (ssnB) effectiveCompletionB *= 0.74;
+
+            // Calculate funnel for B
+            const atcCountB = visitorsB * (effectiveAtcB / 100);
+            const completedOrdersB = atcCountB * (effectiveCompletionB / 100);
+            let totalRevenueB = completedOrdersB * aov;
+            if (shippingB) totalRevenueB *= 1.01;
+
+            // Update Platform A displays
+            document.getElementById('totalRevenueA').textContent = formatCurrency(totalRevenueA);
+            document.getElementById('ordersA').textContent = formatNumber(completedOrdersA) + ' completed orders';
+            document.getElementById('visitorsCountA').textContent = formatNumber(visitorsA);
+            document.getElementById('atcCountA').textContent = formatNumber(atcCountA);
+            document.getElementById('completedCountA').textContent = formatNumber(completedOrdersA);
+            document.getElementById('effectiveAtcA').textContent = 'Add to Cart: ' + formatPercent(effectiveAtcA);
+            document.getElementById('effectiveCompletionA').textContent = 'Cart Completion: ' + formatPercent(effectiveCompletionA);
+            document.getElementById('effectiveConversionA').textContent = 'Overall Conversion: ' + formatPercent((completedOrdersA / visitorsA) * 100);
+
+            // Update Platform B displays
+            document.getElementById('totalRevenueB').textContent = formatCurrency(totalRevenueB);
+            document.getElementById('ordersB').textContent = formatNumber(completedOrdersB) + ' completed orders';
+            document.getElementById('visitorsCountB').textContent = formatNumber(visitorsB);
+            document.getElementById('atcCountB').textContent = formatNumber(atcCountB);
+            document.getElementById('completedCountB').textContent = formatNumber(completedOrdersB);
+            document.getElementById('effectiveAtcB').textContent = 'Add to Cart: ' + formatPercent(effectiveAtcB);
+            document.getElementById('effectiveCompletionB').textContent = 'Cart Completion: ' + formatPercent(effectiveCompletionB);
+            document.getElementById('effectiveConversionB').textContent = 'Overall Conversion: ' + formatPercent((completedOrdersB / visitorsB) * 100);
+
+            // Comparison
+            const difference = totalRevenueB - totalRevenueA;
+            const orderDifference = completedOrdersB - completedOrdersA;
+            const comparisonDiv = document.getElementById('comparison');
+            const comparisonText = document.getElementById('comparisonText');
+
+            if (Math.abs(difference) < 1) {
+                comparisonDiv.className = 'comparison';
+                comparisonText.innerHTML = `Both platforms deliver <span class="comparison-stat">equal revenue</span> of ${formatCurrency(totalRevenueA)}.`;
+            } else if (difference > 0) {
+                comparisonDiv.className = 'comparison better-b';
+                const percentDiff = ((difference / totalRevenueA) * 100).toFixed(1);
+                comparisonText.innerHTML = `
+                    <strong>E-commerce B generates more revenue!</strong><br>
+                    Revenue is <span class="comparison-stat">${formatCurrency(difference)}</span> higher 
+                    (${percentDiff}% increase) with <span class="comparison-stat">${formatNumber(Math.abs(orderDifference))}</span> 
+                    ${orderDifference === 1 ? 'more order' : 'more orders'} compared to E-commerce A.
+                `;
+            } else {
+                comparisonDiv.className = 'comparison';
+                const percentDiff = ((Math.abs(difference) / totalRevenueB) * 100).toFixed(1);
+                comparisonText.innerHTML = `
+                    <strong>E-commerce A generates more revenue!</strong><br>
+                    Revenue is <span class="comparison-stat">${formatCurrency(Math.abs(difference))}</span> higher 
+                    (${percentDiff}% increase) with <span class="comparison-stat">${formatNumber(Math.abs(orderDifference))}</span> 
+                    ${Math.abs(orderDifference) === 1 ? 'more order' : 'more orders'} compared to E-commerce B.
+                `;
+            }
+        }
+
+        // Event listeners for AOV
+        document.getElementById('aov').addEventListener('input', calculate);
+
+        // Event listeners for Platform A
+        document.getElementById('visitorsA').addEventListener('input', function() {
+            document.getElementById('visitorsA-display').textContent = formatNumber(this.value);
+            calculate();
+        });
+        document.getElementById('atcA').addEventListener('input', function() {
+            document.getElementById('atcA-display').textContent = this.value + '%';
+            calculate();
+        });
+        document.getElementById('completionA').addEventListener('input', function() {
+            document.getElementById('completionA-display').textContent = this.value + '%';
+            calculate();
+        });
+        document.getElementById('applePayA').addEventListener('change', calculate);
+        document.getElementById('apmsA').addEventListener('change', calculate);
+        document.getElementById('ugcA').addEventListener('change', calculate);
+        document.getElementById('messagingA').addEventListener('change', calculate);
+        document.getElementById('aiRecoveryA').addEventListener('change', calculate);
+        document.getElementById('accountA').addEventListener('change', calculate);
+        document.getElementById('ssnA').addEventListener('change', calculate);
+        document.getElementById('shippingA').addEventListener('change', calculate);
+
+        // Event listeners for Platform B
+        document.getElementById('visitorsB').addEventListener('input', function() {
+            document.getElementById('visitorsB-display').textContent = formatNumber(this.value);
+            calculate();
+        });
+        document.getElementById('atcB').addEventListener('input', function() {
+            document.getElementById('atcB-display').textContent = this.value + '%';
+            calculate();
+        });
+        document.getElementById('completionB').addEventListener('input', function() {
+            document.getElementById('completionB-display').textContent = this.value + '%';
+            calculate();
+        });
+        document.getElementById('applePayB').addEventListener('change', calculate);
+        document.getElementById('apmsB').addEventListener('change', calculate);
+        document.getElementById('ugcB').addEventListener('change', calculate);
+        document.getElementById('messagingB').addEventListener('change', calculate);
+        document.getElementById('aiRecoveryB').addEventListener('change', calculate);
+        document.getElementById('accountB').addEventListener('change', calculate);
+        document.getElementById('ssnB').addEventListener('change', calculate);
+        document.getElementById('shippingB').addEventListener('change', calculate);
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

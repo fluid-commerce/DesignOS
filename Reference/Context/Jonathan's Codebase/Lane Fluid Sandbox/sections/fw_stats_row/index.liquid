@@ -1,0 +1,500 @@
+<link rel="stylesheet" href="{{ 'fw_stats_row/styles.css' | asset_url }}">
+
+<section class="fw-stats-row-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }}"
+  {% if section.settings.background_image != blank %}data-bg style="background-image: url('{{ section.settings.background_image | image_url }}'); background-size: cover; background-position: center;"{% endif %}>
+
+  <div class="fw-stats-row-container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+    {% if section.settings.container_background_image != blank %}data-bg style="background-image: url('{{ section.settings.container_background_image | image_url }}'); background-size: cover; background-position: center;"{% endif %}>
+
+    <div class="fw-stats-row">
+      {% for block in section.blocks %}
+        {% if block.type == 'stat' %}
+        <div class="fw-stat-cell" {{ block.fluid_attributes }}>
+          <div class="fw-stat-border {% if block.settings.border_image == blank %}border-color-{{ block.settings.border_color }}{% endif %}">
+            {% if block.settings.border_image != blank %}
+            <img src="{{ block.settings.border_image | image_url }}" alt="" class="fw-stat-border-image" aria-hidden="true">
+            {% endif %}
+          </div>
+          <div class="fw-stat-content">
+            {% if block.settings.stat_number != blank %}
+            <div class="fw-stat-number {{ block.settings.stat_number_font_family }} {{ block.settings.stat_number_font_size }} {{ block.settings.stat_number_font_size_desktop }} {{ block.settings.stat_number_font_weight }} {{ block.settings.stat_number_color }}">
+              {{ block.settings.stat_number }}
+            </div>
+            {% endif %}
+            {% if block.settings.stat_label != blank %}
+            <div class="fw-stat-label {{ block.settings.stat_label_font_family }} {{ block.settings.stat_label_font_size }} {{ block.settings.stat_label_font_size_desktop }} {{ block.settings.stat_label_font_weight }} {{ block.settings.stat_label_color }}">
+              {{ block.settings.stat_label }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FW Stats Row",
+  "tag": "section",
+  "class": "fw-stats-row",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" }
+      ],
+      "default": "bg-neutral-dark"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-2xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" },
+        { "value": "rounded-full", "label": "Full" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" },
+        { "value": "rounded-full", "label": "Full" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-sm"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "XS" },
+        { "value": "px-sm", "label": "SM" },
+        { "value": "px-md", "label": "MD" },
+        { "value": "px-lg", "label": "LG" },
+        { "value": "px-xl", "label": "XL" },
+        { "value": "px-2xl", "label": "2XL" },
+        { "value": "px-3xl", "label": "3XL" }
+      ],
+      "default": "px-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "XS" },
+        { "value": "lg:px-sm", "label": "SM" },
+        { "value": "lg:px-md", "label": "MD" },
+        { "value": "lg:px-lg", "label": "LG" },
+        { "value": "lg:px-xl", "label": "XL" },
+        { "value": "lg:px-2xl", "label": "2XL" },
+        { "value": "lg:px-3xl", "label": "3XL" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Stat Number"
+        },
+        {
+          "type": "text",
+          "id": "stat_number",
+          "label": "Stat Number",
+          "default": "~50%"
+        },
+        {
+          "type": "select",
+          "id": "stat_number_font_family",
+          "label": "Number Font Family",
+          "options": [
+            { "value": "font-primary", "label": "Primary" },
+            { "value": "font-body", "label": "Body" },
+            { "value": "font-handwritten", "label": "Handwritten" },
+            { "value": "font-serif", "label": "Serif" }
+          ],
+          "default": "font-primary"
+        },
+        {
+          "type": "select",
+          "id": "stat_number_font_size",
+          "label": "Number Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "XS" },
+            { "value": "text-sm", "label": "SM" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "LG" },
+            { "value": "text-xl", "label": "XL" },
+            { "value": "text-2xl", "label": "2XL" },
+            { "value": "text-3xl", "label": "3XL" },
+            { "value": "text-4xl", "label": "4XL" },
+            { "value": "text-5xl", "label": "5XL" },
+            { "value": "text-6xl", "label": "6XL" },
+            { "value": "text-7xl", "label": "7XL" },
+            { "value": "text-8xl", "label": "8XL" },
+            { "value": "text-9xl", "label": "9XL" }
+          ],
+          "default": "text-4xl"
+        },
+        {
+          "type": "select",
+          "id": "stat_number_font_size_desktop",
+          "label": "Number Font Size (Desktop)",
+          "options": [
+            { "value": "lg:text-xs", "label": "XS" },
+            { "value": "lg:text-sm", "label": "SM" },
+            { "value": "lg:text-base", "label": "Base" },
+            { "value": "lg:text-lg", "label": "LG" },
+            { "value": "lg:text-xl", "label": "XL" },
+            { "value": "lg:text-2xl", "label": "2XL" },
+            { "value": "lg:text-3xl", "label": "3XL" },
+            { "value": "lg:text-4xl", "label": "4XL" },
+            { "value": "lg:text-5xl", "label": "5XL" },
+            { "value": "lg:text-6xl", "label": "6XL" },
+            { "value": "lg:text-7xl", "label": "7XL" },
+            { "value": "lg:text-8xl", "label": "8XL" },
+            { "value": "lg:text-9xl", "label": "9XL" }
+          ],
+          "default": "lg:text-6xl"
+        },
+        {
+          "type": "select",
+          "id": "stat_number_font_weight",
+          "label": "Number Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semibold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-bold"
+        },
+        {
+          "type": "select",
+          "id": "stat_number_color",
+          "label": "Number Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-white"
+        },
+        {
+          "type": "header",
+          "content": "Stat Label"
+        },
+        {
+          "type": "text",
+          "id": "stat_label",
+          "label": "Stat Label",
+          "default": "of direct selling transactions can't be processed by Shopify"
+        },
+        {
+          "type": "select",
+          "id": "stat_label_font_family",
+          "label": "Label Font Family",
+          "options": [
+            { "value": "font-primary", "label": "Primary" },
+            { "value": "font-body", "label": "Body" },
+            { "value": "font-handwritten", "label": "Handwritten" },
+            { "value": "font-serif", "label": "Serif" }
+          ],
+          "default": "font-body"
+        },
+        {
+          "type": "select",
+          "id": "stat_label_font_size",
+          "label": "Label Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "XS" },
+            { "value": "text-sm", "label": "SM" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "LG" },
+            { "value": "text-xl", "label": "XL" },
+            { "value": "text-2xl", "label": "2XL" },
+            { "value": "text-3xl", "label": "3XL" },
+            { "value": "text-4xl", "label": "4XL" },
+            { "value": "text-5xl", "label": "5XL" },
+            { "value": "text-6xl", "label": "6XL" },
+            { "value": "text-7xl", "label": "7XL" },
+            { "value": "text-8xl", "label": "8XL" },
+            { "value": "text-9xl", "label": "9XL" }
+          ],
+          "default": "text-sm"
+        },
+        {
+          "type": "select",
+          "id": "stat_label_font_size_desktop",
+          "label": "Label Font Size (Desktop)",
+          "options": [
+            { "value": "lg:text-xs", "label": "XS" },
+            { "value": "lg:text-sm", "label": "SM" },
+            { "value": "lg:text-base", "label": "Base" },
+            { "value": "lg:text-lg", "label": "LG" },
+            { "value": "lg:text-xl", "label": "XL" },
+            { "value": "lg:text-2xl", "label": "2XL" },
+            { "value": "lg:text-3xl", "label": "3XL" },
+            { "value": "lg:text-4xl", "label": "4XL" },
+            { "value": "lg:text-5xl", "label": "5XL" },
+            { "value": "lg:text-6xl", "label": "6XL" },
+            { "value": "lg:text-7xl", "label": "7XL" },
+            { "value": "lg:text-8xl", "label": "8XL" },
+            { "value": "lg:text-9xl", "label": "9XL" }
+          ],
+          "default": "lg:text-base"
+        },
+        {
+          "type": "select",
+          "id": "stat_label_font_weight",
+          "label": "Label Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semibold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-normal"
+        },
+        {
+          "type": "select",
+          "id": "stat_label_color",
+          "label": "Label Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-neutral-light"
+        },
+        {
+          "type": "header",
+          "content": "Border"
+        },
+        {
+          "type": "select",
+          "id": "border_color",
+          "label": "Left Border Color",
+          "options": [
+            { "value": "primary", "label": "Primary" },
+            { "value": "secondary", "label": "Secondary" },
+            { "value": "tertiary", "label": "Tertiary" },
+            { "value": "quaternary", "label": "Quaternary" },
+            { "value": "success", "label": "Success" },
+            { "value": "warning", "label": "Warning" },
+            { "value": "error", "label": "Error" },
+            { "value": "info", "label": "Info" },
+            { "value": "black", "label": "Black" },
+            { "value": "white", "label": "White" }
+          ],
+          "default": "secondary"
+        },
+        {
+          "type": "image_picker",
+          "id": "border_image",
+          "label": "Border Image",
+          "info": "Optional painted border image to replace the solid left border"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FW Stats Row",
+      "blocks": [
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "~50%",
+            "stat_label": "of direct selling transactions can't be processed by Shopify",
+            "border_color": "secondary"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "6×",
+            "stat_label": "payment retry attempts before we give up. Most platforms try once.",
+            "border_color": "info"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "1 week",
+            "stat_label": "average time to go live with Blitz Week. Industry standard is 90 days.",
+            "border_color": "success"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "50+",
+            "stat_label": "countries. One connected platform. No per-region rebuilds.",
+            "border_color": "warning"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,522 @@
+<section class="cta-banner3-section" 
+         style="background-color: {{ section.settings.background_color | default: '#f8f8f8' }};
+                {% if section.settings.background_image != blank %}
+                background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                {% endif %}">
+  
+  {% if section.settings.background_image != blank %}
+    <div class="cta-banner3-overlay" 
+         style="background-color: {{ section.settings.overlay_color | default: '#000000' }}; 
+                opacity: {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }}; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                z-index: 1;"></div>
+  {% endif %}
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="cta-banner3-wrapper text-center py-16">
+      
+      <!-- Centered Content -->
+      <div class="cta-banner3-content max-w-4xl mx-auto">
+        <h2 class="text-h2 mb-6" style="color: {{ section.settings.heading_color | default: '#000000' }};">
+          {{ section.settings.heading }}
+        </h2>
+        
+        <p class="text-lg mb-8 max-w-3xl mx-auto" style="color: {{ section.settings.text_color | default: '#666666' }};">
+          {{ section.settings.intro_text }}
+        </p>
+        
+        {% if section.settings.show_primary_button or section.settings.show_secondary_button %}
+          <div class="cta-banner3-buttons flex justify-center gap-4 flex-wrap mb-12">
+            {% if section.settings.show_primary_button and section.settings.button_text != blank %}
+              <a href="{{ section.settings.button_link }}" 
+                 class="btn"
+                 style="background-color: {{ section.settings.primary_button_bg | default: '#000000' }}; color: {{ section.settings.primary_button_text | default: '#ffffff' }}; border: 1px solid {{ section.settings.primary_button_bg | default: '#000000' }};">
+                {{ section.settings.button_text }}
+              </a>
+            {% endif %}
+            
+            {% if section.settings.show_secondary_button and section.settings.button_text_secondary != blank %}
+              <a href="{{ section.settings.button_link_secondary }}" 
+                 class="btn"
+                 style="background-color: transparent; color: {{ section.settings.secondary_button_text | default: '#000000' }}; border: 1px solid {{ section.settings.secondary_button_border | default: '#000000' }};">
+                {{ section.settings.button_text_secondary }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Logos Section -->
+      <div class="cta-banner3-logos">
+        <div class="logos-container flex justify-center align-center gap-8 flex-wrap">
+          
+          <!-- Logo 1 -->
+          <div class="logo-item">
+            {% if section.settings.logo_1 != blank %}
+              {% if section.settings.logo_1_link != blank %}
+                <a href="{{ section.settings.logo_1_link }}" target="_blank" rel="noopener">
+              {% endif %}
+              <img src="{{ section.settings.logo_1 | image_url: width: 120 }}" 
+                   alt="{{ section.settings.logo_1_alt | default: 'Partner logo' }}"
+                   class="logo-image"
+                   style="height: 40px; width: auto; object-fit: contain; opacity: 0.7;">
+              {% if section.settings.logo_1_link != blank %}
+                </a>
+              {% endif %}
+            {% else %}
+              <!-- Logo placeholder -->
+              <div class="logo-placeholder" style="background-color: #e5e5e5; border-radius: 6px; height: 40px; width: 100px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                <div class="placeholder-content text-center" style="color: #999;">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto;">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Logo 2 -->
+          <div class="logo-item">
+            {% if section.settings.logo_2 != blank %}
+              {% if section.settings.logo_2_link != blank %}
+                <a href="{{ section.settings.logo_2_link }}" target="_blank" rel="noopener">
+              {% endif %}
+              <img src="{{ section.settings.logo_2 | image_url: width: 120 }}" 
+                   alt="{{ section.settings.logo_2_alt | default: 'Partner logo' }}"
+                   class="logo-image"
+                   style="height: 40px; width: auto; object-fit: contain; opacity: 0.7;">
+              {% if section.settings.logo_2_link != blank %}
+                </a>
+              {% endif %}
+            {% else %}
+              <div class="logo-placeholder" style="background-color: #e5e5e5; border-radius: 6px; height: 40px; width: 100px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                <div class="placeholder-content text-center" style="color: #999;">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto;">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Logo 3 -->
+          <div class="logo-item">
+            {% if section.settings.logo_3 != blank %}
+              {% if section.settings.logo_3_link != blank %}
+                <a href="{{ section.settings.logo_3_link }}" target="_blank" rel="noopener">
+              {% endif %}
+              <img src="{{ section.settings.logo_3 | image_url: width: 120 }}" 
+                   alt="{{ section.settings.logo_3_alt | default: 'Partner logo' }}"
+                   class="logo-image"
+                   style="height: 40px; width: auto; object-fit: contain; opacity: 0.7;">
+              {% if section.settings.logo_3_link != blank %}
+                </a>
+              {% endif %}
+            {% else %}
+              <div class="logo-placeholder" style="background-color: #e5e5e5; border-radius: 6px; height: 40px; width: 100px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                <div class="placeholder-content text-center" style="color: #999;">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto;">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Logo 4 -->
+          <div class="logo-item">
+            {% if section.settings.logo_4 != blank %}
+              {% if section.settings.logo_4_link != blank %}
+                <a href="{{ section.settings.logo_4_link }}" target="_blank" rel="noopener">
+              {% endif %}
+              <img src="{{ section.settings.logo_4 | image_url: width: 120 }}" 
+                   alt="{{ section.settings.logo_4_alt | default: 'Partner logo' }}"
+                   class="logo-image"
+                   style="height: 40px; width: auto; object-fit: contain; opacity: 0.7;">
+              {% if section.settings.logo_4_link != blank %}
+                </a>
+              {% endif %}
+            {% else %}
+              <div class="logo-placeholder" style="background-color: #e5e5e5; border-radius: 6px; height: 40px; width: 100px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                <div class="placeholder-content text-center" style="color: #999;">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto;">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Logo 5 -->
+          <div class="logo-item">
+            {% if section.settings.logo_5 != blank %}
+              {% if section.settings.logo_5_link != blank %}
+                <a href="{{ section.settings.logo_5_link }}" target="_blank" rel="noopener">
+              {% endif %}
+              <img src="{{ section.settings.logo_5 | image_url: width: 120 }}" 
+                   alt="{{ section.settings.logo_5_alt | default: 'Partner logo' }}"
+                   class="logo-image"
+                   style="height: 40px; width: auto; object-fit: contain; opacity: 0.7;">
+              {% if section.settings.logo_5_link != blank %}
+                </a>
+              {% endif %}
+            {% else %}
+              <div class="logo-placeholder" style="background-color: #e5e5e5; border-radius: 6px; height: 40px; width: 100px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                <div class="placeholder-content text-center" style="color: #999;">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto;">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Logo 6 -->
+          <div class="logo-item">
+            {% if section.settings.logo_6 != blank %}
+              {% if section.settings.logo_6_link != blank %}
+                <a href="{{ section.settings.logo_6_link }}" target="_blank" rel="noopener">
+              {% endif %}
+              <img src="{{ section.settings.logo_6 | image_url: width: 120 }}" 
+                   alt="{{ section.settings.logo_6_alt | default: 'Partner logo' }}"
+                   class="logo-image"
+                   style="height: 40px; width: auto; object-fit: contain; opacity: 0.7;">
+              {% if section.settings.logo_6_link != blank %}
+                </a>
+              {% endif %}
+            {% else %}
+              <div class="logo-placeholder" style="background-color: #e5e5e5; border-radius: 6px; height: 40px; width: 100px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                <div class="placeholder-content text-center" style="color: #999;">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto;">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<style>
+.cta-banner3-section {
+  padding: 64px 0;
+  position: relative;
+}
+
+.cta-banner3-section .cta-banner3-content {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.cta-banner3-section .cta-banner3-content h2 {
+  margin-bottom: 24px;
+}
+
+.cta-banner3-section .cta-banner3-content p {
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.cta-banner3-section .cta-banner3-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.cta-banner3-section .cta-banner3-buttons .btn {
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.cta-banner3-section .cta-banner3-buttons .btn:hover {
+  opacity: 0.8;
+}
+
+.cta-banner3-section .cta-banner3-logos {
+  margin-top: 48px;
+  padding-top: 32px;
+}
+
+.cta-banner3-section .logos-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.cta-banner3-section .logo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta-banner3-section .logo-image {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.cta-banner3-section .logo-image:hover {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .cta-banner3-section .cta-banner3-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cta-banner3-section .cta-banner3-buttons .btn {
+    text-align: center;
+    min-width: 200px;
+  }
+  
+  .cta-banner3-section .logos-container {
+    gap: 24px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "CTA Banner 3",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Medium length heading goes here",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.",
+      "label": "Intro Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_primary_button",
+      "default": true,
+      "label": "Show Primary Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "default": "Button",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "default": "#",
+      "label": "Primary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "default": true,
+      "label": "Show Secondary Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text_secondary",
+      "default": "Button",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link_secondary",
+      "default": "#",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#f8f8f8",
+      "label": "Background Color"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional background image (will override background color)"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "default": "#000000",
+      "label": "Background Overlay Color",
+      "info": "Color overlay on top of background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 40,
+      "info": "0% = transparent, 100% = solid color"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "default": "#000000",
+      "label": "Heading Color"
+    },
+    {
+      "type": "color_background",
+      "id": "text_color",
+      "default": "#666666",
+      "label": "Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_bg",
+      "default": "#000000",
+      "label": "Primary Button Background"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_text",
+      "default": "#ffffff",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_text",
+      "default": "#000000",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_border",
+      "default": "#000000",
+      "label": "Secondary Button Border"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_1",
+      "label": "Logo 1"
+    },
+    {
+      "type": "text",
+      "id": "logo_1_alt",
+      "label": "Logo 1 Alt Text",
+      "info": "Describe the logo for accessibility"
+    },
+    {
+      "type": "url",
+      "id": "logo_1_link",
+      "label": "Logo 1 Link",
+      "info": "Optional link when logo is clicked"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_2",
+      "label": "Logo 2"
+    },
+    {
+      "type": "text",
+      "id": "logo_2_alt",
+      "label": "Logo 2 Alt Text",
+      "info": "Describe the logo for accessibility"
+    },
+    {
+      "type": "url",
+      "id": "logo_2_link",
+      "label": "Logo 2 Link",
+      "info": "Optional link when logo is clicked"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_3",
+      "label": "Logo 3"
+    },
+    {
+      "type": "text",
+      "id": "logo_3_alt",
+      "label": "Logo 3 Alt Text",
+      "info": "Describe the logo for accessibility"
+    },
+    {
+      "type": "url",
+      "id": "logo_3_link",
+      "label": "Logo 3 Link",
+      "info": "Optional link when logo is clicked"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_4",
+      "label": "Logo 4"
+    },
+    {
+      "type": "text",
+      "id": "logo_4_alt",
+      "label": "Logo 4 Alt Text",
+      "info": "Describe the logo for accessibility"
+    },
+    {
+      "type": "url",
+      "id": "logo_4_link",
+      "label": "Logo 4 Link",
+      "info": "Optional link when logo is clicked"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_5",
+      "label": "Logo 5"
+    },
+    {
+      "type": "text",
+      "id": "logo_5_alt",
+      "label": "Logo 5 Alt Text",
+      "info": "Describe the logo for accessibility"
+    },
+    {
+      "type": "url",
+      "id": "logo_5_link",
+      "label": "Logo 5 Link",
+      "info": "Optional link when logo is clicked"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_6",
+      "label": "Logo 6"
+    },
+    {
+      "type": "text",
+      "id": "logo_6_alt",
+      "label": "Logo 6 Alt Text",
+      "info": "Describe the logo for accessibility"
+    },
+    {
+      "type": "url",
+      "id": "logo_6_link",
+      "label": "Logo 6 Link",
+      "info": "Optional link when logo is clicked"
+    }
+  ]
+}
+{% endschema %} 

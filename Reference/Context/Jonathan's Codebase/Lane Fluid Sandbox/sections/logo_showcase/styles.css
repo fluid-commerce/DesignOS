@@ -1,0 +1,132 @@
+/* Logo Showcase Section Styles */
+.logo-showcase {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Main Component Layout */
+.logo-showcase .logo2_component {
+  width: 100%;
+}
+
+.logo-showcase .logo2_content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* Desktop Layout - Two Columns */
+@media (min-width: 1024px) {
+  .logo-showcase .logo2_content {
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+  }
+}
+
+/* Left Content Area */
+.logo-showcase .logo2_content-left {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .logo-showcase .logo2_content-left {
+    text-align: left;
+  }
+}
+
+/* Logo List Container */
+.logo-showcase .logo2_logo-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .logo-showcase .logo2_logo-list {
+    justify-content: space-between;
+  }
+}
+
+/* Individual Logo Wrapper */
+.logo-showcase .logo2_wrapper {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo Link */
+.logo-showcase .logo2_link {
+  display: block;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.logo-showcase .logo2_link:hover {
+  opacity: 0.75;
+}
+
+/* Logo Image */
+.logo-showcase .logo2_logo {
+  max-width: 120px;
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Placeholder Logo Styling */
+.logo-showcase .logo2_logo.placeholder {
+  opacity: 0.5;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 767px) {
+  .logo-showcase .logo2_logo-list {
+    gap: 1rem;
+  }
+  
+  .logo-showcase .logo2_logo {
+    max-width: 100px;
+    max-height: 50px;
+  }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .logo-showcase .logo2_content {
+    gap: 2.5rem;
+  }
+  
+  .logo-showcase .logo2_logo-list {
+    gap: 1.25rem;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .logo-showcase .logo2_logo {
+    filter: contrast(1.2);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .logo-showcase .logo2_link {
+    transition: none;
+  }
+}
+
+/* Focus States for Accessibility */
+.logo-showcase .logo2_link:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.logo-showcase .logo2_link:focus:not(:focus-visible) {
+  outline: none;
+}

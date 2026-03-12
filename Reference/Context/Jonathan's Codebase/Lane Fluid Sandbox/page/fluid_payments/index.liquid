@@ -1,0 +1,206 @@
+<div class="flex flex-col">
+{% section 'fw_hero', id: 'payments_hero' %}
+{% section 'fw_split_content', id: 'hidden_cost' %}
+{% section 'fw_card_grid', id: 'payments_features' %}
+</div>
+
+{% schema %}
+{
+  "name": "Fluid Payments",
+  "sections": {
+    "payments_hero": {
+      "type": "fw_hero",
+      "settings": {
+        "eyebrow": "Fluid Payments — Payment Infrastructure for Direct Selling",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-2xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-info",
+        "headline": "Payments are the quiet ending to every story in commerce. When they fail, everything that came before them stops mattering.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-6xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "description": "Your reps built trust. Your content educated. Your checkout converted. Then the payment declines and none of it mattered. Fluid Payments is purpose-built payment infrastructure for direct selling — designed to handle the complexity your industry creates and the decline rates your processor won't talk about.",
+        "description_font_family": "font-body",
+        "description_font_size": "text-base",
+        "description_font_size_desktop": "lg:text-lg",
+        "description_font_weight": "font-normal",
+        "description_color": "text-neutral",
+        "show_button_one": true,
+        "button_one_text": "Book a Demo",
+        "button_one_style": "filled",
+        "button_one_color": "white",
+        "button_one_size": "btn-lg",
+        "button_one_font_weight": "font-medium",
+        "show_button_two": false,
+        "show_scroll_indicator": true,
+        "show_marquee": false,
+        "show_ghost_text": false,
+        "show_paint_stroke": false,
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-xl",
+        "container_padding_x_mobile": "px-lg",
+        "container_padding_x_desktop": "lg:px-3xl"
+      }
+    },
+    "hidden_cost": {
+      "type": "fw_split_content",
+      "settings": {
+        "headline": "A 3-4% decline rate sounds manageable. For you, it's 6-8%.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-4xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "body": "<p>Standard processors see your multi-level payouts, your subscription billing, your international transactions, and they flag you. Not because you're doing anything wrong — because their risk models weren't built for your business model.</p><p>The result: higher decline rates, longer hold times, and a payment experience that actively undermines the trust your reps spent weeks building. Every declined transaction isn't just lost revenue — it's a broken promise to a customer who was ready to buy and a rep who did everything right.</p>",
+        "body_font_family": "font-body",
+        "body_font_size": "text-base",
+        "body_font_size_desktop": "lg:text-lg",
+        "body_font_weight": "font-normal",
+        "body_color": "text-neutral",
+        "show_button": false,
+        "show_ghost_link": false,
+        "show_accent_bar": false,
+        "reverse_columns": false,
+        "column_gap": "gap-xl",
+        "vertical_alignment": "items-center",
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-xl",
+        "container_padding_x_mobile": "px-lg",
+        "container_padding_x_desktop": "lg:px-3xl"
+      }
+    },
+    "payments_features": {
+      "type": "fw_card_grid",
+      "settings": {
+        "eyebrow": "Fluid Payments — How It Works",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-info",
+        "headline": "Invisible when it works. Relentless when it doesn't.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-4xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "grid_columns_desktop": "2",
+        "grid_columns_mobile": "1",
+        "grid_style": "bordered",
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-lg",
+        "container_padding_x_mobile": "px-md",
+        "container_padding_x_desktop": "lg:px-xl"
+      },
+      "blocks": {
+        "payments_card_1": {
+          "id": "payments_card_1",
+          "type": "card",
+          "settings": {
+            "card_tag": "Intelligence",
+            "card_tag_color": "text-info",
+            "card_title": "Cascading payment intelligence",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "When a transaction declines, most processors stop. Fluid Payments cascades through multiple acquiring banks and routing paths in milliseconds — finding the path that converts. No manual retry. No lost sale. No customer even knows it happened.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "payments_card_2": {
+          "id": "payments_card_2",
+          "type": "card",
+          "settings": {
+            "card_tag": "Checkout",
+            "card_tag_color": "text-info",
+            "card_title": "One-click checkout everywhere",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Apple Pay, Google Pay, saved cards, buy-now-pay-later — all unified into a two-tap checkout that works on any device. Your customers go from browse to bought before they have time to second-guess. Conversion rates that make your current checkout look broken.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "payments_card_3": {
+          "id": "payments_card_3",
+          "type": "card",
+          "settings": {
+            "card_tag": "Risk",
+            "card_tag_color": "text-info",
+            "card_title": "Built for higher-risk commerce",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Standard processors treat direct selling like a liability. Fluid Payments was built from day one for your business model — multi-level payouts, subscription billing, international transactions, and the regulatory complexity that comes with them. No surprise freezes. No unexplained holds.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-transparent"
+          }
+        },
+        "payments_card_4": {
+          "id": "payments_card_4",
+          "type": "card",
+          "settings": {
+            "card_tag": "Attribution",
+            "card_tag_color": "text-info",
+            "card_title": "Payments that respect attribution",
+            "card_title_font_family": "font-primary",
+            "card_title_font_size": "text-lg",
+            "card_title_font_size_desktop": "lg:text-xl",
+            "card_title_font_weight": "font-bold",
+            "card_title_color": "text-white",
+            "card_body": "Every transaction flows through Fair Share attribution before it settles. The rep who started the journey gets credit. The commission engine gets clean data. The customer gets a seamless experience. Payments and attribution finally speak the same language.",
+            "card_body_font_family": "font-body",
+            "card_body_font_size": "text-sm",
+            "card_body_font_size_desktop": "lg:text-base",
+            "card_body_font_weight": "font-normal",
+            "card_body_color": "text-neutral",
+            "card_background_color": "bg-transparent"
+          }
+        }
+      }
+    }
+  }
+}
+{% endschema %}

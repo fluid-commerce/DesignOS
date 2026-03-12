@@ -1,0 +1,293 @@
+/* Footer Hero Section Styles */
+.footer-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Main Content Layout */
+.footer-hero .footer-main-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+@media (min-width: 1024px) {
+  .footer-hero .footer-main-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+}
+
+/* Hero Content (Left Side) */
+.footer-hero .footer-hero-content {
+  text-align: left;
+}
+
+@media (max-width: 1023px) {
+  .footer-hero .footer-hero-content {
+    text-align: center;
+  }
+}
+
+/* Navigation Columns */
+.footer-hero .footer-navigation {
+  width: 100%;
+}
+
+.footer-hero .nav-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .footer-hero .nav-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Navigation Links */
+.footer-hero .nav-link-item {
+  margin-bottom: 0.75rem;
+}
+
+.footer-hero .nav-link-item:last-child {
+  margin-bottom: 0;
+}
+
+.footer-hero .nav-link-item a {
+  text-decoration: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.footer-hero .nav-link-item a:hover {
+  opacity: 0.75;
+}
+
+/* CTA Link Styling */
+.footer-hero .footer-cta a {
+  text-decoration: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.footer-hero .footer-cta a:hover {
+  opacity: 0.75;
+}
+
+.footer-hero .footer-cta svg {
+  transition: transform 0.2s ease-in-out;
+}
+
+.footer-hero .footer-cta a:hover svg {
+  transform: translateX(4px);
+}
+
+/* Divider Styling */
+.footer-hero .footer-divider hr {
+  border: none;
+  height: 1px;
+  margin: 0;
+}
+
+/* Bottom Footer Layout */
+.footer-hero .footer-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .footer-hero .footer-bottom {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Bottom Left (Logo + Copyright) */
+.footer-hero .footer-bottom-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .footer-hero .footer-bottom-left {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+/* Logo Styling */
+.footer-hero .footer-logo-img {
+  max-height: 3rem;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Social Icons */
+.footer-hero .footer-social {
+  display: flex;
+  align-items: center;
+}
+
+.footer-hero .social-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-hero .social-icon {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.footer-hero .social-icon:hover {
+  opacity: 0.75;
+}
+
+.footer-hero .social-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 767px) {
+  .footer-hero .footer-main-content {
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .footer-hero .footer-hero-content {
+    text-align: center;
+  }
+  
+  .footer-hero .footer-bottom {
+    text-align: center;
+  }
+  
+  .footer-hero .footer-bottom-left {
+    text-align: center;
+  }
+  
+  .footer-hero .social-icons {
+    justify-content: center;
+  }
+}
+
+/* Typography Enhancements */
+.footer-hero h2 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.footer-hero .footer-cta a {
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.footer-hero .nav-link {
+  color: #ffffff;
+}
+
+/* Focus States for Accessibility */
+.footer-hero .nav-link-item a:focus,
+.footer-hero .footer-cta a:focus,
+.footer-hero .social-icon:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.footer-hero .nav-link-item a:focus:not(:focus-visible),
+.footer-hero .footer-cta a:focus:not(:focus-visible),
+.footer-hero .social-icon:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .footer-hero h2,
+  .footer-hero .nav-link-item a,
+  .footer-hero .footer-cta a {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  .footer-hero .footer-divider hr {
+    height: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .footer-hero .nav-link-item a,
+  .footer-hero .footer-cta a,
+  .footer-hero .social-icon,
+  .footer-hero .footer-cta svg {
+    transition: none;
+  }
+  
+  .footer-hero .footer-cta a:hover svg {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .footer-hero {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .footer-hero h2,
+  .footer-hero .nav-link-item a,
+  .footer-hero .footer-cta a,
+  .footer-hero .footer-copyright p {
+    color: black !important;
+  }
+  
+  .footer-hero .social-icons {
+    display: none;
+  }
+}
+
+  .nav-columns {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.nav_columns }}, 1fr);
+    gap: 2rem;
+  }
+  
+  .nav-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .nav-link-item {
+    margin-bottom: 0.5rem;
+  }
+  
+  .nav-link {
+    display: inline-block;
+    transition: opacity 0.2s;
+  }
+  
+  .nav-link:hover {
+    opacity: 0.75;
+  }
+  
+  @media (max-width: 1023px) {
+    .nav-columns {
+      grid-template-columns: 1fr;
+    }
+  }

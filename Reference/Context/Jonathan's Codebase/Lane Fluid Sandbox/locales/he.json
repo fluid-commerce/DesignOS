@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "לתשלום",
+    "order_summary": "סיכום הזמנה",
+    "shipping": "אומדן משלוח",
+    "ships_in": "נשלח תוך 3-5 ימי עבודה",
+    "shopping_cart": "עגלת קניות",
+    "subtotal": "סכום ביניים",
+    "tax": "אומדן מס",
+    "total": "סכום כולל"
+  },
+  "components": {
+    "comment_form": {
+      "email": "דוא\"ל",
+      "full_name": "שם מלא",
+      "leave_info": "אנא השאירו את פרטיכם כדי ש-{{ company }} תדע מי אתם. צריך לעשות זאת רק פעם אחת.",
+      "placeholder": "הוסיפו את התגובה שלכם",
+      "post": "פרסם",
+      "want_to_leave_comment": "רוצים להשאיר תגובה?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "אני מסכים ל",
+    "all_products": "כל המוצרים",
+    "checkout": "לתשלום",
+    "first_payment": "תשלום ראשון ב-{{ date }}",
+    "learn_more": "למד עוד",
+    "monthly_subscription": "מנוי חודשי",
+    "todays_purchase": "הרכישה של היום"
+  },
+  "footer": {
+    "all_rights_reserved": "כל הזכויות שמורות",
+    "cookies_settings": "הגדרות עוגיות",
+    "link_1": "קישור 1",
+    "link_2": "קישור 2",
+    "link_3": "קישור 3",
+    "link_4": "קישור 4",
+    "privacy_policy": "מדיניות פרטיות",
+    "terms_of_service": "תנאי שירות"
+  },
+  "library": {
+    "commented": "הגיב",
+    "comments": "תגובות",
+    "playlist": "רשימת השמעה"
+  },
+  "medium": {
+    "commented": "הגיב",
+    "comments": "תגובות",
+    "products": "מוצרים"
+  },
+  "navbar": {
+    "button_1": "כפתור 1",
+    "button_2": "כפתור 2",
+    "countries": "מדינות",
+    "country": "מדינה",
+    "country_and_language": "מדינה ושפה",
+    "done": "סיים",
+    "language": "שפה",
+    "languages": "שפות",
+    "link_1": "קישור אחד",
+    "link_2": "קישור שני",
+    "link_3": "קישור שלישי",
+    "link_4": "קישור רביעי",
+    "save_and_close": "שמור וסגור",
+    "select_country": "בחרו את המדינה שלכם",
+    "select_language": "בחירת שפה",
+    "shop": "חנות",
+    "enrollments": "הרשמות",
+    "view_my_site": "צפה באתר שלי"
+  },
+  "product": {
+    "add_to_cart": "הוסף לעגלה",
+    "buy_now": "קנה עכשיו",
+    "details": "פרטים",
+    "free_shipping": "משלוח חינם מעל {{amount}}",
+    "product_name": "שם המוצר",
+    "quantity": "כמות",
+    "related_products": "מוצרים",
+    "related_products_intro": "גלו את מבחר המוצרים המשלימים שנבחרו בקפידה והולמים בצורה מושלמת את הרכישה שלכם.",
+    "return": "החזרה",
+    "return_content": "אנו מקבלים החזרות עד 30 יום מיום הרכישה. המוצרים חייבים להיות במצב מקורי, ללא שימוש ובאריזה המקורית. עלויות החזרה על חשבון הלקוח, למעט במקרים של פגם במוצר. לאחר קבלת ובדיקת ההחזרה, נחזיר את מלוא סכום הרכישה.",
+    "reviews": "{{reviews}} ביקורות",
+    "shipping": "משלוח",
+    "shipping_content": "אנו שולחים ברחבי העולם עם זמן אספקה רגיל של 3-7 ימי עבודה. משלוח מהיר זמין בתשלום נוסף. כל החבילות מבוטחות וניתנות למעקב. עלויות המשלוח מחושבות על בסיס משקל ויעד בעת התשלום.",
+    "shop_all": "צפה בהכל",
+    "stars": "{{stars}} כוכבים",
+    "tagline": "סלוגן",
+    "testimonials": "המלצות לקוחות",
+    "testimonials_intro": "גלו מה הלקוחות שלנו אומרים על החוויות שלהם עם המוצרים שלנו.",
+    "variant": "גרסה",
+    "one_time_purchase":"רכישה חד פעמית",
+    "subscribe":"הירשם"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Κάντε συνδρομή και εξοικονομήστε {{save}}%",
+    "update_subscription": "עדכן את המנוי שלך בכל עת"
+  },
+  "shared": {
+    "button": "כפתור",
+    "medium_heading": "כותרת באורך בינוני נמצאת כאן",
+    "medium_intro": "גלו את מגוון המוצרים המיוחד שלנו שתוכנן לענות על כל הצרכים שלכם באיכות ובאלגנטיות.",
+    "short_heading": "כותרת קצרה כאן",
+    "short_intro": "הקדמה תמציתית המציגה את עיקר ההצעה שלנו בבהירות ובהשפעה.",
+    "tagline": "סלוגן",
+    "view_all": "צפה בהכל"
+  },
+  "shop_page": {
+    "button": "כפתור",
+    "heading": "כותרת קצרה כאן",
+    "intro": "חקרו את האוסף המובחר שלנו של מוצרים באיכות גבוהה.",
+    "products": "מוצרים",
+    "products_intro": "כל מוצר במגוון שלנו נבחר בשל איכותו המיוחדת.",
+    "tagline": "סלוגן"
+  }
+}

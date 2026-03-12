@@ -1,0 +1,536 @@
+<!-- Bold Hero Section -->
+<link rel="stylesheet" href="{{ 'bold_hero/styles.css' | asset_url }}">
+
+<section class="bold-hero-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }}">
+  <div class="container">
+    <div class="bold-hero-content {{ section.settings.text_alignment }}">
+      
+      <!-- Small Label/Tagline -->
+      {% if section.settings.show_tagline and section.settings.tagline != blank %}
+      <div class="bold-hero-tagline mb-lg">
+        <span class="{{ section.settings.tagline_font_family }} {{ section.settings.tagline_font_size }} {{ section.settings.tagline_font_size_desktop }} {{ section.settings.tagline_font_weight }} {{ section.settings.tagline_color }}">
+          {{ section.settings.tagline }}
+        </span>
+      </div>
+      {% endif %}
+      
+      <!-- Main Headline -->
+      {% if section.settings.headline != blank %}
+      <h1 class="bold-hero-headline {{ section.settings.headline_font_family }} {{ section.settings.headline_font_size }} {{ section.settings.headline_font_size_desktop }} {{ section.settings.headline_font_weight }} {{ section.settings.headline_color }} mb-lg">
+        {{ section.settings.headline }}
+      </h1>
+      {% endif %}
+      
+      <!-- Subheadline with paint stroke effect -->
+      {% if section.settings.subheadline != blank %}
+      <div class="bold-hero-subheadline-wrapper mb-xl relative inline-block">
+        <p class="bold-hero-subheadline {{ section.settings.subheadline_font_family }} {{ section.settings.subheadline_font_size }} {{ section.settings.subheadline_font_size_desktop }} {{ section.settings.subheadline_font_weight }} {{ section.settings.subheadline_color }}">
+          {{ section.settings.subheadline }}
+        </p>
+        {% if section.settings.show_paint_stroke and section.settings.paint_stroke_image != blank %}
+        <img src="{{ section.settings.paint_stroke_image | image_url }}" alt="" class="paint-stroke-accent" aria-hidden="true">
+        {% endif %}
+      </div>
+      {% endif %}
+      
+      <!-- Description -->
+      {% if section.settings.description != blank %}
+      <p class="bold-hero-description {{ section.settings.description_font_family }} {{ section.settings.description_font_size }} {{ section.settings.description_font_size_desktop }} {{ section.settings.description_font_weight }} {{ section.settings.description_color }} mb-xl max-w-3xl {% if section.settings.text_alignment == 'text-center' %}mx-auto{% endif %}">
+        {{ section.settings.description }}
+      </p>
+      {% endif %}
+      
+      <!-- Buttons -->
+      <div class="bold-hero-buttons flex flex-wrap gap-md {% if section.settings.text_alignment == 'text-center' %}justify-center{% elsif section.settings.text_alignment == 'text-right' %}justify-end{% else %}justify-start{% endif %}">
+        {% if section.settings.show_button_one %}
+        <a href="{{ section.settings.button_one_url }}" 
+           class="btn {{ section.settings.button_one_style }} {{ section.settings.button_one_size }}"
+           {% if section.settings.button_one_new_tab %}target="_blank" rel="noopener"{% endif %}>
+          {{ section.settings.button_one_text }}
+        </a>
+        {% endif %}
+        
+        {% if section.settings.show_button_two %}
+        <a href="{{ section.settings.button_two_url }}" 
+           class="btn {{ section.settings.button_two_style }} {{ section.settings.button_two_size }}"
+           {% if section.settings.button_two_new_tab %}target="_blank" rel="noopener"{% endif %}>
+          {{ section.settings.button_two_text }}
+        </a>
+        {% endif %}
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- Optional decorative paint marks -->
+  {% if section.settings.show_decorative_marks %}
+  <div class="bold-hero-decorations" aria-hidden="true">
+    {% if section.settings.decoration_image_1 != blank %}
+    <img src="{{ section.settings.decoration_image_1 | image_url }}" alt="" class="decoration decoration-1">
+    {% endif %}
+    {% if section.settings.decoration_image_2 != blank %}
+    <img src="{{ section.settings.decoration_image_2 | image_url }}" alt="" class="decoration decoration-2">
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Bold Hero",
+  "tag": "section",
+  "class": "bold-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Tagline"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline",
+      "label": "Show Tagline",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline Text",
+      "default": "Built for Direct Selling"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_family",
+      "label": "Tagline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size",
+      "label": "Tagline Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size_desktop",
+      "label": "Tagline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" }
+      ],
+      "default": "lg:text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_weight",
+      "label": "Tagline Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "tagline_color",
+      "label": "Tagline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-info", "label": "Info" }
+      ],
+      "default": "text-info"
+    },
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "textarea",
+      "id": "headline",
+      "label": "Main Headline",
+      "default": "E-commerce platforms were built for ads."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_family",
+      "label": "Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" }
+      ],
+      "default": "lg:text-7xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Subheadline"
+    },
+    {
+      "type": "textarea",
+      "id": "subheadline",
+      "label": "Subheadline",
+      "default": "We-Commerce was built for people."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_paint_stroke",
+      "label": "Show Paint Stroke Underline",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "paint_stroke_image",
+      "label": "Paint Stroke Image",
+      "info": "Decorative underline image"
+    },
+    {
+      "type": "select",
+      "id": "subheadline_font_family",
+      "label": "Subheadline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "subheadline_font_size",
+      "label": "Subheadline Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "subheadline_font_size_desktop",
+      "label": "Subheadline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "subheadline_font_weight",
+      "label": "Subheadline Font Weight",
+      "options": [
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "subheadline_color",
+      "label": "Subheadline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-info", "label": "Info" }
+      ],
+      "default": "text-info"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Shopify can't process over 50% of your transactions. Fluid is the only platform built exclusively for direct selling—handling complex commissions, rep attribution, and recovering revenue other platforms leave behind."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_one",
+      "label": "Show Primary Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_one_text",
+      "label": "Primary Button Text",
+      "default": "Book a Demo"
+    },
+    {
+      "type": "url",
+      "id": "button_one_url",
+      "label": "Primary Button URL"
+    },
+    {
+      "type": "select",
+      "id": "button_one_style",
+      "label": "Primary Button Style",
+      "options": [
+        { "value": "btn-primary", "label": "Primary" },
+        { "value": "btn-secondary", "label": "Secondary" },
+        { "value": "btn-white", "label": "White" },
+        { "value": "btn-outline-white", "label": "Outline White" }
+      ],
+      "default": "btn-white"
+    },
+    {
+      "type": "select",
+      "id": "button_one_size",
+      "label": "Primary Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_one_new_tab",
+      "label": "Open in New Tab",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_two",
+      "label": "Show Secondary Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_two_text",
+      "label": "Secondary Button Text",
+      "default": "See the Platform"
+    },
+    {
+      "type": "url",
+      "id": "button_two_url",
+      "label": "Secondary Button URL"
+    },
+    {
+      "type": "select",
+      "id": "button_two_style",
+      "label": "Secondary Button Style",
+      "options": [
+        { "value": "btn-primary", "label": "Primary" },
+        { "value": "btn-secondary", "label": "Secondary" },
+        { "value": "btn-white", "label": "White" },
+        { "value": "btn-outline-white", "label": "Outline White" }
+      ],
+      "default": "btn-outline-white"
+    },
+    {
+      "type": "select",
+      "id": "button_two_size",
+      "label": "Secondary Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_two_new_tab",
+      "label": "Open in New Tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Decorations"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_decorative_marks",
+      "label": "Show Decorative Paint Marks",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "decoration_image_1",
+      "label": "Decoration Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "decoration_image_2",
+      "label": "Decoration Image 2"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-primary", "label": "Primary" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xl", "label": "Small" },
+        { "value": "py-2xl", "label": "Medium" },
+        { "value": "py-3xl", "label": "Large" },
+        { "value": "py-4xl", "label": "XL" }
+      ],
+      "default": "py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-2xl", "label": "Small" },
+        { "value": "lg:py-3xl", "label": "Medium" },
+        { "value": "lg:py-4xl", "label": "Large" },
+        { "value": "lg:py-5xl", "label": "XL" }
+      ],
+      "default": "lg:py-4xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bold Hero"
+    }
+  ]
+}
+{% endschema %}

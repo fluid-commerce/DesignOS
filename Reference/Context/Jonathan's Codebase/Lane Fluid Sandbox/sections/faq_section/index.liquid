@@ -1,0 +1,772 @@
+<!-- FAQ Section -->
+<section class="faq-section {{ section.settings.background_color | default: 'bg-neutral-light' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_padding_y_mobile | default: 'py-xl' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      
+      <div class="max-w-4xl mx-auto">
+        
+        <!-- Main Content -->
+        <div class="faq-content space-y-3xl">
+          
+          <!-- Main Heading -->
+          {% if section.settings.show_heading %}
+          <div class="heading-wrapper text-center mb-2xl">
+            <h2 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-4xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-6xl' }} {{ section.settings.heading_font_weight | default: 'font-black' }} {{ section.settings.heading_color | default: 'text-black' }} leading-tight">
+              {{ section.settings.heading | default: "Questions We Get About Visual Builder" }}
+            </h2>
+          </div>
+          {% endif %}
+          
+          <!-- Description -->
+          {% if section.settings.show_description %}
+          <div class="description-wrapper text-center mb-2xl">
+            <p class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-neutral-dark' }} leading-relaxed max-w-3xl mx-auto">
+              {{ section.settings.description | default: "Find answers to the most common questions about our platform and services." }}
+            </p>
+          </div>
+          {% endif %}
+          
+          <!-- FAQ Items (Blocks) -->
+          {% if section.blocks.size > 0 %}
+          <div class="faq-wrapper">
+            <div class="faq-container" style="width: 100%; max-width: 48rem; margin: 0 auto;">
+              <div class="faq-list space-y-xl">
+                {% for block in section.blocks %}
+                {% case block.type %}
+                  {% when 'faq_item' %}
+                    <div class="faq-item {{ section.settings.item_background_color | default: 'bg-white' }} {{ section.settings.item_border_radius | default: 'rounded-lg' }}" {{ block.fluid_attributes }}>
+                      
+                      <!-- Question (Always Visible) -->
+                      <button class="faq-question w-full text-left p-lg lg:p-xl flex justify-between items-center transition-colors duration-200" 
+                              onclick="toggleFAQ(this)"
+                              aria-expanded="false">
+                        <span class="{{ section.settings.question_font_family | default: 'font-primary' }} {{ section.settings.question_font_size | default: 'text-xl' }} {{ section.settings.question_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.question_font_weight | default: 'font-bold' }} {{ section.settings.question_color | default: 'text-black' }}">
+                          {{ block.settings.question | default: "What is your question?" }}
+                        </span>
+                        
+                        <!-- Toggle Icon -->
+                        <span class="faq-icon {{ section.settings.icon_color | default: 'text-neutral' }} transition-transform duration-300">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                          </svg>
+                        </span>
+                      </button>
+                      
+                      <!-- Answer (Collapsible) -->
+                      <div class="faq-answer overflow-hidden transition-all duration-300 ease-in-out max-h-0">
+                        <div class="faq-answer-content px-lg lg:px-xl pb-lg lg:pb-xl pt-0">
+                          <div class="{{ section.settings.answer_font_family | default: 'font-body' }} {{ section.settings.answer_font_size | default: 'text-base' }} {{ section.settings.answer_font_size_desktop | default: 'lg:text-base' }} {{ section.settings.answer_font_weight | default: 'font-normal' }} {{ section.settings.answer_color | default: 'text-neutral-dark' }} leading-relaxed">
+                            {{ block.settings.answer | default: "Add your answer here. You can include multiple paragraphs and detailed explanations." }}
+                          </div>
+                        </div>
+                      </div>
+                      
+                    </div>
+                {% endcase %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<script>
+// FAQ Toggle Functionality with Smooth Animation
+function toggleFAQ(button) {
+  const faqItem = button.closest('.faq-item');
+  const answer = faqItem.querySelector('.faq-answer');
+  const icon = button.querySelector('.faq-icon');
+  const isExpanded = button.getAttribute('aria-expanded') === 'true';
+  
+  // Close all other FAQ items
+  const allFAQs = document.querySelectorAll('.faq-item');
+  allFAQs.forEach(item => {
+    if (item !== faqItem) {
+      const otherButton = item.querySelector('.faq-question');
+      const otherAnswer = item.querySelector('.faq-answer');
+      const otherIcon = item.querySelector('.faq-icon');
+      
+      otherButton.setAttribute('aria-expanded', 'false');
+      otherAnswer.style.maxHeight = '0';
+      otherIcon.style.transform = 'rotate(0deg)';
+    }
+  });
+  
+  // Toggle current FAQ
+  if (isExpanded) {
+    // Close current FAQ
+    button.setAttribute('aria-expanded', 'false');
+    answer.style.maxHeight = '0';
+    icon.style.transform = 'rotate(0deg)';
+  } else {
+    // Open current FAQ
+    button.setAttribute('aria-expanded', 'true');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
+
+// Initialize FAQ on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Ensure all FAQs start closed
+  const allAnswers = document.querySelectorAll('.faq-answer');
+  allAnswers.forEach(answer => {
+    answer.style.maxHeight = '0';
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show Main Heading",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Main Heading Text",
+      "default": "Questions We Get About Visual Builder"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" }
+      ],
+      "default": "lg:text-6xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black (Default)" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "FAQ Items Styling"
+    },
+    {
+      "type": "select",
+      "id": "item_background_color",
+      "label": "FAQ Item Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White (Default)" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "item_border_radius",
+      "label": "FAQ Item Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "select",
+      "id": "item_text_color",
+      "label": "FAQ Item Default Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black (Default)" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Question Styling"
+    },
+    {
+      "type": "select",
+      "id": "question_font_family",
+      "label": "Question Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "question_font_size",
+      "label": "Question Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "question_font_size_desktop",
+      "label": "Question Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "question_font_weight",
+      "label": "Question Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "question_color",
+      "label": "Question Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black (Default)" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Answer Styling"
+    },
+    {
+      "type": "select",
+      "id": "answer_font_family",
+      "label": "Answer Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "answer_font_size",
+      "label": "Answer Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "answer_font_size_desktop",
+      "label": "Answer Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" }
+      ],
+      "default": "lg:text-base"
+    },
+    {
+      "type": "select",
+      "id": "answer_font_weight",
+      "label": "Answer Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "answer_color",
+      "label": "Answer Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "select",
+      "id": "icon_color",
+      "label": "Toggle Icon Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Lorem ipsum dolor sit amet consectetur?",
+          "info": "Enter the frequently asked question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+          "info": "Provide a detailed answer using the rich text editor"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Section",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Can I use Visual Builder with my existing website?",
+            "answer": "<p>No, and here's why: Visual Builder is designed to work seamlessly with FairShare™ attribution, our payment system, and content library. Try to bolt it onto your existing site and you break the very connections that make it powerful. We're not in the business of expensive failures—we'd rather say no than help you build something that won't work.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How is this different from WordPress or other page builders?",
+            "answer": "<p>Traditional page builders focus on design but ignore the commerce experience. Visual Builder is built specifically for We-Commerce—it understands the full customer journey from awareness to advocacy, not just the transaction. Plus, it's integrated with attribution tracking and conversion optimization that most page builders treat as afterthoughts.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What if my team doesn't have design skills?",
+            "answer": "<p>That's exactly why we built this. Visual Builder comes with professionally designed templates and components that are proven to convert. Your team can focus on your message and content while the platform handles the design fundamentals. No design degree required.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How fast can we launch our first page?",
+            "answer": "<p>Most teams have their first page live within a few hours, not weeks. Choose a template, customize your content, and publish. The platform handles hosting, performance optimization, and technical setup automatically.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What happens if we need something custom?",
+            "answer": "<p>Visual Builder is designed to be comprehensive enough that custom development is rarely needed. However, if you do need something specific, our professional services team can create custom components that integrate seamlessly with the platform. No rebuilding required.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

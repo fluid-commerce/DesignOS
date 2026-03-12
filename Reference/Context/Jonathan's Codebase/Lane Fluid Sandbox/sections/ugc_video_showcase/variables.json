@@ -1,0 +1,63 @@
+{
+  "background_color": "bg-white",
+  "background_image": "",
+  "section_padding_y_mobile": "py-xl",
+  "section_padding_y_desktop": "lg:py-3xl",
+  "section_border_radius": "rounded-none",
+  
+  "container_background_color": "bg-black",
+  "container_background_image": "",
+  "container_border_radius": "rounded-xl",
+  "container_padding_y_mobile": "py-xl",
+  "container_padding_y_desktop": "lg:py-3xl",
+  "container_padding_x_mobile": "px-lg",
+  "container_padding_x_desktop": "lg:px-xl",
+  
+  "show_section_header": true,
+  "section_heading": "User Generated Content",
+  "section_description": "",
+  "header_text_align": "text-left",
+  "heading_font_size": "text-3xl",
+  "heading_font_size_desktop": "lg:text-5xl",
+  "heading_font_weight": "font-bold",
+  "heading_line_height": "leading-tight",
+  "heading_margin_bottom": "mb-2xl",
+  "heading_text_color": "",
+  "description_font_size": "text-base",
+  "description_font_size_desktop": "lg:text-lg",
+  "description_line_height": "leading-relaxed",
+  "description_text_color": "",
+  
+  "enable_slider": true,
+  "cards_margin_top": "mt-2xl",
+  
+  "card_background_color": "bg-white",
+  "card_border_radius": "rounded-xl",
+  "card_content_padding": "p-md",
+  "card_text_color": "",
+  "video_border_radius": "rounded-lg",
+  
+  "play_button_background_color": "bg-white",
+  "play_button_icon_color": "text-black",
+  "play_button_border_radius": "rounded-full",
+  
+  "avatar_border_radius": "rounded-full",
+  "avatar_size": "w-10 h-10",
+  
+  "title_font_size": "text-sm",
+  "title_font_size_desktop": "lg:text-base",
+  "title_font_weight": "font-medium",
+  "title_line_height": "leading-snug",
+  "creator_font_size": "text-xs",
+  "creator_font_size_desktop": "lg:text-sm",
+  "card_description_font_size": "text-xs",
+  "card_description_font_size_desktop": "lg:text-sm",
+  "card_description_line_height": "leading-relaxed",
+  "description_margin_top": "mt-sm",
+  
+  "show_navigation": true,
+  "navigation_margin_top": "mt-lg",
+  "nav_button_background_color": "bg-neutral-light",
+  "nav_button_text_color": "text-black",
+  "nav_button_border_radius": "rounded-lg"
+}

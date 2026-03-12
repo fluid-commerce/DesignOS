@@ -1,0 +1,84 @@
+.fw-logo-bar-section {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fw-logo-bar__eyebrow {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.fw-logo-bar__logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .fw-logo-bar__logos {
+    gap: 2.5rem 3.5rem;
+    flex-wrap: nowrap;
+  }
+}
+
+.fw-logo-bar__item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fw-logo-bar__link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.fw-logo-bar__logo {
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(1.8);
+  opacity: 0.55;
+  transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none !important;
+}
+
+.fw-logo-bar__item:hover .fw-logo-bar__logo,
+.fw-logo-bar__link:hover .fw-logo-bar__logo,
+.fw-logo-bar__link:focus .fw-logo-bar__logo {
+  filter: grayscale(0%) brightness(1);
+  opacity: 1;
+}
+
+.fw-logo-bar__link:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.fw-logo-bar__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.25);
+  width: 120px;
+}
+
+@media (max-width: 1023px) {
+  .fw-logo-bar__logos {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+  }
+
+  .fw-logo-bar__logos::-webkit-scrollbar {
+    display: none;
+  }
+}

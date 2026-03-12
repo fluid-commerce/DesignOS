@@ -1,0 +1,7 @@
+{
+  "name": "Problem Cards",
+  "description": "A grid of problem/pain point cards with icons or numbers highlighting business challenges",
+  "category": "Features",
+  "tags": ["problems", "cards", "grid", "pain points"],
+  "version": "1.0.0"
+}

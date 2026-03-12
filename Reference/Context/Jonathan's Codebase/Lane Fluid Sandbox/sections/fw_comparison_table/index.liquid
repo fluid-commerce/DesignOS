@@ -1,0 +1,705 @@
+<link rel="stylesheet" href="{{ 'fw_comparison_table/styles.css' | asset_url }}">
+
+<section class="fw-compare-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }}"
+  {% if section.settings.background_image != blank %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+
+  <div class="fw-compare-container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+    {% if section.settings.container_background_image != blank %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+
+    <div class="fw-compare-grid">
+
+      <div class="fw-compare-narrative">
+
+        {% if section.settings.show_accent_bar and section.settings.accent_bar_image != blank %}
+        <div class="fw-compare-accent-bar">
+          <img src="{{ section.settings.accent_bar_image | image_url }}" alt="" class="fw-compare-accent-bar-img" aria-hidden="true">
+        </div>
+        {% endif %}
+
+        {% if section.settings.headline != blank %}
+        <h2 class="fw-compare-headline {{ section.settings.headline_font_family }} {{ section.settings.headline_font_size }} {{ section.settings.headline_font_size_desktop }} {{ section.settings.headline_font_weight }} {{ section.settings.headline_color }}">
+          {{ section.settings.headline }}
+        </h2>
+        {% endif %}
+
+        {% if section.settings.body != blank %}
+        <div class="fw-compare-body {{ section.settings.body_font_family }} {{ section.settings.body_font_size }} {{ section.settings.body_font_size_desktop }} {{ section.settings.body_font_weight }} {{ section.settings.body_color }}">
+          {{ section.settings.body }}
+        </div>
+        {% endif %}
+
+      </div>
+
+      <div class="fw-compare-table-wrap">
+        {% if section.blocks.size > 0 %}
+        <div class="fw-compare-table-scroll">
+          <table class="fw-compare-table">
+            <thead>
+              <tr>
+                <th class="feature-col">Feature</th>
+                <th class="competitor-col">{{ section.settings.competitor_header | default: 'Shopify' }}</th>
+                <th class="fluid-col">{{ section.settings.fluid_header | default: 'Fluid' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for block in section.blocks %}
+                {% if block.type == 'comparison_row' %}
+                <tr {{ block.fluid_attributes }}>
+                  <td class="feature-col">{{ block.settings.feature_name }}</td>
+                  <td class="competitor-col check-no">{{ block.settings.competitor_value }}</td>
+                  <td class="fluid-col {% if block.settings.fluid_is_positive %}check-yes{% else %}check-no{% endif %}">{{ block.settings.fluid_value }}</td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        {% if section.settings.table_note != blank %}
+        <p class="fw-compare-note {{ section.settings.table_note_font_family }} {{ section.settings.table_note_font_size }} {{ section.settings.table_note_font_size_desktop }} {{ section.settings.table_note_font_weight }} {{ section.settings.table_note_color }}">
+          {{ section.settings.table_note }}
+        </p>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FW Comparison Table",
+  "tag": "section",
+  "class": "fw-comparison-table",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Accent Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_accent_bar",
+      "label": "Show Accent Bar",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "accent_bar_image",
+      "label": "Accent Bar Image",
+      "info": "Decorative painted bar image (48px wide recommended)"
+    },
+
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline Text",
+      "default": "The conventional wisdom is wrong."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_family",
+      "label": "Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+
+    {
+      "type": "header",
+      "content": "Body Text"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body Text",
+      "default": "<p>Everyone tells direct selling companies to use Shopify. Or Stripe. Or Square. \"That's what real e-commerce companies use,\" they say.</p><p>But here's the thing: you're not a real e-commerce company. You're something different. Something those platforms weren't built for. And pretending otherwise is costing you more than you realize.</p><p>Shopify optimized for traffic. We-Commerce optimized for relationships.</p>"
+    },
+    {
+      "type": "select",
+      "id": "body_font_family",
+      "label": "Body Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "body_font_size",
+      "label": "Body Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "body_font_size_desktop",
+      "label": "Body Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "body_font_weight",
+      "label": "Body Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "body_color",
+      "label": "Body Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+
+    {
+      "type": "header",
+      "content": "Table Headers"
+    },
+    {
+      "type": "text",
+      "id": "competitor_header",
+      "label": "Competitor Column Header",
+      "default": "Shopify"
+    },
+    {
+      "type": "text",
+      "id": "fluid_header",
+      "label": "Fluid Column Header",
+      "default": "Fluid"
+    },
+
+    {
+      "type": "header",
+      "content": "Table Footer Note"
+    },
+    {
+      "type": "text",
+      "id": "table_note",
+      "label": "Table Footer Note",
+      "default": "Shopify is great for guest checkout. That's about 15-25% of direct selling revenue. We handle the rest."
+    },
+    {
+      "type": "select",
+      "id": "table_note_font_family",
+      "label": "Note Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "table_note_font_size",
+      "label": "Note Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-xs"
+    },
+    {
+      "type": "select",
+      "id": "table_note_font_size_desktop",
+      "label": "Note Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-sm"
+    },
+    {
+      "type": "select",
+      "id": "table_note_font_weight",
+      "label": "Note Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "table_note_color",
+      "label": "Note Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "XS" },
+        { "value": "px-sm", "label": "SM" },
+        { "value": "px-md", "label": "MD" },
+        { "value": "px-lg", "label": "LG" },
+        { "value": "px-xl", "label": "XL" },
+        { "value": "px-2xl", "label": "2XL" },
+        { "value": "px-3xl", "label": "3XL" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "XS" },
+        { "value": "lg:px-sm", "label": "SM" },
+        { "value": "lg:px-md", "label": "MD" },
+        { "value": "lg:px-lg", "label": "LG" },
+        { "value": "lg:px-xl", "label": "XL" },
+        { "value": "lg:px-2xl", "label": "2XL" },
+        { "value": "lg:px-3xl", "label": "3XL" }
+      ],
+      "default": "lg:px-3xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "comparison_row",
+      "name": "Comparison Row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "feature_name",
+          "label": "Feature Name",
+          "default": "Feature"
+        },
+        {
+          "type": "text",
+          "id": "competitor_value",
+          "label": "Competitor Value",
+          "default": "—"
+        },
+        {
+          "type": "text",
+          "id": "fluid_value",
+          "label": "Fluid Value",
+          "default": "✓"
+        },
+        {
+          "type": "checkbox",
+          "id": "fluid_is_positive",
+          "label": "Fluid Value Is Positive (green check)",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FW Comparison Table",
+      "settings": {
+        "show_accent_bar": false,
+        "headline": "The conventional wisdom is wrong.",
+        "body": "<p>Everyone tells direct selling companies to use Shopify. Or Stripe. Or Square. \"That's what real e-commerce companies use,\" they say.</p><p>But here's the thing: you're not a real e-commerce company. You're something different. Something those platforms weren't built for. And pretending otherwise is costing you more than you realize.</p><p>Shopify optimized for traffic. We-Commerce optimized for relationships.</p>",
+        "competitor_header": "Shopify",
+        "fluid_header": "Fluid",
+        "table_note": "Shopify is great for guest checkout. That's about 15-25% of direct selling revenue. We handle the rest.",
+        "background_color": "bg-black"
+      },
+      "blocks": [
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Rep attribution & credit",
+            "competitor_value": "—",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        },
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Multi-level subscriptions",
+            "competitor_value": "—",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        },
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Commission engine sync",
+            "competitor_value": "—",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        },
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Logged-in rep purchasing",
+            "competitor_value": "Partial",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        },
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Cascading payment retry",
+            "competitor_value": "—",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        },
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Single global storefront",
+            "competitor_value": "Separate stores",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        },
+        {
+          "type": "comparison_row",
+          "settings": {
+            "feature_name": "Mobile app (no-code)",
+            "competitor_value": "—",
+            "fluid_value": "✓",
+            "fluid_is_positive": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

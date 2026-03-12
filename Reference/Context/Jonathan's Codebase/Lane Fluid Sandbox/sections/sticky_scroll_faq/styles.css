@@ -1,0 +1,296 @@
+/* Sticky Scroll FAQ Section Styles */
+
+/* Section Container */
+.sticky-scroll-faq .inner-container {
+  /* Container background image support */
+}
+
+/* Section Container */
+.sticky-scroll-faq {
+  position: relative;
+}
+
+/* Sticky Grid Layout */
+.sticky-scroll-faq .sticky-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2xl);
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Responsive Grid Layout */
+@media (min-width: 1024px) {
+  .sticky-scroll-faq .sticky-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+    min-height: 200vh; /* Enough space for scrolling */
+  }
+}
+
+/* Left Side - Sticky Content */
+.sticky-scroll-faq .sticky-content-wrapper {
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .sticky-scroll-faq .sticky-content-wrapper {
+    position: sticky;
+    top: 50vh;
+    transform: translateY(-50%);
+    height: fit-content;
+  }
+}
+
+.sticky-scroll-faq .sticky-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Quote Styling */
+.sticky-scroll-faq .quote-text-wrapper blockquote {
+  margin: 0;
+  position: relative;
+  line-height: 1.6;
+}
+
+.sticky-scroll-faq .quote-mark {
+  font-size: 1.5em;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Author Info */
+.sticky-scroll-faq .author-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.sticky-scroll-faq .author-avatar img {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sticky-scroll-faq .author-details p {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.sticky-scroll-faq .handwritten-style {
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+/* Right Side - Stacked Cards */
+.sticky-scroll-faq .cards-scroll-wrapper {
+  position: relative;
+}
+
+.sticky-scroll-faq .cards-scroll-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  .sticky-scroll-faq .cards-scroll-container {
+    position: sticky;
+    top: 50vh;
+    transform: translateY(-50%);
+    height: fit-content;
+  }
+}
+
+.sticky-scroll-faq .card-stack {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  min-height: 400px;
+  height: auto;
+  perspective: 1200px;
+}
+
+/* Individual FAQ Cards - Stacked */
+.sticky-scroll-faq .faq-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 400px;
+  height: auto;
+  background: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  transform-origin: center bottom;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  overflow: visible;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card stacking - each card slightly offset and scaled down */
+.sticky-scroll-faq .faq-card:nth-child(1) {
+  z-index: 10;
+  transform: translateY(0px) scale(1) rotateX(0deg);
+}
+
+.sticky-scroll-faq .faq-card:nth-child(2) {
+  z-index: 9;
+  transform: translateY(8px) scale(0.98) rotateX(2deg);
+}
+
+.sticky-scroll-faq .faq-card:nth-child(3) {
+  z-index: 8;
+  transform: translateY(16px) scale(0.96) rotateX(4deg);
+}
+
+.sticky-scroll-faq .faq-card:nth-child(4) {
+  z-index: 7;
+  transform: translateY(24px) scale(0.94) rotateX(6deg);
+}
+
+.sticky-scroll-faq .faq-card:nth-child(5) {
+  z-index: 6;
+  transform: translateY(32px) scale(0.92) rotateX(8deg);
+}
+
+/* Card removal animations */
+.sticky-scroll-faq .faq-card.card-removed {
+  transform: translateX(100vw) rotateZ(45deg) scale(0.8) !important;
+  opacity: 0 !important;
+  z-index: 1 !important;
+}
+
+/* Ensure non-animating cards maintain their stacked position */
+.sticky-scroll-faq .faq-card:not(.card-removed) {
+  /* Reset any inline transforms when not animating to maintain stack position */
+}
+
+.sticky-scroll-faq .faq-card[style*="opacity: 1"]:not([style*="translateX"]) {
+  /* Force stacked position for cards that should be static */
+}
+
+/* Card Icon */
+.sticky-scroll-faq .card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.sticky-scroll-faq .card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* Card Content */
+.sticky-scroll-faq .card-question-wrapper {
+  flex-shrink: 0;
+  margin-bottom: var(--space-lg);
+}
+
+.sticky-scroll-faq .card-question-wrapper h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sticky-scroll-faq .card-answer-wrapper {
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-start;
+}
+
+.sticky-scroll-faq .card-answer-wrapper div {
+  line-height: 1.6;
+  width: 100%;
+}
+
+/* Card Icon */
+.sticky-scroll-faq .card-icon-wrapper {
+  flex-shrink: 0;
+  margin-bottom: var(--space-lg);
+}
+
+/* Enhanced 3D Effects */
+.sticky-scroll-faq .faq-card {
+  will-change: transform, opacity;
+}
+
+
+/* Mobile - No stacking effect */
+@media (max-width: 1023px) {
+  .sticky-scroll-faq .cards-scroll-wrapper {
+    min-height: auto;
+  }
+  
+  .sticky-scroll-faq .cards-scroll-container {
+    position: relative;
+    height: auto;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+  
+  .sticky-scroll-faq .card-stack {
+    position: relative;
+    height: auto;
+    perspective: none;
+  }
+  
+  .sticky-scroll-faq .faq-card {
+    position: relative;
+    margin-bottom: var(--space-lg);
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  
+  .sticky-scroll-faq .faq-card.card-removed {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+
+/* Typography Enhancements */
+.sticky-scroll-faq .heading-wrapper h2 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+.sticky-scroll-faq .quote-content-wrapper {
+  margin-top: var(--space-lg);
+}
+
+.sticky-scroll-faq .author-info-wrapper {
+  margin-top: var(--space-xl);
+}
+
+/* Card Content Spacing */
+.sticky-scroll-faq .card-icon-wrapper {
+  margin-bottom: var(--space-lg);
+}
+
+.sticky-scroll-faq .card-question-wrapper {
+  margin-bottom: var(--space-lg);
+}
+
+/* Responsive Text Sizing */
+@media (min-width: 1024px) {
+  .sticky-scroll-faq .sticky-content {
+    padding-right: var(--space-lg);
+  }
+}

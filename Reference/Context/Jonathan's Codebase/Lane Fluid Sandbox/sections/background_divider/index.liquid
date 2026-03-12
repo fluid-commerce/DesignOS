@@ -1,0 +1,358 @@
+<!-- Background Divider Section -->
+<section class="background-divider {{ section.settings.background_color | default: 'bg-transparent' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" 
+         style="
+           {% if section.settings.divider_image %}
+             background: url('{{ section.settings.divider_image | image_url }}') 0 0 / 100% 100% no-repeat;
+           {% endif %}
+           {% if section.settings.divider_height_mobile %}
+             height: {{ section.settings.divider_height_mobile }};
+           {% endif %}
+           {% if section.settings.divider_height_desktop %}
+             --desktop-height: {{ section.settings.divider_height_desktop }};
+           {% endif %}
+         ">
+  
+  <!-- Optional overlay for better content readability -->
+  {% if section.settings.show_overlay %}
+  <div class="divider-overlay" style="
+    background: {{ section.settings.overlay_color | default: 'rgba(0, 0, 0, 0.4)' }};
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  "></div>
+  {% endif %}
+
+  <!-- Optional content container -->
+  {% if section.settings.show_content %}
+  <div class="container relative z-10 h-full flex items-center justify-center">
+    <div class="divider-content text-center">
+      
+      <!-- Optional heading -->
+      {% if section.settings.show_heading and section.settings.heading != blank %}
+      <h2 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-3xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} {{ section.settings.heading_color | default: 'text-white' }} mb-md">
+        {{ section.settings.heading }}
+      </h2>
+      {% endif %}
+      
+      <!-- Optional subheading -->
+      {% if section.settings.show_subheading and section.settings.subheading != blank %}
+      <p class="{{ section.settings.subheading_font_family | default: 'font-body' }} {{ section.settings.subheading_font_size | default: 'text-lg' }} {{ section.settings.subheading_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.subheading_font_weight | default: 'font-normal' }} {{ section.settings.subheading_color | default: 'text-white' }}">
+        {{ section.settings.subheading }}
+      </p>
+      {% endif %}
+      
+    </div>
+  </div>
+  {% endif %}
+
+</section>
+
+{% schema %}
+{
+  "name": "Background Divider",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Divider Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "divider_image",
+      "label": "Background Divider Image",
+      "info": "Choose an image that will serve as the visual divider. SVG files work great for clean, scalable dividers."
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Fallback Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-transparent",
+      "info": "Background color shown when no image is selected or while image loads"
+    },
+    {
+      "type": "header",
+      "content": "Divider Height"
+    },
+    {
+      "type": "select",
+      "id": "divider_height_mobile",
+      "label": "Height (Mobile)",
+      "options": [
+        { "value": "1rem", "label": "Extra Small (1rem)" },
+        { "value": "1.5rem", "label": "Small (1.5rem)" },
+        { "value": "2rem", "label": "Medium (2rem)" },
+        { "value": "2.5rem", "label": "Large (2.5rem)" },
+        { "value": "3rem", "label": "Extra Large (3rem)" },
+        { "value": "4rem", "label": "2X Large (4rem)" },
+        { "value": "5rem", "label": "3X Large (5rem)" },
+        { "value": "6rem", "label": "4X Large (6rem)" },
+        { "value": "8rem", "label": "5X Large (8rem)" },
+        { "value": "10rem", "label": "6X Large (10rem)" },
+        { "value": "12rem", "label": "7X Large (12rem)" },
+        { "value": "16rem", "label": "8X Large (16rem)" },
+        { "value": "20rem", "label": "9X Large (20rem)" }
+      ],
+      "default": "2.5rem",
+      "info": "Height of the divider on mobile devices"
+    },
+    {
+      "type": "select",
+      "id": "divider_height_desktop",
+      "label": "Height (Desktop)",
+      "options": [
+        { "value": "1rem", "label": "Extra Small (1rem)" },
+        { "value": "1.5rem", "label": "Small (1.5rem)" },
+        { "value": "2rem", "label": "Medium (2rem)" },
+        { "value": "2.5rem", "label": "Large (2.5rem)" },
+        { "value": "3rem", "label": "Extra Large (3rem)" },
+        { "value": "4rem", "label": "2X Large (4rem)" },
+        { "value": "5rem", "label": "3X Large (5rem)" },
+        { "value": "6rem", "label": "4X Large (6rem)" },
+        { "value": "8rem", "label": "5X Large (8rem)" },
+        { "value": "10rem", "label": "6X Large (10rem)" },
+        { "value": "12rem", "label": "7X Large (12rem)" },
+        { "value": "16rem", "label": "8X Large (16rem)" },
+        { "value": "20rem", "label": "9X Large (20rem)" }
+      ],
+      "default": "2.5rem",
+      "info": "Height of the divider on desktop devices"
+    },
+    {
+      "type": "header",
+      "content": "Overlay Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Show Overlay",
+      "default": false,
+      "info": "Add a colored overlay on top of the background image"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "rgba(0, 0, 0, 0.4)",
+      "info": "Color overlay to place over the background image"
+    },
+    {
+      "type": "header",
+      "content": "Optional Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_content",
+      "label": "Show Content",
+      "default": false,
+      "info": "Add optional text content over the divider"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show Heading",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "info": "Optional heading text to display over the divider"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" },
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_subheading",
+      "label": "Show Subheading",
+      "default": false
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading Text",
+      "info": "Optional subheading text to display under the heading"
+    },
+    {
+      "type": "select",
+      "id": "subheading_font_family",
+      "label": "Subheading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "subheading_font_size",
+      "label": "Subheading Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "subheading_font_size_desktop",
+      "label": "Subheading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "subheading_font_weight",
+      "label": "Subheading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Border Radius"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Background Divider"
+    }
+  ]
+}
+{% endschema %}

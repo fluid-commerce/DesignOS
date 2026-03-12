@@ -1,0 +1,1262 @@
+<!-- UGC Video Showcase Section -->
+<section class="ugc-video-showcase {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }} {{ section.settings.background_color }}" 
+         id="{{ section.id }}"
+         {% if section.settings.background_image != blank %}
+         style="background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');"
+         {% endif %}>
+  <div class="container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+       {% if section.settings.container_background_image != blank %}
+       style="background-image: url('{{ section.settings.container_background_image | image_url: width: 1200 }}');"
+       {% endif %}>
+    
+    <!-- Section Header -->
+    {% if section.settings.show_section_header %}
+      <div class="section-header {{ section.settings.header_text_align }} {{ section.settings.heading_margin_bottom }}">
+        {% if section.settings.section_heading != blank %}
+          <div class="heading-wrapper {{ section.settings.heading_margin_bottom }}">
+            <h2 class="section-heading {{ section.settings.heading_font_size }} {{ section.settings.heading_font_size_desktop }} {{ section.settings.heading_font_weight }} {{ section.settings.heading_line_height }} {{ section.settings.heading_text_color | default: 'text-white' }}">
+              {{ section.settings.section_heading }}
+            </h2>
+          </div>
+        {% endif %}
+        
+        {% if section.settings.section_description != blank %}
+          <div class="description-wrapper">
+            <p class="section-description {{ section.settings.description_font_size }} {{ section.settings.description_font_size_desktop }} {{ section.settings.description_line_height }} {{ section.settings.description_text_color | default: 'text-neutral-light' }}">
+              {{ section.settings.section_description }}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    <!-- Video Cards Container -->
+    <div class="video-cards-wrapper {{ section.settings.cards_margin_top }}">
+      
+      <!-- Video Cards Grid/Slider -->
+      <div class="video-cards-container" data-slider="{{ section.settings.enable_slider }}">
+        <div class="video-cards-grid">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'video_card' %}
+                <div class="video-card {{ section.settings.card_background_color }} {{ section.settings.card_border_radius }}" {{ block.fluid_attributes }}>
+                  
+                  <!-- Video Container -->
+                  <div class="video-card-media {{ section.settings.video_border_radius }}">
+                    {% if block.settings.video_file != blank %}
+                      <!-- Video Thumbnail with Play Button -->
+                      <div class="video-thumbnail-wrapper" onclick="playVideo(this, '{{ block.settings.video_file.url }}')">
+                        <video class="video-thumbnail" preload="metadata" muted>
+                          <source src="{{ block.settings.video_file.url }}" type="video/mp4">
+                          <!-- Fallback image if video fails to load -->
+                          <img src="{{ 'placeholder-image.png' | asset_url }}"
+                               alt="Video thumbnail for {{ block.settings.video_title }}"
+                               class="video-thumbnail"
+                               loading="lazy">
+                        </video>
+                        
+                        <!-- Play Button Overlay -->
+                        <div class="play-button-overlay">
+                          <div class="play-button {{ section.settings.play_button_background_color }} {{ section.settings.play_button_border_radius }}">
+                            <svg class="play-icon {{ section.settings.play_button_icon_color }}" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          </div>
+                        </div>
+                        
+                      </div>
+                      
+                      <!-- Hidden Video Element (for inline playback) -->
+                      <div class="video-player-wrapper" style="display: none;">
+                        <video class="video-player" controls preload="metadata">
+                          <source src="{{ block.settings.video_file.url }}" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    {% else %}
+                      <!-- Placeholder when no video URL -->
+                      <div class="video-placeholder">
+                        <img src="{{ 'placeholder-image.png' | asset_url }}"
+                             alt="Video placeholder"
+                             class="video-thumbnail"
+                             loading="lazy">
+                        <div class="placeholder-text">
+                          <p class="text-neutral">Add video URL to display content</p>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                  
+                  <!-- Card Content -->
+                  <div class="video-card-content {{ section.settings.card_content_padding }}">
+                    
+                    <!-- Creator Info and Action Row -->
+                    <div class="card-header">
+                      
+                      <!-- Creator Avatar -->
+                      {% if block.settings.show_creator_avatar %}
+                        <div class="creator-avatar {{ section.settings.avatar_border_radius }} {{ section.settings.avatar_size }}">
+                          {% if block.settings.creator_avatar != blank %}
+                            <img src="{{ block.settings.creator_avatar | image_url: width: 100 }}"
+                                 alt="{{ block.settings.creator_name | default: 'Creator avatar' }}"
+                                 class="avatar-image"
+                                 loading="lazy">
+                          {% else %}
+                            <img src="{{ 'placeholder-image.png' | asset_url }}"
+                                 alt="Creator avatar placeholder"
+                                 class="avatar-image"
+                                 loading="lazy">
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                      
+                      <!-- Video Title and Creator -->
+                      <div class="video-info-wrapper">
+                        {% if block.settings.video_title != blank %}
+                          <h3 class="video-title {{ section.settings.title_font_size }} {{ section.settings.title_font_size_desktop }} {{ section.settings.title_font_weight }} {{ section.settings.title_line_height }} {{ block.settings.title_text_color | default: section.settings.card_text_color | default: 'text-black' }}">
+                            {{ block.settings.video_title }}
+                          </h3>
+                        {% endif %}
+                        
+                        {% if block.settings.creator_name != blank %}
+                          <p class="creator-name {{ section.settings.creator_font_size }} {{ section.settings.creator_font_size_desktop }} {{ block.settings.creator_text_color | default: section.settings.card_text_color | default: 'text-neutral' }}">
+                            {{ block.settings.creator_name }}
+                          </p>
+                        {% endif %}
+                      </div>
+                      
+                      
+                    </div>
+                    
+                    <!-- Video Description (Optional) -->
+                    {% if block.settings.video_description != blank %}
+                      <div class="video-description-wrapper {{ section.settings.description_margin_top }}">
+                        <p class="video-description {{ section.settings.card_description_font_size }} {{ section.settings.card_description_font_size_desktop }} {{ section.settings.card_description_line_height }} {{ block.settings.description_text_color | default: section.settings.card_text_color | default: 'text-neutral' }}">
+                          {{ block.settings.video_description }}
+                        </p>
+                      </div>
+                    {% endif %}
+                    
+                    
+                  </div>
+                </div>
+            {% endcase %}
+          {% endfor %}
+        </div>
+      </div>
+      
+      <!-- Navigation (for slider mode) -->
+      {% if section.settings.enable_slider and section.settings.show_navigation %}
+        <div class="slider-navigation {{ section.settings.navigation_margin_top }}">
+          <button class="nav-button nav-prev {{ section.settings.nav_button_background_color }} {{ section.settings.nav_button_text_color }} {{ section.settings.nav_button_border_radius }}" 
+                  aria-label="Previous video">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <button class="nav-button nav-next {{ section.settings.nav_button_background_color }} {{ section.settings.nav_button_text_color }} {{ section.settings.nav_button_border_radius }}" 
+                  aria-label="Next video">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      {% endif %}
+      
+      
+    </div>
+  </div>
+</section>
+
+<!-- Embedded JavaScript for Slider Functionality -->
+{% if section.settings.enable_slider %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sliderContainer = document.querySelector('.ugc-video-showcase .video-cards-container[data-slider="true"]');
+    if (!sliderContainer) return;
+    
+    const cardsGrid = sliderContainer.querySelector('.video-cards-grid');
+    const cards = cardsGrid.querySelectorAll('.video-card');
+    const prevButton = document.querySelector('.ugc-video-showcase .nav-prev');
+    const nextButton = document.querySelector('.ugc-video-showcase .nav-next');
+    
+    if (!cards.length || !prevButton || !nextButton) return;
+    
+    let currentIndex = 0;
+    let cardsPerView = 1;
+    
+    // Calculate cards per view based on screen size
+    function updateCardsPerView() {
+      const containerWidth = sliderContainer.offsetWidth;
+      if (containerWidth >= 1200) {
+        cardsPerView = Math.min(3, cards.length); // Show 3 videos on large screens
+      } else if (containerWidth >= 900) {
+        cardsPerView = Math.min(2, cards.length); // Show 2 videos on medium screens
+      } else {
+        cardsPerView = 1; // Show 1 video on mobile
+      }
+    }
+    
+    // Update slider position
+    function updateSlider() {
+      const cardWidth = 100 / cardsPerView;
+      const maxIndex = Math.max(0, cards.length - cardsPerView);
+      currentIndex = Math.min(currentIndex, maxIndex);
+      
+      const translateX = -(currentIndex * cardWidth);
+      cardsGrid.style.transform = `translateX(${translateX}%)`;
+      
+      // Update button states
+      prevButton.disabled = currentIndex === 0;
+      nextButton.disabled = currentIndex >= maxIndex;
+      
+      prevButton.style.opacity = currentIndex === 0 ? '0.5' : '1';
+      nextButton.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+    }
+    
+    // Navigation event listeners
+    prevButton.addEventListener('click', function() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateSlider();
+      }
+    });
+    
+    nextButton.addEventListener('click', function() {
+      const maxIndex = Math.max(0, cards.length - cardsPerView);
+      if (currentIndex < maxIndex) {
+        currentIndex++;
+        updateSlider();
+      }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      updateCardsPerView();
+      updateSlider();
+    });
+    
+    // Initialize
+    updateCardsPerView();
+    updateSlider();
+    
+    console.log('UGC video showcase slider initialized with', cards.length, 'videos');
+  });
+</script>
+{% endif %}
+
+<!-- Video Player JavaScript -->
+<script>
+  // Play video function
+  function playVideo(thumbnailElement, videoUrl) {
+    const videoCard = thumbnailElement.closest('.video-card');
+    const thumbnailWrapper = videoCard.querySelector('.video-thumbnail-wrapper');
+    const playerWrapper = videoCard.querySelector('.video-player-wrapper');
+    const videoPlayer = videoCard.querySelector('.video-player');
+    
+    if (!playerWrapper || !videoPlayer) return;
+    
+    // Hide thumbnail and show video player
+    thumbnailWrapper.style.display = 'none';
+    playerWrapper.style.display = 'block';
+    
+    // Set video source if not already set
+    if (!videoPlayer.src) {
+      videoPlayer.src = videoUrl;
+    }
+    
+    // Play the video
+    videoPlayer.play().catch(function(error) {
+      console.log('Video play failed:', error);
+      // Fallback: show thumbnail again
+      thumbnailWrapper.style.display = 'block';
+      playerWrapper.style.display = 'none';
+    });
+    
+    // Handle video end - show thumbnail again
+    videoPlayer.addEventListener('ended', function() {
+      thumbnailWrapper.style.display = 'block';
+      playerWrapper.style.display = 'none';
+    });
+    
+    // Optional: Log video play for analytics
+    console.log('Video played:', videoUrl);
+  }
+  
+</script>
+
+{% schema %}
+{
+  "name": "UGC Video Showcase",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" },
+        { "value": "lg:py-4xl", "label": "4X Large" },
+        { "value": "lg:py-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-none"
+    },
+    
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" },
+        { "value": "lg:py-4xl", "label": "4X Large" },
+        { "value": "lg:py-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" },
+        { "value": "px-4xl", "label": "4X Large" },
+        { "value": "px-5xl", "label": "5X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" },
+        { "value": "lg:px-4xl", "label": "4X Large" },
+        { "value": "lg:px-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:px-xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_header",
+      "label": "Show Section Header",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "User Generated Content"
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description",
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "header_text_align",
+      "label": "Header Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-left"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" },
+        { "value": "text-3xl", "label": "3X-Large" },
+        { "value": "text-4xl", "label": "4X-Large" },
+        { "value": "text-5xl", "label": "5X-Large" },
+        { "value": "text-6xl", "label": "6X-Large" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" },
+        { "value": "lg:text-3xl", "label": "3X-Large" },
+        { "value": "lg:text-4xl", "label": "4X-Large" },
+        { "value": "lg:text-5xl", "label": "5X-Large" },
+        { "value": "lg:text-6xl", "label": "6X-Large" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_line_height",
+      "label": "Heading Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-tight"
+    },
+    {
+      "type": "select",
+      "id": "heading_margin_bottom",
+      "label": "Heading Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" },
+        { "value": "mb-3xl", "label": "3X Large" },
+        { "value": "mb-4xl", "label": "4X Large" },
+        { "value": "mb-5xl", "label": "5X Large" }
+      ],
+      "default": "mb-2xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_line_height",
+      "label": "Description Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-relaxed"
+    },
+    {
+      "type": "select",
+      "id": "description_text_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    
+    {
+      "type": "header",
+      "content": "Cards Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_slider",
+      "label": "Enable Slider Mode",
+      "default": true,
+      "info": "When enabled, videos will slide horizontally. When disabled, videos display in a responsive grid."
+    },
+    {
+      "type": "select",
+      "id": "cards_margin_top",
+      "label": "Cards Margin Top",
+      "options": [
+        { "value": "mt-xs", "label": "Extra Small" },
+        { "value": "mt-sm", "label": "Small" },
+        { "value": "mt-md", "label": "Medium" },
+        { "value": "mt-lg", "label": "Large" },
+        { "value": "mt-xl", "label": "Extra Large" },
+        { "value": "mt-2xl", "label": "2X Large" },
+        { "value": "mt-3xl", "label": "3X Large" },
+        { "value": "mt-4xl", "label": "4X Large" },
+        { "value": "mt-5xl", "label": "5X Large" }
+      ],
+      "default": "mt-2xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Card Styling"
+    },
+    {
+      "type": "select",
+      "id": "card_background_color",
+      "label": "Card Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "card_border_radius",
+      "label": "Card Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-xl"
+    },
+    {
+      "type": "select",
+      "id": "card_content_padding",
+      "label": "Card Content Padding",
+      "options": [
+        { "value": "p-xs", "label": "Extra Small" },
+        { "value": "p-sm", "label": "Small" },
+        { "value": "p-md", "label": "Medium" },
+        { "value": "p-lg", "label": "Large" },
+        { "value": "p-xl", "label": "Extra Large" },
+        { "value": "p-2xl", "label": "2X Large" },
+        { "value": "p-3xl", "label": "3X Large" }
+      ],
+      "default": "p-md"
+    },
+    {
+      "type": "select",
+      "id": "card_text_color",
+      "label": "Card Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "video_border_radius",
+      "label": "Video Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    
+    {
+      "type": "header",
+      "content": "Video Player Settings"
+    },
+    {
+      "type": "select",
+      "id": "play_button_background_color",
+      "label": "Play Button Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "play_button_icon_color",
+      "label": "Play Button Icon Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "play_button_border_radius",
+      "label": "Play Button Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" },
+        { "value": "rounded-full", "label": "Full (Circle)" }
+      ],
+      "default": "rounded-full"
+    },
+    
+    {
+      "type": "header",
+      "content": "Creator Avatar Settings"
+    },
+    {
+      "type": "select",
+      "id": "avatar_border_radius",
+      "label": "Avatar Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" },
+        { "value": "rounded-full", "label": "Full (Circle)" }
+      ],
+      "default": "rounded-full"
+    },
+    {
+      "type": "select",
+      "id": "avatar_size",
+      "label": "Avatar Size",
+      "options": [
+        { "value": "w-8 h-8", "label": "Small (32px)" },
+        { "value": "w-10 h-10", "label": "Medium (40px)" },
+        { "value": "w-12 h-12", "label": "Large (48px)" },
+        { "value": "w-16 h-16", "label": "X-Large (64px)" },
+        { "value": "w-20 h-20", "label": "2X-Large (80px)" },
+        { "value": "w-24 h-24", "label": "3X-Large (96px)" }
+      ],
+      "default": "w-10 h-10"
+    },
+    
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "title_font_size",
+      "label": "Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "title_font_size_desktop",
+      "label": "Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" }
+      ],
+      "default": "lg:text-base"
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "title_line_height",
+      "label": "Title Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-snug"
+    },
+    {
+      "type": "select",
+      "id": "creator_font_size",
+      "label": "Creator Name Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-xs"
+    },
+    {
+      "type": "select",
+      "id": "creator_font_size_desktop",
+      "label": "Creator Name Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-sm"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_size",
+      "label": "Card Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-xs"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_size_desktop",
+      "label": "Card Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-sm"
+    },
+    {
+      "type": "select",
+      "id": "card_description_line_height",
+      "label": "Card Description Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-relaxed"
+    },
+    {
+      "type": "select",
+      "id": "description_margin_top",
+      "label": "Description Margin Top",
+      "options": [
+        { "value": "mt-xs", "label": "Extra Small" },
+        { "value": "mt-sm", "label": "Small" },
+        { "value": "mt-md", "label": "Medium" },
+        { "value": "mt-lg", "label": "Large" },
+        { "value": "mt-xl", "label": "Extra Large" },
+        { "value": "mt-2xl", "label": "2X Large" }
+      ],
+      "default": "mt-sm"
+    },
+    
+    {
+      "type": "header",
+      "content": "Navigation (Slider Mode)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_navigation",
+      "label": "Show Navigation Arrows",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "navigation_margin_top",
+      "label": "Navigation Margin Top",
+      "options": [
+        { "value": "mt-xs", "label": "Extra Small" },
+        { "value": "mt-sm", "label": "Small" },
+        { "value": "mt-md", "label": "Medium" },
+        { "value": "mt-lg", "label": "Large" },
+        { "value": "mt-xl", "label": "Extra Large" },
+        { "value": "mt-2xl", "label": "2X Large" },
+        { "value": "mt-3xl", "label": "3X Large" }
+      ],
+      "default": "mt-lg"
+    },
+    {
+      "type": "select",
+      "id": "nav_button_background_color",
+      "label": "Navigation Button Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "select",
+      "id": "nav_button_text_color",
+      "label": "Navigation Button Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "nav_button_border_radius",
+      "label": "Navigation Button Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" },
+        { "value": "rounded-full", "label": "Full (Circle)" }
+      ],
+      "default": "rounded-lg"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video_card",
+      "name": "Video Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "video_title",
+          "label": "Video Title",
+          "default": "Amazing UGC Video"
+        },
+        {
+          "type": "textarea",
+          "id": "video_description",
+          "label": "Video Description",
+          "default": ""
+        },
+        {
+          "type": "video_picker",
+          "id": "video_file",
+          "label": "Video File"
+        },
+        {
+          "type": "text",
+          "id": "creator_name",
+          "label": "Creator Name",
+          "default": "Content Creator"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_creator_avatar",
+          "label": "Show Creator Avatar",
+          "default": true
+        },
+        {
+          "type": "image_picker",
+          "id": "creator_avatar",
+          "label": "Creator Avatar"
+        },
+        {
+          "type": "select",
+          "id": "title_text_color",
+          "label": "Title Text Color",
+          "options": [
+            { "value": "", "label": "Default" },
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "select",
+          "id": "creator_text_color",
+          "label": "Creator Text Color",
+          "options": [
+            { "value": "", "label": "Default" },
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "select",
+          "id": "description_text_color",
+          "label": "Description Text Color",
+          "options": [
+            { "value": "", "label": "Default" },
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": ""
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "UGC Video Showcase",
+      "blocks": [
+        {
+          "type": "video_card",
+          "settings": {
+            "video_title": "Product Review",
+            "video_description": "Amazing review of our latest product by a happy customer!",
+            "creator_name": "@happycustomer",
+            "show_creator_avatar": true
+          }
+        },
+        {
+          "type": "video_card",
+          "settings": {
+            "video_title": "Unboxing Experience",
+            "video_description": "First impressions and unboxing of our premium package.",
+            "creator_name": "@techreviewer",
+            "show_creator_avatar": true
+          }
+        },
+        {
+          "type": "video_card",
+          "settings": {
+            "video_title": "Tutorial & Tips",
+            "video_description": "How to get the most out of your purchase with pro tips.",
+            "creator_name": "@protips",
+            "show_creator_avatar": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,68 @@
+/* ===== CTA SIMPLE SECTION STYLES ===== */
+
+.cta-simple {
+  position: relative;
+  width: 100%;
+}
+
+/* Inner container positioning */
+.cta-simple .inner-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.cta-simple .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Content Layout */
+.cta-simple .cta-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Heading Wrapper */
+.cta-simple .heading-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.cta-simple .heading-wrapper h2 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+/* Description Wrapper */
+.cta-simple .description-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.cta-simple .description-wrapper p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* CTA Button Wrapper */
+.cta-simple .cta-button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .cta-simple .heading-wrapper h2 {
+    line-height: 1.2;
+  }
+  
+  .cta-simple .description-wrapper p {
+    line-height: 1.5;
+  }
+}

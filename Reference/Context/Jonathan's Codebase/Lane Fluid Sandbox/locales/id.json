@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Checkout",
+    "order_summary": "Ringkasan Pesanan",
+    "shipping": "Estimasi Pengiriman",
+    "ships_in": "Dikirim dalam 3-5 hari kerja",
+    "shopping_cart": "Keranjang Belanja",
+    "subtotal": "Subtotal",
+    "tax": "Estimasi Pajak",
+    "total": "Total Pesanan"
+  },
+  "components": {
+    "comment_form": {
+      "email": "Email",
+      "full_name": "Nama Lengkap",
+      "leave_info": "Silakan tinggalkan informasi Anda agar {{ company }} tahu siapa Anda. Anda hanya perlu melakukan ini sekali.",
+      "placeholder": "Tambahkan komentar Anda",
+      "post": "Kirim",
+      "want_to_leave_comment": "Ingin meninggalkan komentar?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Saya setuju dengan",
+    "all_products": "Semua Produk",
+    "checkout": "Checkout",
+    "first_payment": "Pembayaran Pertama pada {{ date }}",
+    "learn_more": "Pelajari Lebih Lanjut",
+    "monthly_subscription": "Langganan Bulanan",
+    "todays_purchase": "Pembelian Hari Ini"
+  },
+  "footer": {
+    "all_rights_reserved": "Semua Hak Dilindungi",
+    "cookies_settings": "Pengaturan Cookies",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Kebijakan Privasi",
+    "terms_of_service": "Syarat Layanan"
+  },
+  "library": {
+    "commented": "berkomentar",
+    "comments": "Komentar",
+    "playlist": "Playlist"
+  },
+  "medium": {
+    "commented": "berkomentar",
+    "comments": "Komentar",
+    "products": "Produk"
+  },
+  "navbar": {
+    "button_1": "Tombol 1",
+    "button_2": "Tombol 2",
+    "countries": "Negara",
+    "country": "Negara",
+    "country_and_language": "Negara dan Bahasa",
+    "done": "Selesai",
+    "language": "Bahasa",
+    "languages": "Bahasa",
+    "link_1": "Link satu",
+    "link_2": "Link dua",
+    "link_3": "Link tiga",
+    "link_4": "Link empat",
+    "save_and_close": "Simpan dan Tutup",
+    "select_country": "Pilih negara Anda",
+    "select_language": "Pilih Bahasa",
+    "shop": "Toko",
+    "enrollments": "Pendaftaran",
+    "view_my_site": "Lihat Situs Saya"
+  },
+  "product": {
+    "add_to_cart": "Tambah ke Keranjang",
+    "buy_now": "Beli Sekarang",
+    "details": "Detail",
+    "free_shipping": "Gratis ongkir untuk pembelian di atas {{amount}}",
+    "product_name": "Nama Produk",
+    "quantity": "Jumlah",
+    "related_products": "Produk",
+    "related_products_intro": "Temukan pilihan produk pelengkap yang dipilih dengan cermat dan cocok sempurna dengan pembelian Anda.",
+    "return": "Pengembalian",
+    "return_content": "Kami menerima pengembalian dalam 30 hari setelah pembelian. Produk harus dalam kondisi asli, tidak terpakai, dan dalam kemasan asli. Biaya pengembalian ditanggung pembeli, kecuali untuk kasus produk cacat. Setelah menerima dan memeriksa pengembalian Anda, kami akan mengembalikan seluruh jumlah pembelian.",
+    "reviews": "{{reviews}} ulasan",
+    "shipping": "Pengiriman",
+    "shipping_content": "Kami mengirim ke seluruh dunia dengan waktu pengiriman standar 3-7 hari kerja. Pengiriman ekspres tersedia dengan biaya tambahan. Semua paket diasuransikan dan dapat dilacak. Biaya pengiriman dihitung berdasarkan berat dan tujuan saat checkout.",
+    "shop_all": "Lihat Semua",
+    "stars": "{{stars}} bintang",
+    "tagline": "Tagline",
+    "testimonials": "Testimoni Pelanggan",
+    "testimonials_intro": "Temukan apa yang dikatakan pelanggan kami tentang pengalaman mereka dengan produk kami.",
+    "variant": "Varian",
+    "one_time_purchase":"Pembelian sekali",
+    "subscribe":"Berlangganan"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Berlangganan untuk menghemat {{save}}%",
+    "update_subscription": "Perbarui langganan Anda kapan saja"
+  },
+  "shared": {
+    "button": "Tombol",
+    "medium_heading": "Judul dengan panjang sedang ada di sini",
+    "medium_intro": "Temukan rangkaian produk luar biasa kami yang dirancang untuk memenuhi semua kebutuhan Anda dengan kualitas dan keanggunan.",
+    "short_heading": "Judul pendek di sini",
+    "short_intro": "Pengantar singkat yang menyajikan inti penawaran kami dengan jelas dan berdampak.",
+    "tagline": "Tagline",
+    "view_all": "Lihat Semua"
+  },
+  "shop_page": {
+    "button": "Tombol",
+    "heading": "Judul pendek di sini",
+    "intro": "Jelajahi koleksi produk berkualitas tinggi yang dipilih dengan cermat.",
+    "products": "Produk",
+    "products_intro": "Setiap produk dalam jajaran kami dipilih karena kualitasnya yang luar biasa.",
+    "tagline": "Tagline"
+  }
+}

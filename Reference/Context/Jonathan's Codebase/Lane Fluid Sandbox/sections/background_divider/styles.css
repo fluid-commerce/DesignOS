@@ -1,0 +1,124 @@
+/* Background Divider Section */
+.background-divider {
+  position: relative;
+  width: 100%;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 0 !important;
+  overflow: hidden;
+}
+
+/* Responsive height handling */
+@media screen and (min-width: 1024px) {
+  .background-divider {
+    height: var(--desktop-height) !important;
+  }
+}
+
+/* Ensure the section maintains aspect ratio and responsive background */
+.background-divider {
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-origin: padding-box;
+}
+
+/* Overlay positioning */
+.background-divider .divider-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Content container positioning */
+.background-divider .container {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Content styling */
+.background-divider .divider-content {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* Text spacing */
+.background-divider .divider-content h2 {
+  margin-bottom: var(--space-md);
+  margin-top: 0;
+}
+
+.background-divider .divider-content p {
+  margin: 0;
+}
+
+/* Ensure proper text rendering over images */
+.background-divider .divider-content h2,
+.background-divider .divider-content p {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback for when no background image is set */
+.background-divider:not([style*="background:"]) {
+  min-height: 2.5rem;
+}
+
+/* Responsive adjustments for very small heights */
+.background-divider[style*="height: 1rem"],
+.background-divider[style*="height: 1.5rem"] {
+  min-height: auto;
+}
+
+.background-divider[style*="height: 1rem"] .divider-content,
+.background-divider[style*="height: 1.5rem"] .divider-content {
+  display: none;
+}
+
+/* Accessibility improvements */
+.background-divider[role="separator"] {
+  border: none;
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .background-divider .divider-content h2,
+  .background-divider .divider-content p {
+    text-shadow: 0 0 0 transparent;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--border-radius-sm);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .background-divider {
+    background-attachment: scroll;
+  }
+}
+
+/* Print styles */
+@media print {
+  .background-divider {
+    background: none !important;
+    border-bottom: 2px solid #333;
+    height: auto !important;
+    min-height: 0.5rem;
+  }
+  
+  .background-divider .divider-overlay {
+    display: none;
+  }
+}

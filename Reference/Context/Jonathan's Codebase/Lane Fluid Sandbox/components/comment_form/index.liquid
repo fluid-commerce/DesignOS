@@ -1,0 +1,48 @@
+<form action="{{ comment_submit_url }}" id="commentForm" autocomplete="off" class="flex gap-4 comment-form" data-remote="true" method="post">
+  <input type="hidden" name="comment[relateable_type]" value="{{ relateable_type }}" />
+  <input type="hidden" name="comment[relateable_id]" value="{{ relateable_id }}" />  
+  <input name="comment[body]" required class="flex-1 comment-body" placeholder="{{ 'components.comment_form.placeholder' | t }}" />
+    <dialog id="commentContactDialog">
+      <div class="dialog-wrap flex flex-col h-full justify-center align-center">
+        <div class="dialog-container relative">
+          <span class="dialog-close dialog-close-button">
+            <svg
+              width="13"
+              height="12"
+              viewBox="0 0 13 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11.7773 2.06641L7.55859 6.28516L11.7422 10.4688C12.0938 10.7852 12.0938 11.3125 11.7422 11.6289C11.4258 11.9805 10.8984 11.9805 10.582 11.6289L6.36328 7.44531L2.17969 11.6289C1.86328 11.9805 1.33594 11.9805 1.01953 11.6289C0.667969 11.3125 0.667969 10.7852 1.01953 10.4336L5.20312 6.25L1.01953 2.06641C0.667969 1.75 0.667969 1.22266 1.01953 0.871094C1.33594 0.554688 1.86328 0.554688 2.21484 0.871094L6.39844 5.08984L10.582 0.90625C10.8984 0.554688 11.4258 0.554688 11.7773 0.90625C12.0938 1.22266 12.0938 1.75 11.7773 2.06641Z"
+                fill="black"
+                fill-opacity="0.5"
+              />
+            </svg>
+          </span>
+          <div class="dialog-header">
+            <h4 class="capitalize">{{ 'components.comment_form.want_to_leave_comment' | t }}</h4>
+          </div>
+          <div class="dialog-body">
+            <p>{{ 'components.comment_form.leave_info' | t: company: company.name }}</p>
+            <div class="flex flex-col gap-4">
+              <div class="form-group">
+                <input class="hiddenContactId w-full" name="contact[id]" type="hidden" value="{{ contact.id }}" autocomplete="off" />
+              </div>
+              <div class="form-group">
+                <input class="contactFullName w-full" name="contact[name]" value="{{ contact.full_name }}" required placeholder="{{ 'components.comment_form.full_name' | t }}" />
+              </div>
+              <div class="form-group">
+                <input class="contactEmail w-full" name="contact[email]" value="{{ contact.email }}" required placeholder="{{ 'components.comment_form.email' | t }}"/>
+              </div>
+            </div>
+          </div>
+          <div class="dialog-footer flex justify-end">
+            <button class="btn btn-bg-primary submitComment" type="button">{{ 'components.comment_form.post' | t }}</button>
+          </div>
+        </div> 
+      </div>
+    </dialog>
+  <button class="btn btn-bg-primary submitComment dialog-show-button" disabled type="button">{{ 'components.comment_form.post' | t }}</button>
+</form>
+<script src="{{ 'comment.js' |  asset_url }}"> </script>

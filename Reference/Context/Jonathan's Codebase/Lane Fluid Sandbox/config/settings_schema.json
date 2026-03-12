@@ -1,0 +1,887 @@
+[  
+  {
+    "name": "typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Font Families"
+      },
+      {
+        "type": "select",
+        "id": "font_family_primary",
+        "default": "NeueHaasDisplay, Arial, sans-serif",
+        "label": "Primary Font",
+        "options": [
+          { "value": "NeueHaasDisplay, Arial, sans-serif", "label": "NeueHaasDisplay (Custom)" },
+          { "value": "FLFont, Arial, sans-serif", "label": "FLFont Bold (Custom)" },
+          { "value": "Arial, sans-serif", "label": "Arial" },
+          { "value": "Helvetica, Arial, sans-serif", "label": "Helvetica" },
+          { "value": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", "label": "Segoe UI" },
+          { "value": "Roboto, sans-serif", "label": "Roboto" },
+          { "value": "Georgia, serif", "label": "Georgia" },
+          { "value": "Times, serif", "label": "Times" },
+          { "value": "system-ui, -apple-system, sans-serif", "label": "System Font" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "font_family_body",
+        "default": "NeueHaasDisplay, Arial, sans-serif",
+        "label": "Body Font",
+        "options": [
+          { "value": "NeueHaasDisplay, Arial, sans-serif", "label": "NeueHaasDisplay (Custom)" },
+          { "value": "FLFont, Arial, sans-serif", "label": "FLFont Bold (Custom)" },
+          { "value": "Arial, sans-serif", "label": "Arial" },
+          { "value": "Helvetica, Arial, sans-serif", "label": "Helvetica" },
+          { "value": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", "label": "Segoe UI" },
+          { "value": "Roboto, sans-serif", "label": "Roboto" },
+          { "value": "Georgia, serif", "label": "Georgia" },
+          { "value": "Times, serif", "label": "Times" },
+          { "value": "system-ui, -apple-system, sans-serif", "label": "System Font" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "font_family_handwritten",
+        "default": "FLFont, Arial, sans-serif",
+        "label": "Handwritten Font",
+        "options": [
+          { "value": "FLFont, Arial, sans-serif", "label": "FLFont Bold (Custom)" },
+          { "value": "NeueHaasDisplay, Arial, sans-serif", "label": "NeueHaasDisplay (Custom)" },
+          { "value": "Brush Script MT, cursive", "label": "Brush Script" },
+          { "value": "Lucida Handwriting, cursive", "label": "Lucida Handwriting" },
+          { "value": "Comic Sans MS, cursive", "label": "Comic Sans MS" },
+          { "value": "Marker Felt, fantasy", "label": "Marker Felt" },
+          { "value": "Arial, sans-serif", "label": "Arial" },
+          { "value": "Helvetica, Arial, sans-serif", "label": "Helvetica" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "font_family_serif",
+        "default": "Georgia, serif",
+        "label": "Serif Font",
+        "options": [
+          { "value": "NeueHaasDisplay, Arial, sans-serif", "label": "NeueHaasDisplay (Custom)" },
+          { "value": "FLFont, Arial, sans-serif", "label": "FLFont Bold (Custom)" },
+          { "value": "Georgia, serif", "label": "Georgia" },
+          { "value": "Times, serif", "label": "Times" },
+          { "value": "'Times New Roman', serif", "label": "Times New Roman" },
+          { "value": "Bitter, serif", "label": "Bitter" },
+          { "value": "Playfair Display, serif", "label": "Playfair Display" },
+          { "value": "Merriweather, serif", "label": "Merriweather" }
+        ]
+      },
+      {
+        "type": "header",
+        "content": "Font Weights"
+      },
+      {
+        "type": "range",
+        "id": "font_weight_light",
+        "min": 100,
+        "max": 900,
+        "step": 100,
+        "label": "Light Font Weight",
+        "default": 300
+      },
+      {
+        "type": "range",
+        "id": "font_weight_regular",
+        "min": 100,
+        "max": 900,
+        "step": 100,
+        "label": "Regular Font Weight",
+        "default": 400
+      },
+      {
+        "type": "range",
+        "id": "font_weight_medium",
+        "min": 100,
+        "max": 900,
+        "step": 100,
+        "label": "Medium Font Weight",
+        "default": 500
+      },
+      {
+        "type": "range",
+        "id": "font_weight_bold",
+        "min": 100,
+        "max": 900,
+        "step": 100,
+        "label": "Bold Font Weight",
+        "default": 700
+      },
+      {
+        "type": "range",
+        "id": "font_weight_black",
+        "min": 100,
+        "max": 900,
+        "step": 100,
+        "label": "Black Font Weight",
+        "default": 900
+      },
+      {
+        "type": "header",
+        "content": "Font Sizes (rem)"
+      },
+      {
+        "type": "range",
+        "id": "font_size_xs",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Extra Small (12px)",
+        "default": 0.75
+      },
+      {
+        "type": "range",
+        "id": "font_size_sm",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Small (14px)",
+        "default": 0.875
+      },
+      {
+        "type": "range",
+        "id": "font_size_base",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Base (16px)",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "font_size_lg",
+        "min": 0.5,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Large (18px)",
+        "default": 1.125
+      },
+      {
+        "type": "range",
+        "id": "font_size_xl",
+        "min": 0.5,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Extra Large (20px)",
+        "default": 1.25
+      },
+      {
+        "type": "range",
+        "id": "font_size_2xl",
+        "min": 1,
+        "max": 4,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "2X Large (24px)",
+        "default": 1.5
+      },
+      {
+        "type": "range",
+        "id": "font_size_3xl",
+        "min": 1,
+        "max": 6,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "3X Large (32px)",
+        "default": 2
+      },
+      {
+        "type": "range",
+        "id": "font_size_4xl",
+        "min": 1,
+        "max": 6,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "4X Large (40px)",
+        "default": 2.5
+      },
+      {
+        "type": "range",
+        "id": "font_size_5xl",
+        "min": 1,
+        "max": 8,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "5X Large (48px)",
+        "default": 3
+      },
+      {
+        "type": "range",
+        "id": "font_size_6xl",
+        "min": 2,
+        "max": 8,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "6X Large (64px)",
+        "default": 4
+      },
+      {
+        "type": "header",
+        "content": "Heading Sizes"
+      },
+      {
+        "type": "range",
+        "id": "heading_h1_size",
+        "min": 1,
+        "max": 6,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "H1 Size",
+        "default": 2.375
+      },
+      {
+        "type": "range",
+        "id": "heading_h2_size",
+        "min": 1,
+        "max": 4,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "H2 Size",
+        "default": 2
+      },
+      {
+        "type": "range",
+        "id": "heading_h3_size",
+        "min": 1,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "H3 Size",
+        "default": 1.5
+      },
+      {
+        "type": "range",
+        "id": "heading_h4_size",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "H4 Size",
+        "default": 1.125
+      },
+      {
+        "type": "range",
+        "id": "heading_h5_size",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "H5 Size",
+        "default": 0.875
+      },
+      {
+        "type": "range",
+        "id": "heading_h6_size",
+        "min": 0.5,
+        "max": 1.5,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "H6 Size",
+        "default": 0.75
+      },
+      {
+        "type": "header",
+        "content": "Line Heights"
+      },
+      {
+        "type": "range",
+        "id": "line_height_none",
+        "min": 0.8,
+        "max": 2,
+        "step": 0.125,
+        "label": "Tight Line Height",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "line_height_tight",
+        "min": 0.8,
+        "max": 2,
+        "step": 0.125,
+        "label": "Tight Line Height",
+        "default": 1.125
+      },
+      {
+        "type": "range",
+        "id": "line_height_normal",
+        "min": 0.8,
+        "max": 2,
+        "step": 0.125,
+        "label": "Normal Line Height",
+        "default": 1.2
+      },
+      {
+        "type": "range",
+        "id": "line_height_relaxed",
+        "min": 1,
+        "max": 2.5,
+        "step": 0.125,
+        "label": "Relaxed Line Height",
+        "default": 1.42857143
+      },
+      {
+        "type": "range",
+        "id": "line_height_loose",
+        "min": 1,
+        "max": 2.5,
+        "step": 0.125,
+        "label": "Loose Line Height",
+        "default": 1.625
+      }
+    ]
+  },
+  {
+    "name": "spacing_schema",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Spacing Scale (in rem units)"
+      },
+      {
+        "type": "range",
+        "id": "space_xs",
+        "label": "Extra Small (xs)",
+        "min": 0,
+        "max": 1,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 0.25,
+        "info": "Base unit: 4px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_sm",
+        "label": "Small (sm)",
+        "min": 0,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 0.5,
+        "info": "Base unit: 8px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_md",
+        "label": "Medium (md)",
+        "min": 0,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 1,
+        "info": "Base unit: 16px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_lg",
+        "label": "Large (lg)",
+        "min": 0,
+        "max": 4,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 1.5,
+        "info": "Base unit: 24px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_xl",
+        "label": "Extra Large (xl)",
+        "min": 0,
+        "max": 6,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 2,
+        "info": "Base unit: 32px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_2xl",
+        "label": "2X Large (2xl)",
+        "min": 0,
+        "max": 8,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 3,
+        "info": "Base unit: 48px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_3xl",
+        "label": "3X Large (3xl)",
+        "min": 0,
+        "max": 10,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 4,
+        "info": "Base unit: 64px at 16px font size"
+      },
+      {
+        "type": "header",
+        "content": "Additional Spacing Values"
+      },
+      {
+        "type": "range",
+        "id": "space_4xl",
+        "label": "4X Large (4xl)",
+        "min": 0,
+        "max": 12,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 5,
+        "info": "Base unit: 80px at 16px font size"
+      },
+      {
+        "type": "range",
+        "id": "space_5xl",
+        "label": "5X Large (5xl)",
+        "min": 0,
+        "max": 15,
+        "step": 0.125,
+        "unit": "rem",
+        "default": 6,
+        "info": "Base unit: 96px at 16px font size"
+      }
+    ]
+  },
+  {
+    "name": "color_schema",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Base Colors"
+      },
+      {
+        "type": "color_background",
+        "id": "color_white",
+        "label": "White",
+        "default": "#ffffff"
+      },
+      {
+        "type": "color_background",
+        "id": "color_black",
+        "label": "Black",
+        "default": "#000000"
+      },
+      {
+        "type": "header",
+        "content": "Brand Colors"
+      },
+      {
+        "type": "color_background",
+        "id": "color_primary",
+        "label": "Primary Color",
+        "default": "#42b1ff"
+      },
+      {
+        "type": "color_background",
+        "id": "color_secondary",
+        "label": "Secondary Color",
+        "default": "#44b574"
+      },
+      {
+        "type": "color_background",
+        "id": "color_tertiary",
+        "label": "Tertiary Color",
+        "default": "#c985e5"
+      },
+      {
+        "type": "color_background",
+        "id": "color_quaternary",
+        "label": "Quaternary Color",
+        "default": "#f79009"
+      },
+      {
+        "type": "header",
+        "content": "Feedback Colors"
+      },
+      {
+        "type": "color_background",
+        "id": "color_success",
+        "label": "Success Color",
+        "default": "#44b574"
+      },
+      {
+        "type": "color_background",
+        "id": "color_warning",
+        "label": "Warning Color",
+        "default": "#f79009"
+      },
+      {
+        "type": "color_background",
+        "id": "color_error",
+        "label": "Error Color",
+        "default": "#e65561"
+      },
+      {
+        "type": "color_background",
+        "id": "color_info",
+        "label": "Info Color",
+        "default": "#42b1ff"
+      },
+      {
+        "type": "header",
+        "content": "Neutral Colors"
+      },
+      {
+        "type": "color_background",
+        "id": "color_neutral",
+        "label": "Neutral",
+        "default": "#7f7f7f"
+      },
+      {
+        "type": "color_background",
+        "id": "color_neutral_light",
+        "label": "Neutral Light",
+        "default": "#b2b2b2"
+      },
+      {
+        "type": "color_background",
+        "id": "color_neutral_dark",
+        "label": "Neutral Dark",
+        "default": "#4c4c4c"
+      },
+      {
+        "type": "color_background",
+        "id": "color_body",
+        "label": "Body Text Color",
+        "default": "#000000"
+      }
+    ]
+  },
+  {
+    "name": "spacing",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Base Spacing Scale (rem)"
+      },
+      {
+        "type": "range",
+        "id": "space_1",
+        "min": 0.125,
+        "max": 1,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 1 (4px)",
+        "default": 0.25
+      },
+      {
+        "type": "range",
+        "id": "space_2",
+        "min": 0.25,
+        "max": 1.5,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 2 (8px)",
+        "default": 0.5
+      },
+      {
+        "type": "range",
+        "id": "space_3",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 3 (12px)",
+        "default": 0.75
+      },
+      {
+        "type": "range",
+        "id": "space_4",
+        "min": 0.75,
+        "max": 2.5,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 4 (16px)",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "space_5",
+        "min": 1,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 5 (20px)",
+        "default": 1.25
+      },
+      {
+        "type": "range",
+        "id": "space_6",
+        "min": 1,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 6 (24px)",
+        "default": 1.5
+      },
+      {
+        "type": "range",
+        "id": "space_8",
+        "min": 1.5,
+        "max": 4,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 8 (32px)",
+        "default": 2
+      },
+      {
+        "type": "range",
+        "id": "space_10",
+        "min": 2,
+        "max": 5,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 10 (40px)",
+        "default": 2.5
+      },
+      {
+        "type": "range",
+        "id": "space_12",
+        "min": 2.5,
+        "max": 6,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Space 12 (48px)",
+        "default": 3
+      },
+      {
+        "type": "range",
+        "id": "space_16",
+        "min": 3,
+        "max": 8,
+        "step": 0.25,
+        "unit": "rem",
+        "label": "Space 16 (64px)",
+        "default": 4
+      },
+      {
+        "type": "range",
+        "id": "space_20",
+        "min": 4,
+        "max": 10,
+        "step": 0.25,
+        "unit": "rem",
+        "label": "Space 20 (80px)",
+        "default": 5
+      },
+      {
+        "type": "range",
+        "id": "space_24",
+        "min": 5,
+        "max": 12,
+        "step": 0.25,
+        "unit": "rem",
+        "label": "Space 24 (96px)",
+        "default": 6
+      }
+    ]
+  },
+  {
+    "name": "border_radius",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Border Radius"
+      },
+      {
+        "type": "range",
+        "id": "radius_none",
+        "min": 0,
+        "max": 0,
+        "step": 0,
+        "unit": "rem",
+        "label": "None (0px)",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "radius_sm",
+        "min": 0,
+        "max": 1,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Small Radius",
+        "default": 0.125
+      },
+      {
+        "type": "range",
+        "id": "radius_md",
+        "min": 0,
+        "max": 1,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Medium Radius (Default)",
+        "default": 0.25
+      },
+      {
+        "type": "range",
+        "id": "radius_lg",
+        "min": 0,
+        "max": 2,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Large Radius",
+        "default": 0.5
+      },
+      {
+        "type": "range",
+        "id": "radius_xl",
+        "min": 0,
+        "max": 3,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "Extra Large Radius",
+        "default": 0.75
+      },
+      {
+        "type": "range",
+        "id": "radius_2xl",
+        "min": 0,
+        "max": 4,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "2X Large Radius",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "radius_3xl",
+        "min": 0,
+        "max": 6,
+        "step": 0.125,
+        "unit": "rem",
+        "label": "3X Large Radius",
+        "default": 1.5
+      },
+      {
+        "type": "header",
+        "content": "Button Styling"
+      },
+      {
+        "type": "select",
+        "id": "button_border_radius",
+        "label": "Default Button Border Radius",
+        "options": [
+          { "value": "rounded-none", "label": "None" },
+          { "value": "rounded-sm", "label": "Small" },
+          { "value": "rounded", "label": "Medium (Default)" },
+          { "value": "rounded-lg", "label": "Large" },
+          { "value": "rounded-xl", "label": "Extra Large" },
+          { "value": "rounded-2xl", "label": "2X Large" },
+          { "value": "rounded-3xl", "label": "3X Large" },
+          { "value": "rounded-full", "label": "Full (Pills)" }
+        ],
+        "default": "rounded",
+        "info": "This will be the default border radius for all buttons across the theme"
+      }
+    ]
+  },
+  {
+    "name": "layout",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Container Widths (rem)"
+      },
+      {
+        "type": "range",
+        "id": "container_sm",
+        "min": 20,
+        "max": 50,
+        "step": 2,
+        "unit": "rem",
+        "label": "Small Container",
+        "default": 24
+      },
+      {
+        "type": "range",
+        "id": "container_md",
+        "min": 25,
+        "max": 60,
+        "step": 2,
+        "unit": "rem",
+        "label": "Medium Container",
+        "default": 28
+      },
+      {
+        "type": "range",
+        "id": "container_lg",
+        "min": 30,
+        "max": 70,
+        "step": 2,
+        "unit": "rem",
+        "label": "Large Container",
+        "default": 32
+      },
+      {
+        "type": "range",
+        "id": "container_xl",
+        "min": 35,
+        "max": 80,
+        "step": 2,
+        "unit": "rem",
+        "label": "Extra Large Container",
+        "default": 36
+      },
+      {
+        "type": "range",
+        "id": "container_2xl",
+        "min": 40,
+        "max": 90,
+        "step": 2,
+        "unit": "rem",
+        "label": "2X Large Container",
+        "default": 42
+      }
+    ]
+  },
+  {
+    "name": "transitions",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Transition Durations (ms)"
+      },
+      {
+        "type": "range",
+        "id": "duration_fast",
+        "min": 50,
+        "max": 300,
+        "step": 25,
+        "unit": "ms",
+        "label": "Fast Duration",
+        "default": 150
+      },
+      {
+        "type": "range",
+        "id": "duration_normal",
+        "min": 200,
+        "max": 500,
+        "step": 25,
+        "unit": "ms",
+        "label": "Normal Duration",
+        "default": 300
+      },
+      {
+        "type": "range",
+        "id": "duration_slow",
+        "min": 400,
+        "max": 1000,
+        "step": 50,
+        "unit": "ms",
+        "label": "Slow Duration",
+        "default": 500
+      }
+    ]
+  }
+]

@@ -1,0 +1,63 @@
+{
+  "show_small_heading": true,
+  "small_heading": "OTHER PLATFORMS DON'T GET THIS:",
+  "small_heading_font_family": "font-handwritten",
+  "small_heading_font_size": "text-lg",
+  "small_heading_font_size_desktop": "lg:text-xl",
+  "small_heading_font_weight": "font-normal",
+  "small_heading_color": "text-white",
+  
+  "show_main_statistic": true,
+  "main_statistic": "93%",
+  "main_stat_color": "text-tertiary",
+  "main_heading": "of every sale happens before checkout",
+  "main_heading_font_family": "font-primary",
+  "main_heading_font_size": "text-4xl",
+  "main_heading_font_size_desktop": "lg:text-7xl",
+  "main_heading_font_weight": "font-black",
+  "main_heading_color": "text-white",
+  
+  "show_description": true,
+  "description": "Most platforms focus only on the transaction, but that's just one moment in a much longer relationship. We-Commerce is built to support people through the entire experience—from curiosity to confidence to sharing with others.",
+  "description_font_family": "font-body",
+  "description_font_size": "text-lg",
+  "description_font_size_desktop": "lg:text-xl",
+  "description_font_weight": "font-normal",
+  "description_color": "text-white",
+  
+  "show_supporting_stats": true,
+  "stat_number_font_family": "font-handwritten",
+  "stat_number_font_size": "text-5xl",
+  "stat_number_font_size_desktop": "lg:text-6xl",
+  "stat_number_font_weight": "font-bold",
+  "stat_number_color": "text-tertiary",
+  "stat_text_font_family": "font-body",
+  "stat_text_font_size": "text-base",
+  "stat_text_font_size_desktop": "lg:text-lg",
+  "stat_text_font_weight": "font-normal",
+  "stat_text_color": "text-white",
+  
+  "show_stat_one": true,
+  "stat_one_number": "70%",
+  "stat_one_text": "of online shopping carts are abandoned before checkout.",
+  
+  "show_stat_two": true,
+  "stat_two_number": "93%",
+  "stat_two_text": "of customers read online reviews before making a purchase.",
+  
+  "show_stat_three": true,
+  "stat_three_number": "85%",
+  "stat_three_text": "of consumers conduct online research before making a purchase.",
+  
+  "background_color": "bg-black",
+  "section_border_radius": "rounded-none",
+  "section_padding_y_mobile": "py-xl",
+  "section_padding_y_desktop": "lg:py-3xl",
+  
+  "container_background_color": "",
+  "container_border_radius": "rounded-none",
+  "container_padding_y_mobile": "py-xl",
+  "container_padding_y_desktop": "lg:py-3xl",
+  "container_padding_x_mobile": "px-lg",
+  "container_padding_x_desktop": "lg:px-xl"
+}

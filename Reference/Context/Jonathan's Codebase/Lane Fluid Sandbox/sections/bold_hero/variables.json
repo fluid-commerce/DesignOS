@@ -1,0 +1,7 @@
+{
+  "name": "Bold Hero",
+  "description": "A bold, impactful hero section with large typography and optional paint stroke accents",
+  "category": "Hero",
+  "tags": ["hero", "bold", "headline", "cta"],
+  "version": "1.0.0"
+}

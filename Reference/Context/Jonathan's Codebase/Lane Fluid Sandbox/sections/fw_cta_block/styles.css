@@ -1,0 +1,183 @@
+/* ============================================
+   FW CTA Block Section
+   ============================================ */
+
+.fw-cta-block {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Background Decoration (Ghost Brush Stroke)
+   ============================================ */
+
+.fw-cta-block__bg-decoration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 900px;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   Decorative Brush Strokes
+   ============================================ */
+
+.fw-cta-block__decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fw-cta-block__decoration {
+  position: absolute;
+  opacity: 0.4;
+  pointer-events: none;
+  box-shadow: none !important;
+}
+
+.fw-cta-block__decoration--1 {
+  top: 6%;
+  right: 4%;
+  max-width: 100px;
+}
+
+.fw-cta-block__decoration--2 {
+  bottom: 8%;
+  left: 3%;
+  max-width: 90px;
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.fw-cta-block__container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   Content
+   ============================================ */
+
+.fw-cta-block__content {
+  margin: 0 auto;
+}
+
+.fw-cta-block__content.text-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fw-cta-block__content.text-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ============================================
+   Eyebrow
+   ============================================ */
+
+.fw-cta-block__eyebrow {
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-md);
+}
+
+/* ============================================
+   Headline
+   ============================================ */
+
+.fw-cta-block__headline {
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+/* ============================================
+   Body
+   ============================================ */
+
+.fw-cta-block__body {
+  line-height: 1.7;
+  margin-bottom: var(--space-xl);
+}
+
+.fw-cta-block__body p {
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.fw-cta-block__body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.fw-cta-block__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.fw-cta-block__buttons--center {
+  justify-content: center;
+}
+
+.fw-cta-block__buttons .btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.fw-cta-block__buttons .btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   Desktop (lg: 1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .fw-cta-block__decoration--1 {
+    max-width: 200px;
+    top: 8%;
+    right: 5%;
+  }
+
+  .fw-cta-block__decoration--2 {
+    max-width: 160px;
+    bottom: 10%;
+    left: 4%;
+  }
+
+  .fw-cta-block__bg-decoration {
+    max-width: 1200px;
+  }
+
+  .fw-cta-block__body {
+    max-width: 720px;
+  }
+
+  .fw-cta-block__content.text-center .fw-cta-block__body {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

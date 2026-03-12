@@ -1,0 +1,83 @@
+.heading-section {
+    position: relative;
+    z-index: var(--z-10);
+  }
+
+  /* Override global heading-section overlay - only apply when background image exists */
+  .heading-section::after {
+    display: none !important;
+  }
+
+  /* Only add overlay when section has background image */
+  .heading-section[data-bg]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    z-index: var(--z-0);
+    background-color: rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    display: block !important;
+  }
+  
+  .heading-section .heading-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 991px) {
+    .heading-section .heading-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Flip layout - reorder columns on desktop */
+    .heading-section .heading-grid.flip-layout .heading {
+      order: 2;
+    }
+    
+    .heading-section .heading-grid.flip-layout .heading-item {
+      order: 1;
+    }
+  }
+  
+  .heading-section .sub-heading-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 576px) {
+    .heading-section .sub-heading-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .heading-section .container {
+    position: relative;
+    z-index: var(--z-20);
+  }
+
+  /* Inner container styles */
+  .heading-section .inner-container {
+    position: relative;
+    z-index: var(--z-10);
+  }
+
+  /* Black overlay for container background images to improve text readability */
+  .heading-section .inner-container[data-bg]:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    z-index: var(--z-0);
+    background-color: rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+  }
+
+  /* Ensure content stays above overlay */
+  .heading-section .inner-container > * {
+    position: relative;
+    z-index: var(--z-10);
+  }
+
+  /* Global button styles now used - no section-specific overrides needed */
+  

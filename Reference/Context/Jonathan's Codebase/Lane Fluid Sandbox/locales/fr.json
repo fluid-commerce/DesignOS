@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Finaliser la commande",
+    "order_summary": "Résumé de la commande",
+    "shipping": "Estimation d'expédition",
+    "ships_in": "Expédié sous 3-5 jours ouvrables",
+    "shopping_cart": "Panier d'achat",
+    "subtotal": "Sous-total",
+    "tax": "Estimation des taxes",
+    "total": "Total de la commande"
+  },
+  "components": {
+    "comment_form": {
+      "email": "E-mail",
+      "full_name": "Nom complet",
+      "leave_info": "Veuillez laisser vos informations pour que {{ company }} sache qui vous êtes. Vous n'avez besoin de le faire qu'une seule fois.",
+      "placeholder": "Ajoutez votre commentaire",
+      "post": "Publier",
+      "want_to_leave_comment": "Vous voulez laisser un commentaire ?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "J'accepte les",
+    "all_products": "Tous les produits",
+    "checkout": "Finaliser la commande",
+    "first_payment": "Premier paiement le {{ date }}",
+    "learn_more": "En savoir plus",
+    "monthly_subscription": "Abonnement mensuel",
+    "todays_purchase": "Achat d'aujourd'hui"
+  },
+  "footer": {
+    "all_rights_reserved": "Tous droits réservés",
+    "cookies_settings": "Paramètres des cookies",
+    "link_1": "Lien 1",
+    "link_2": "Lien 2",
+    "link_3": "Lien 3",
+    "link_4": "Lien 4",
+    "privacy_policy": "Politique de confidentialité",
+    "terms_of_service": "Conditions d'utilisation"
+  },
+  "library": {
+    "commented": "a commenté",
+    "comments": "Commentaires",
+    "playlist": "Playlist"
+  },
+  "medium": {
+    "commented": "a commenté",
+    "comments": "Commentaires",
+    "products": "Produits"
+  },
+  "navbar": {
+    "button_1": "Bouton 1",
+    "button_2": "Bouton 2",
+    "countries": "Pays",
+    "country": "Pays",
+    "country_and_language": "Pays et langue",
+    "done": "Terminé",
+    "language": "Langue",
+    "languages": "Langues",
+    "link_1": "Lien un",
+    "link_2": "Lien deux",
+    "link_3": "Lien trois",
+    "link_4": "Lien quatre",
+    "save_and_close": "Enregistrer et fermer",
+    "select_country": "Sélectionnez votre pays",
+    "select_language": "Sélectionner la langue",
+    "shop": "Boutique",
+    "enrollments": "Inscriptions",
+    "view_my_site": "Voir mon site"
+  },
+  "product": {
+    "add_to_cart": "Ajouter au panier",
+    "buy_now": "Acheter maintenant",
+    "details": "Détails",
+    "free_shipping": "Livraison gratuite pour les commandes supérieures à {{amount}}",
+    "product_name": "Nom du produit",
+    "quantity": "Quantité",
+    "related_products": "Produits",
+    "related_products_intro": "Découvrez notre sélection de produits complémentaires soigneusement choisis pour vous.",
+    "return": "Retour",
+    "return_content": "Nous acceptons les retours dans les 30 jours suivant l'achat. Les articles doivent être dans leur état d'origine, non utilisés et dans leur emballage d'origine. Les frais de retour sont à la charge du client, sauf en cas de défaut du produit. Une fois votre retour reçu et inspecté, nous vous rembourserons le montant total de votre achat.",
+    "reviews": "{{reviews}} avis",
+    "shipping": "Expédition",
+    "shipping_content": "Nous expédions dans le monde entier avec des délais de livraison standard de 3-7 jours ouvrables. L'expédition express est disponible moyennant des frais supplémentaires. Tous les colis sont assurés et suivis. Les frais d'expédition sont calculés en fonction du poids et de la destination lors de la finalisation de votre commande.",
+    "shop_all": "Voir tout",
+    "stars": "{{stars}} étoiles",
+    "tagline": "Slogan",
+    "testimonials": "Témoignages clients",
+    "testimonials_intro": "Découvrez ce que nos clients disent de leurs expériences avec nos produits.",
+    "variant": "Variante",
+    "one_time_purchase":"Achat unique",
+    "subscribe":"S'abonner"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Abonnez-vous pour économiser {{save}}%",
+    "update_subscription": "Mettez à jour votre abonnement à tout moment"
+  },
+  "shared": {
+    "button": "Bouton",
+    "medium_heading": "Un titre de longueur moyenne va ici",
+    "medium_intro": "Découvrez notre gamme exceptionnelle de produits conçus pour répondre à tous vos besoins avec qualité et élégance.",
+    "short_heading": "Titre court ici",
+    "short_intro": "Une introduction concise qui présente l'essentiel de notre offre avec clarté et impact.",
+    "tagline": "Slogan",
+    "view_all": "Voir tout"
+  },
+  "shop_page": {
+    "button": "Bouton",
+    "heading": "Titre court ici",
+    "intro": "Explorez notre collection soigneusement sélectionnée de produits de haute qualité.",
+    "products": "Produits",
+    "products_intro": "Chaque produit de notre gamme a été choisi pour sa qualité exceptionnelle.",
+    "tagline": "Slogan"
+  }
+}

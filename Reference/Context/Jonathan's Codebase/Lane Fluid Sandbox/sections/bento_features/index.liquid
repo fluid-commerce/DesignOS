@@ -1,0 +1,949 @@
+<!-- Bento Features Section -->
+<section class="bento-features {{ section.settings.background_color | default: 'bg-neutral-light' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_padding_y_mobile | default: 'py-xl' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      
+      <div class="max-w-7xl mx-auto">
+        
+        <!-- Main Content -->
+        <div class="bento-content space-y-4xl">
+          
+          <!-- Header Section -->
+          <div class="bento-header text-center lg:text-left space-y-xl">
+            
+            <!-- Tagline -->
+            {% if section.settings.show_tagline %}
+            <div class="tagline-wrapper">
+              <p class="{{ section.settings.tagline_font_family | default: 'font-body' }} {{ section.settings.tagline_font_size | default: 'text-sm' }} {{ section.settings.tagline_font_size_desktop | default: 'lg:text-base' }} {{ section.settings.tagline_font_weight | default: 'font-medium' }} {{ section.settings.tagline_color | default: 'text-neutral-dark' }} uppercase tracking-wider">
+                {{ section.settings.tagline | default: "EASY & HASSLE-FREE" }}
+              </p>
+            </div>
+            {% endif %}
+            
+            <!-- Main Heading -->
+            {% if section.settings.show_heading %}
+            <div class="heading-wrapper">
+              <h2 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-4xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-6xl' }} {{ section.settings.heading_font_weight | default: 'font-black' }} {{ section.settings.heading_color | default: 'text-black' }} leading-tight">
+                {{ section.settings.heading | default: "Tech enabled and made to <em>work for you</em>." }}
+              </h2>
+            </div>
+            {% endif %}
+            
+            <!-- Description -->
+            {% if section.settings.show_description %}
+            <div class="description-wrapper lg:max-w-md lg:ml-auto">
+              <p class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-base' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-neutral-dark' }} leading-relaxed">
+                {{ section.settings.description | default: "No matter your creative need, submitting and managing a project is effortless." }}
+              </p>
+            </div>
+            {% endif %}
+            
+          </div>
+          
+          <!-- Bento Grid -->
+          <div class="bento-grid-wrapper">
+            <div class="bento-grid">
+              
+              <!-- Card 1 -->
+              <div class="bento-card card-1 {{ section.settings.card_border_radius | default: 'rounded-2xl' }} overflow-hidden relative" {% if section.settings.card_1_background_image %}data-bg="{{ section.settings.card_1_background_image }}"{% endif %}>
+                <div class="card-content {{ section.settings.card_padding | default: 'p-xl lg:p-2xl' }} relative z-10 h-full flex flex-col justify-start">
+                  <div class="card-top space-y-lg">
+                    <!-- Icon -->
+                    {% if section.settings.card_1_icon %}
+                    <div class="icon-wrapper">
+                      <div class="icon {{ section.settings.icon_size | default: 'w-12 h-12' }} {{ section.settings.icon_color | default: 'text-black' }}">
+                        {{ section.settings.card_1_icon }}
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Title -->
+                    <div class="card-title">
+                      <h3 class="{{ section.settings.card_title_font_family | default: 'font-primary' }} {{ section.settings.card_title_font_size | default: 'text-2xl' }} {{ section.settings.card_title_font_size_desktop | default: 'lg:text-3xl' }} {{ section.settings.card_title_font_weight | default: 'font-bold' }} {{ section.settings.card_title_color | default: 'text-black' }} leading-tight">
+                        {{ section.settings.card_1_title | default: "From brief to review and sign off" }}
+                      </h3>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="card-description">
+                      <p class="{{ section.settings.card_description_font_family | default: 'font-body' }} {{ section.settings.card_description_font_size | default: 'text-base' }} {{ section.settings.card_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.card_description_font_weight | default: 'font-normal' }} {{ section.settings.card_description_color | default: 'text-neutral-dark' }} leading-relaxed">
+                        {{ section.settings.card_1_description | default: "Welcome to Superspace. Quickly submit a brief, review in platform, keep track of usage and more in one easy place." }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Card 2 -->
+              <div class="bento-card card-2 {{ section.settings.card_border_radius | default: 'rounded-2xl' }} overflow-hidden relative" {% if section.settings.card_2_background_image %}data-bg="{{ section.settings.card_2_background_image }}"{% endif %}>
+                <div class="card-content {{ section.settings.card_padding | default: 'p-xl lg:p-2xl' }} relative z-10 h-full flex flex-col justify-start">
+                  <div class="card-top space-y-lg">
+                    <!-- Icon -->
+                    {% if section.settings.card_2_icon %}
+                    <div class="icon-wrapper">
+                      <div class="icon {{ section.settings.icon_size | default: 'w-12 h-12' }} {{ section.settings.icon_color | default: 'text-black' }}">
+                        {{ section.settings.card_2_icon }}
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Title -->
+                    <div class="card-title">
+                      <h3 class="{{ section.settings.card_title_font_family | default: 'font-primary' }} {{ section.settings.card_title_font_size | default: 'text-2xl' }} {{ section.settings.card_title_font_size_desktop | default: 'lg:text-3xl' }} {{ section.settings.card_title_font_weight | default: 'font-bold' }} {{ section.settings.card_title_color | default: 'text-black' }} leading-tight">
+                        {{ section.settings.card_2_title | default: "Integrate with your favorite platforms" }}
+                      </h3>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="card-description">
+                      <p class="{{ section.settings.card_description_font_family | default: 'font-body' }} {{ section.settings.card_description_font_size | default: 'text-base' }} {{ section.settings.card_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.card_description_font_weight | default: 'font-normal' }} {{ section.settings.card_description_color | default: 'text-neutral-dark' }} leading-relaxed">
+                        {{ section.settings.card_2_description | default: "Already using platforms like Asana/Jira/Slack? They integrate too." }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Card 3 -->
+              <div class="bento-card card-3 {{ section.settings.card_border_radius | default: 'rounded-2xl' }} overflow-hidden relative" {% if section.settings.card_3_background_image %}data-bg="{{ section.settings.card_3_background_image }}"{% endif %}>
+                <div class="card-content {{ section.settings.card_padding | default: 'p-xl lg:p-2xl' }} relative z-10 h-full flex flex-col justify-start">
+                  <div class="card-top space-y-lg">
+                    <!-- Icon -->
+                    {% if section.settings.card_3_icon %}
+                    <div class="icon-wrapper">
+                      <div class="icon {{ section.settings.icon_size | default: 'w-12 h-12' }} {{ section.settings.icon_color | default: 'text-white' }}">
+                        {{ section.settings.card_3_icon }}
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Title -->
+                    <div class="card-title">
+                      <h3 class="{{ section.settings.card_title_font_family | default: 'font-primary' }} {{ section.settings.card_title_font_size | default: 'text-2xl' }} {{ section.settings.card_title_font_size_desktop | default: 'lg:text-3xl' }} {{ section.settings.card_title_font_weight | default: 'font-bold' }} text-white leading-tight">
+                        {{ section.settings.card_3_title | default: "Learn from our customers' successful projects" }}
+                      </h3>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="card-description">
+                      <p class="{{ section.settings.card_description_font_family | default: 'font-body' }} {{ section.settings.card_description_font_size | default: 'text-base' }} {{ section.settings.card_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.card_description_font_weight | default: 'font-normal' }} text-neutral-light leading-relaxed">
+                        {{ section.settings.card_3_description | default: "Reference work from the world's best brands on our platform." }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Card 4 -->
+              <div class="bento-card card-4 {{ section.settings.card_border_radius | default: 'rounded-2xl' }} overflow-hidden relative" {% if section.settings.card_4_background_image %}data-bg="{{ section.settings.card_4_background_image }}"{% endif %}>
+                <div class="card-content {{ section.settings.card_padding | default: 'p-xl lg:p-2xl' }} relative z-10 h-full flex flex-col justify-start">
+                  <div class="card-top space-y-lg">
+                    <!-- Icon -->
+                    {% if section.settings.card_4_icon %}
+                    <div class="icon-wrapper">
+                      <div class="icon {{ section.settings.icon_size | default: 'w-12 h-12' }} {{ section.settings.icon_color | default: 'text-white' }}">
+                        {{ section.settings.card_4_icon }}
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Title -->
+                    <div class="card-title">
+                      <h3 class="{{ section.settings.card_title_font_family | default: 'font-primary' }} {{ section.settings.card_title_font_size | default: 'text-2xl' }} {{ section.settings.card_title_font_size_desktop | default: 'lg:text-3xl' }} {{ section.settings.card_title_font_weight | default: 'font-bold' }} text-white leading-tight">
+                        {{ section.settings.card_4_title | default: "Organize and share all your brand assets" }}
+                      </h3>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="card-description">
+                      <p class="{{ section.settings.card_description_font_family | default: 'font-body' }} {{ section.settings.card_description_font_size | default: 'text-base' }} {{ section.settings.card_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.card_description_font_weight | default: 'font-normal' }} text-neutral-light leading-relaxed">
+                        {{ section.settings.card_4_description | default: "Stop searching—store and organize everything on our platform." }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Bento Features",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Header Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline",
+      "label": "Show Tagline",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline Text",
+      "default": "EASY & HASSLE-FREE"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_family",
+      "label": "Tagline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size",
+      "label": "Tagline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size_desktop",
+      "label": "Tagline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-base"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_weight",
+      "label": "Tagline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "tagline_color",
+      "label": "Tagline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show Main Heading",
+      "default": true
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Main Heading",
+      "default": "Tech enabled and made to <em>work for you</em>."
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-6xl", "label": "6X Large" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" }
+      ],
+      "default": "lg:text-6xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "No matter your creative need, submitting and managing a project is effortless."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Card Styling"
+    },
+    {
+      "type": "header",
+      "content": "Card 1 - Top Left"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_1_background_image",
+      "label": "Card 1 Background Image"
+    },
+    {
+      "type": "html",
+      "id": "card_1_icon",
+      "label": "Card 1 Icon SVG",
+      "default": "<svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z\" /></svg>"
+    },
+    {
+      "type": "text",
+      "id": "card_1_title",
+      "label": "Card 1 Title",
+      "default": "From brief to review and sign off"
+    },
+    {
+      "type": "textarea",
+      "id": "card_1_description",
+      "label": "Card 1 Description",
+      "default": "Welcome to Superspace. Quickly submit a brief, review in platform, keep track of usage and more in one easy place."
+    },
+    {
+      "type": "header",
+      "content": "Card 2 - Top Right"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_2_background_image",
+      "label": "Card 2 Background Image"
+    },
+    {
+      "type": "html",
+      "id": "card_2_icon",
+      "label": "Card 2 Icon SVG",
+      "default": "<svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12,2A2,2 0 0,1 14,4C14,4.74 13.6,5.39 13,5.73V7H14A7,7 0 0,1 21,14H22A1,1 0 0,1 23,15V18A1,1 0 0,1 22,19H21V20A2,2 0 0,1 19,22H5A2,2 0 0,1 3,20V19H2A1,1 0 0,1 1,18V15A1,1 0 0,1 2,14H3A7,7 0 0,1 10,7H11V5.73C10.4,5.39 10,4.74 10,4A2,2 0 0,1 12,2M7.5,13A2.5,2.5 0 0,0 5,15.5A2.5,2.5 0 0,0 7.5,18A2.5,2.5 0 0,0 10,15.5A2.5,2.5 0 0,0 7.5,13M16.5,13A2.5,2.5 0 0,0 14,15.5A2.5,2.5 0 0,0 16.5,18A2.5,2.5 0 0,0 19,15.5A2.5,2.5 0 0,0 16.5,13Z\" /></svg>"
+    },
+    {
+      "type": "text",
+      "id": "card_2_title",
+      "label": "Card 2 Title",
+      "default": "Integrate with your favorite platforms"
+    },
+    {
+      "type": "textarea",
+      "id": "card_2_description",
+      "label": "Card 2 Description",
+      "default": "Already using platforms like Asana/Jira/Slack? They integrate too."
+    },
+    {
+      "type": "header",
+      "content": "Card 3 - Bottom Left"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_3_background_image",
+      "label": "Card 3 Background Image"
+    },
+    {
+      "type": "html",
+      "id": "card_3_icon",
+      "label": "Card 3 Icon SVG",
+      "default": "<svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z\" /></svg>"
+    },
+    {
+      "type": "text",
+      "id": "card_3_title",
+      "label": "Card 3 Title",
+      "default": "Learn from our customers' successful projects"
+    },
+    {
+      "type": "textarea",
+      "id": "card_3_description",
+      "label": "Card 3 Description",
+      "default": "Reference work from the world's best brands on our platform."
+    },
+    {
+      "type": "header",
+      "content": "Card 4 - Bottom Right"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_4_background_image",
+      "label": "Card 4 Background Image"
+    },
+    {
+      "type": "html",
+      "id": "card_4_icon",
+      "label": "Card 4 Icon SVG",
+      "default": "<svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M17,13H13V17H11V13H7V11H11V7H13V11H17V13Z\" /></svg>"
+    },
+    {
+      "type": "text",
+      "id": "card_4_title",
+      "label": "Card 4 Title",
+      "default": "Organize and share all your brand assets"
+    },
+    {
+      "type": "textarea",
+      "id": "card_4_description",
+      "label": "Card 4 Description",
+      "default": "Stop searching—store and organize everything on our platform."
+    },
+    {
+      "type": "select",
+      "id": "card_border_radius",
+      "label": "Card Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_padding",
+      "label": "Card Padding",
+      "options": [
+        { "value": "p-md lg:p-lg", "label": "Small" },
+        { "value": "p-lg lg:p-xl", "label": "Medium" },
+        { "value": "p-xl lg:p-2xl", "label": "Large" },
+        { "value": "p-2xl lg:p-3xl", "label": "Extra Large" }
+      ],
+      "default": "p-xl lg:p-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_family",
+      "label": "Card Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_size",
+      "label": "Card Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_size_desktop",
+      "label": "Card Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" },
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" }
+      ],
+      "default": "lg:text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_weight",
+      "label": "Card Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "card_title_color",
+      "label": "Card Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_family",
+      "label": "Card Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_size",
+      "label": "Card Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_size_desktop",
+      "label": "Card Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_weight",
+      "label": "Card Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "card_description_color",
+      "label": "Card Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "select",
+      "id": "icon_size",
+      "label": "Icon Size",
+      "options": [
+        { "value": "w-8 h-8", "label": "Small" },
+        { "value": "w-10 h-10", "label": "Medium" },
+        { "value": "w-12 h-12", "label": "Large" },
+        { "value": "w-16 h-16", "label": "Extra Large" }
+      ],
+      "default": "w-12 h-12"
+    },
+    {
+      "type": "select",
+      "id": "icon_color",
+      "label": "Icon Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "preview_border_radius",
+      "label": "Preview Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bento Features"
+    }
+  ]
+}
+{% endschema %}

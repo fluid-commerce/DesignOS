@@ -1,0 +1,331 @@
+<!-- Hero section -->
+{%- style -%}
+  .hero-section-{{ section.id }} {
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px;
+    background-color: {{ section.settings.background_color | default: '#000000' }};
+  }
+
+  @media (min-width: 1280px) {
+    .hero-section-{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 80 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 80 }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="hero-section hero-section-{{ section.id }}" data-bg="{% if section.settings.background_image %}{{ section.settings.background_image | img_url: 'master' }}{% endif %}">
+    <div class="container">
+        <div class="hero-content flex flex-col justify-{{ section.settings.text_alignment }} gap-6">
+          <h1 class="hero-header-{{ section.settings.header_type | default: 'text-h1' }} {{ section.settings.headline_font_size | default: 'text-h2' }} {{ section.settings.headline_font_size_desktop | default: 'text-h2' }} {{ section.settings.headline_font_weight | default: 'font-bold' }}" style="color: {{ section.settings.headline_color | default: '#ffffff' }};">{{ section.settings.headline | default: "Medium length hero headline goes here" }}</h1>
+          <p class="{{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_size_desktop | default: 'xl-tab-text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }}" style="color: {{ section.settings.description_color | default: '#ffffff' }};">
+              {{ section.settings.description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat." }}
+          </p>
+          <div class="flex justify-{{ section.settings.text_alignment }} align-center gap-4">
+              {% if section.settings.show_button_one %}
+              <a href="{{ section.settings.button_one_url | default: '#' }}" class="btn btn-bg-white" style="
+                background-color: {{ section.settings.button_one_background_color | default: '#ffffff' }};
+                color: {{ section.settings.button_one_text_color | default: '#000000' }};
+                border: {{ section.settings.button_one_border_width | default: 1 }}px solid {{ section.settings.button_one_border_color | default: '#ffffff' }};
+              ">{{ section.settings.button_one_text | default: "Button 1" }}</a>
+              {% endif %}
+              {% if section.settings.show_button_two %}
+              <a href="{{ section.settings.button_two_url | default: '#' }}" class="btn btn-border-white" style="
+                background-color: {{ section.settings.button_two_background_color | default: 'transparent' }};
+                color: {{ section.settings.button_two_text_color | default: '#ffffff' }};
+                border: {{ section.settings.button_two_border_width | default: 1 }}px solid {{ section.settings.button_two_border_color | default: '#ffffff' }};
+              ">{{ section.settings.button_two_text | default: "Button 2" }}</a>
+              {% endif %}
+          </div>
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero Section",
+  "tag": "section",
+  "class": "hero-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Recommended size: 1920x1080px or larger"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Main Headline",
+      "default": "Medium length hero headline goes here"
+    },
+  
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description", 
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat."
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_one",
+      "label": "Show Button One",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_one_text",
+      "label": "Button One Text",
+      "default": "Button 1"
+    },
+    {
+      "type": "url",
+      "id": "button_one_url",
+      "label": "Button One URL",
+      "default": "#"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_two",
+      "label": "Show Button Two",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_two_text",
+      "label": "Button Two Text",
+      "default": "Button 2"
+    },
+    {
+      "type": "url",
+      "id": "button_two_url",
+      "label": "Button Two URL",
+      "default": "#"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h2"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" },
+        { "value": "xl-tab-text-3xl", "label": "3X Large" },
+        { "value": "xl-tab-text-5xl", "label": "5X Large" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h2"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "label": "Description Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "end", "label": "Right" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "header",
+      "content": "Button Styling"
+    },
+    {
+      "type": "color_background",
+      "id": "button_one_background_color",
+      "label": "Button One Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_background",
+      "id": "button_one_text_color",
+      "label": "Button One Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color_background",
+      "id": "button_one_border_color",
+      "label": "Button One Border Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_one_border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Button One Border Width",
+      "default": 1
+    },
+    {
+      "type": "color_background",
+      "id": "button_two_background_color",
+      "label": "Button Two Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "color_background",
+      "id": "button_two_text_color",
+      "label": "Button Two Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_background",
+      "id": "button_two_border_color",
+      "label": "Button Two Border Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_two_border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Two Border Width",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Layout & Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 80
+    }
+  ]
+}
+{% endschema %}

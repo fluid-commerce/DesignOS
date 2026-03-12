@@ -1,0 +1,76 @@
+<template id="cart-item-template">
+    <div class="product-item grid gap-4 cart-product-item">
+      <div class="image-section">
+        <img
+          src=""
+          alt="power"
+          class="image-cover product-image"
+        />
+      </div>
+  
+      <div class="product-detail-section relative">
+        <div class="action cursor-pointer absolute right-0 top-0">
+          <span class="remove-icon remove-product">
+            <svg
+              width="13"
+              height="12"
+              viewBox="0 0 13 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11.7773 2.06641L7.55859 6.28516L11.7422 10.4688C12.0938 10.7852 12.0938 11.3125 11.7422 11.6289C11.4258 11.9805 10.8984 11.9805 10.582 11.6289L6.36328 7.44531L2.17969 11.6289C1.86328 11.9805 1.33594 11.9805 1.01953 11.6289C0.667969 11.3125 0.667969 10.7852 1.01953 10.4336L5.20312 6.25L1.01953 2.06641C0.667969 1.75 0.667969 1.22266 1.01953 0.871094C1.33594 0.554688 1.86328 0.554688 2.21484 0.871094L6.39844 5.08984L10.582 0.90625C10.8984 0.554688 11.4258 0.554688 11.7773 0.90625C12.0938 1.22266 12.0938 1.75 11.7773 2.06641Z"
+                fill="currentColor"
+                fill-opacity="0.5"
+              />
+            </svg>
+          </span>
+        </div>
+        <div class="flex flex-wrap flex-col justify-between h-full gap-2">
+          <div class="grid grid-cols-1 md-tab-grid-cols-2 gap-col-2 gap-x-6 gap-y-2">
+            <div class="product-desc flex flex-col gap-2">
+              <h5 class="product-name font-medium product-title"></h5>
+              <div class="product-weight variant"></div>
+              <h5 class="product-price font-medium">
+                $0
+              </h5>
+            </div>
+            <!-- .product-desc -->
+  
+            <div class="quantity">
+              <select
+                name="quanity"
+                id=""
+                class="quantity-dropdown quantity custom-theme-select"
+              >
+                  {% for i in (1..20) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="delivery-days col-gap flex flex-wrap gap-2">
+            <div class="icon-section">
+              <svg
+                width="21"
+                height="21"
+                viewBox="0 0 21 21"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M10.7617 18.9453C12.8835 18.9453 14.9183 18.1025 16.4186 16.6022C17.9189 15.1019 18.7617 13.067 18.7617 10.9453C18.7617 8.82358 17.9189 6.78875 16.4186 5.28846C14.9183 3.78817 12.8835 2.94531 10.7617 2.94531C8.63999 2.94531 6.60516 3.78817 5.10486 5.28846C3.60457 6.78875 2.76172 8.82358 2.76172 10.9453C2.76172 13.067 3.60457 15.1019 5.10486 16.6022C6.60516 18.1025 8.63999 18.9453 10.7617 18.9453ZM11.5117 5.94531C11.5117 5.7464 11.4327 5.55563 11.292 5.41498C11.1514 5.27433 10.9606 5.19531 10.7617 5.19531C10.5628 5.19531 10.372 5.27433 10.2314 5.41498C10.0907 5.55563 10.0117 5.7464 10.0117 5.94531V10.9453C10.0117 11.3593 10.3477 11.6953 10.7617 11.6953H14.7617C14.9606 11.6953 15.1514 11.6163 15.292 11.4756C15.4327 11.335 15.5117 11.1442 15.5117 10.9453C15.5117 10.7464 15.4327 10.5556 15.292 10.415C15.1514 10.2743 14.9606 10.1953 14.7617 10.1953H11.5117V5.94531Z"
+                  fill="#D0D5DD"
+                />
+              </svg>
+            </div>
+            <div class="caption">
+              <p>{{ 'cart_page.ships_in' | t }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>

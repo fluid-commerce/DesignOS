@@ -1,0 +1,7 @@
+{
+  "name": "Platform Products",
+  "description": "A grid showcasing platform products or core features with images and descriptions",
+  "category": "Features",
+  "tags": ["products", "features", "grid", "cards"],
+  "version": "1.0.0"
+}

@@ -1,0 +1,591 @@
+<!-- Statistics Hero Section -->
+<section class="statistics-hero {{ section.settings.background_color | default: 'bg-black' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container py-xl lg:py-3xl px-lg lg:px-xl">
+      
+      <div class="max-w-5xl mx-auto text-center">
+        
+        <!-- Main Content -->
+        <div class="statistics-content space-y-3xl">
+          
+          <!-- Small Italic Heading -->
+          {% if section.settings.show_small_heading %}
+          <div class="small-heading-wrapper mb-2xl">
+            <p class="{{ section.settings.small_heading_font_family | default: 'font-handwritten' }} {{ section.settings.small_heading_font_size | default: 'text-lg' }} {{ section.settings.small_heading_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.small_heading_font_weight | default: 'font-normal' }} {{ section.settings.small_heading_color | default: 'text-white' }} italic">
+              {{ section.settings.small_heading | default: "OTHER PLATFORMS DON'T GET THIS:" }}
+            </p>
+          </div>
+          {% endif %}
+          
+          <!-- Main Statistic + Headline -->
+          {% if section.settings.show_main_statistic %}
+          <div class="main-statistic-wrapper mb-2xl">
+            <h2 class="{{ section.settings.main_heading_font_family | default: 'font-primary' }} {{ section.settings.main_heading_font_size | default: 'text-4xl' }} {{ section.settings.main_heading_font_size_desktop | default: 'lg:text-7xl' }} {{ section.settings.main_heading_font_weight | default: 'font-black' }} {{ section.settings.main_heading_color | default: 'text-white' }} leading-tight">
+              <span class="{{ section.settings.main_stat_color | default: 'text-tertiary' }}">{{ section.settings.main_statistic | default: "93%" }}</span> {{ section.settings.main_heading | default: "of every sale happens before checkout" }}
+            </h2>
+          </div>
+          {% endif %}
+          
+          <!-- Description -->
+          {% if section.settings.show_description %}
+          <div class="description-wrapper mb-2xl">
+            <p class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-white' }} leading-relaxed max-w-4xl mx-auto">
+              {{ section.settings.description | default: "Most platforms focus only on the transaction, but that's just one moment in a much longer relationship. We-Commerce is built to support people through the entire experience—from curiosity to confidence to sharing with others." }}
+            </p>
+          </div>
+          {% endif %}
+          
+          <!-- Supporting Statistics (Blocks) -->
+          {% if section.blocks.size > 0 %}
+          <div class="supporting-stats-wrapper">
+            {% assign block_count = section.blocks.size %}
+            {% assign grid_cols = 'md:grid-cols-1' %}
+            {% if block_count == 2 %}
+              {% assign grid_cols = 'md:grid-cols-2' %}
+            {% elsif block_count >= 3 %}
+              {% assign grid_cols = 'md:grid-cols-3' %}
+            {% endif %}
+            
+            <div class="stats-grid grid grid-cols-1 {{ grid_cols }} gap-xl lg:gap-2xl">
+              {% for block in section.blocks %}
+                {% case block.type %}
+                  {% when 'statistic' %}
+                    <div class="stat-item text-center" {{ block.fluid_attributes }}>
+                      <div class="stat-number {{ section.settings.stat_number_font_family | default: 'font-handwritten' }} {{ section.settings.stat_number_font_size | default: 'text-5xl lg:text-6xl' }} font-bold {{ section.settings.stat_number_color | default: 'text-tertiary' }}">
+                        {{ block.settings.number | default: "0%" }}
+                      </div>
+                      <div class="stat-text {{ section.settings.stat_text_font_family | default: 'font-body' }} {{ section.settings.stat_text_font_size | default: 'text-base lg:text-lg' }} font-normal {{ section.settings.stat_text_color | default: 'text-white' }} mt-sm">
+                        {{ block.settings.description | default: "Add your statistic description here." }}
+                      </div>
+                    </div>
+                {% endcase %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Statistics Hero",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Small Heading (Italic)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_small_heading",
+      "label": "Show Small Heading",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "small_heading",
+      "label": "Small Heading Text",
+      "default": "OTHER PLATFORMS DON'T GET THIS:"
+    },
+    {
+      "type": "select",
+      "id": "small_heading_font_family",
+      "label": "Small Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten (Default)" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "small_heading_font_size",
+      "label": "Small Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large (Default)" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "small_heading_font_size_desktop",
+      "label": "Small Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL (Default)" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "small_heading_font_weight",
+      "label": "Small Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal (Default)" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "small_heading_color",
+      "label": "Small Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White (Default)" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Main Statistic & Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_main_statistic",
+      "label": "Show Main Statistic",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "main_statistic",
+      "label": "Main Statistic",
+      "default": "93%"
+    },
+    {
+      "type": "select",
+      "id": "main_stat_color",
+      "label": "Main Statistic Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary (Default)" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-tertiary"
+    },
+    {
+      "type": "text",
+      "id": "main_heading",
+      "label": "Main Heading Text",
+      "default": "of every sale happens before checkout"
+    },
+    {
+      "type": "select",
+      "id": "main_heading_font_family",
+      "label": "Main Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary (Default)" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "main_heading_font_size",
+      "label": "Main Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL (Default)" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "main_heading_font_size_desktop",
+      "label": "Main Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL (Default)" },
+        { "value": "lg:text-8xl", "label": "8XL" }
+      ],
+      "default": "lg:text-7xl"
+    },
+    {
+      "type": "select",
+      "id": "main_heading_font_weight",
+      "label": "Main Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black (Default)" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "main_heading_color",
+      "label": "Main Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White (Default)" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Most platforms focus only on the transaction, but that's just one moment in a much longer relationship. We-Commerce is built to support people through the entire experience—from curiosity to confidence to sharing with others."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body (Default)" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large (Default)" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL (Default)" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal (Default)" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White (Default)" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Supporting Statistics (Global Styling)"
+    },
+    {
+      "type": "select",
+      "id": "stat_number_font_family",
+      "label": "Statistic Number Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten (Default)" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "stat_number_font_size",
+      "label": "Statistic Number Font Size",
+      "options": [
+        { "value": "text-4xl lg:text-5xl", "label": "Small" },
+        { "value": "text-5xl lg:text-6xl", "label": "Medium (Default)" },
+        { "value": "text-6xl lg:text-7xl", "label": "Large" },
+        { "value": "text-7xl lg:text-8xl", "label": "Extra Large" }
+      ],
+      "default": "text-5xl lg:text-6xl"
+    },
+    {
+      "type": "select",
+      "id": "stat_number_color",
+      "label": "Statistic Number Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary (Default)" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-tertiary"
+    },
+    {
+      "type": "select",
+      "id": "stat_text_font_family",
+      "label": "Statistic Text Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body (Default)" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "stat_text_font_size",
+      "label": "Statistic Text Font Size",
+      "options": [
+        { "value": "text-sm lg:text-base", "label": "Small" },
+        { "value": "text-base lg:text-lg", "label": "Medium (Default)" },
+        { "value": "text-lg lg:text-xl", "label": "Large" }
+      ],
+      "default": "text-base lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "stat_text_color",
+      "label": "Statistic Text Color",
+      "options": [
+        { "value": "text-white", "label": "White (Default)" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black (Default)" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None (Default)" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large (Default)" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large (Default)" }
+      ],
+      "default": "lg:py-3xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "statistic",
+      "name": "Statistic",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Statistic Number",
+          "default": "0%",
+          "info": "Enter the percentage or number (e.g., 70%, 93%, 5.2M)"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Add your statistic description here.",
+          "info": "Explain what this statistic represents"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Statistics Hero",
+      "blocks": [
+        {
+          "type": "statistic",
+          "settings": {
+            "number": "70%",
+            "description": "of online shopping carts are abandoned before checkout."
+          }
+        },
+        {
+          "type": "statistic",
+          "settings": {
+            "number": "93%",
+            "description": "of customers read online reviews before making a purchase."
+          }
+        },
+        {
+          "type": "statistic",
+          "settings": {
+            "number": "85%",
+            "description": "of consumers conduct online research before making a purchase."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

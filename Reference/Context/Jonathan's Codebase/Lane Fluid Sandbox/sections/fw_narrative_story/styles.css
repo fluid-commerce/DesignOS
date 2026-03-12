@@ -1,0 +1,178 @@
+/* ============================================
+   FW Narrative Story Section
+   Long-form editorial / narrative text block
+   ============================================ */
+
+.fw-narrative-story {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.fw-narrative-story__container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ============================================
+   Accent Bar
+   ============================================ */
+
+.fw-narrative-story__accent {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.fw-narrative-story__accent-img {
+  display: inline-block;
+  max-width: 80px;
+  height: auto;
+  pointer-events: none;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   Eyebrow
+   ============================================ */
+
+.fw-narrative-story__eyebrow {
+  text-align: center;
+  margin: 0 0 var(--space-xl) 0;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+/* ============================================
+   Content Area (max-width centered)
+   ============================================ */
+
+.fw-narrative-story__content {
+  margin: 0 auto;
+}
+
+/* ============================================
+   Story Block
+   ============================================ */
+
+.fw-story-block {
+  margin-bottom: var(--space-xl);
+}
+
+.fw-story-block:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- Heading ---- */
+
+.fw-story-block__heading {
+  margin: 0 0 var(--space-lg) 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+/* ---- Body ---- */
+
+.fw-story-block__body {
+  line-height: 1.7;
+  letter-spacing: 0.005em;
+}
+
+.fw-story-block__body p {
+  margin: 0 0 var(--space-md) 0;
+}
+
+.fw-story-block__body p:last-child {
+  margin-bottom: 0;
+}
+
+.fw-story-block__body strong,
+.fw-story-block__body em {
+  color: var(--emphasize-color, inherit);
+  font-style: normal;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-story-block__body strong {
+  font-weight: 700;
+}
+
+/* ============================================
+   Divider
+   ============================================ */
+
+.fw-story-block__divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: var(--space-xl) 0;
+}
+
+/* ============================================
+   Closing Statement
+   ============================================ */
+
+.fw-narrative-closing {
+  margin: var(--space-2xl) auto 0;
+  text-align: center;
+}
+
+.fw-narrative-closing__text {
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.fw-narrative-closing__text strong,
+.fw-narrative-closing__text em {
+  color: var(--emphasize-color, inherit);
+  font-style: normal;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   Desktop (lg: 1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .fw-narrative-story__accent-img {
+    max-width: 120px;
+  }
+
+  .fw-narrative-story__eyebrow {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .fw-story-block {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .fw-story-block__heading {
+    margin-bottom: var(--space-xl);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+
+  .fw-story-block__body {
+    line-height: 1.75;
+  }
+
+  .fw-story-block__body p {
+    margin-bottom: var(--space-lg);
+  }
+
+  .fw-story-block__divider {
+    margin: var(--space-2xl) 0;
+  }
+
+  .fw-narrative-closing {
+    margin-top: var(--space-3xl);
+  }
+
+  .fw-narrative-closing__text {
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+}

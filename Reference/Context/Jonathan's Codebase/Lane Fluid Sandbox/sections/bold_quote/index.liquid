@@ -1,0 +1,339 @@
+<!-- Bold Quote Section -->
+<link rel="stylesheet" href="{{ 'bold_quote/styles.css' | asset_url }}">
+
+<section class="bold-quote-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }}">
+  <div class="container">
+    <div class="bold-quote-content max-w-4xl mx-auto {{ section.settings.text_alignment }}">
+      
+      <!-- Quote Mark -->
+      {% if section.settings.show_quote_mark %}
+      <div class="bold-quote-mark mb-lg {{ section.settings.quote_mark_color }}">
+        {% if section.settings.quote_mark_image != blank %}
+        <img src="{{ section.settings.quote_mark_image | image_url }}" alt="" class="quote-mark-img">
+        {% else %}
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.956.76-3.022.66-1.065 1.515-1.867 2.558-2.403L9.373 5c-.8.396-1.56.898-2.26 1.505-.71.607-1.34 1.305-1.9 2.094s-.98 1.68-1.25 2.69-.346 2.04-.217 3.1c.168 1.4.62 2.52 1.356 3.35.735.84 1.652 1.26 2.748 1.26.965 0 1.766-.29 2.4-.878.628-.576.94-1.365.94-2.368l.002.003zm9.124 0c0-.88-.23-1.618-.69-2.217-.326-.42-.77-.692-1.327-.817-.56-.124-1.074-.13-1.54-.022-.16-.94.09-1.95.75-3.02.66-1.06 1.514-1.86 2.557-2.4L18.49 5c-.8.396-1.555.898-2.26 1.505-.708.607-1.34 1.305-1.894 2.094-.556.79-.97 1.68-1.24 2.69-.273 1-.345 2.04-.217 3.1.168 1.4.62 2.52 1.356 3.35.735.84 1.652 1.26 2.748 1.26.965 0 1.766-.29 2.4-.878.628-.576.94-1.365.94-2.368l-.007.003z"/>
+        </svg>
+        {% endif %}
+      </div>
+      {% endif %}
+      
+      <!-- Quote Text -->
+      {% if section.settings.quote_text != blank %}
+      <blockquote class="bold-quote-text {{ section.settings.quote_font_family }} {{ section.settings.quote_font_size }} {{ section.settings.quote_font_size_desktop }} {{ section.settings.quote_font_weight }} {{ section.settings.quote_color }} mb-xl">
+        "{{ section.settings.quote_text }}"
+      </blockquote>
+      {% endif %}
+      
+      <!-- Author Info -->
+      <div class="bold-quote-author flex flex-col items-center gap-sm">
+        {% if section.settings.author_image != blank %}
+        <div class="author-avatar">
+          <img src="{{ section.settings.author_image | image_url }}" alt="{{ section.settings.author_name }}" class="author-img">
+        </div>
+        {% endif %}
+        
+        <div class="author-details {{ section.settings.text_alignment }}">
+          {% if section.settings.author_name != blank %}
+          <p class="author-name {{ section.settings.author_name_font_family }} {{ section.settings.author_name_font_size }} {{ section.settings.author_name_font_weight }} {{ section.settings.author_name_color }}">
+            {{ section.settings.author_name }}
+          </p>
+          {% endif %}
+          
+          {% if section.settings.author_title != blank %}
+          <p class="author-title {{ section.settings.author_title_font_family }} {{ section.settings.author_title_font_size }} {{ section.settings.author_title_font_weight }} {{ section.settings.author_title_color }}">
+            {{ section.settings.author_title }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- Optional Paint Decorations -->
+  {% if section.settings.show_decorations %}
+  <div class="bold-quote-decorations" aria-hidden="true">
+    {% if section.settings.decoration_left != blank %}
+    <img src="{{ section.settings.decoration_left | image_url }}" alt="" class="decoration decoration-left">
+    {% endif %}
+    {% if section.settings.decoration_right != blank %}
+    <img src="{{ section.settings.decoration_right | image_url }}" alt="" class="decoration decoration-right">
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Bold Quote",
+  "tag": "section",
+  "class": "bold-quote",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Quote"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quote_mark",
+      "label": "Show Quote Mark",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "quote_mark_image",
+      "label": "Custom Quote Mark Image",
+      "info": "Leave blank for default quote icon"
+    },
+    {
+      "type": "select",
+      "id": "quote_mark_color",
+      "label": "Quote Mark Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-info", "label": "Info" }
+      ],
+      "default": "text-secondary"
+    },
+    {
+      "type": "textarea",
+      "id": "quote_text",
+      "label": "Quote Text",
+      "default": "We were losing transactions we didn't even know about. Fluid didn't just recover revenue—it recovered trust between our reps and corporate. That's what changed everything."
+    },
+    {
+      "type": "select",
+      "id": "quote_font_family",
+      "label": "Quote Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_size",
+      "label": "Quote Font Size (Mobile)",
+      "options": [
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_size_desktop",
+      "label": "Quote Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" }
+      ],
+      "default": "lg:text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "quote_font_weight",
+      "label": "Quote Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "quote_color",
+      "label": "Quote Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Author"
+    },
+    {
+      "type": "image_picker",
+      "id": "author_image",
+      "label": "Author Image"
+    },
+    {
+      "type": "text",
+      "id": "author_name",
+      "label": "Author Name",
+      "default": "Sarah Mitchell"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_family",
+      "label": "Author Name Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_size",
+      "label": "Author Name Font Size",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "author_name_font_weight",
+      "label": "Author Name Font Weight",
+      "options": [
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "author_name_color",
+      "label": "Author Name Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "text",
+      "id": "author_title",
+      "label": "Author Title",
+      "default": "VP of Operations, Leading Direct Selling Company"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_family",
+      "label": "Author Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_size",
+      "label": "Author Title Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "author_title_font_weight",
+      "label": "Author Title Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "author_title_color",
+      "label": "Author Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral", "label": "Neutral" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Decorations"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_decorations",
+      "label": "Show Paint Decorations",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "decoration_left",
+      "label": "Left Decoration"
+    },
+    {
+      "type": "image_picker",
+      "id": "decoration_right",
+      "label": "Right Decoration"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xl", "label": "Small" },
+        { "value": "py-2xl", "label": "Medium" },
+        { "value": "py-3xl", "label": "Large" }
+      ],
+      "default": "py-2xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-2xl", "label": "Small" },
+        { "value": "lg:py-3xl", "label": "Medium" },
+        { "value": "lg:py-4xl", "label": "Large" }
+      ],
+      "default": "lg:py-3xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bold Quote"
+    }
+  ]
+}
+{% endschema %}

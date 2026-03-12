@@ -1,0 +1,31 @@
+{% section 'page_hero_banner', id: 'page_hero_banner' %}
+{% section 'enrollment_pack_list', id: 'enrollment_pack_list' %}
+
+{% schema %}
+{
+  "sections": {
+    "page_hero_banner": {
+      "type": "page_hero_banner",
+      "settings": {
+        "show_tagline": true,
+        "tagline": "Welcome to our store",
+        "heading": "Discover Amazing Products",
+        "show_description": true,
+        "description": "Explore our curated collection of high-quality products designed to enhance your lifestyle.",
+        "show_button": true,
+        "button_text": "Shop Now",
+        "button_url": "/{{affiliate_guid}}/shop",
+        "background_image": "https://ik.imagekit.io/fluid/980191006/images/X9923M/Conversion-guide-mock__1__C9uoSSU3rn_w8BChINCL.jpg",
+        "background_color": "#000000",
+        "show_overlay": false,
+        "overlay_color": "#00000f",
+        "overlay_opacity": 1
+      }
+    },
+    "enrollment_pack_list": {
+      "type": "enrollment_pack_list"
+    }
+  },
+  "name": "Enrollment"
+}
+{% endschema %}

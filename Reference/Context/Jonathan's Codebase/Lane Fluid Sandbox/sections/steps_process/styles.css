@@ -1,0 +1,173 @@
+/* Steps Process Section Styles */
+.steps-process {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Section */
+.steps-process .steps-header {
+  text-align: center;
+}
+
+/* Steps Grid Layout */
+.steps-process .steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+/* Tablet Layout */
+@media (min-width: 768px) {
+  .steps-process .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
+  .steps-process .steps-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+}
+
+/* Individual Step Card */
+.steps-process .step-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .steps-process .step-card {
+    padding: 2rem;
+  }
+}
+
+/* Step Number Styling */
+.steps-process .step-number span {
+  font-style: italic;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: block;
+}
+
+/* Step Title Styling */
+.steps-process .step-card h3 {
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+/* Step Description Styling */
+.steps-process .step-card .step-description {
+  line-height: 1.6;
+}
+
+/* CTA Button Section */
+.steps-process .steps-cta {
+  text-align: center;
+}
+
+.steps-process .steps-cta a {
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.steps-process .steps-cta a:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.steps-process .steps-cta a:active {
+  transform: translateY(0);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 767px) {
+  .steps-process .steps-header {
+    margin-bottom: 2rem;
+  }
+  
+  .steps-process .steps-grid {
+    gap: 1.5rem;
+  }
+  
+  .steps-process .step-card {
+    padding: 1rem;
+  }
+  
+  .steps-process .step-number {
+    margin-bottom: 0.75rem;
+  }
+  
+  .steps-process .step-card h3 {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Typography Enhancements */
+.steps-process h1 {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.steps-process .step-card h3 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Focus States for Accessibility */
+.steps-process .steps-cta a:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+.steps-process .steps-cta a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .steps-process .step-number span {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  .steps-process h1,
+  .steps-process .step-card h3 {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .steps-process .steps-cta a {
+    transition: none;
+  }
+  
+  .steps-process .steps-cta a:hover {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .steps-process {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .steps-process h1,
+  .steps-process .step-card h3,
+  .steps-process .step-number span {
+    color: black !important;
+  }
+  
+  .steps-process .steps-cta {
+    display: none;
+  }
+}
+

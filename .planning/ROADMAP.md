@@ -121,12 +121,11 @@ Plans:
   2. Vite serves a static `/assets/` route pointing to the repo's assets directory, with brand assets cached across variations
   3. Per-session non-brand images (custom photos, generated graphics) are saved to `assets/sessions/{sessionId}/` and referenced by URL
   4. Variation HTML files are under 100KB (down from 2-3MB), and the canvas can display 6+ variations simultaneously without tab crashes
-**Plans**: 3 plans
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04.2-01-PLAN.md — Brand assets extraction + Vite static serving route + agent prompt updates
-- [ ] 04.2-02-PLAN.md — Session assets folder + image linking in generation pipeline + push_asset MCP tool updates
-- [ ] 04.2-03-PLAN.md — iframe src serving (replace srcDoc) + lazy loading + E2BIG cleanup
+- [ ] 04.2-01-PLAN.md — Vite /assets/ + /variations/ middleware, VariationFile type change, session URL returns, agent prompt updates
+- [ ] 04.2-02-PLAN.md — AssetFrame srcDoc-to-src switch, component updates, test updates for url type
 
 ### Phase 04.3: Install Process Safety (INSERTED)
 
@@ -186,7 +185,17 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6
 | 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
 | 4. Canvas + Iteration | 3/4 | In Progress | - |
 | 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
-| 4.2 Asset Linking & Output Refactor | 0/3 | Not Started |  |
+| 4.2 Asset Linking & Output Refactor | 0/2 | Not Started |  |
 | 4.3 Install Process Safety | 0/1 | Not Started |  |
 | 5. Learning Loop | 2/2 | Complete   | 2026-03-11 |
 | 6. Marketing Skills Integration | 1/2 | In Progress|  |
+
+### Phase 7: Merge Jonathan's codebase into Fluid DesignOS
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 6
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 7 to break down)

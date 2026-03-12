@@ -1,0 +1,200 @@
+/* ============================================
+   FW Testimonial Billboard
+   ============================================ */
+
+.fw-testimonial-billboard {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .fw-testimonial-billboard {
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+  }
+}
+
+/* ============================================
+   Reversed Layout (swap image / text sides)
+   ============================================ */
+
+@media (min-width: 1024px) {
+  .fw-testimonial-billboard--reversed .fw-testimonial-photo-col {
+    order: 2;
+  }
+
+  .fw-testimonial-billboard--reversed .fw-testimonial-content-col {
+    order: 1;
+  }
+}
+
+/* ============================================
+   Photo Column
+   ============================================ */
+
+.fw-testimonial-photo-col {
+  position: relative;
+}
+
+.fw-testimonial-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+@media (min-width: 1024px) {
+  .fw-testimonial-photo {
+    aspect-ratio: auto;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.fw-testimonial-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  box-shadow: none !important;
+}
+
+.fw-testimonial-photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-xl) var(--space-lg) var(--space-lg);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 60%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  z-index: 2;
+}
+
+/* ============================================
+   Content Column
+   ============================================ */
+
+.fw-testimonial-content-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+@media (min-width: 1024px) {
+  .fw-testimonial-content-col {
+    padding: var(--space-3xl) var(--space-2xl);
+  }
+}
+
+/* ============================================
+   Quote
+   ============================================ */
+
+.fw-testimonial-quote {
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+/* ============================================
+   Attribution
+   ============================================ */
+
+.fw-testimonial-attribution {
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--space-xl) 0;
+}
+
+/* ============================================
+   Person Name / Title (on photo overlay)
+   ============================================ */
+
+.fw-testimonial-person-name {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.fw-testimonial-person-title {
+  margin: 0;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+/* ============================================
+   Ghost Link
+   ============================================ */
+
+.fw-testimonial-ghost-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-testimonial-ghost-link:hover {
+  opacity: 0.75;
+}
+
+.fw-testimonial-ghost-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.fw-testimonial-ghost-link .fw-testimonial-ghost-arrow {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fw-testimonial-ghost-link:hover .fw-testimonial-ghost-arrow {
+  transform: translateX(4px);
+}
+
+/* ============================================
+   Brush Stroke Decoration
+   ============================================ */
+
+.fw-testimonial-brush-stroke {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+  max-width: 160px;
+  bottom: 8%;
+  right: 5%;
+  box-shadow: none !important;
+}
+
+@media (min-width: 1024px) {
+  .fw-testimonial-brush-stroke {
+    max-width: 240px;
+  }
+}
+
+/* ============================================
+   Placeholder (no image)
+   ============================================ */
+
+.fw-testimonial-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fw-testimonial-photo-placeholder svg {
+  width: 64px;
+  height: 64px;
+  opacity: 0.2;
+}

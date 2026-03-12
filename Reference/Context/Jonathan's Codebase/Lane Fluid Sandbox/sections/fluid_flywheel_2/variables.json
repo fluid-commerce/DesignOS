@@ -1,0 +1,7 @@
+{
+  "name": "Fluid Flywheel 2",
+  "description": "SVG flywheel with clickable segments; wheel on the left, text and media on the right with no visible container",
+  "category": "Interactive",
+  "tags": ["flywheel", "interactive", "svg", "wheel"],
+  "version": "1.0.0"
+}

@@ -1,0 +1,218 @@
+.testimonial-hero {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Override global heading-section overlay - only apply when background image exists */
+.testimonial-hero::after {
+  display: none !important;
+}
+
+/* Only add overlay when section has background image */
+.testimonial-hero[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Testimonials Grid - Dynamic Columns */
+.testimonial-hero .testimonials-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  margin-bottom: 3rem;
+}
+
+/* Dynamic grid columns based on block count */
+@media (min-width: 768px) {
+  .testimonial-hero .testimonials-grid.md\:grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-hero .testimonials-grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .testimonial-hero .testimonials-grid.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .testimonial-hero .testimonials-grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .testimonial-hero .testimonials-grid {
+    margin-bottom: 4rem;
+  }
+}
+
+/* Testimonial Items */
+.testimonial-hero .testimonial-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Star Rating */
+.testimonial-hero .stars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px !important;
+}
+
+.testimonial-hero .star {
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Main Content Spacing */
+.testimonial-hero .main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Better spacing for content sections */
+.testimonial-hero .heading-wrapper {
+  margin-bottom: 2rem;
+}
+
+.testimonial-hero .description-wrapper {
+  margin-bottom: 2.5rem;
+}
+
+.testimonial-hero .description-wrapper h2 {
+  margin-bottom: 1rem;
+}
+
+.testimonial-hero .buttons-wrapper {
+  margin-top: 0.5rem;
+}
+
+/* Heading with Accent */
+.testimonial-hero .heading-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.testimonial-hero .heading-accent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.testimonial-hero .accent-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-height: 1rem;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+/* Button Layout */
+.testimonial-hero .buttons-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 576px) {
+  .testimonial-hero .buttons-wrapper {
+    flex-direction: row;
+  }
+}
+
+/* Container Styles */
+.testimonial-hero .container {
+  position: relative;
+  z-index: var(--z-20);
+}
+
+/* Inner container styles */
+.testimonial-hero .inner-container {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Container background image overlay */
+.testimonial-hero .inner-container[data-bg]:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* Ensure content stays above overlay */
+.testimonial-hero .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Global button styles now used - no section-specific overrides needed */
+
+/* Additional responsive adjustments */
+@media (max-width: 990px) {
+  .testimonial-hero .testimonials-grid {
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  
+  .testimonial-hero .main-content {
+    gap: var(--space-6);
+  }
+}
+
+/* Typography enhancement for readability */
+.testimonial-hero .testimonial-item p {
+  line-height: 1.6;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.testimonial-hero .description-wrapper h2 {
+  line-height: 1.3;
+}
+
+.testimonial-hero .description-wrapper p {
+  line-height: 1.6;
+}
+
+/* Ensure responsive font classes work */
+.testimonial-hero h1 {
+  transition: font-size 0.3s ease;
+}
+
+.testimonial-hero h2 {
+  transition: font-size 0.3s ease;
+}
+
+/* Fix heading centering */
+.testimonial-hero .heading-wrapper h1 {
+  text-align: center;
+  width: 100%;
+  display: block;
+}

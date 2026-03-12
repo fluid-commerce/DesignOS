@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Pénztár",
+    "order_summary": "Rendelés összesítő",
+    "shipping": "Szállítási becslés",
+    "ships_in": "Szállítás 3-5 munkanapon belül",
+    "shopping_cart": "Bevásárlókosár",
+    "subtotal": "Részösszeg",
+    "tax": "Adó becslés",
+    "total": "Végösszeg"
+  },
+  "components": {
+    "comment_form": {
+      "email": "E-mail",
+      "full_name": "Teljes név",
+      "leave_info": "Kérjük, hagyja itt az adatait, hogy a {{ company }} tudja, ki Ön. Ezt csak egyszer kell megtennie.",
+      "placeholder": "Írja be a megjegyzését",
+      "post": "Küldés",
+      "want_to_leave_comment": "Szeretne megjegyzést hagyni?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Elfogadom a",
+    "all_products": "Minden termék",
+    "checkout": "Pénztár",
+    "first_payment": "Első fizetés: {{ date }}",
+    "learn_more": "Tudjon meg többet",
+    "monthly_subscription": "Havi előfizetés",
+    "todays_purchase": "Mai vásárlás"
+  },
+  "footer": {
+    "all_rights_reserved": "Minden jog fenntartva",
+    "cookies_settings": "Cookie beállítások",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Adatvédelmi szabályzat",
+    "terms_of_service": "Szolgáltatási feltételek"
+  },
+  "library": {
+    "commented": "hozzászólt",
+    "comments": "Hozzászólások",
+    "playlist": "Lejátszási lista"
+  },
+  "medium": {
+    "commented": "hozzászólt",
+    "comments": "Hozzászólások",
+    "products": "Termékek"
+  },
+  "navbar": {
+    "button_1": "Gomb 1",
+    "button_2": "Gomb 2",
+    "countries": "Országok",
+    "country": "Ország",
+    "country_and_language": "Ország és nyelv",
+    "done": "Kész",
+    "language": "Nyelv",
+    "languages": "Nyelvek",
+    "link_1": "Link egy",
+    "link_2": "Link kettő",
+    "link_3": "Link három",
+    "link_4": "Link négy",
+    "save_and_close": "Mentés és bezárás",
+    "select_country": "Válassza ki az országát",
+    "select_language": "Nyelv kiválasztása",
+    "shop": "Bolt",
+    "enrollments": "Beiratkozások",
+    "view_my_site": "Saját oldal megtekintése"
+  },
+  "product": {
+    "add_to_cart": "Kosárba",
+    "buy_now": "Vásárlás most",
+    "details": "Részletek",
+    "free_shipping": "Ingyenes szállítás {{amount}} felett",
+    "product_name": "Termék neve",
+    "quantity": "Mennyiség",
+    "related_products": "Termékek",
+    "related_products_intro": "Fedezze fel gondosan kiválasztott kiegészítő termékeink választékát, amelyek tökéletesen illenek vásárlásához.",
+    "return": "Visszaküldés",
+    "return_content": "30 napon belül elfogadunk visszaküldést a vásárlás napjától számítva. A termékeknek eredeti állapotban, használatlanul és eredeti csomagolásban kell lenniük. A visszaküldés költsége a vásárló terhére esik, kivéve termékhibás esetekben. A visszaküldés átvétele és ellenőrzése után visszatérítjük a teljes vásárlási összeget.",
+    "reviews": "{{reviews}} értékelés",
+    "shipping": "Szállítás",
+    "shipping_content": "Világszerte szállítunk 3-7 munkanap standard kézbesítési idővel. Expressz szállítás felár ellenében elérhető. Minden csomag biztosított és nyomon követhető. A szállítási költségeket súly és célállomás alapján számítjuk ki a pénztárnál.",
+    "shop_all": "Összes megtekintése",
+    "stars": "{{stars}} csillag",
+    "tagline": "Szlogen",
+    "testimonials": "Vásárlói vélemények",
+    "testimonials_intro": "Ismerje meg, mit mondanak vásárlóink a termékeinkkel szerzett tapasztalataikról.",
+    "variant": "Változat",
+    "one_time_purchase":"Egyszeri vásárlás",
+    "subscribe":"Feliratkozás"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Iratkozz fel és spórolj {{save}}%-ot",
+    "update_subscription": "Frissítse előfizetését bármiko"
+  },
+  "shared": {
+    "button": "Gomb",
+    "medium_heading": "Közepes hosszúságú cím kerül ide",
+    "medium_intro": "Fedezze fel kivételes termékválasztékunkat, amelyet az Ön minden igényének minőséggel és eleganciával való kielégítésére terveztünk.",
+    "short_heading": "Rövid cím itt",
+    "short_intro": "Tömör bevezetés, amely világosan és hatásosan mutatja be kínálatunk lényegét.",
+    "tagline": "Szlogen",
+    "view_all": "Összes megtekintése"
+  },
+  "shop_page": {
+    "button": "Gomb",
+    "heading": "Rövid cím itt",
+    "intro": "Fedezze fel gondosan összeállított, magas minőségű termékeink kollekcióját.",
+    "products": "Termékek",
+    "products_intro": "Választékunk minden termékét kivételes minősége miatt választottuk ki.",
+    "tagline": "Szlogen"
+  }
+}

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @font-face {
+    font-family: 'flfontbold';
+    src: url('../fonts/flfontbold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'NeueHaas';
+    src: url('../fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100vh; background: #111; }
+  body { display: flex; justify-content: center; align-items: center; }
+
+  .canvas {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .slide { position: absolute; inset: 0; display: none; }
+  .slide.active { display: block; }
+
+  /* ── Shared: counter + rotated category label ── */
+  .slide-counter {
+    position: absolute;
+    right: 16px;
+    top: 45px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #fff;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .slide-label {
+    position: absolute;
+    right: 35px;
+    top: 88px;
+  }
+  .slide-label span {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #fff;
+    white-space: nowrap;
+    writing-mode: vertical-lr;
+    display: block;
+  }
+
+  /* ── Shared: bottom logos (slides 1 + 4) ── */
+  .bot-logos {
+    position: absolute;
+    left: 35px;
+    top: 982px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+  }
+  .bot-logos .flag-img  { width: 53px; height: 48px; flex-shrink: 0; }
+  .bot-logos .logo-div  { width: 1px; height: 34px; background: #2a2a2a; flex-shrink: 0; }
+  .bot-logos .wc-img    { height: 30px; width: 118px; object-fit: contain; object-position: left center; flex-shrink: 0; }
+  .bot-fluid {
+    position: absolute;
+    right: 35px;
+    top: 994px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+  }
+  .bot-fluid img { height: 22px; width: auto; pointer-events: none; }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 1 — Cover
+  ───────────────────────────────────────────── */
+  .s1-eyebrow {
+    position: absolute;
+    left: 45px;
+    top: 52px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #44B2FF;
+  }
+  .s1-quarter {
+    position: absolute;
+    left: 42px;
+    top: 96px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 420px;
+    line-height: 0.82;
+    color: #fff;
+    letter-spacing: -0.03em;
+  }
+  .s1-year {
+    position: absolute;
+    left: 45px;
+    top: 548px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 172px;
+    line-height: 0.85;
+    color: #222;
+    letter-spacing: -0.02em;
+  }
+  /* Hero stat — bottom right */
+  .s1-hero {
+    position: absolute;
+    right: 45px;
+    top: 460px;
+    text-align: right;
+  }
+  .s1-hero-num {
+    font-family: 'flfontbold', sans-serif;
+    font-size: 220px;
+    line-height: 0.82;
+    color: #44B2FF;
+  }
+  .s1-hero-label {
+    margin-top: 10px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #333;
+  }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 2 — Three key stats
+  ───────────────────────────────────────────── */
+  .s2-intro {
+    position: absolute;
+    left: 45px;
+    top: 74px;
+    width: 740px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 64px;
+    line-height: 1.0;
+    color: #fff;
+  }
+  /* Three-column stats grid */
+  .s2-col {
+    position: absolute;
+    top: 440px;
+    width: 310px;
+  }
+  .s2-col-1 { left: 45px; }
+  .s2-col-2 { left: 395px; border-left: 1px solid #1c1c1c; padding-left: 34px; }
+  .s2-col-3 { left: 745px; border-left: 1px solid #1c1c1c; padding-left: 34px; }
+  .s2-num {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 148px;
+    line-height: 0.82;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .s2-num b {
+    font-family: 'flfontbold', sans-serif;
+    font-weight: 400;
+    color: #44B2FF;
+  }
+  .s2-lbl {
+    margin-top: 20px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #444;
+  }
+  /* Thin rule below stats */
+  .s2-rule {
+    position: absolute;
+    left: 45px;
+    top: 830px;
+    width: 620px;
+    height: 1px;
+    background: #1a1a1a;
+  }
+  .s2-footnote {
+    position: absolute;
+    left: 45px;
+    top: 850px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.1;
+    color: #2a2a2a;
+  }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 3 — AI efficiency deep dive
+  ───────────────────────────────────────────── */
+  .s3-eyebrow {
+    position: absolute;
+    left: 45px;
+    top: 60px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #44B2FF;
+  }
+  .s3-big-num {
+    position: absolute;
+    left: 38px;
+    top: 100px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 380px;
+    line-height: 0.78;
+    color: #fff;
+    letter-spacing: -0.04em;
+  }
+  .s3-unit {
+    position: absolute;
+    right: 45px;
+    top: 220px;
+    text-align: right;
+    font-family: 'flfontbold', sans-serif;
+    font-size: 110px;
+    line-height: 0.9;
+    color: #FF6715;
+  }
+  .s3-divider {
+    position: absolute;
+    left: 45px;
+    top: 560px;
+    width: 200px;
+    height: 2px;
+    background: #1c1c1c;
+  }
+  .s3-body {
+    position: absolute;
+    left: 45px;
+    top: 584px;
+    width: 840px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 52px;
+    line-height: 1.12;
+    color: #fff;
+  }
+  .s3-secondary {
+    position: absolute;
+    left: 45px;
+    top: 870px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+  }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 4 — Outlook
+  ───────────────────────────────────────────── */
+  .s4-eyebrow {
+    position: absolute;
+    left: 45px;
+    top: 58px;
+    font-family: 'flfontbold', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    color: #FF6715;
+  }
+  .s4-headline {
+    position: absolute;
+    left: 45px;
+    top: 152px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 184px;
+    line-height: 0.82;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .s4-rule {
+    position: absolute;
+    left: 45px;
+    top: 680px;
+    width: 500px;
+    height: 1px;
+    background: #1c1c1c;
+  }
+  /* Three mini stats row */
+  .s4-mini {
+    position: absolute;
+    top: 714px;
+  }
+  .s4-mini-1 { left: 45px; }
+  .s4-mini-2 { left: 395px; }
+  .s4-mini-3 { left: 730px; }
+  .s4-mini-num {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 80px;
+    line-height: 0.85;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .s4-mini-num em {
+    font-style: normal;
+    color: #44B2FF;
+    font-family: 'flfontbold', sans-serif;
+  }
+  .s4-mini-lbl {
+    margin-top: 8px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #333;
+    white-space: nowrap;
+  }
+  .s4-tagline {
+    position: absolute;
+    left: 45px;
+    top: 872px;
+    width: 860px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 38px;
+    line-height: 1.1;
+    color: #2a2a2a;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 1 — Cover
+  ══════════════════════════════════════════ -->
+  <div class="slide active" data-slide="1">
+    <div class="slide-label"><span>Results</span></div>
+    <p class="slide-counter">01/04</p>
+
+    <p class="s1-eyebrow">Fluid · Q1 2026</p>
+    <p class="s1-quarter">Q1</p>
+    <p class="s1-year">2026</p>
+
+    <div class="s1-hero">
+      <p class="s1-hero-num">+34%</p>
+      <p class="s1-hero-label">Revenue Growth YoY</p>
+    </div>
+
+    <div class="bot-logos">
+      <img class="flag-img" src="assets/flag-icon.svg" alt="">
+      <div class="logo-div"></div>
+      <img class="wc-img" src="assets/wecommerce-logo.svg" alt="">
+    </div>
+    <div class="bot-fluid">
+      <img src="assets/fluid-logo.png" alt="fluid">
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 2 — Three key stats
+  ══════════════════════════════════════════ -->
+  <div class="slide" data-slide="2">
+    <div class="slide-label"><span>Results</span></div>
+    <p class="slide-counter">02/04</p>
+
+    <p class="s2-intro">Here's what we shipped — and who stayed.</p>
+
+    <div class="s2-col s2-col-1">
+      <p class="s2-num">98<b>%</b></p>
+      <p class="s2-lbl">Client Retention</p>
+    </div>
+    <div class="s2-col s2-col-2">
+      <p class="s2-num">47</p>
+      <p class="s2-lbl">Projects Shipped</p>
+    </div>
+    <div class="s2-col s2-col-3">
+      <p class="s2-num">12</p>
+      <p class="s2-lbl">New Clients Won</p>
+    </div>
+
+    <div class="s2-rule"></div>
+    <p class="s2-footnote">Fluid · WeCommerce · Q1 2026</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 3 — AI efficiency deep dive
+  ══════════════════════════════════════════ -->
+  <div class="slide" data-slide="3">
+    <div class="slide-label"><span>Results</span></div>
+    <p class="slide-counter">03/04</p>
+
+    <p class="s3-eyebrow">AI Efficiency Gain</p>
+    <p class="s3-big-num">+27%</p>
+
+    <p class="s3-unit">Faster<br>Delivery</p>
+
+    <div class="s3-divider"></div>
+    <p class="s3-body">We used AI across strategy, legal, and production work — shaving time off every project without cutting corners.</p>
+    <p class="s3-secondary">1,200+ hours saved this quarter · reinvested into client work</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 4 — Outlook
+  ══════════════════════════════════════════ -->
+  <div class="slide" data-slide="4">
+    <div class="slide-label"><span>Results</span></div>
+    <p class="slide-counter">04/04</p>
+
+    <p class="s4-eyebrow">What's Next</p>
+    <p class="s4-headline">Q2<br>Looks<br>Even<br>Better.</p>
+
+    <div class="s4-rule"></div>
+
+    <div class="s4-mini s4-mini-1">
+      <p class="s4-mini-num">3<em>×</em></p>
+      <p class="s4-mini-lbl">Pipeline Growth</p>
+    </div>
+    <div class="s4-mini s4-mini-2">
+      <p class="s4-mini-num">$1.2M</p>
+      <p class="s4-mini-lbl">New Proposals</p>
+    </div>
+    <div class="s4-mini s4-mini-3">
+      <p class="s4-mini-num">NPS<em> 72</em></p>
+      <p class="s4-mini-lbl">Client Score</p>
+    </div>
+
+    <p class="s4-tagline">Growing the team, the tech stack, and the client roster — Q2 starts now.</p>
+
+    <div class="bot-logos">
+      <img class="flag-img" src="assets/flag-icon.svg" alt="">
+      <div class="logo-div"></div>
+      <img class="wc-img" src="assets/wecommerce-logo.svg" alt="">
+    </div>
+    <div class="bot-fluid">
+      <img src="assets/fluid-logo.png" alt="fluid">
+    </div>
+  </div>
+
+</div><!-- /.canvas -->
+
+<script>
+/* ── Carousel controller ─────────────────────────────────────────────────── */
+(function() {
+  var slides  = document.querySelectorAll('.slide');
+  var total   = slides.length;
+  var current = 0;
+
+  window.CAROUSEL_TOTAL   = total;
+  window.CAROUSEL_CURRENT = 1;
+
+  function go(n) {
+    slides[current].classList.remove('active');
+    current = ((n % total) + total) % total;
+    slides[current].classList.add('active');
+    window.CAROUSEL_CURRENT = current + 1;
+    if (window.onCarouselChange) window.onCarouselChange(current + 1, total);
+  }
+
+  window.CAROUSEL_PREV = function() { go(current - 1); };
+  window.CAROUSEL_NEXT = function() { go(current + 1); };
+  window.CAROUSEL_GO   = function(n) { go(n - 1); };
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setSlide') go(e.data.slide - 1);
+  });
+})();
+</script>
+<script src="nav.js"></script>
+</body>
+</html>

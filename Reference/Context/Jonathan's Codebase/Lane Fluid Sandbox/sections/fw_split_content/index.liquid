@@ -1,0 +1,976 @@
+<link rel="stylesheet" href="{{ 'fw_split_content/styles.css' | asset_url }}">
+
+<section class="fw-split-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }}"
+  {% if section.settings.background_image != blank %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+
+  <div class="fw-split-container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+    {% if section.settings.container_background_image != blank %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+
+    <div class="fw-split-content {{ section.settings.column_gap }} {{ section.settings.vertical_alignment }}{% if section.settings.reverse_columns %} fw-split-content--reversed{% endif %}">
+
+      <!-- Left Column: Text Content -->
+      <div class="fw-split-left">
+
+        {% if section.settings.show_accent_bar and section.settings.accent_bar_image != blank %}
+        <div class="fw-split-accent-bar">
+          <img src="{{ section.settings.accent_bar_image | image_url }}" alt="" class="fw-split-accent-bar-img" aria-hidden="true">
+        </div>
+        {% endif %}
+
+        {% if section.settings.eyebrow != blank %}
+        <p class="fw-split-eyebrow {{ section.settings.eyebrow_font_family }} {{ section.settings.eyebrow_font_size }} {{ section.settings.eyebrow_font_size_desktop }} {{ section.settings.eyebrow_font_weight }} {{ section.settings.eyebrow_color }}">
+          {{ section.settings.eyebrow }}
+        </p>
+        {% endif %}
+
+        {% if section.settings.headline != blank %}
+        <h2 class="fw-split-headline {{ section.settings.headline_font_family }} {{ section.settings.headline_font_size }} {{ section.settings.headline_font_size_desktop }} {{ section.settings.headline_font_weight }} {{ section.settings.headline_color }}">
+          {{ section.settings.headline }}
+        </h2>
+        {% endif %}
+
+        {% if section.settings.body != blank %}
+        <div class="fw-split-body {{ section.settings.body_font_family }} {{ section.settings.body_font_size }} {{ section.settings.body_font_size_desktop }} {{ section.settings.body_font_weight }} {{ section.settings.body_color }}">
+          {{ section.settings.body }}
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_ghost_link and section.settings.link_text != blank %}
+        <a href="{{ section.settings.link_url | default: '#' }}"
+           class="fw-split-ghost-link {{ section.settings.link_font_family }} {{ section.settings.link_font_size }} {{ section.settings.link_font_size_desktop }} {{ section.settings.link_font_weight }} {{ section.settings.link_color }}">
+          {{ section.settings.link_text }}
+        </a>
+        {% endif %}
+
+        {% if section.settings.show_button %}
+        <a href="{{ section.settings.button_url | default: '#' }}"
+           class="btn btn-{{ section.settings.button_style | default: 'filled' }}-{{ section.settings.button_color | default: 'primary' }} {{ section.settings.button_size | default: 'btn-md' }} {{ section.settings.button_font_weight | default: 'font-medium' }}">
+          {{ section.settings.button_text | default: 'Learn More' }}
+        </a>
+        {% endif %}
+
+      </div>
+
+      <!-- Right Column: Image or Block Content -->
+      <div class="fw-split-right">
+
+        {% if section.settings.right_image != blank %}
+        <img src="{{ section.settings.right_image | image_url }}"
+             alt="{{ section.settings.right_image_alt | default: '' }}"
+             class="fw-split-right-image"
+             loading="lazy">
+        {% endif %}
+
+        {% assign feature_cards = section.blocks | where: "type", "feature_card" %}
+        {% if feature_cards.size > 0 %}
+        <div class="fw-split-feature-grid">
+          {% for block in feature_cards %}
+          <div class="fw-split-feature-card" {{ block.fluid_attributes }}>
+            {% if block.settings.card_tag != blank %}
+            <span class="fw-split-card-tag {{ block.settings.card_tag_color }}">{{ block.settings.card_tag }}</span>
+            {% endif %}
+            {% if block.settings.card_title != blank %}
+            <h3 class="fw-split-card-title {{ block.settings.card_title_color }}">{{ block.settings.card_title }}</h3>
+            {% endif %}
+            {% if block.settings.card_body != blank %}
+            <p class="fw-split-card-body">{{ block.settings.card_body }}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% assign step_items = section.blocks | where: "type", "step_item" %}
+        {% if step_items.size > 0 %}
+        <div class="fw-split-steps">
+          {% for block in step_items %}
+          <div class="fw-split-step fw-split-step--{{ block.settings.step_color | default: 'primary' }}" {{ block.fluid_attributes }}>
+            <div class="fw-split-step-indicator">
+              <span class="fw-split-step-dot">
+                {% if block.settings.step_icon != blank %}{{ block.settings.step_icon }}{% else %}{{ block.settings.step_number | default: forloop.index }}{% endif %}
+              </span>
+              {% unless forloop.last %}
+              <span class="fw-split-step-line"></span>
+              {% endunless %}
+            </div>
+            <div class="fw-split-step-content">
+              {% if block.settings.step_title != blank %}
+              <h4 class="fw-split-step-title">{{ block.settings.step_title }}</h4>
+              {% endif %}
+              {% if block.settings.step_body != blank %}
+              <p class="fw-split-step-body">{{ block.settings.step_body }}</p>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FW Split Content",
+  "tag": "section",
+  "class": "fw-split",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Accent Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_accent_bar",
+      "label": "Show Accent Bar",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "accent_bar_image",
+      "label": "Accent Bar Image",
+      "info": "Painted or colored vertical bar image (48px wide recommended)"
+    },
+
+    {
+      "type": "header",
+      "content": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text",
+      "default": "Our Solution"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_family",
+      "label": "Eyebrow Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size",
+      "label": "Eyebrow Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size_desktop",
+      "label": "Eyebrow Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-base"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_weight",
+      "label": "Eyebrow Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_color",
+      "label": "Eyebrow Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-info"
+    },
+
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline Text",
+      "default": "Built for the way direct selling actually works."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_family",
+      "label": "Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+
+    {
+      "type": "header",
+      "content": "Body Text"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body Text",
+      "default": "<p>Every transaction in direct selling creates ripple effects through an entire organization. We built the only platform that understands this from the ground up.</p>"
+    },
+    {
+      "type": "select",
+      "id": "body_font_family",
+      "label": "Body Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "body_font_size",
+      "label": "Body Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "body_font_size_desktop",
+      "label": "Body Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "body_font_weight",
+      "label": "Body Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "body_color",
+      "label": "Body Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+
+    {
+      "type": "header",
+      "content": "Ghost Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_ghost_link",
+      "label": "Show Ghost Link",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link Text",
+      "default": "Learn more"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link URL"
+    },
+    {
+      "type": "select",
+      "id": "link_font_family",
+      "label": "Link Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "link_font_size",
+      "label": "Link Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "link_font_size_desktop",
+      "label": "Link Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-sm"
+    },
+    {
+      "type": "select",
+      "id": "link_font_weight",
+      "label": "Link Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "link_color",
+      "label": "Link Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-info"
+    },
+
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "ghost", "label": "Ghost" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "button_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "button_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-xs", "label": "XS" },
+        { "value": "btn-sm", "label": "SM" },
+        { "value": "btn-md", "label": "MD" },
+        { "value": "btn-lg", "label": "LG" },
+        { "value": "btn-xl", "label": "XL" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+
+    {
+      "type": "header",
+      "content": "Right Column"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Right Column Image",
+      "info": "Displayed in the right column. Leave blank to use blocks instead."
+    },
+    {
+      "type": "text",
+      "id": "right_image_alt",
+      "label": "Right Column Image Alt Text"
+    },
+
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "reverse_columns",
+      "label": "Reverse Columns (Image Left, Text Right)",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "column_gap",
+      "label": "Column Gap",
+      "options": [
+        { "value": "gap-md", "label": "MD" },
+        { "value": "gap-lg", "label": "LG" },
+        { "value": "gap-xl", "label": "XL" },
+        { "value": "gap-2xl", "label": "2XL" },
+        { "value": "gap-3xl", "label": "3XL" }
+      ],
+      "default": "gap-xl"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "Vertical Alignment",
+      "options": [
+        { "value": "items-start", "label": "Top" },
+        { "value": "items-center", "label": "Center" },
+        { "value": "items-end", "label": "Bottom" }
+      ],
+      "default": "items-center"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "XS" },
+        { "value": "px-sm", "label": "SM" },
+        { "value": "px-md", "label": "MD" },
+        { "value": "px-lg", "label": "LG" },
+        { "value": "px-xl", "label": "XL" },
+        { "value": "px-2xl", "label": "2XL" },
+        { "value": "px-3xl", "label": "3XL" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "XS" },
+        { "value": "lg:px-sm", "label": "SM" },
+        { "value": "lg:px-md", "label": "MD" },
+        { "value": "lg:px-lg", "label": "LG" },
+        { "value": "lg:px-xl", "label": "XL" },
+        { "value": "lg:px-2xl", "label": "2XL" },
+        { "value": "lg:px-3xl", "label": "3XL" }
+      ],
+      "default": "lg:px-3xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature_card",
+      "name": "Feature Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "card_tag",
+          "label": "Card Tag",
+          "default": "Attribution"
+        },
+        {
+          "type": "text",
+          "id": "card_title",
+          "label": "Card Title",
+          "default": "Fair Share™"
+        },
+        {
+          "type": "text",
+          "id": "card_body",
+          "label": "Card Body",
+          "default": "Full-journey tracking. Reps trust it."
+        },
+        {
+          "type": "select",
+          "id": "card_tag_color",
+          "label": "Card Tag Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-info"
+        },
+        {
+          "type": "select",
+          "id": "card_title_color",
+          "label": "Card Title Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-white"
+        }
+      ]
+    },
+    {
+      "type": "step_item",
+      "name": "Step Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "step_number",
+          "label": "Step Number",
+          "default": "1"
+        },
+        {
+          "type": "text",
+          "id": "step_title",
+          "label": "Step Title",
+          "default": "Discovery"
+        },
+        {
+          "type": "text",
+          "id": "step_body",
+          "label": "Step Body",
+          "default": "Track the full customer journey from first touch to conversion."
+        },
+        {
+          "type": "select",
+          "id": "step_color",
+          "label": "Step Accent Color",
+          "options": [
+            { "value": "primary", "label": "Primary" },
+            { "value": "secondary", "label": "Secondary" },
+            { "value": "success", "label": "Success" },
+            { "value": "info", "label": "Info" },
+            { "value": "white", "label": "White" },
+            { "value": "neutral", "label": "Neutral" }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "text",
+          "id": "step_icon",
+          "label": "Step Icon (Emoji/Symbol)",
+          "info": "Leave blank to show the step number instead"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FW Split Content"
+    }
+  ]
+}
+{% endschema %}

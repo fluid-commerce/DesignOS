@@ -1,0 +1,306 @@
+<!-- Brand -->
+<section class="brands" style="
+  padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px; 
+  padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px; 
+  background-color: {{ section.settings.background_color | default: '#ffffff' }}; 
+  <style>
+    @media (min-width: 1280px) {
+      .brands {
+        padding-top: {{ section.settings.section_padding_top_desktop | default: 80 }}px !important;
+        padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 80 }}px !important;
+      }
+    }
+  </style>
+    <div class="container">
+      {% if section.settings.heading != blank %}
+      <div class="flex justify-center align-center mb-12">
+        <div class="{{ section.settings.heading_font_size | default: 'text-lg' }} {{ section.settings.heading_font_size_desktop | default: 'sm-desktop-text-lg' }} {{ section.settings.heading_font_weight | default: 'font-bold' }}" style="color: {{ section.settings.heading_color | default: '#000000' }};">
+          {{ section.settings.heading }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% if section.blocks.size > 0 %}
+    <div class="brand-slider splide" id="brand-slider-{{ section.id }}">
+      <div class="splide__track">
+        <ul class="splide__list">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'brand_item' %}
+                <li class="splide__slide" {{ block.fluid_attributes }}>
+                  <figure>
+                    {% if block.settings.brand_link != blank %}
+                      <a href="{{ block.settings.brand_link }}" target="{{ block.settings.link_target }}">
+                    {% endif %}
+                    {% if block.settings.brand_image != blank %}
+                      <img src="{{ block.settings.brand_image | image_url: width: 200 }}" alt="{{ block.settings.brand_alt | default: 'Brand logo' }}" loading="lazy" />
+                    {% else %}
+                      <div class="placeholder-brand" style="width: 120px; height: 60px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd;">
+                        <span style="font-size: 12px; color: #999;">Brand Logo</span>
+                      </div>
+                    {% endif %}
+                    {% if block.settings.brand_link != blank %}
+                      </a>
+                    {% endif %}
+                  </figure>
+                </li>
+            {% endcase %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize brand slider
+  const brandSlider = new Splide('#brand-slider-{{ section.id }}', {
+    type: "loop",
+    perPage: 8,
+    perMove: 1,
+    autoplay: true,
+    interval: 2000,
+    speed: 6000,
+    pauseOnHover: true,
+    pauseOnFocus: true,
+    gap: "32px",
+    pagination: false,
+    arrows: false,
+    breakpoints: {
+      480: {
+        perPage: 3,
+      },
+      768: {
+        perPage: 5,
+      },
+      1024: {
+        perPage: 8,
+      },
+    },
+  });
+  
+  brandSlider.mount();
+});
+</script>
+
+{% schema %}
+{
+  "name": "Brand Section",
+  "tag": "section",
+  "class": "brands",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Used by the world's leading companies"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "sm-desktop-text-sm", "label": "Small" },
+        { "value": "sm-desktop-text-base", "label": "Base" },
+        { "value": "sm-desktop-text-lg", "label": "Large" },
+        { "value": "sm-desktop-text-xl", "label": "Extra Large" },
+        { "value": "sm-desktop-text-2xl", "label": "2X Large" },
+        { "value": "sm-desktop-text-3xl", "label": "3X Large" }
+      ],
+      "default": "sm-desktop-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+  
+    {
+      "type": "header",
+      "content": "Background & Spacing"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand_item",
+      "name": "Brand Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "brand_image",
+          "label": "Brand Logo",
+          "info": "Recommended size: 200x100px"
+        },
+        {
+          "type": "text",
+          "id": "brand_alt",
+          "label": "Alt Text",
+          "default": "Brand logo"
+        },
+        {
+          "type": "url",
+          "id": "brand_link",
+          "label": "Brand Link (Optional)"
+        },
+        {
+          "type": "select",
+          "id": "link_target",
+          "label": "Link Target",
+          "options": [
+            { "value": "_self", "label": "Same Window" },
+            { "value": "_blank", "label": "New Window" }
+          ],
+          "default": "_self"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brand Section",
+      "blocks": [
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_ONawLy5dqF",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_d5eF92e92",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_9Gpbx6iQVC",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_TfohBU7qp",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_JHSeLbd8qZ",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_CRNmbBogn",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_SVFhM06tVc",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        },
+        {
+          "type": "brand_item",
+          "settings": {
+            "brand_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_25BaNkw7SYu5hydjLRnk_Rjsu2w1K6O",
+            "brand_alt": "brand Logo",
+            "link_target": "_blank"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

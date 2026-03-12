@@ -1,0 +1,204 @@
+/* Steps Process Section Styles */
+.steps-with-images {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Section */
+.steps-with-images .steps-header {
+  text-align: center;
+}
+
+/* Steps Grid Layout */
+.steps-with-images .steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+/* Tablet Layout */
+@media (min-width: 768px) {
+  .steps-with-images .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
+  .steps-with-images .steps-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+}
+
+/* Individual Step Card */
+.steps-with-images .step-card {
+  text-align: left;
+  padding: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .steps-with-images .step-card {
+    padding: 2rem;
+  }
+}
+
+/* Step Image Styling */
+.steps-with-images .step-image {
+  width: 100%;
+}
+
+.steps-with-images .step-image-wrapper {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.steps-with-images .step-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.steps-with-images .step-card:hover .step-image-wrapper img {
+  transform: scale(1.02);
+}
+
+/* Aspect ratio for consistent image sizing */
+.steps-with-images .step-image-wrapper {
+  aspect-ratio: 16 / 9;
+}
+
+.steps-with-images .step-image-wrapper img {
+  object-fit: cover;
+  height: 100%;
+}
+
+/* Step Number Styling */
+.steps-with-images .step-number span {
+  font-style: italic;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: block;
+}
+
+/* Step Title Styling */
+.steps-with-images .step-card h3 {
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+/* Step Description Styling */
+.steps-with-images .step-card .step-description {
+  line-height: 1.6;
+}
+
+/* CTA Button Section */
+.steps-with-images .steps-cta {
+  text-align: center;
+}
+
+.steps-with-images .steps-cta a {
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.steps-with-images .steps-cta a:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.steps-with-images .steps-cta a:active {
+  transform: translateY(0);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 767px) {
+  .steps-with-images .steps-header {
+    margin-bottom: 2rem;
+  }
+  
+  .steps-with-images .steps-grid {
+    gap: 1.5rem;
+  }
+  
+  .steps-with-images .step-card {
+    padding: 1rem;
+  }
+  
+  .steps-with-images .step-number {
+    margin-bottom: 0.75rem;
+  }
+  
+  .steps-with-images .step-card h3 {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Typography Enhancements */
+.steps-with-images h1 {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.steps-with-images .step-card h3 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Focus States for Accessibility */
+.steps-with-images .steps-cta a:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+.steps-with-images .steps-cta a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .steps-with-images .step-number span {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  .steps-with-images h1,
+  .steps-with-images .step-card h3 {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .steps-with-images .steps-cta a {
+    transition: none;
+  }
+  
+  .steps-with-images .steps-cta a:hover {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .steps-with-images {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .steps-with-images h1,
+  .steps-with-images .step-card h3,
+  .steps-with-images .step-number span {
+    color: black !important;
+  }
+  
+  .steps-with-images .steps-cta {
+    display: none;
+  }
+}

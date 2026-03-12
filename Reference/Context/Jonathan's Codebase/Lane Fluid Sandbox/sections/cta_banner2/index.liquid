@@ -1,0 +1,261 @@
+<section class="cta-banner2-section" 
+         style="background-color: {{ section.settings.background_color | default: '#f8f8f8' }};
+                {% if section.settings.background_image != blank %}
+                background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                {% endif %}">
+  
+  {% if section.settings.background_image != blank %}
+    <div class="cta-banner2-overlay" 
+         style="background-color: {{ section.settings.overlay_color | default: '#000000' }}; 
+                opacity: {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }}; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                z-index: 1;"></div>
+  {% endif %}
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="cta-banner2-wrapper grid grid-cols-1 sm-desktop-grid-cols-2 gap-x-12 gap-y-8 py-16">
+      
+      <!-- Content Column -->
+      <div class="cta-banner2-content flex flex-col justify-center">
+        <h2 class="text-h2 mb-6" style="color: {{ section.settings.heading_color | default: '#000000' }};">
+          {{ section.settings.heading }}
+        </h2>
+        
+        <p class="text-lg mb-8" style="color: {{ section.settings.text_color | default: '#666666' }};">
+          {{ section.settings.intro_text }}
+        </p>
+        
+        {% if section.settings.show_primary_button or section.settings.show_secondary_button %}
+          <div class="cta-banner2-buttons flex gap-4">
+            {% if section.settings.show_primary_button and section.settings.button_text != blank %}
+              <a href="{{ section.settings.button_link }}" 
+                 class="btn"
+                 style="background-color: {{ section.settings.primary_button_bg | default: '#000000' }}; color: {{ section.settings.primary_button_text | default: '#ffffff' }}; border: 1px solid {{ section.settings.primary_button_bg | default: '#000000' }};">
+                {{ section.settings.button_text }}
+              </a>
+            {% endif %}
+            
+            {% if section.settings.show_secondary_button and section.settings.button_text_secondary != blank %}
+              <a href="{{ section.settings.button_link_secondary }}" 
+                 class="btn"
+                 style="background-color: transparent; color: {{ section.settings.secondary_button_text | default: '#000000' }}; border: 1px solid {{ section.settings.secondary_button_border | default: '#000000' }};">
+                {{ section.settings.button_text_secondary }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Image Column -->
+      <div class="cta-banner2-image">
+        {% if section.settings.image != blank %}
+          <div class="image-wrapper">
+            <img src="{{ section.settings.image | image_url: width: 600 }}" 
+                 alt="{{ section.settings.image_alt | default: section.settings.heading }}"
+                 class="image-cover w-full">
+          </div>
+        {% else %}
+          <!-- Placeholder when no image is set -->
+          <div class="image-placeholder" style="background-color: #e5e5e5; border-radius: 8px; height: 300px; display: flex; align-items: center; justify-content: center;">
+            <div class="placeholder-content text-center" style="color: #999;">
+              <svg width="64" height="64" fill="currentColor" viewBox="0 0 20 20" style="margin: 0 auto 16px;">
+                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+              </svg>
+              <p style="margin: 0; font-size: 14px; font-weight: 500;">Upload an image</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<style>
+.cta-banner2-section {
+  padding: 64px 0;
+  position: relative;
+}
+
+.cta-banner2-section .cta-banner2-content h2 {
+  margin-bottom: 24px;
+}
+
+.cta-banner2-section .cta-banner2-content p {
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.cta-banner2-section .cta-banner2-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cta-banner2-section .cta-banner2-buttons .btn {
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.cta-banner2-section .cta-banner2-buttons .btn:hover {
+  opacity: 0.8;
+}
+
+.cta-banner2-section .image-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .cta-banner2-section .cta-banner2-buttons {
+    flex-direction: column;
+  }
+  
+  .cta-banner2-section .cta-banner2-buttons .btn {
+    text-align: center;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "CTA Banner 2",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Medium length heading goes here",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.",
+      "label": "Intro Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_primary_button",
+      "default": true,
+      "label": "Show Primary Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "default": "Button",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "default": "#",
+      "label": "Primary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "default": true,
+      "label": "Show Secondary Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text_secondary",
+      "default": "Button",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link_secondary",
+      "default": "#",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "CTA Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image Alt Text",
+      "info": "Describe the image for accessibility"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#f8f8f8",
+      "label": "Background Color"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional background image (will override background color)"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "default": "#000000",
+      "label": "Background Overlay Color",
+      "info": "Color overlay on top of background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 40,
+      "info": "0% = transparent, 100% = solid color"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "default": "#000000",
+      "label": "Heading Color"
+    },
+    {
+      "type": "color_background",
+      "id": "text_color",
+      "default": "#666666",
+      "label": "Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_bg",
+      "default": "#000000",
+      "label": "Primary Button Background"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_text",
+      "default": "#ffffff",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_text",
+      "default": "#000000",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_border",
+      "default": "#000000",
+      "label": "Secondary Button Border"
+    }
+  ]
+}
+{% endschema %} 

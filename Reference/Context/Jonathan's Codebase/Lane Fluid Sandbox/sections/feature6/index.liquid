@@ -1,0 +1,340 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="feature6-section section-t-spacing section-{{ section.id }}-padding" 
+         style="background-color: {{ section.settings.background_color | default: '#ffffff' }};
+                {% if section.settings.background_image != blank %}
+                background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                {% endif %}
+                position: relative;">
+  
+  {% if section.settings.background_image != blank %}
+    <div class="feature6-overlay" 
+         style="background-color: {{ section.settings.overlay_color | default: '#000000' }}; 
+                opacity: {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }}; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                z-index: 1;"></div>
+  {% endif %}
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="feature6-content text-center max-w-4xl mx-auto">
+      
+      <!-- Feature Image -->
+      <div class="feature6-image-wrapper mb-8 flex justify-center">
+        {% if section.settings.feature_image != blank %}
+          <img src="{{ section.settings.feature_image | image_url: width: 400 }}" 
+               alt="{{ section.settings.image_alt | default: section.settings.heading }}"
+               class="feature6-image">
+        {% else %}
+          <div class="feature6-image-placeholder">
+            <svg width="80" height="80" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            <p class="text-sm" style="margin-top: 12px; color: #9ca3af;">Upload feature image</p>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Heading -->
+      {% if section.settings.heading != blank %}
+        <h2 class="feature6__heading {{ section.settings.heading_size }} mb-6" 
+            style="color: {{ section.settings.heading_color | default: '#1a1a1a' }};">
+          {{ section.settings.heading }}
+        </h2>
+      {% endif %}
+      
+      <!-- Description -->
+      {% if section.settings.description != blank %}
+        <p class="feature6-description text-lg" 
+           style="color: {{ section.settings.description_color | default: '#6b7280' }};">
+          {{ section.settings.description }}
+        </p>
+      {% endif %}
+      
+      <!-- Buttons -->
+      {% if section.settings.show_buttons %}
+        <div class="feature6-buttons flex flex-wrap gap-4 justify-center mt-8">
+          {% if section.settings.show_primary_button and section.settings.primary_button_text != blank %}
+            <a href="{{ section.settings.primary_button_link | default: '#' }}" 
+               class="btn btn-bg-primary btn-border-primary"
+               style="background-color: {{ section.settings.primary_button_bg | default: 'var(--clr-primary)' }};
+                      color: {{ section.settings.primary_button_text_color | default: '#ffffff' }};
+                      border-color: {{ section.settings.primary_button_bg | default: 'var(--clr-primary)' }};">
+              {{ section.settings.primary_button_text }}
+            </a>
+          {% endif %}
+          
+          {% if section.settings.show_secondary_button and section.settings.secondary_button_text != blank %}
+            <a href="{{ section.settings.secondary_button_link | default: '#' }}" 
+               class="btn btn-border-black"
+               style="color: {{ section.settings.secondary_button_text_color | default: '#000000' }};
+                      border-color: {{ section.settings.secondary_button_border_color | default: '#000000' }};">
+              {{ section.settings.secondary_button_text }}
+              {% if section.settings.secondary_button_arrow %}
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-left: 8px;">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+              {% endif %}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+.feature6-section .feature6-image {
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.feature6-section .feature6-image-placeholder {
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  background-color: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+@media (max-width: 767px) {
+  .feature6-section .feature6-content {
+    max-width: 100%;
+  }
+  
+  .feature6-section .feature6-image-wrapper {
+    margin-bottom: 32px;
+  }
+  
+  .feature6-section .feature6-image,
+  .feature6-section .feature6-image-placeholder {
+    height: 160px;
+  }
+  
+  .feature6-section .feature6__heading {
+    margin-bottom: 24px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Feature 6",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "feature_image",
+      "label": "Feature Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image Alt Text",
+      "info": "Describe the image for accessibility"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Long heading is what you see here in this feature section",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat.",
+      "label": "Description"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h1",
+          "label": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "label": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "label": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "label": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "label": "Heading 5"
+        }
+      ],
+      "default": "h1",
+      "label": "Heading Size"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_buttons",
+      "default": false,
+      "label": "Show Buttons",
+      "info": "Add optional buttons below the description"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "default": "Button",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "default": "#",
+      "label": "Primary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_primary_button",
+      "default": true,
+      "label": "Show Primary Button"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "default": "Button",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "default": "#",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "default": true,
+      "label": "Show Secondary Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "secondary_button_arrow",
+      "default": true,
+      "label": "Show Arrow on Secondary Button"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#ffffff",
+      "label": "Background Color"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional background image (will override background color)"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "default": "#000000",
+      "label": "Background Overlay Color",
+      "info": "Color overlay on top of background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 40,
+      "info": "0% = transparent, 100% = solid color"
+    },
+
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "default": "#1a1a1a",
+      "label": "Heading Color"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "default": "#6b7280",
+      "label": "Description Color"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_bg",
+      "default": "#000000",
+      "label": "Primary Button Background"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_text_color",
+      "default": "#ffffff",
+      "label": "Primary Button Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_text_color",
+      "default": "#000000",
+      "label": "Secondary Button Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_border_color",
+      "default": "#000000",
+      "label": "Secondary Button Border Color"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 100
+    }
+  ]
+}
+{% endschema %}

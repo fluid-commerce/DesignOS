@@ -1,0 +1,286 @@
+{%- style -%}
+  .feature-section-wrapper-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | default: 64 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 64 }}px;
+  }
+{%- endstyle -%}
+
+<!-- Feature section-->
+<div class="feature-wrapper feature-section-wrapper-{{ section.id }}">
+  {% for block in section.blocks %}
+    {% assign feature_class = 'feature-section-' | append: forloop.index %}
+    <section class="feature-section {{ feature_class }}" {{ block.fluid_attributes }}>
+      <div class="container">
+        <div class="grid gap-12 feature-grid">
+          <div class="feature-content flex justify-center h-full flex-col gap-6 flex-1">
+            <div class="{{ block.settings.headline_font_size | default: 'text-h1' }} {{ block.settings.headline_font_size_desktop | default: 'text-h1' }} {{ block.settings.headline_font_weight | default: 'font-bold' }}">
+              {{ block.settings.headline | default: "Medium length hero heading goes here" }}
+            </div>
+            <p class="{{ block.settings.description_font_size | default: 'text-base' }} {{ block.settings.description_font_size_desktop | default: 'xl-tab-text-lg' }} {{ block.settings.description_font_weight | default: 'font-normal' }}">
+              {{ block.settings.description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat." }}
+            </p>
+            <div class="flex justify-start align-center gap-4 mt-2">
+              {% if block.settings.show_button_1 %}
+                <a href="{{ block.settings.button_1_url | default: '#' }}" class="btn btn-bg-primary">{{ block.settings.button_1_text | default: "Button 1" }}</a>
+              {% endif %}
+              {% if block.settings.show_button_2 %}
+                <a href="{{ block.settings.button_2_url | default: '#' }}" class="btn btn-border-primary">{{ block.settings.button_2_text | default: "Button 2" }}</a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="feature-image-wrapper">
+            <div class="feature-image feature-image-right">
+              <img
+                src="{% if block.settings.feature_image %}{{ block.settings.feature_image | image_url }}{% else %}{{ 'feature-placeholder.png' | asset_url }}{% endif %}"
+                alt="{{ block.settings.image_alt | default: 'feature' }}"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endfor %}
+</div>
+
+{% schema %}
+{
+  "name": "Feature Section",
+  "tag": "section",
+  "class": "feature-section",
+  "settings": [
+   
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature_item",
+      "name": "Feature Item",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "headline",
+          "label": "Headline",
+          "default": "Medium length hero heading goes here"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat."
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_button_1",
+          "label": "Show Button 1",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "button_1_text",
+          "label": "Button 1 Text",
+          "default": "Button 1"
+        },
+        {
+          "type": "url",
+          "id": "button_1_url",
+          "label": "Button 1 URL",
+          "default": "#"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_button_2",
+          "label": "Show Button 2",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "button_2_text",
+          "label": "Button 2 Text",
+          "default": "Button 2"
+        },
+        {
+          "type": "url",
+          "id": "button_2_url",
+          "label": "Button 2 URL",
+          "default": "#"
+        },
+        {
+          "type": "header",
+          "content": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "feature_image",
+          "label": "Feature Image",
+          "info": "Recommended size: 600x400px or larger"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image Alt Text",
+          "default": "feature"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "select",
+          "id": "headline_font_size",
+          "label": "Headline Font Size (Mobile)",
+          "options": [
+            { "value": "text-h1", "label": "H1" },
+            { "value": "text-h2", "label": "H2" },
+            { "value": "text-h3", "label": "H3" },
+            { "value": "text-h4", "label": "H4" },
+            { "value": "text-h5", "label": "H5" },
+            { "value": "text-h6", "label": "H6" }
+          ],
+          "default": "text-h1"
+        },
+        {
+          "type": "select",
+          "id": "headline_font_size_desktop",
+          "label": "Headline Font Size (Desktop)",
+          "options": [
+            { "value": "text-h1", "label": "H1" },
+            { "value": "text-h2", "label": "H2" },
+            { "value": "text-h3", "label": "H3" },
+            { "value": "text-h4", "label": "H4" },
+            { "value": "text-h5", "label": "H5" },
+            { "value": "text-h6", "label": "H6" }
+          ],
+          "default": "text-h1"
+        },
+        {
+          "type": "select",
+          "id": "headline_font_weight",
+          "label": "Headline Font Weight",
+          "options": [
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi-Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-bold"
+        },
+        {
+          "type": "select",
+          "id": "description_font_size",
+          "label": "Description Font Size (Mobile)",
+          "options": [
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "Large" },
+            { "value": "text-xl", "label": "X-Large" },
+            { "value": "text-2xl", "label": "2X-Large" }
+          ],
+          "default": "text-base"
+        },
+        {
+          "type": "select",
+          "id": "description_font_size_desktop",
+          "label": "Description Font Size (Desktop)",
+          "options": [
+            { "value": "xl-tab-text-lg", "label": "Large" },
+            { "value": "xl-tab-text-xl", "label": "X-Large" },
+            { "value": "xl-tab-text-2xl", "label": "2X-Large" }
+          ],
+          "default": "xl-tab-text-lg"
+        },
+        {
+          "type": "select",
+          "id": "description_font_weight",
+          "label": "Description Font Weight",
+          "options": [
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi-Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-normal"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Feature Section",
+      "blocks": [
+        {
+          "type": "feature_item",
+          "settings": {
+            "headline": "Medium length hero heading goes here",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat.",
+            "show_button_1": true,
+            "button_1_text": "Button 1",
+            "button_1_url": "#",
+            "show_button_2": true,
+            "button_2_text": "Button 2",
+            "button_2_url": "#",
+            "feature_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_ZwL4w01GQTK1F8vPLXzA_q3QY3y72qz",
+            "image_alt": "feature",
+            "headline_font_size": "text-h1",
+            "headline_font_size_desktop": "text-h1",
+            "headline_font_weight": "font-bold",
+            "description_font_size": "text-base",
+            "description_font_size_desktop": "xl-tab-text-lg",
+            "description_font_weight": "font-normal"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "headline": "Medium length hero heading goes here",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat.",
+            "show_button_1": true,
+            "button_1_text": "Button 1",
+            "button_1_url": "#",
+            "show_button_2": true,
+            "button_2_text": "Button 2",
+            "button_2_url": "#",
+            "feature_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_ZwL4w01GQTK1F8vPLXzA_1yV6kPBbRv",
+            "image_alt": "feature",
+            "headline_font_size": "text-h1",
+            "headline_font_size_desktop": "text-h1",
+            "headline_font_weight": "font-bold",
+            "description_font_size": "text-base",
+            "description_font_size_desktop": "xl-tab-text-lg",
+            "description_font_weight": "font-normal"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,7 @@
+{
+  "name": "Bold CTA",
+  "description": "A bold call-to-action section with headline, subheadline, and action buttons",
+  "category": "CTA",
+  "tags": ["cta", "call-to-action", "button", "conversion"],
+  "version": "1.0.0"
+}

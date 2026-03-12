@@ -1,0 +1,74 @@
+💡 What Is the Fluid Sync Tool?
+Imagine your company’s data — customer info, product details, commissions — lives in a locked room. That room is your Commission Engine (like Exigo or ByDesign).
+Now, anytime you want to send that data somewhere else — to a new tool, a dashboard, an app, a report — you have to crack open that room with custom tools built by your IT team. These old school command line interfaces are messy, fragile, and only one or two people even understand how they work.
+That’s the current reality for most MLM companies.
+
+🔧 What Fluid Built
+We built a universal translator — a tool that plugs into your back office and opens the door the right way. It pulls the data out, cleans it up, and makes sure it gets where it needs to go — automatically, securely, and without needing a developer to babysit it.
+It also puts everything in one easy-to-understand dashboard, so you can see:
+What’s working
+
+
+What’s syncing
+
+
+What failed (and why)
+
+
+What changed
+
+
+
+🚫 What You No Longer Need
+You don’t need 10 different one-off tools.
+
+
+You don’t need to rely on that one IT guy who knows where the files are buried.
+
+
+You don’t need to worry about fragile systems breaking if someone leaves.
+
+
+
+✅ What You Get Instead
+One connection to your back office.
+
+
+One interface to manage it all.
+
+
+One team (us) keeping it all running smoothly.
+
+
+It’s like going from a tangle of wires behind your TV… to a clean remote that just works.
+
+Benefits of Sync Tool
+1. You’re no longer flying blind.
+Right now, your data syncs live in hidden server folders, shell scripts, and some guy’s GitHub. If that person quits, you’re screwed. With Fluid, everything’s in a clean interface anyone can understand — no command line required.
+
+2. You can finally see what’s working and what’s broken.
+Today, you’re blind. If a sync fails, you don’t know why or where. Fluid gives you real-time visibility into every sync job — what ran, what failed, what changed — and alerts you if something breaks.
+
+3. You only need one connection — not ten.
+Instead of building a new integration every time you want to connect something to Exigo or ByDesign, you just connect once to Fluid. We normalize your data from any and all sources so it can be accessed by our open REST APIs.
+
+4. It works with whatever weird setup you already have.
+Your data structure isn’t “too custom.” We’ve seen it all. Fluid maps your current setup (Like Exigo Pillars or InfoTrax) — no matter how messy — and makes it usable. No rebuild required.
+
+5. You can push and pull data in both directions — and control who wins.
+You decide which system is the source of truth for each field. You can run one-way or two-way syncs, set rules, and choose when and how things update.
+
+6. It’s fast — like, enterprise-grade fast.
+We can sync hundreds of thousands of records per day without breaking a sweat. Users, products, orders, whatever you need.
+
+7. It’s secure. Like, bank-level secure.
+All data is encrypted in transit and at rest. We’re SOC 2 Type II compliant. No random file transfers. No sketchy SFTP folders.
+
+8. You don’t need to start from scratch every time.
+When you connect your commission engine to Fluid, we auto-fill about 80% of your Fluid setup. That means faster launches (within hours instead of months) and less grunt work.
+
+9. You get a clean, always-updated backup in the cloud.
+If your back office ever goes down, you still have a normalized, portable copy of your data — ready to move or restore.
+
+10. You can finally kill all the old scripts and mystery servers.
+No more custom sync files. No more worrying about someone’s pet project breaking. Just one clear system you control.

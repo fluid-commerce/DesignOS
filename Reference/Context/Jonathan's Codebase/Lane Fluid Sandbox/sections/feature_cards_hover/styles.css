@@ -1,0 +1,353 @@
+/* Feature Cards with Hover Section Styles */
+
+/* Main section container */
+.feature-cards-hover {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Override global overlays - only apply when background image exists */
+.feature-cards-hover::after {
+  display: none !important;
+}
+
+/* Section background image overlay */
+.feature-cards-hover[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Container styles */
+.feature-cards-hover .inner-container {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Container background image overlay */
+.feature-cards-hover .inner-container[data-bg]:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* Ensure content stays above overlays */
+.feature-cards-hover .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Section Header Styling */
+.feature-cards-hover .section-header {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+.feature-cards-hover .tagline-wrapper {
+  margin-bottom: var(--space-lg);
+}
+
+.feature-cards-hover .heading-wrapper {
+  max-width: 4xl;
+  margin: 0 auto;
+}
+
+.feature-cards-hover .heading-wrapper h2 em {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Cards Grid Layout */
+.feature-cards-hover .cards-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+/* Dynamic grid columns based on block count */
+@media (min-width: 768px) {
+  .feature-cards-hover .cards-grid.md\:grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-cards-hover .cards-grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .feature-cards-hover .cards-grid.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .feature-cards-hover .cards-grid {
+    gap: var(--space-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .feature-cards-hover .cards-grid.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .feature-cards-hover .cards-grid {
+    gap: var(--space-xl);
+  }
+}
+
+/* Feature Card Item */
+.feature-cards-hover .feature-card-item {
+  position: relative;
+  width: 100%;
+  height: 350px; /* Fixed height so cards are visible */
+}
+
+@media (min-width: 768px) {
+  .feature-cards-hover .feature-card-item {
+    height: 400px; /* Larger on tablet+ */
+  }
+}
+
+@media (min-width: 1024px) {
+  .feature-cards-hover .feature-card-item {
+    height: 450px; /* Even larger on desktop */
+  }
+}
+
+/* Card Container */
+.feature-cards-hover .card-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden;
+}
+
+/* Card Hover Effects - Enhanced shadow */
+.feature-cards-hover .feature-card-item:hover .card-container {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Card Image Wrapper */
+.feature-cards-hover .card-image-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.feature-cards-hover .card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.feature-cards-hover .feature-card-item:hover .card-image {
+  transform: scale(1.08) translateZ(0);
+}
+
+/* Card Content Overlay - Grows upward on hover */
+.feature-cards-hover .card-content-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  min-height: 25%; /* Always visible at bottom */
+  max-height: 25%; /* Start at 25% height */
+  transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: var(--z-10);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* Hover Effect - Content overlay grows upward */
+.feature-cards-hover .feature-card-item:hover .card-content-overlay {
+  max-height: 100%; /* Grows to cover entire card */
+  justify-content: flex-start;
+}
+
+/* Card Title */
+.feature-cards-hover .card-content h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Card Description - Hover Animation */
+.feature-cards-hover .card-description {
+  margin-top: var(--space-md);
+  overflow: hidden;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-15px);
+}
+
+.feature-cards-hover .feature-card-item:hover .card-description {
+  max-height: 12rem; /* More generous height for description */
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.1s; /* Slight delay for smoother reveal */
+}
+
+.feature-cards-hover .card-description p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 767px) {
+  .feature-cards-hover .cards-grid {
+    gap: var(--space-md);
+  }
+  
+  /* Mobile: Always show expanded content overlay */
+  .feature-cards-hover .card-content-overlay {
+    max-height: 50%; /* Always expanded on mobile */
+    justify-content: flex-start;
+  }
+  
+  .feature-cards-hover .card-description {
+    max-height: none;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .feature-cards-hover .card-container,
+  .feature-cards-hover .card-image,
+  .feature-cards-hover .card-content-overlay,
+  .feature-cards-hover .card-description {
+    transition: none;
+  }
+  
+  .feature-cards-hover .feature-card-item:hover .card-image {
+    transform: none;
+  }
+  
+  .feature-cards-hover .card-content-overlay {
+    max-height: 50%;
+    justify-content: flex-start;
+  }
+  
+  .feature-cards-hover .card-description {
+    max-height: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .feature-cards-hover .card-container {
+    border: 2px solid;
+  }
+  
+  .feature-cards-hover .feature-card-item:hover .card-container {
+    border-width: 3px;
+  }
+}
+
+/* Focus States for Accessibility */
+.feature-cards-hover .feature-card-item:focus-within .card-container {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.feature-cards-hover .feature-card-item:focus-within .card-content-overlay {
+  max-height: 100%;
+  justify-content: flex-start;
+}
+
+.feature-cards-hover .feature-card-item:focus-within .card-description {
+  max-height: 10rem;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Performance Optimizations */
+.feature-cards-hover .feature-card-item {
+  will-change: transform;
+}
+
+.feature-cards-hover .card-container {
+  will-change: box-shadow;
+}
+
+.feature-cards-hover .card-image {
+  will-change: transform;
+}
+
+.feature-cards-hover .card-content-overlay {
+  will-change: max-height;
+}
+
+.feature-cards-hover .card-description {
+  will-change: max-height, opacity, transform;
+}
+
+/* Remove will-change after animations to save memory */
+.feature-cards-hover .feature-card-item:not(:hover) {
+  will-change: auto;
+}
+
+.feature-cards-hover .feature-card-item:not(:hover) .card-container,
+.feature-cards-hover .feature-card-item:not(:hover) .card-image,
+.feature-cards-hover .feature-card-item:not(:hover) .card-content-overlay,
+.feature-cards-hover .feature-card-item:not(:hover) .card-description {
+  will-change: auto;
+}
+
+/* Custom Aspect Ratios for Different Card Types */
+.feature-cards-hover .card-image-wrapper.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.feature-cards-hover .card-image-wrapper.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.feature-cards-hover .card-image-wrapper.aspect-\[4\/3\] {
+  aspect-ratio: 4 / 3;
+}
+
+.feature-cards-hover .card-image-wrapper.aspect-\[3\/2\] {
+  aspect-ratio: 3 / 2;
+}
+
+.feature-cards-hover .card-image-wrapper.aspect-\[2\/3\] {
+  aspect-ratio: 2 / 3;
+}
+
+/* Loading States */
+.feature-cards-hover .card-image {
+  background-color: var(--color-neutral-light);
+}
+
+.feature-cards-hover .card-image[src*="placeholder"] {
+  background-color: var(--color-neutral-light);
+  background-image: linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%);
+  background-size: 20px 20px;
+}

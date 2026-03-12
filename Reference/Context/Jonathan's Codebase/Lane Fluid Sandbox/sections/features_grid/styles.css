@@ -1,0 +1,124 @@
+/* Features Grid Section Styles */
+
+/* Section Container */
+.features-grid .inner-container {
+  /* Container background image support */
+}
+
+/* Features Grid Layout */
+.features-grid .features-grid-container {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: var(--space-lg) !important;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsive Grid Layout */
+@media (min-width: 640px) {
+  .features-grid .features-grid-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--space-lg) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-grid .features-grid-container {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: var(--space-xl) !important;
+  }
+}
+
+/* Individual Feature Items */
+.features-grid .feature-item {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Feature Icon Styling */
+.features-grid .feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.features-grid .feature-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* Feature Content */
+.features-grid .feature-title-wrapper h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.features-grid .feature-description-wrapper p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Header Content */
+.features-grid .features-header {
+  margin-bottom: var(--space-3xl);
+}
+
+.features-grid .heading-wrapper h2 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+.features-grid .description-wrapper p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Responsive Text Sizing Enhancements */
+@media (min-width: 640px) {
+  .features-grid .features-header {
+    margin-bottom: var(--space-4xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-grid .features-header {
+    margin-bottom: var(--space-5xl);
+  }
+}
+
+/* Icon Container */
+.features-grid .feature-icon-wrapper {
+  margin-bottom: var(--space-lg);
+}
+
+/* Content Spacing */
+.features-grid .feature-title-wrapper {
+  margin-bottom: var(--space-md);
+}
+
+/* Ensure equal height cards */
+.features-grid .feature-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.features-grid .feature-description-wrapper {
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-start;
+}
+
+.features-grid .feature-description-wrapper p {
+  flex-grow: 1;
+}
+

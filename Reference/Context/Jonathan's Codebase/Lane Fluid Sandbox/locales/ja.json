@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "お会計",
+    "order_summary": "注文概要",
+    "shipping": "配送料見積り",
+    "ships_in": "3-5営業日以内に発送",
+    "shopping_cart": "ショッピングカート",
+    "subtotal": "小計",
+    "tax": "税額見積り",
+    "total": "合計金額"
+  },
+  "components": {
+    "comment_form": {
+      "email": "メールアドレス",
+      "full_name": "氏名",
+      "leave_info": "{{ company }}があなたを識別できるよう、情報を入力してください。一度だけ行えば大丈夫です。",
+      "placeholder": "コメントを追加",
+      "post": "投稿",
+      "want_to_leave_comment": "コメントを残しますか？"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "同意します",
+    "all_products": "全商品",
+    "checkout": "お会計",
+    "first_payment": "初回お支払い日：{{ date }}",
+    "learn_more": "詳細を見る",
+    "monthly_subscription": "月額サブスクリプション",
+    "todays_purchase": "本日のお買い物"
+  },
+  "footer": {
+    "all_rights_reserved": "全著作権保有",
+    "cookies_settings": "Cookie設定",
+    "link_1": "リンク1",
+    "link_2": "リンク2",
+    "link_3": "リンク3",
+    "link_4": "リンク4",
+    "privacy_policy": "プライバシーポリシー",
+    "terms_of_service": "利用規約"
+  },
+  "library": {
+    "commented": "コメントしました",
+    "comments": "コメント",
+    "playlist": "プレイリスト"
+  },
+  "medium": {
+    "commented": "コメントしました",
+    "comments": "コメント",
+    "products": "商品"
+  },
+  "navbar": {
+    "button_1": "ボタン1",
+    "button_2": "ボタン2",
+    "countries": "国",
+    "country": "国",
+    "country_and_language": "国と言語",
+    "done": "完了",
+    "language": "言語",
+    "languages": "言語",
+    "link_1": "リンク1",
+    "link_2": "リンク2",
+    "link_3": "リンク3",
+    "link_4": "リンク4",
+    "save_and_close": "保存して閉じる",
+    "select_country": "国を選択",
+    "select_language": "言語を選択",
+    "shop": "ショップ",
+    "enrollments": "登録商品",
+    "view_my_site": "マイサイトを見る"
+  },
+  "product": {
+    "add_to_cart": "カートに追加",
+    "buy_now": "今すぐ購入",
+    "details": "詳細",
+    "free_shipping": "{{amount}}以上で送料無料",
+    "product_name": "商品名",
+    "quantity": "数量",
+    "related_products": "商品",
+    "related_products_intro": "お客様のご購入に最適な、厳選された関連商品をご紹介いたします。",
+    "return": "返品",
+    "return_content": "ご購入から30日以内の返品を承っております。商品は未使用で元の状態、元のパッケージに入っている必要があります。返送料はお客様負担となりますが、商品に不具合がある場合は除きます。返品をお受けし、検品後、購入代金の全額を返金いたします。",
+    "reviews": "{{reviews}}件のレビュー",
+    "shipping": "配送",
+    "shipping_content": "世界各地への配送を行っており、標準配送期間は3-7営業日です。追加料金で速達配送もご利用いただけます。すべての荷物は保険付きで追跡可能です。配送料は重量と配送先に基づいてお会計時に計算されます。",
+    "shop_all": "すべて見る",
+    "stars": "{{stars}}つ星",
+    "tagline": "キャッチフレーズ",
+    "testimonials": "お客様の声",
+    "testimonials_intro": "お客様が当社の商品をご利用いただいた体験談をご覧ください。",
+    "variant": "バリエーション",
+    "one_time_purchase":"単発購入",
+    "subscribe":"定期購入する"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "購読して{{save}}%節約",
+    "update_subscription": "いつでもサブスクリプションを更新できます"
+  },
+  "shared": {
+    "button": "ボタン",
+    "medium_heading": "中程度の長さの見出しがここに入ります",
+    "medium_intro": "品質と優雅さでお客様のあらゆるニーズにお応えする、当社の優れた商品ラインナップをご覧ください。",
+    "short_heading": "短い見出し",
+    "short_intro": "当社の商品の真髄を明確かつ印象的にお伝えする簡潔な紹介文です。",
+    "tagline": "キャッチフレーズ",
+    "view_all": "すべて見る"
+  },
+  "shop_page": {
+    "button": "ボタン",
+    "heading": "短い見出し",
+    "intro": "厳選された高品質商品のコレクションをご覧ください。",
+    "products": "商品",
+    "products_intro": "当社ラインナップの各商品は、その優れた品質により選ばれています。",
+    "tagline": "キャッチフレーズ"
+  }
+}

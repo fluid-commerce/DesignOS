@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @font-face {
+    font-family: 'flfontbold';
+    src: url('../fonts/flfontbold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'NeueHaas';
+    src: url('../fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100vh;
+    background: #111;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .canvas {
+    width: 1340px;
+    height: 630px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ── Circle brush: left:-122 top:-211, rotated 150° ── */
+  .circle-brush-wrap {
+    position: absolute;
+    left: -122px;
+    top: -211px;
+    width: 964px;
+    height: 950px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .circle-brush-inner {
+    flex-shrink: 0;
+    transform: rotate(150deg);
+    width: 720px;
+    height: 681px;
+    position: relative;
+    overflow: hidden;
+  }
+  .circle-brush-inner img {
+    position: absolute;
+    left: 0;
+    top: 5.59%;
+    width: 100%;
+    height: 88.82%;
+    max-width: none;
+  }
+
+  /* ── BG texture: right-bottom, rotated 90° ── */
+  .bg-texture-wrap {
+    position: absolute;
+    left: 493px;
+    top: 515px;
+    width: 1161px;
+    height: 733px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .bg-texture-inner {
+    flex-shrink: 0;
+    transform: rotate(90deg);
+    width: 733px;
+    height: 1161px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bg-texture-inner img {
+    position: absolute;
+    left: -8.52%;
+    top: -0.03%;
+    width: 109.28%;
+    height: 103.56%;
+    max-width: none;
+  }
+
+  /* ── Headline ── */
+  .headline {
+    position: absolute;
+    left: 115px;
+    top: 102px;
+    width: 729px;
+    font-family: 'NeueHaas', 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 70px;
+    line-height: 0.85;
+    color: #fff;
+    white-space: normal;
+  }
+
+  /* ── Partner logos row: fluid × Teqnavi ── */
+  .partner-row {
+    position: absolute;
+    left: 242.83px;
+    top: 379px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 31px;
+    height: 31px;
+  }
+  .fluid-logo-sm {
+    width: 87px;
+    height: 30.5px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .partner-x {
+    font-family: 'NeueHaas', 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: #fff;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .partner-name {
+    font-family: 'NeueHaas', 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 27px;
+    color: #fff;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  /* ── Person photo: right side ── */
+  .person-photo {
+    position: absolute;
+    left: 876px;
+    top: 102px;
+    width: 263px;
+    height: 327px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+  .person-photo img {
+    position: absolute;
+    left: -26.05%;
+    top: -23.21%;
+    width: 152.09%;
+    height: 183.18%;
+    max-width: none;
+  }
+
+  /* ── Person name ── */
+  .person-name {
+    position: absolute;
+    left: 1008px;
+    top: 422px;
+    transform: translateX(-50%);
+    font-family: 'NeueHaas', 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 44.914px;
+    line-height: 0.8;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  /* ── Person title ── */
+  .person-title {
+    position: absolute;
+    left: 1008px;
+    top: 447px;
+    transform: translateX(-50%);
+    font-family: 'flfontbold', sans-serif;
+    font-size: 34px;
+    color: #44b2ff;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  /* ── Bottom logos ── */
+  .flag-icon {
+    position: absolute;
+    left: 40px;
+    top: 565px;
+    width: 38px;
+    height: 30px;
+  }
+  .flag-icon img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .wecommerce-wrap {
+    position: absolute;
+    left: 50%;
+    top: 566px;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 33px;
+  }
+  .wecommerce-wrap img {
+    position: absolute;
+    left: 3.36px;
+    top: 0.88px;
+    width: 122.943px;
+    height: 31.309px;
+  }
+
+  .fluid-logo-bottom {
+    position: absolute;
+    left: calc(50% + 531.99px);
+    top: 572px;
+    transform: translateX(-50%);
+    width: 63.978px;
+    height: 22px;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- BG texture (right-bottom, rotated 90°) — behind everything -->
+  <div class="bg-texture-wrap">
+    <div class="bg-texture-inner">
+      <img src="assets/brush-white.png" alt=""/>
+    </div>
+  </div>
+
+  <!-- Circle brush (center-left, rotated 150°) -->
+  <div class="circle-brush-wrap">
+    <div class="circle-brush-inner">
+      <img src="assets/circle-sketch-blue.png" alt=""/>
+    </div>
+  </div>
+
+  <!-- Headline -->
+  <p class="headline">Teqnavi's Leadership Return Coincides with Major Strategic Partnership.</p>
+
+  <!-- Partner logos row -->
+  <div class="partner-row">
+    <img class="fluid-logo-sm" src="assets/fluid-logo.png" alt="fluid"/>
+    <span class="partner-x">X</span>
+    <span class="partner-name">Teqnavi</span>
+  </div>
+
+  <!-- Person photo -->
+  <div class="person-photo">
+    <img src="assets/person-holly.png" alt="Holly McKinney"/>
+  </div>
+
+  <!-- Person name -->
+  <p class="person-name">Holly McKinney</p>
+
+  <!-- Person title -->
+  <p class="person-title">Co-Founder Teqnavi</p>
+
+  <!-- Flag icon (bottom-left) -->
+  <div class="flag-icon">
+    <img src="assets/flag-icon.svg" alt=""/>
+  </div>
+
+  <!-- WeCommerce logo (bottom center) -->
+  <div class="wecommerce-wrap">
+    <img src="assets/wecommerce-logo.svg" alt="WeCommerce"/>
+  </div>
+
+  <!-- Fluid logo (bottom right) -->
+  <img class="fluid-logo-bottom" src="assets/fluid-logo.png" alt="fluid"/>
+
+</div><!-- /.canvas -->
+<script src="nav.js"></script>
+</body>
+</html>

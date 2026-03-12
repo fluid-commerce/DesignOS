@@ -1,0 +1,313 @@
+{% section 'content_hero', id: 'cto_hero' %}
+{% section 'background_divider', id: 'cto_divider_3' %}
+
+{% section 'features_grid', id: 'cto_features' %}
+
+{% section 'background_divider', id: 'cto_divider_4' %}
+
+{% section 'content_hero', id: 'cto_benefit_1' %}
+{% section 'content_hero', id: 'cto_benefit_2' %}
+{% section 'content_hero', id: 'cto_benefit_3' %}
+
+{% section 'faq_section', id: 'cto_faq' %}
+{% section 'cta_simple', id: 'cto_cta' %}
+
+{% schema %}
+{
+  "sections": {
+    "main_page": {
+      "type": "main_page",
+      "settings": {
+        "heading": "Stop being the single point of failure for systems held together by hope",
+        "description": "You're tired of 2AM calls when integrations break. Tired of vendor blame games. Tired of being responsible for infrastructure only one person understands. Time to get out of maintenance hell."
+      }
+    },
+    "cto_hero": {
+      "type": "content_hero",
+      "settings": {
+        "show_cta_button": false,
+        "cta_button_text": "See the Architecture",
+        "cta_button_new_tab": false,
+        "cta_button_style": "btn-filled",
+        "cta_button_color": "btn-black",
+        "cta_button_size": "btn-md",
+        "cta_button_border_radius": "rounded-lg",
+        "cta_margin_top": "mt-2xl",
+        "background_color": "bg-neutral",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "layout_reverse": false,
+        "tag_font_family": "font-handwritten",
+        "tag_text_color": "text-black",
+        "tag_font_size": "text-sm",
+        "tag_font_weight": "font-medium",
+        "tag_margin_bottom": "mb-lg",
+        "show_tag": true,
+        "tag_text": "Get Out of Integration Hell",
+        "content_heading": "Your Weekends Are Yours Again",
+        "content_description": "You've become the person everyone blames when systems don't talk to each other, when data gets lost between platforms, or when some integration breaks at 2 AM. You're tired of being the single point of failure for a Frankenstein system held together with API calls and prayers. We-Commerce replaces all of that fragile infrastructure with one platform that actually works—so you can focus on strategic technology instead of emergency maintenance.",
+        "image_alt": "",
+        "heading_font_family": "font-primary",
+        "heading_font_size": "text-3xl",
+        "heading_font_size_desktop": "lg:text-6xl",
+        "heading_font_weight": "font-bold",
+        "heading_line_height": "leading-tight",
+        "heading_text_color": "",
+        "heading_margin_bottom": "mb-2xl",
+        "description_font_family": "font-primary",
+        "description_font_size": "text-base",
+        "description_font_size_desktop": "lg:text-xl",
+        "description_line_height": "leading-relaxed",
+        "description_text_color": "",
+        "description_margin_bottom": "mb-xs",
+        "hero_image": "https://ik.imagekit.io/fluid/980191351/images/T94UCP/cto-hero_copy_Do-WldAES.webp"
+      }
+    },
+    "cto_features": {
+      "type": "features_grid",
+      "settings": {
+        "heading": "Finally, Infrastructure That Doesn't<br>Need Constant Babysitting",
+        "description": "Right now you're coordinating between five vendors just to keep things running. Payment processor here. Attribution system there. Custom integrations everywhere. When something breaks, nobody knows whose fault it is. We-Commerce eliminates that nightmare with one platform, one API, one team keeping everything working.",
+        "background_color": "bg-neutral-light",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "layout_reverse": false,
+        "section_background_color": "bg-black",
+        "section_padding": "py-2xl",
+        "heading_font_family": "font-primary",
+        "heading_font_size": "text-4xl",
+        "heading_font_size_desktop": "lg:text-5xl",
+        "heading_font_weight": "font-black",
+        "heading_color": "text-white",
+        "description_font_family": "font-body",
+        "description_font_size": "text-base",
+        "description_font_size_desktop": "lg:text-lg",
+        "description_font_weight": "font-normal",
+        "description_color": "text-white",
+        "feature_title_color": "text-white",
+        "feature_description_color": "text-white",
+        "icon_background_color": "bg-black",
+        "icon_color": "text-white",
+        "icon_border_radius": "rounded-lg"
+      },
+      "blocks": {
+        "cto_feature_1": {
+          "id": "cto_feature_1",
+          "type": "feature_item",
+          "name": "feature_item",
+          "settings": {
+            "show_icon": true,
+            "title": "One API, Not Twenty",
+            "description": "Stop maintaining custom integrations for every system. Connect your commission engine once through We-Commerce Connect™, and everything else plugs into our REST APIs. One connection. Infinite capabilities.",
+            "icon_image": "https://ik.imagekit.io/fluid/980191006/images/WUMP5F/one-api-icon2_jOJvL5qKX.png"
+          }
+        },
+        "cto_feature_2": {
+          "id": "cto_feature_2",
+          "type": "feature_item",
+          "name": "feature_item",
+          "settings": {
+            "show_icon": true,
+            "title": "Bank-Level Security Built In",
+            "description": "SOC 2 Type II compliant. PCI DSS certified. Encrypted data in transit and at rest. Automatic fraud detection. You get enterprise security without building or maintaining any of it yourself.",
+            "icon_image": "https://ik.imagekit.io/fluid/980191006/images/X7X65M/security-icon_OWI7jdWJL.png"
+          }
+        },
+        "cto_feature_3": {
+          "id": "cto_feature_3",
+          "type": "feature_item",
+          "name": "feature_item",
+          "settings": {
+            "show_icon": true,
+            "title": "Real-Time System Monitoring",
+            "description": "See exactly what's working and what's broken—no more hunting through server logs. Clean dashboards show sync status, error rates, and system health. Get alerts before users complain.",
+            "icon_image": "https://ik.imagekit.io/fluid/980191006/images/3UDLHG/Real-time-visibility-icon_mq86lmQJj.png"
+          }
+        },
+        "cto_feature_4": {
+          "id": "cto_feature_4",
+          "type": "feature_item",
+          "name": "feature_item",
+          "settings": {
+            "show_icon": true,
+            "title": "Managed Updates",
+            "description": "No more worrying about breaking changes when vendors update. We handle all platform updates, security patches, and compatibility testing. Your systems stay current without you managing rollouts.",
+            "icon_image": "https://ik.imagekit.io/fluid/980191006/images/X4DVYU/updates-icon_jjBRGbf-6.png"
+          }
+        }
+      }
+    },
+    "cto_benefit_1": {
+      "type": "content_hero",
+      "settings": {
+        "show_tag": true,
+        "tag_text": "Stop Playing Detective",
+        "content_heading": "End the 'Whose Fault Is It?' Vendor Blame Game",
+        "content_description": "Something breaks at 2 AM. Is it the payment processor? The attribution system? The custom integration someone built three years ago? You spend hours playing detective across five different vendors while everyone points fingers. We-Commerce eliminates that nightmare. One platform means one team responsible for everything. When something needs fixing, you call us—not coordinate a conference call between vendors who all blame each other. Your weekends become yours again.",
+        "image_alt": "",
+        "layout_reverse": false,
+        "heading": "Stop being the single point of failure",
+        "description": "Infrastructure that works without constant intervention.",
+        "background_color": "bg-neutral",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-xl",
+        "container_padding_y_desktop": "lg:py-3xl",
+        "container_padding_x_mobile": "px-lg",
+        "container_padding_x_desktop": "lg:px-xl",
+        "tag_font_family": "font-handwritten",
+        "tag_text_color": "text-black",
+        "tag_font_size": "text-sm",
+        "tag_font_weight": "font-medium",
+        "tag_margin_bottom": "mb-lg",
+        "hero_image": "https://ik.imagekit.io/fluid/980191006/images/AKJUXA/blame-cto_Dt3KPnnRx.webp"
+      }
+    },
+    "cto_benefit_2": {
+      "type": "content_hero",
+      "settings": {
+        "background_color": "bg-neutral",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "layout_reverse": true,
+        "show_tag": true,
+        "tag_text": "Strategic Technology",
+        "content_heading": "Focus on Innovation Instead of Maintenance",
+        "content_description": "Right now, 80% of your team's time goes to maintaining integrations, troubleshooting sync failures, and keeping fragile systems alive. That's not strategic technology—that's expensive maintenance. We-Commerce shifts that burden off your team. No more custom integration code. No more monitoring cron jobs. No more emergency patches when a vendor updates their API. Your team can finally work on projects that drive business value instead of just keeping the lights on.",
+        "image_alt": "",
+        "hero_image": "https://ik.imagekit.io/fluid/980191006/images/7F9FFS/innovation-cto_VLitDn1C-.webp"
+      }
+    },
+    "cto_benefit_3": {
+      "type": "content_hero",
+      "settings": {
+        "layout_reverse": false,
+        "background_color": "bg-neutral",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "show_tag": true,
+        "tag_text": "Scale With Confidence",
+        "content_heading": "Launch New Markets Without Technical Nightmares",
+        "content_description": "Every time business wants to expand internationally, you become the bottleneck. New payment methods to integrate. Compliance requirements to research. Currency handling to build. Fraud patterns to learn. It takes months just to get the technical foundation ready. We-Commerce eliminates that delay. Payments, compliance, currencies, and local methods are built in for every major market. When business decides to launch in Brazil or Germany or Japan, the technology is already ready. You say yes instead of 'give me six months.'",
+        "image_alt": "",
+        "hero_image": "https://ik.imagekit.io/fluid/980191006/images/BVA6DX/countries-cto_copy_0FjCfqGzY.webp"
+      }
+    },
+    "cto_faq": {
+      "type": "faq_section",
+      "settings": {
+        "background_color": "bg-neutral"
+      },
+      "blocks": {
+        "cto_faq_1": {
+          "id": "cto_faq_1",
+          "type": "faq_item",
+          "name": "faq_item",
+          "settings": {
+            "question": "What happens to all the custom code we've written?",
+            "answer": "The honest answer? Most of it becomes unnecessary. That custom integration with your commission engine? Replaced by We-Commerce Connect™. Those payment gateway wrappers? Unnecessary. The attribution tracking scripts? Built into FairShare™. You're not losing functionality—you're eliminating technical debt. The code that matters (your business logic in your commission engine) stays exactly where it is."
+          }
+        },
+        "cto_faq_2": {
+          "id": "cto_faq_2",
+          "type": "faq_item",
+          "name": "faq_item",
+          "settings": {
+            "question": "How do I trust a single vendor for everything?",
+            "answer": "You already trust single vendors for critical systems—your commission engine, your email provider, your payment processor. The difference is that We-Commerce is designed as a platform from the ground up, not duct-taped together. Plus, your commission engine data never leaves your commission engine—Connect™ just syncs it. You maintain control of your core business data while eliminating integration complexity."
+          }
+        },
+        "cto_faq_3": {
+          "id": "cto_faq_3",
+          "type": "faq_item",
+          "name": "faq_item",
+          "settings": {
+            "question": "What's your API rate limiting and what happens if we exceed it?",
+            "answer": "Our APIs are designed for enterprise scale with rate limits that handle hundreds of thousands of requests daily without throttling. For the 0.1% of companies that exceed standard limits, we provision dedicated infrastructure. We've never had a company outgrow our platform—we scale with you, not against you."
+          }
+        },
+        "cto_faq_4": {
+          "id": "cto_faq_4",
+          "type": "faq_item",
+          "name": "faq_item",
+          "settings": {
+            "question": "How do you handle data sovereignty and international compliance?",
+            "answer": "We maintain regional data centers and comply with GDPR, CCPA, and local data protection regulations automatically. When you launch in Europe, data stays in Europe. Brazil data stays in Brazil. You don't manage compliance per region—it's built into the platform architecture. One less legal nightmare for your team to navigate."
+          }
+        },
+        "cto_faq_5": {
+          "id": "cto_faq_5",
+          "type": "faq_item",
+          "name": "faq_item",
+          "settings": {
+            "question": "What's your disaster recovery and uptime SLA?",
+            "answer": "99.9% uptime SLA with automatic failover and redundant infrastructure across multiple availability zones. Full disaster recovery with RPO under 15 minutes and RTO under 1 hour. We maintain hot backups of all data and can restore to any point in the last 30 days. Your business stays running even when things go wrong."
+          }
+        }
+      }
+    },
+    "cto_cta": {
+      "type": "cta_simple",
+      "settings": {
+        "show_heading": true,
+        "heading": "Ready to get out of maintenance hell?",
+        "heading_font_family": "font-primary",
+        "heading_font_size": "text-4xl",
+        "heading_font_size_desktop": "lg:text-6xl",
+        "heading_font_weight": "font-black",
+        "heading_color": "text-black",
+        "background_color": "bg-neutral",
+        "section_border_radius": "rounded-none",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "show_accent_text": false,
+        "accent_text": "WE-VOLUTION?",
+        "accent_font_family": "font-handwritten",
+        "accent_font_size": "text-5xl",
+        "accent_font_size_desktop": "lg:text-7xl",
+        "accent_font_weight": "font-bold",
+        "accent_color": "text-black"
+      }
+    },
+    "cto_divider_1": {
+      "type": "background_divider",
+      "settings": {
+        "divider_image": "https://ik.imagekit.io/fluid/980191006/images/RNHTZC/bluetoptear_rHuYdqWN0.png",
+        "background_color": "bg-neutral"
+      }
+    },
+    "cto_divider_2": {
+      "type": "background_divider",
+      "settings": {
+        "divider_image": "https://ik.imagekit.io/fluid/980191006/images/PK9Z69/bluebottomtear_FKVl8hNWC.png",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "layout_reverse": false,
+        "background_color": "bg-neutral"
+      }
+    },
+    "cto_divider_3": {
+      "type": "background_divider",
+      "settings": {
+        "divider_image": "https://ik.imagekit.io/fluid/980191006/images/DLP7DB/teargray_N88XHjFPV.png",
+        "background_color": "bg-neutral"
+      }
+    },
+    "cto_divider_4": {
+      "type": "background_divider",
+      "settings": {
+        "background_color": "bg-neutral",
+        "divider_image": "https://ik.imagekit.io/fluid/980191006/images/3R9W7Q/tearbottomblack_lc8rJQafV.png"
+      }
+    }
+  }
+}
+{% endschema %}

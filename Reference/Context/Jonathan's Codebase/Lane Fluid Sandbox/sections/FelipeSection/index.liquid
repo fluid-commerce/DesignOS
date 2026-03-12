@@ -1,0 +1,389 @@
+<!-- Hero Header Section - Fluid Theme Component -->
+<header class="hero-header hero-header--{{ section.settings.layout_style }}"
+        style="background-color: {{ section.settings.background_color }};">
+  
+  <div class="hero-header__container">
+    <div class="hero-header__padding">
+      <div class="hero-header__content">
+        
+        <!-- Content Side -->
+        <div class="hero-header__text">
+          
+          <!-- Tag/Eyebrow Text -->
+          {% if section.settings.show_tagline and section.settings.tagline != blank %}
+            <div class="hero-header__tagline-wrapper">
+              <div class="hero-header__tagline hero-header__tagline--{{ section.settings.tagline_style }}">
+                {{ section.settings.tagline }}
+              </div>
+            </div>
+          {% endif %}
+          
+          <!-- Main Heading -->
+          {% if section.settings.heading != blank %}
+            <h1 class="hero-header__heading hero-header__heading--{{ section.settings.heading_size }}"
+                style="color: {{ section.settings.heading_color }};">
+              {{ section.settings.heading }}
+            </h1>
+          {% endif %}
+          
+          <!-- Description -->
+          {% if section.settings.description != blank %}
+            <p class="hero-header__description hero-header__description--{{ section.settings.description_size }}"
+               style="color: {{ section.settings.text_color }};">
+              {{ section.settings.description }}
+            </p>
+          {% endif %}
+          
+          <!-- Call-to-Action Buttons -->
+          {% if section.settings.show_primary_button and section.settings.primary_button_text != blank %}
+            <div class="hero-header__buttons">
+              <div class="hero-header__button-group">
+                
+                <!-- Primary Button -->
+                <a href="{{ section.settings.primary_button_url | default: '#' }}" 
+                   class="hero-header__button hero-header__button--primary"
+                   style="background-color: {{ section.settings.primary_button_color }}; 
+                          color: {{ section.settings.primary_button_text_color }};"
+                   {% if section.settings.primary_button_url == blank %}aria-disabled="true"{% endif %}
+                   {% if section.settings.primary_button_target %}target="_blank" rel="noopener"{% endif %}>
+                  {{ section.settings.primary_button_text }}
+                </a>
+                
+                <!-- Secondary Button -->
+                {% if section.settings.show_secondary_button and section.settings.secondary_button_text != blank %}
+                  <a href="{{ section.settings.secondary_button_url | default: '#' }}" 
+                     class="hero-header__button hero-header__button--secondary"
+                     {% if section.settings.secondary_button_url == blank %}aria-disabled="true"{% endif %}
+                     {% if section.settings.secondary_button_target %}target="_blank" rel="noopener"{% endif %}>
+                    {{ section.settings.secondary_button_text }}
+                  </a>
+                {% endif %}
+                
+              </div>
+            </div>
+          {% endif %}
+          
+        </div>
+        
+        <!-- Image/Media Side -->
+        {% if section.settings.show_image %}
+          <div class="hero-header__media">
+            <div class="hero-header__image-wrapper"
+                 style="border-radius: {{ section.settings.image_border_radius }}px;">
+              
+              {% if section.settings.hero_image != blank %}
+                {% assign image_alt = section.settings.hero_image.alt | default: section.settings.heading %}
+                <img src="{{ section.settings.hero_image | img_url: '800x600' }}" 
+                     srcset="{{ section.settings.hero_image | img_url: '400x300' }} 400w,
+                             {{ section.settings.hero_image | img_url: '800x600' }} 800w,
+                             {{ section.settings.hero_image | img_url: '1200x900' }} 1200w"
+                     sizes="(max-width: 768px) 400px, (max-width: 1200px) 800px, 1200px"
+                     alt="{{ image_alt }}" 
+                     class="hero-header__image"
+                     loading="eager" />
+              {% else %}
+                <!-- Placeholder when no image is set -->
+                <div class="hero-header__image-placeholder">
+                  <svg class="hero-header__placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21,15 16,10 5,21"/>
+                  </svg>
+                  <p>{{ 'sections.hero_header.placeholder_text' | t }}</p>
+                </div>
+              {% endif %}
+              
+            </div>
+          </div>
+        {% endif %}
+        
+      </div>
+    </div>
+  </div>
+  
+  <!-- Background Elements -->
+  {% if section.settings.show_background_elements %}
+    <div class="hero-header__background">
+      <!-- Decorative elements can be added here -->
+    </div>
+  {% endif %}
+  
+</header>
+
+<!-- Section-specific CSS Variables -->
+<style>
+  .hero-header {
+    --hero-padding-top: {{ section.settings.padding_top }}px;
+    --hero-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --hero-column-gap: {{ section.settings.column_gap }}px;
+    --hero-row-gap: {{ section.settings.row_gap }}px;
+    --hero-container-width: {{ section.settings.container_width }}px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Hero Header",
+  "class": "section-hero-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout_style",
+      "label": "Layout Style",
+      "options": [
+        { "value": "split", "label": "Split (Text + Image)" },
+        { "value": "centered", "label": "Centered Text Only" },
+        { "value": "fullwidth", "label": "Full Width Background" }
+      ],
+      "default": "split"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "label": "Container Max Width",
+      "min": 960,
+      "max": 1600,
+      "step": 40,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Space Between Content and Image",
+      "min": 20,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "row_gap",
+      "label": "Vertical Spacing (Mobile)",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f5f3ef"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Tagline"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline",
+      "label": "Show Tagline",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline Text",
+      "default": "Finally, A Builder That Actually Works"
+    },
+    {
+      "type": "select",
+      "id": "tagline_style",
+      "label": "Tagline Style",
+      "options": [
+        { "value": "handwritten", "label": "Handwritten" },
+        { "value": "badge", "label": "Badge" },
+        { "value": "simple", "label": "Simple Text" }
+      ],
+      "default": "handwritten"
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Main Heading",
+      "default": "Stop Waiting on IT to Make Simple Changes"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading Size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "xlarge", "label": "Extra Large" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Your team knows Microsoft Word. That means they can build high-converting pages, launch campaigns, and update content in minutes—not months. No developers required. No tickets. No waiting."
+    },
+    {
+      "type": "select",
+      "id": "description_size",
+      "label": "Description Size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "Primary Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_primary_button",
+      "label": "Show Primary Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "label": "Primary Button Text",
+      "default": "Start Building"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_url",
+      "label": "Primary Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "primary_button_target",
+      "label": "Open in new tab",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "primary_button_color",
+      "label": "Primary Button Background",
+      "default": "#42b1ff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text_color",
+      "label": "Primary Button Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Secondary Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "label": "Show Secondary Button",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "label": "Secondary Button Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_url",
+      "label": "Secondary Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "secondary_button_target",
+      "label": "Open in new tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show Image",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_background_elements",
+      "label": "Show Background Elements",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

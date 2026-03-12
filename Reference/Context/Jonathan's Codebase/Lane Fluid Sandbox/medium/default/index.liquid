@@ -1,0 +1,147 @@
+
+<main class="flex-1 media">
+  <aside class="media-sidebar flex flex-col justify-between gap-6">
+    <div
+      class="media-sidebar-content flex flex-col gap-6 px-6 flex-shrink-0"
+    >
+      <h3>{{ title }}</h3>
+      <div class="media-desc flex flex-col gap-3 text-sm">
+        {{ description }}
+      </div>
+    </div>
+    <div class="register-btn flex-shrink-0 px-6">
+      {% if display_shop %}
+        <a href="{{ catalog_path }}" class="btn btn-bg-primary">{{ 'medium.products' | t }}</a>
+      {% endif %}
+      {% if lead_captureable %}
+              <form autocomplete="off" class="cta-form" action="{{ learn_more_path }}" accept-charset="UTF-8" method="get">
+                  <div class="field cta-field">
+                  <input class="contactDetails hiddenId" name="contact[id]" type="hidden">
+                  <input class="contactDetails hiddenFullName" name="contact[name]" type="hidden" value="">
+                  <input class="contactDetails hiddenEmail" name="contact[email]" type="hidden">
+                  <input class="contactDetails hiddenPhone" name="contact[phone]" type="hidden">
+                  </div>
+              </form>
+              <a href="{{cta_url}}" id="ctaButton" class="btn btn-bg-primary">{{ cta_button_text }}</a>
+      {% elsif visitable_on_click %}
+        <a href="{{learn_more_path}}" class="btn btn-bg-primary">{{ cta_button_text }}</a>
+      {% endif %}
+    </div>
+    <div
+      class="social-icons flex align-center gap-4 justify-start flex-wrap flex-shrink-0 px-6"
+    >
+    {% unless social_media.facebook == blank%}
+        <a href="#" class="facebook">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            viewBox="0 0 25 25"
+            fill="none"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M22.9375 12.0273C22.9375 6.50434 18.4605 2.02734 12.9375 2.02734C7.4145 2.02734 2.9375 6.50434 2.9375 12.0273C2.9375 17.0183 6.5945 21.1553 11.3755 21.9053V14.9183H8.8355V12.0273H11.3755V9.82434C11.3755 7.31834 12.8675 5.93434 15.1525 5.93434C16.2465 5.93434 17.3905 6.12934 17.3905 6.12934V8.58934H16.1305C14.8875 8.58934 14.5005 9.36034 14.5005 10.1513V12.0273H17.2735L16.8305 14.9173H14.5005V21.9053C19.2805 21.1553 22.9375 17.0183 22.9375 12.0273Z"
+              fill="#999FB5"
+            />
+          </svg>
+        </a>
+      {% endunless %}
+      {% unless social_media.instagram == blank%}
+        <a href="#" class="insta">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            viewBox="0 0 25 25"
+            fill="none"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M13.2525 2.02734C15.6825 2.02734 16.0365 2.04034 17.0605 2.08734C18.1245 2.13634 18.8515 2.30534 19.4875 2.55234C20.155 2.80322 20.7597 3.1967 21.2595 3.70534C21.7681 4.20512 22.1616 4.80985 22.4125 5.47734C22.6595 6.11334 22.8285 6.84034 22.8775 7.90434C22.9255 8.97134 22.9375 9.31134 22.9375 12.0273V12.1073C22.9375 14.7503 22.9255 15.0943 22.8775 16.1503C22.8285 17.2143 22.6595 17.9413 22.4125 18.5773C22.1616 19.2448 21.7681 19.8496 21.2595 20.3493C20.7597 20.858 20.155 21.2515 19.4875 21.5023C18.8515 21.7493 18.1245 21.9183 17.0605 21.9673C15.9935 22.0153 15.6535 22.0273 12.9375 22.0273H12.8575C10.2145 22.0273 9.8705 22.0153 8.8145 21.9673C7.7505 21.9183 7.0235 21.7493 6.3875 21.5023C5.72 21.2515 5.11527 20.858 4.6155 20.3493C4.10686 19.8496 3.71337 19.2448 3.4625 18.5773C3.2155 17.9413 3.0465 17.2143 2.9975 16.1503C2.9505 15.1263 2.9375 14.7713 2.9375 12.3423V11.7123C2.9375 9.28234 2.9505 8.92834 2.9975 7.90434C3.0465 6.84034 3.2155 6.11334 3.4625 5.47734C3.71337 4.80985 4.10686 4.20512 4.6155 3.70534C5.11527 3.1967 5.72 2.80322 6.3875 2.55234C7.0235 2.30534 7.7505 2.13634 8.8145 2.08734C9.8385 2.04034 10.1935 2.02734 12.6225 2.02734H13.2525ZM13.1715 3.82934H12.7035C10.2475 3.82934 9.9195 3.84034 8.8965 3.88734C7.9215 3.93234 7.3925 4.09434 7.0395 4.23134C6.5725 4.41334 6.2395 4.62934 5.8895 4.97934C5.5395 5.32934 5.3235 5.66234 5.1415 6.12934C5.0045 6.48234 4.8415 7.01134 4.7975 7.98634C4.7505 9.00934 4.7395 9.33734 4.7395 11.7933V12.2613C4.7395 14.7173 4.7505 15.0453 4.7975 16.0683C4.8425 17.0433 5.0045 17.5723 5.1415 17.9253C5.3235 18.3913 5.5405 18.7253 5.8895 19.0753C6.2395 19.4253 6.5725 19.6413 7.0395 19.8233C7.3925 19.9603 7.9215 20.1233 8.8965 20.1673C9.9505 20.2153 10.2665 20.2253 12.9375 20.2253H13.0175C15.6145 20.2253 15.9345 20.2153 16.9775 20.1673C17.9535 20.1223 18.4825 19.9603 18.8355 19.8233C19.3015 19.6413 19.6355 19.4253 19.9855 19.0753C20.3355 18.7253 20.5515 18.3923 20.7335 17.9253C20.8705 17.5723 21.0335 17.0433 21.0775 16.0683C21.1255 15.0133 21.1355 14.6983 21.1355 12.0273V11.9473C21.1355 9.35034 21.1255 9.03034 21.0775 7.98734C21.0325 7.01134 20.8705 6.48234 20.7335 6.12934C20.5733 5.69491 20.3177 5.30194 19.9855 4.97934C19.6629 4.6472 19.2699 4.3916 18.8355 4.23134C18.4825 4.09434 17.9535 3.93134 16.9785 3.88734C15.9555 3.84034 15.6275 3.82934 13.1715 3.82934ZM12.9375 6.89234C13.6118 6.89234 14.2796 7.02516 14.9026 7.28322C15.5256 7.54128 16.0917 7.91952 16.5685 8.39635C17.0453 8.87318 17.4236 9.43926 17.6816 10.0623C17.9397 10.6853 18.0725 11.353 18.0725 12.0273C18.0725 12.7017 17.9397 13.3694 17.6816 13.9924C17.4236 14.6154 17.0453 15.1815 16.5685 15.6583C16.0917 16.1352 15.5256 16.5134 14.9026 16.7715C14.2796 17.0295 13.6118 17.1623 12.9375 17.1623C11.5756 17.1623 10.2695 16.6213 9.30651 15.6583C8.34351 14.6953 7.8025 13.3892 7.8025 12.0273C7.8025 10.6655 8.34351 9.35935 9.30651 8.39635C10.2695 7.43335 11.5756 6.89234 12.9375 6.89234ZM12.9375 8.69434C12.0535 8.69434 11.2058 9.0455 10.5807 9.67056C9.95565 10.2956 9.6045 11.1434 9.6045 12.0273C9.6045 12.9113 9.95565 13.7591 10.5807 14.3841C11.2058 15.0092 12.0535 15.3603 12.9375 15.3603C13.8215 15.3603 14.6692 15.0092 15.2943 14.3841C15.9193 13.7591 16.2705 12.9113 16.2705 12.0273C16.2705 11.1434 15.9193 10.2956 15.2943 9.67056C14.6692 9.0455 13.8215 8.69434 12.9375 8.69434ZM18.2755 5.48934C18.5938 5.48934 18.899 5.61577 19.124 5.84082C19.3491 6.06586 19.4755 6.37108 19.4755 6.68934C19.4755 7.0076 19.3491 7.31283 19.124 7.53787C18.899 7.76292 18.5938 7.88934 18.2755 7.88934C17.9572 7.88934 17.652 7.76292 17.427 7.53787C17.2019 7.31283 17.0755 7.0076 17.0755 6.68934C17.0755 6.37108 17.2019 6.06586 17.427 5.84082C17.652 5.61577 17.9572 5.48934 18.2755 5.48934Z"
+              fill="#999FB5"
+            />
+          </svg>
+        </a>
+      {% endunless %}
+      {% unless social_media.twitter == blank%}
+        <a href="#" class="x">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            viewBox="0 0 25 25"
+            fill="none"
+          >
+            <path
+              d="M14.6227 10.6491L21.1795 3.02734H19.6258L13.9325 9.64522L9.38529 3.02734H4.14062L11.0169 13.0347L4.14062 21.0273H5.69446L11.7067 14.0386L16.5089 21.0273H21.7535L14.6227 10.6491ZM12.4945 13.1229L11.7978 12.1264L6.25433 4.19705H8.64095L13.1146 10.5962L13.8113 11.5928L19.6265 19.9108H17.2399L12.4945 13.1229Z"
+              fill="#999FB5"
+            />
+          </svg>
+        </a>
+      {% endunless %}
+    </div>
+    <div class="media-comments flex flex-col flex-1">
+      <div class="flex justify-center is-shrink comments-title px-6 ">
+        <h6 class="text-sm ">{{ 'medium.comments' | t }}</h6>
+      </div>
+      <div class="flex-1 px-6 pt-4">
+        <ul class="flex flex-col text-sm comment-list">
+          {% for comment in comments %}
+            <li class="flex justify-start align-start gap-3">
+              <span class="commentor">{{ comment.initials }}</span>
+              <div class="commentetor-desc">
+                <h6 class="text-sm">{{ comment.name }}</h6>
+                <div class="commented-time">
+                  <span>{{ 'medium.commented' | t }}</span>
+                  <time datetime="">{{ comment.created_at }}</time>
+                </div>
+                <p class="mt-2">
+                  {{ comment.body }}
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+        <template id="comment-template">
+          <li class="flex justify-start align-start gap-3">
+              <span class="commentor initials"></span>
+              <div class="commentetor-desc">
+                <h6 class="text-sm name"></h6>
+                <div class="commented-time">
+                  <span>{{ 'medium.commented' | t }}</span>
+                  <time datetime="" class="created_at"></time>
+                </div>
+                <p class="mt-2 body">
+                </p>
+              </div>
+            </li>
+          </template>
+      </div>
+    </div>
+    <div class="media-sidebar-footer px-6">
+        {% render 'comment_form', comment_submit_url: comment_submit_url, relateable_id: id, relateable_type: 'Medium', contact: contact %}
+    </div>
+  </aside>
+  
+  <div class="media-content" data-bg="" >
+    <fluid-media-widget media-id={{id}} responsive="true" embed-type="default" data-fluid-widget="true"></fluid-media-widget>
+  </div>
+  
+</main>
+    
+
+<!-- Js library Import -->
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+  crossorigin="anonymous"
+></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+
+<script src="{{ 'media.js' | asset_url }}"></script>
+<script src="{{ 'pdf.js' | asset_url }}"></script>
+
+    

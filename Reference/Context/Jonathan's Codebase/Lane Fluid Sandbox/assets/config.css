@@ -1,0 +1,26 @@
+:root {
+  /* font family */
+  --ff-body: "Roboto", sans-serif;
+  --fw-body: 400;
+  /* font size */
+  --fs-body: 1rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.25rem;
+  --fs-h6: 1.125rem;
+  --fs-h5: 1.25rem;
+  --fs-h4: 1.75rem;
+  --fs-h3: 2.25rem;
+  --fs-h2: 2.75rem;
+  --fs-h1: 3.25rem;
+  --fs-3xl: 2.5rem;
+  /* Theme template color setting */
+  --clr-body: #000000;
+  --clr-primary: #000000;
+  --clr-black: #000000;
+  --clr-black-400: #444;
+  --clr-gray: #f2f2f2;
+  --clr-white: #ffffff;
+  --clr-white-400: rgba(217, 217, 217, 0.4);
+  --shadow-drodpown: 0px 153px 61px rgba(0, 0, 0, 0.01), 0px 86px 52px rgba(0, 0, 0, 0.05), 0px 38px 38px rgba(0, 0, 0, 0.09), 0px 10px 21px rgba(0, 0, 0, 0.1);
+}

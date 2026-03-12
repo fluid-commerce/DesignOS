@@ -1,0 +1,18 @@
+<div class="product-list">
+  {% for item in section.settings.products %}
+    <h1>{{item.title}}</h1>
+  {% endfor %}
+</div>
+{% schema %}
+  {
+    "name": "Product List",
+    "settings": [
+      {
+        "type": "product_list",
+        "id": "products",
+        "default": "[]",
+        "label": "Products"
+      }
+    ]
+  }
+{% endschema %}

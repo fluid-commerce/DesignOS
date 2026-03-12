@@ -1,0 +1,217 @@
+<!-- Intro section -->
+{%- style -%}
+  .intro-section-{{ section.id }} {
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px;
+    background-color: {{ section.settings.background_color | default: '#ffffff' }};
+  }
+
+  @media (min-width: 1280px) {
+    .intro-section-{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 80 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 80 }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="intro-section intro-section-{{ section.id }}">
+    <div class="container">
+        <div class="flex flex-col justify-center align-center gap-8">
+            
+            <div class="{{ section.settings.heading_font_size | default: 'text-h1' }} {{ section.settings.heading_font_size_desktop | default: 'text-h1' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} leading-1" style="color: {{ section.settings.heading_color | default: '#000000' }};">{{ section.settings.heading | default: "Project name here" }}</div>
+            <div class="flex flex-col justify-center align-center gap-8">
+                {% if section.settings.paragraph_1 != blank %}
+                <p class="{{ section.settings.paragraph_font_size | default: 'text-base' }} {{ section.settings.paragraph_font_size_desktop | default: 'xl-tab-text-xl' }} {{ section.settings.paragraph_font_weight | default: 'font-normal' }}" style="color: {{ section.settings.paragraph_color | default: '#000000' }};">
+                    {{ section.settings.paragraph_1 }}
+                </p>
+                {% endif %}
+                {% if section.settings.paragraph_2 != blank %}
+                <p class="{{ section.settings.paragraph_font_size | default: 'text-base' }} {{ section.settings.paragraph_font_size_desktop | default: 'xl-tab-text-xl' }} {{ section.settings.paragraph_font_weight | default: 'font-normal' }}" style="color: {{ section.settings.paragraph_color | default: '#000000' }};">
+                    {{ section.settings.paragraph_2 }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "Intro Section",
+  "tag": "section",
+  "class": "intro-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Project name here"
+    },
+    {
+      "type": "textarea",
+      "id": "paragraph_1",
+      "label": "First Paragraph",
+      "default": "Lorem ipsum dolor sit amet. Est optio omnis ex quas voluptas ea corporis fugit id nobis quia. Qui ducimus nesciunt et earum enim in accusamus officia? Ut dolores nesciunt qui distinctio qua qui officiis voluptatem."
+    },
+    {
+      "type": "textarea",
+      "id": "paragraph_2",
+      "label": "Second Paragraph",
+      "default": "Lorem ipsum dolor sit amet. Est optio omnis ex quas voluptas ea corporis fugit id nobis quia. Qui ducimus nesciunt et earum enim in accusamus officia? Ut dolores nesciunt qui distinctio qua qui officiis voluptatem."
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+  
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" },
+        { "value": "xl-tab-text-3xl", "label": "3X Large" },
+        { "value": "xl-tab-text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "paragraph_font_size",
+      "label": "Paragraph Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "paragraph_font_size_desktop",
+      "label": "Paragraph Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-xl"
+    },
+    {
+      "type": "select",
+      "id": "paragraph_font_weight",
+      "label": "Paragraph Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "paragraph_color",
+      "label": "Paragraph Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Layout & Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+   
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 80
+    }
+  ]
+}
+{% endschema %}

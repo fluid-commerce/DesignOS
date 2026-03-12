@@ -1,0 +1,508 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="feature8-section section-t-spacing section-{{ section.id }}-padding" 
+         style="background-color: {{ section.settings.background_color | default: '#ffffff' }};
+                {% if section.settings.background_image != blank %}
+                background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                {% endif %}
+                position: relative;">
+  
+  {% if section.settings.background_image != blank %}
+    <div class="feature8-overlay" 
+         style="background-color: {{ section.settings.overlay_color | default: '#000000' }}; 
+                opacity: {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }}; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                z-index: 1;"></div>
+  {% endif %}
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="feature8-wrapper grid grid-cols-1 sm-desktop-grid-cols-2 gap-12 align-center">
+      
+      <!-- Heading Column -->
+      <div class="feature8-heading-column">
+        {% if section.settings.tagline != blank %}
+          <p class="feature8-tagline text-sm mb-4" 
+             style="color: {{ section.settings.tagline_color | default: '#6b7280' }};">
+            {{ section.settings.tagline }}
+          </p>
+        {% endif %}
+        
+        {% if section.settings.heading != blank %}
+          <h2 class="feature8__heading {{ section.settings.heading_size }}" 
+              style="color: {{ section.settings.heading_color | default: '#1a1a1a' }};">
+            {% if section.settings.heading_part_1 != blank and section.settings.heading_part_2 != blank %}
+              {{ section.settings.heading_part_1 }} <em style="color: {{ section.settings.heading_italic_color | default: section.settings.heading_color | default: '#1a1a1a' }};">{{ section.settings.heading_part_2 }}</em>
+            {% else %}
+              {{ section.settings.heading }}
+            {% endif %}
+          </h2>
+        {% endif %}
+        
+        {% if section.settings.description != blank %}
+          <p class="feature8-description text-lg mt-6" 
+             style="color: {{ section.settings.description_color | default: '#6b7280' }};">
+            {{ section.settings.description }}
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- Features Column -->
+      <div class="feature8-features-column">
+        <div class="feature8-features-grid grid grid-cols-2 md-tab-grid-cols-3 sm-desktop-grid-cols-6 gap-6">
+          
+          <!-- Feature 1 -->
+          <div class="feature8-feature text-center">
+            <div class="feature8-image mb-3 flex justify-center">
+              {% if section.settings.feature_1_image != blank %}
+                <img src="{{ section.settings.feature_1_image | image_url: width: 72 }}" 
+                     alt="{{ section.settings.feature_1_image_alt | default: section.settings.feature_1_text }}"
+                     class="feature8-feature-image">
+              {% else %}
+                <div class="feature8-image-placeholder">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            {% if section.settings.feature_1_text != blank %}
+              <p class="feature8-feature-text text-sm" 
+                 style="color: {{ section.settings.feature_text_color | default: '#1a1a1a' }};">
+                {{ section.settings.feature_1_text }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="feature8-feature text-center">
+            <div class="feature8-image mb-3 flex justify-center">
+              {% if section.settings.feature_2_image != blank %}
+                <img src="{{ section.settings.feature_2_image | image_url: width: 72 }}" 
+                     alt="{{ section.settings.feature_2_image_alt | default: section.settings.feature_2_text }}"
+                     class="feature8-feature-image">
+              {% else %}
+                <div class="feature8-image-placeholder">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            {% if section.settings.feature_2_text != blank %}
+              <p class="feature8-feature-text text-sm" 
+                 style="color: {{ section.settings.feature_text_color | default: '#1a1a1a' }};">
+                {{ section.settings.feature_2_text }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="feature8-feature text-center">
+            <div class="feature8-image mb-3 flex justify-center">
+              {% if section.settings.feature_3_image != blank %}
+                <img src="{{ section.settings.feature_3_image | image_url: width: 72 }}" 
+                     alt="{{ section.settings.feature_3_image_alt | default: section.settings.feature_3_text }}"
+                     class="feature8-feature-image">
+              {% else %}
+                <div class="feature8-image-placeholder">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            {% if section.settings.feature_3_text != blank %}
+              <p class="feature8-feature-text text-sm" 
+                 style="color: {{ section.settings.feature_text_color | default: '#1a1a1a' }};">
+                {{ section.settings.feature_3_text }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="feature8-feature text-center">
+            <div class="feature8-image mb-3 flex justify-center">
+              {% if section.settings.feature_4_image != blank %}
+                <img src="{{ section.settings.feature_4_image | image_url: width: 72 }}" 
+                     alt="{{ section.settings.feature_4_image_alt | default: section.settings.feature_4_text }}"
+                     class="feature8-feature-image">
+              {% else %}
+                <div class="feature8-image-placeholder">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            {% if section.settings.feature_4_text != blank %}
+              <p class="feature8-feature-text text-sm" 
+                 style="color: {{ section.settings.feature_text_color | default: '#1a1a1a' }};">
+                {{ section.settings.feature_4_text }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="feature8-feature text-center">
+            <div class="feature8-image mb-3 flex justify-center">
+              {% if section.settings.feature_5_image != blank %}
+                <img src="{{ section.settings.feature_5_image | image_url: width: 72 }}" 
+                     alt="{{ section.settings.feature_5_image_alt | default: section.settings.feature_5_text }}"
+                     class="feature8-feature-image">
+              {% else %}
+                <div class="feature8-image-placeholder">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            {% if section.settings.feature_5_text != blank %}
+              <p class="feature8-feature-text text-sm" 
+                 style="color: {{ section.settings.feature_text_color | default: '#1a1a1a' }};">
+                {{ section.settings.feature_5_text }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="feature8-feature text-center">
+            <div class="feature8-image mb-3 flex justify-center">
+              {% if section.settings.feature_6_image != blank %}
+                <img src="{{ section.settings.feature_6_image | image_url: width: 72 }}" 
+                     alt="{{ section.settings.feature_6_image_alt | default: section.settings.feature_6_text }}"
+                     class="feature8-feature-image">
+              {% else %}
+                <div class="feature8-image-placeholder">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </div>
+              {% endif %}
+            </div>
+            {% if section.settings.feature_6_text != blank %}
+              <p class="feature8-feature-text text-sm" 
+                 style="color: {{ section.settings.feature_text_color | default: '#1a1a1a' }};">
+                {{ section.settings.feature_6_text }}
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.feature8-section .feature8-feature-image {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.feature8-section .feature8-image-placeholder {
+  width: 48px;
+  height: 48px;
+  background-color: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+@media (max-width: 1023px) {
+  .feature8-section .feature8-wrapper {
+    gap: 48px;
+    grid-template-columns: 1fr;
+  }
+  
+  .feature8-section .feature8-heading-column {
+    text-align: center;
+  }
+  
+  .feature8-section .feature8-features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .feature8-section .feature8-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .feature8-section .feature8-wrapper {
+    gap: 32px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Feature 8",
+  "settings": [
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "info": "Optional tagline above the heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Amazing features",
+      "label": "Heading",
+      "info": "Main heading text"
+    },
+    {
+      "type": "text",
+      "id": "heading_part_1",
+      "default": "Amazing",
+      "label": "Heading Part 1",
+      "info": "First part of heading (regular text)"
+    },
+    {
+      "type": "text",
+      "id": "heading_part_2",
+      "default": "features",
+      "label": "Heading Part 2",
+      "info": "Second part of heading (italic text)"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "info": "Optional description below the heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h1",
+          "label": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "label": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "label": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "label": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "label": "Heading 5"
+        }
+      ],
+      "default": "h2",
+      "label": "Heading Size"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_1_image",
+      "label": "Feature 1 - Image"
+    },
+    {
+      "type": "text",
+      "id": "feature_1_image_alt",
+      "label": "Feature 1 - Image Alt Text"
+    },
+    {
+      "type": "text",
+      "id": "feature_1_text",
+      "default": "Feature benefit one",
+      "label": "Feature 1 - Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_2_image",
+      "label": "Feature 2 - Image"
+    },
+    {
+      "type": "text",
+      "id": "feature_2_image_alt",
+      "label": "Feature 2 - Image Alt Text"
+    },
+    {
+      "type": "text",
+      "id": "feature_2_text",
+      "default": "Feature benefit two",
+      "label": "Feature 2 - Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_3_image",
+      "label": "Feature 3 - Image"
+    },
+    {
+      "type": "text",
+      "id": "feature_3_image_alt",
+      "label": "Feature 3 - Image Alt Text"
+    },
+    {
+      "type": "text",
+      "id": "feature_3_text",
+      "default": "Feature benefit three",
+      "label": "Feature 3 - Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_4_image",
+      "label": "Feature 4 - Image"
+    },
+    {
+      "type": "text",
+      "id": "feature_4_image_alt",
+      "label": "Feature 4 - Image Alt Text"
+    },
+    {
+      "type": "text",
+      "id": "feature_4_text",
+      "default": "Feature benefit four",
+      "label": "Feature 4 - Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_5_image",
+      "label": "Feature 5 - Image"
+    },
+    {
+      "type": "text",
+      "id": "feature_5_image_alt",
+      "label": "Feature 5 - Image Alt Text"
+    },
+    {
+      "type": "text",
+      "id": "feature_5_text",
+      "default": "Feature benefit five",
+      "label": "Feature 5 - Text"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_6_image",
+      "label": "Feature 6 - Image"
+    },
+    {
+      "type": "text",
+      "id": "feature_6_image_alt",
+      "label": "Feature 6 - Image Alt Text"
+    },
+    {
+      "type": "text",
+      "id": "feature_6_text",
+      "default": "Feature benefit six",
+      "label": "Feature 6 - Text"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#ffffff",
+      "label": "Background Color"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional background image (will override background color)"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "default": "#000000",
+      "label": "Background Overlay Color",
+      "info": "Color overlay on top of background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 40,
+      "info": "0% = transparent, 100% = solid color"
+    },
+    {
+      "type": "color_background",
+      "id": "tagline_color",
+      "default": "#6b7280",
+      "label": "Tagline Color"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "default": "#1a1a1a",
+      "label": "Heading Color"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_italic_color",
+      "default": "#1a1a1a",
+      "label": "Heading Italic Color",
+      "info": "Color for the italic part of the heading"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "default": "#6b7280",
+      "label": "Description Color"
+    },
+
+    {
+      "type": "color_background",
+      "id": "feature_text_color",
+      "default": "#1a1a1a",
+      "label": "Feature Text Color"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 100
+    }
+  ]
+}
+{% endschema %}

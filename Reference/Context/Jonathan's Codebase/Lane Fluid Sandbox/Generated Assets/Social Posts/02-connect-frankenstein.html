@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fluid Connect — Frankenstein</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Accent: BLUE only */
+    .flow-line { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.3); line-height: 2; }
+    .flow-line .dead { text-decoration: line-through; opacity: 0.5; }
+    .flow-line .arrow { color: rgba(255,255,255,0.15); margin: 0 6px; }
+    .flow-live { font-size: 18px; font-weight: 700; color: var(--blue); line-height: 2; }
+    .flow-live .arrow { color: var(--blue); margin: 0 8px; }
+    .diagram-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 14px 0; }
+    .diagram-label { font-family: var(--font-hand); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .diagram-footer { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card card-ig">
+    <!-- Brushstrokes: 03 tall vertical on right edge + 01 subtle bottom-left -->
+    <img class="brush" src="../../Logos, textures/brushstroke03.png" alt="" style="top: -20px; right: -30px; height: 100%; width: auto; opacity: 0.22;">
+    <img class="brush" src="../../Logos, textures/brushstroke01.png" alt="" style="bottom: -10px; left: -20px; width: 400px; opacity: 0.12;">
+
+    <div class="side-label">Fluid Connect</div>
+    <div class="slide-num">02/05</div>
+
+    <!-- Blue circle sketch around "Frankenstein" -->
+    <img class="circle-sketch" src="../../Logos, textures/circle sketch 1.png" alt="" style="top: 260px; left: 180px; width: 380px; transform: rotate(-12deg); opacity: 0.7;">
+
+    <div class="headline headline-ig">
+      Stop<br>
+      maintaining<br>
+      the Franken-<br>stein.
+    </div>
+
+    <div class="body-copy" style="margin-bottom: 36px;">
+      15 vendors. 15 contracts. 15 integrations that <strong>break at 3am</strong>. Fluid Connect replaces all of it.
+    </div>
+
+    <div class="dark-card" style="padding: 28px;">
+      <div style="margin-bottom: 16px;">
+        <div class="diagram-label text-blue" style="opacity: 0.5;">Before</div>
+        <div class="flow-line">
+          Storefront <span class="arrow">&rarr;</span> <span class="dead">Script #1</span> <span class="arrow">&rarr;</span> <span class="dead">Middleware</span> <span class="arrow">&rarr;</span> <span class="dead">Script #2</span> <span class="arrow">&rarr;</span> Engine
+        </div>
+      </div>
+      <div class="diagram-divider"></div>
+      <div style="margin-top: 16px;">
+        <div class="diagram-label text-blue">After</div>
+        <div class="flow-live">
+          Storefront <span class="arrow">&harr;</span> Fluid Connect <span class="arrow">&harr;</span> Commission Engine
+        </div>
+      </div>
+      <div class="diagram-footer">
+        <span class="pill text-blue">Real-time</span>
+        <span class="pill text-blue">Bidirectional</span>
+        <span class="pill text-blue">SOC 2 Type II</span>
+        <span class="pill text-blue">Auto-staging</span>
+      </div>
+    </div>
+
+    <div class="footer footer-ig">
+      <div class="footer-left">
+        <img src="../../Logos, textures/We-Commerce Flags.png" alt="Fluid" style="height: 16px;">
+        <span class="sep">|</span>
+        <img src="../../Logos, textures/We-Commerce Logos.png" alt="We-Commerce" style="height: 14px;">
+      </div>
+      <div class="footer-right">
+        <img src="../../Logos, textures/Frame 3.png" alt="fluid" style="height: 22px;">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

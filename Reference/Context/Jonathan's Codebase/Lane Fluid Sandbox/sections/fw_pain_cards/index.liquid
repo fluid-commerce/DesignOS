@@ -1,0 +1,1085 @@
+<link rel="stylesheet" href="{{ 'fw_pain_cards/styles.css' | asset_url }}">
+
+<section class="fw-pain-cards-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }}"
+  {% if section.settings.background_image != blank %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+  <div class="fw-pain-cards-container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+    {% if section.settings.container_background_image != blank %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+
+    {% if section.settings.eyebrow != blank or section.settings.headline != blank or section.settings.subtext != blank %}
+    <div class="fw-pain-cards-header text-center">
+
+      {% if section.settings.show_accent_bar %}
+      <div class="fw-pain-cards-accent-bar mb-lg">
+        {% if section.settings.accent_bar_image != blank %}
+        <img src="{{ section.settings.accent_bar_image | image_url }}" alt="" class="fw-accent-bar-img" aria-hidden="true">
+        {% else %}
+        <div class="fw-accent-bar-fallback"></div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if section.settings.eyebrow != blank %}
+      <p class="fw-pain-cards-eyebrow {{ section.settings.eyebrow_font_family }} {{ section.settings.eyebrow_font_size }} {{ section.settings.eyebrow_font_size_desktop }} {{ section.settings.eyebrow_font_weight }} {{ section.settings.eyebrow_color }} mb-md">
+        {{ section.settings.eyebrow }}
+      </p>
+      {% endif %}
+
+      {% if section.settings.headline != blank %}
+      <h2 class="fw-pain-cards-headline {{ section.settings.headline_font_family }} {{ section.settings.headline_font_size }} {{ section.settings.headline_font_size_desktop }} {{ section.settings.headline_font_weight }} {{ section.settings.headline_color }} mb-md">
+        {{ section.settings.headline }}
+      </h2>
+      {% endif %}
+
+      {% if section.settings.subtext != blank %}
+      <p class="fw-pain-cards-subtext {{ section.settings.subtext_font_family }} {{ section.settings.subtext_font_size }} {{ section.settings.subtext_font_size_desktop }} {{ section.settings.subtext_font_weight }} {{ section.settings.subtext_color }} mb-2xl">
+        <em>{{ section.settings.subtext }}</em>
+      </p>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+    <div class="fw-pain-cards-grid fw-pain-cards-grid--{{ section.settings.grid_columns }}">
+      {% for block in section.blocks %}
+        {% if block.type == 'pain_card' %}
+        <div class="fw-pain-card" {{ block.fluid_attributes }}>
+
+          {% if block.settings.card_number != blank %}
+          <span class="fw-pain-card-number">{{ block.settings.card_number }}</span>
+          {% endif %}
+
+          {% if block.settings.card_title != blank %}
+          <h3 class="fw-pain-card-title {{ block.settings.card_title_font_family }} {{ block.settings.card_title_font_size }} {{ block.settings.card_title_font_size_desktop }} {{ block.settings.card_title_font_weight }} {{ block.settings.card_title_color }}">
+            {{ block.settings.card_title }}
+          </h3>
+          {% endif %}
+
+          {% if block.settings.card_body != blank %}
+          <p class="fw-pain-card-body {{ block.settings.card_body_font_family }} {{ block.settings.card_body_font_size }} {{ block.settings.card_body_font_size_desktop }} {{ block.settings.card_body_font_weight }} {{ block.settings.card_body_color }}">
+            {{ block.settings.card_body }}
+          </p>
+          {% endif %}
+
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if section.settings.closing_headline != blank or section.settings.closing_body != blank %}
+    <div class="fw-pain-cards-closing">
+
+      {% if section.settings.closing_headline != blank %}
+      <h3 class="fw-pain-cards-closing-headline {{ section.settings.closing_headline_font_family }} {{ section.settings.closing_headline_font_size }} {{ section.settings.closing_headline_font_size_desktop }} {{ section.settings.closing_headline_font_weight }} {{ section.settings.closing_headline_color }} mb-md">
+        {{ section.settings.closing_headline }}
+      </h3>
+      {% endif %}
+
+      {% if section.settings.closing_body != blank %}
+      <p class="fw-pain-cards-closing-body {{ section.settings.closing_body_font_family }} {{ section.settings.closing_body_font_size }} {{ section.settings.closing_body_font_size_desktop }} {{ section.settings.closing_body_font_weight }} {{ section.settings.closing_body_color }}">
+        {{ section.settings.closing_body }}
+      </p>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FW Pain Cards",
+  "tag": "section",
+  "class": "fw-pain-cards",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Accent Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_accent_bar",
+      "label": "Show Accent Bar",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "accent_bar_image",
+      "label": "Accent Bar Image",
+      "info": "Decorative painted bar. Falls back to a solid color bar if empty."
+    },
+
+    {
+      "type": "header",
+      "content": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text",
+      "default": "Sound familiar?"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_family",
+      "label": "Eyebrow Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size",
+      "label": "Eyebrow Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size_desktop",
+      "label": "Eyebrow Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_weight",
+      "label": "Eyebrow Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_color",
+      "label": "Eyebrow Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-info"
+    },
+
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "textarea",
+      "id": "headline",
+      "label": "Headline",
+      "default": "About half of all direct selling transactions can't even happen on Shopify."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_family",
+      "label": "Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+
+    {
+      "type": "header",
+      "content": "Subtext"
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subtext (italic)",
+      "default": "Read that again."
+    },
+    {
+      "type": "select",
+      "id": "subtext_font_family",
+      "label": "Subtext Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-serif"
+    },
+    {
+      "type": "select",
+      "id": "subtext_font_size",
+      "label": "Subtext Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "subtext_font_size_desktop",
+      "label": "Subtext Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "subtext_font_weight",
+      "label": "Subtext Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "subtext_color",
+      "label": "Subtext Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-light"
+    },
+
+    {
+      "type": "header",
+      "content": "Closing Headline"
+    },
+    {
+      "type": "textarea",
+      "id": "closing_headline",
+      "label": "Closing Headline",
+      "default": "Every one of these is a transaction that should have happened."
+    },
+    {
+      "type": "select",
+      "id": "closing_headline_font_family",
+      "label": "Closing Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "closing_headline_font_size",
+      "label": "Closing Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "closing_headline_font_size_desktop",
+      "label": "Closing Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "closing_headline_font_weight",
+      "label": "Closing Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "closing_headline_color",
+      "label": "Closing Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+
+    {
+      "type": "header",
+      "content": "Closing Body"
+    },
+    {
+      "type": "textarea",
+      "id": "closing_body",
+      "label": "Closing Body",
+      "default": "We built We-Commerce around a single, uncompromising principle: Every transaction matters. Not most. Not the easy ones. Every single one."
+    },
+    {
+      "type": "select",
+      "id": "closing_body_font_family",
+      "label": "Closing Body Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "closing_body_font_size",
+      "label": "Closing Body Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "closing_body_font_size_desktop",
+      "label": "Closing Body Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "closing_body_font_weight",
+      "label": "Closing Body Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "closing_body_color",
+      "label": "Closing Body Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+
+    {
+      "type": "header",
+      "content": "Grid Layout"
+    },
+    {
+      "type": "select",
+      "id": "grid_columns",
+      "label": "Grid Columns (Desktop)",
+      "options": [
+        { "value": "2", "label": "2 Columns" },
+        { "value": "3", "label": "3 Columns" }
+      ],
+      "default": "3"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "XS" },
+        { "value": "px-sm", "label": "SM" },
+        { "value": "px-md", "label": "MD" },
+        { "value": "px-lg", "label": "LG" },
+        { "value": "px-xl", "label": "XL" },
+        { "value": "px-2xl", "label": "2XL" },
+        { "value": "px-3xl", "label": "3XL" }
+      ],
+      "default": "px-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "XS" },
+        { "value": "lg:px-sm", "label": "SM" },
+        { "value": "lg:px-md", "label": "MD" },
+        { "value": "lg:px-lg", "label": "LG" },
+        { "value": "lg:px-xl", "label": "XL" },
+        { "value": "lg:px-2xl", "label": "2XL" },
+        { "value": "lg:px-3xl", "label": "3XL" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "pain_card",
+      "name": "Pain Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "card_number",
+          "label": "Card Number",
+          "default": "01"
+        },
+        {
+          "type": "header",
+          "content": "Card Title"
+        },
+        {
+          "type": "text",
+          "id": "card_title",
+          "label": "Card Title",
+          "default": "Payments decline at higher rates"
+        },
+        {
+          "type": "select",
+          "id": "card_title_font_family",
+          "label": "Title Font Family",
+          "options": [
+            { "value": "font-primary", "label": "Primary" },
+            { "value": "font-body", "label": "Body" },
+            { "value": "font-handwritten", "label": "Handwritten" },
+            { "value": "font-serif", "label": "Serif" }
+          ],
+          "default": "font-primary"
+        },
+        {
+          "type": "select",
+          "id": "card_title_font_size",
+          "label": "Title Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "XS" },
+            { "value": "text-sm", "label": "SM" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "LG" },
+            { "value": "text-xl", "label": "XL" },
+            { "value": "text-2xl", "label": "2XL" },
+            { "value": "text-3xl", "label": "3XL" },
+            { "value": "text-4xl", "label": "4XL" },
+            { "value": "text-5xl", "label": "5XL" },
+            { "value": "text-6xl", "label": "6XL" },
+            { "value": "text-7xl", "label": "7XL" },
+            { "value": "text-8xl", "label": "8XL" },
+            { "value": "text-9xl", "label": "9XL" }
+          ],
+          "default": "text-lg"
+        },
+        {
+          "type": "select",
+          "id": "card_title_font_size_desktop",
+          "label": "Title Font Size (Desktop)",
+          "options": [
+            { "value": "lg:text-xs", "label": "XS" },
+            { "value": "lg:text-sm", "label": "SM" },
+            { "value": "lg:text-base", "label": "Base" },
+            { "value": "lg:text-lg", "label": "LG" },
+            { "value": "lg:text-xl", "label": "XL" },
+            { "value": "lg:text-2xl", "label": "2XL" },
+            { "value": "lg:text-3xl", "label": "3XL" },
+            { "value": "lg:text-4xl", "label": "4XL" },
+            { "value": "lg:text-5xl", "label": "5XL" },
+            { "value": "lg:text-6xl", "label": "6XL" },
+            { "value": "lg:text-7xl", "label": "7XL" },
+            { "value": "lg:text-8xl", "label": "8XL" },
+            { "value": "lg:text-9xl", "label": "9XL" }
+          ],
+          "default": "lg:text-xl"
+        },
+        {
+          "type": "select",
+          "id": "card_title_font_weight",
+          "label": "Title Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semibold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-bold"
+        },
+        {
+          "type": "select",
+          "id": "card_title_color",
+          "label": "Title Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-white"
+        },
+        {
+          "type": "header",
+          "content": "Card Body"
+        },
+        {
+          "type": "textarea",
+          "id": "card_body",
+          "label": "Card Body",
+          "default": "Your industry is flagged as 'higher risk.' A 3–4% failure rate becomes 6–8% for you. On a million dollars monthly, that's $50,000 in lost transactions. Every month."
+        },
+        {
+          "type": "select",
+          "id": "card_body_font_family",
+          "label": "Body Font Family",
+          "options": [
+            { "value": "font-primary", "label": "Primary" },
+            { "value": "font-body", "label": "Body" },
+            { "value": "font-handwritten", "label": "Handwritten" },
+            { "value": "font-serif", "label": "Serif" }
+          ],
+          "default": "font-body"
+        },
+        {
+          "type": "select",
+          "id": "card_body_font_size",
+          "label": "Body Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "XS" },
+            { "value": "text-sm", "label": "SM" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "LG" },
+            { "value": "text-xl", "label": "XL" },
+            { "value": "text-2xl", "label": "2XL" },
+            { "value": "text-3xl", "label": "3XL" },
+            { "value": "text-4xl", "label": "4XL" },
+            { "value": "text-5xl", "label": "5XL" },
+            { "value": "text-6xl", "label": "6XL" },
+            { "value": "text-7xl", "label": "7XL" },
+            { "value": "text-8xl", "label": "8XL" },
+            { "value": "text-9xl", "label": "9XL" }
+          ],
+          "default": "text-sm"
+        },
+        {
+          "type": "select",
+          "id": "card_body_font_size_desktop",
+          "label": "Body Font Size (Desktop)",
+          "options": [
+            { "value": "lg:text-xs", "label": "XS" },
+            { "value": "lg:text-sm", "label": "SM" },
+            { "value": "lg:text-base", "label": "Base" },
+            { "value": "lg:text-lg", "label": "LG" },
+            { "value": "lg:text-xl", "label": "XL" },
+            { "value": "lg:text-2xl", "label": "2XL" },
+            { "value": "lg:text-3xl", "label": "3XL" },
+            { "value": "lg:text-4xl", "label": "4XL" },
+            { "value": "lg:text-5xl", "label": "5XL" },
+            { "value": "lg:text-6xl", "label": "6XL" },
+            { "value": "lg:text-7xl", "label": "7XL" },
+            { "value": "lg:text-8xl", "label": "8XL" },
+            { "value": "lg:text-9xl", "label": "9XL" }
+          ],
+          "default": "lg:text-base"
+        },
+        {
+          "type": "select",
+          "id": "card_body_font_weight",
+          "label": "Body Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semibold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-normal"
+        },
+        {
+          "type": "select",
+          "id": "card_body_color",
+          "label": "Body Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-neutral"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FW Pain Cards",
+      "settings": {
+        "show_accent_bar": true,
+        "eyebrow": "Sound familiar?",
+        "headline": "About half of all direct selling transactions can't even happen on Shopify.",
+        "subtext": "Read that again.",
+        "closing_headline": "Every one of these is a transaction that should have happened.",
+        "closing_body": "We built We-Commerce around a single, uncompromising principle: Every transaction matters. Not most. Not the easy ones. Every single one.",
+        "grid_columns": "3",
+        "background_color": "bg-black"
+      },
+      "blocks": [
+        {
+          "type": "pain_card",
+          "settings": {
+            "card_number": "01",
+            "card_title": "Payments decline at higher rates",
+            "card_body": "Your industry is flagged as 'higher risk.' A 3–4% failure rate becomes 6–8% for you. On a million dollars monthly, that's $50,000 in lost transactions. Every month."
+          }
+        },
+        {
+          "type": "pain_card",
+          "settings": {
+            "card_number": "02",
+            "card_title": "Attribution breaks and reps stop sharing",
+            "card_body": "A rep drives a prospect to your site. They come back through Google three weeks later. Who gets credit? Nobody — or the wrong person. That rep never shares again."
+          }
+        },
+        {
+          "type": "pain_card",
+          "settings": {
+            "card_number": "03",
+            "card_title": "You're managing 15 vendors. Not building a business.",
+            "card_body": "Payments here, commissions there, mobile app somewhere else. You spend all your time keeping the Frankenstein alive instead of growing."
+          }
+        },
+        {
+          "type": "pain_card",
+          "settings": {
+            "card_number": "04",
+            "card_title": "Beautiful content sits unused",
+            "card_body": "Your marketing team creates assets nobody shares. Reps don't trust they'll get credit, so they build bootleg versions — or go quiet entirely."
+          }
+        },
+        {
+          "type": "pain_card",
+          "settings": {
+            "card_number": "05",
+            "card_title": "15-click checkouts kill conversions",
+            "card_body": "Someone's ready to buy. The checkout wants them to create an account. They're at a red light. The moment passes. You'll never know that sale almost happened."
+          }
+        },
+        {
+          "type": "pain_card",
+          "settings": {
+            "card_number": "06",
+            "card_title": "Sync failures corrupt your commissions",
+            "card_body": "The order went through on the site but didn't reach the commission engine. Now you're manually fixing records while reps lose faith that anything works."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

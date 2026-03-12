@@ -1,0 +1,264 @@
+/* Product Showcase Section - Modern Hero Style */
+
+.product-showcase {
+  /* Section background image support */
+}
+
+.product-showcase .inner-container {
+  /* Container background image support */
+}
+
+/* Product Cards Grid */
+.product-showcase .products-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: var(--space-lg) !important;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .product-showcase .products-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--space-lg) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-showcase .products-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--space-xl) !important;
+  }
+}
+
+/* Individual Product Cards - Hero Style */
+.product-showcase .product-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  height: 400px;
+  min-height: 400px;
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+              box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+@media (min-width: 768px) {
+  .product-showcase .product-card {
+    height: 450px;
+    min-height: 450px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-showcase .product-card {
+    height: 500px;
+    min-height: 500px;
+  }
+}
+
+.product-showcase .product-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Product Hero Wrapper - Full Background */
+.product-showcase .product-hero-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Product Hero Image */
+.product-showcase .product-hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.product-showcase .product-card:hover .product-hero-image {
+  transform: scale(1.1);
+}
+
+/* Placeholder images are now handled via placeholder-image.png asset */
+
+/* Dark Overlay for Text Readability */
+.product-showcase .product-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 40%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  z-index: 1;
+}
+
+/* Product Badge */
+.product-showcase .product-badge {
+  position: absolute;
+  top: var(--space-lg);
+  left: var(--space-lg);
+  z-index: 30;
+}
+
+.product-showcase .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-md);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.product-showcase .product-card:hover .badge {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Product Content Overlay - Positioned over image */
+.product-showcase .product-content-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-xl);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  z-index: 20;
+}
+
+@media (min-width: 1024px) {
+  .product-showcase .product-content-overlay {
+    padding: var(--space-2xl);
+  }
+}
+
+/* Product Text Content */
+.product-showcase .product-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: none;
+}
+
+/* Product Title */
+.product-showcase .product-text-content h3 {
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.2;
+  font-weight: var(--font-weight-bold);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Product Description */
+.product-showcase .product-text-content p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Product Button */
+.product-showcase .product-button-wrapper {
+  margin-top: var(--space-lg);
+}
+
+/* Override custom button styling to use global button system */
+.product-showcase .btn {
+  /* Let global button system handle styling */
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+
+.product-showcase .btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.product-showcase .btn:active {
+  transform: translateY(0) !important;
+}
+
+/* Content spacing improvements */
+.product-showcase .heading-wrapper {
+  margin-bottom: var(--space-2xl);
+}
+
+.product-showcase .description-wrapper {
+  margin-bottom: var(--space-2xl);
+}
+
+/* Typography enhancements */
+.product-showcase .heading-wrapper h2 {
+  line-height: 1.1;
+  margin: 0;
+}
+
+.product-showcase .description-wrapper p {
+  line-height: 1.6;
+  margin: 0 auto;
+}
+
+/* Accessibility improvements */
+.product-showcase .product-card:focus-within {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+.product-showcase .btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Ensure proper contrast and readability */
+.product-showcase .product-text-content * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive text sizing */
+@media (max-width: 767px) {
+  .product-showcase .product-text-content h3 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .product-showcase .product-text-content p {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Enhanced hover states for better UX */
+.product-showcase .product-card {
+  cursor: pointer;
+}
+
+.product-showcase .product-card:hover .product-text-content h3 {
+  transform: translateY(-2px);
+  transition: transform 0.3s ease;
+}
+
+.product-showcase .product-card:hover .product-text-content p {
+  transform: translateY(-1px);
+  transition: transform 0.3s ease 0.1s;
+}

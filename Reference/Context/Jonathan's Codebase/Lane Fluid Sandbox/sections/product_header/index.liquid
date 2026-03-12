@@ -1,0 +1,1825 @@
+<!-- Product Header Section -->
+{% assign not_purchasable = product.out_of_stock or product.available_for_country != true or product.active != true %}
+{% assign allow_subscription = product.subscription_enabled and product.subscription_plans.size > 0 %}
+{% assign subscription_only = product.subscription_only %}
+{% assign selected_variant_id = product.selected_or_first_available_variant.id %}
+
+{% comment %} Debug subscription availability {% endcomment %}
+{% comment %} 
+Debug info:
+- product.subscription_enabled: {{ product.subscription_enabled }}
+- product.subscription_plans.size: {{ product.subscription_plans.size }}
+- allow_subscription: {{ allow_subscription }}
+- subscription_only: {{ subscription_only }}
+{% endcomment %}
+
+<section class="product-header {{ section.settings.background_color | default: 'bg-white' }} {{ section.settings.section_padding_y_mobile | default: 'py-lg' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-xl' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: 'bg-neutral-light' }} {{ section.settings.container_padding_y_mobile | default: 'py-lg' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      
+      <div class="max-w-7xl mx-auto">
+        
+        <!-- Product Header Layout -->
+        <div class="product-header-layout grid grid-cols-1 lg:grid-cols-2 gap-lg lg:gap-xl xl:gap-2xl items-start">
+          
+          <!-- Product Images Section (Left Side) -->
+          <div class="product-images-section flex gap-md">
+            
+            <!-- Thumbnail Gallery (Vertical Carousel) -->
+            {% if product.images.size > 1 %}
+            <div class="image-thumbnails flex-shrink-0 relative">
+              <!-- Thumbnail Navigation Up -->
+              {% if product.images.size > 5 %}
+              <button class="thumbnail-nav-up absolute -top-2 left-1/2 transform -translate-x-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors duration-200" onclick="scrollThumbnails('up')" style="display: none;">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                </svg>
+              </button>
+              {% endif %}
+              
+              <!-- Thumbnails Container -->
+              <div class="thumbnails-viewport overflow-hidden">
+                <div class="thumbnails-vertical flex flex-col gap-xs transition-transform duration-300 ease-in-out" id="thumbnails-container">
+                  {% for image in product.images %}
+                    <div class="thumbnail-wrapper {{ section.settings.thumbnail_border_radius | default: 'rounded-sm' }} overflow-hidden bg-neutral-light cursor-pointer thumbnail-item {% if forloop.first %}active{% endif %}" 
+                         data-image-src="{{ image.src }}" 
+                         data-image-index="{{ forloop.index0 }}">
+                      <img src="{{ image | image_url: width: 120 }}"
+                           alt="{{ image.alt | default: product.title }}"
+                           class="thumbnail-image w-16 h-20 lg:w-20 lg:h-24 object-cover transition-all duration-200 hover:opacity-80">
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <!-- Thumbnail Navigation Down -->
+              {% if product.images.size > 5 %}
+              <button class="thumbnail-nav-down absolute -bottom-2 left-1/2 transform -translate-x-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors duration-200" onclick="scrollThumbnails('down')">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Main Product Image -->
+            <div class="main-image-wrapper {{ section.settings.image_border_radius | default: 'rounded-lg' }} overflow-hidden bg-neutral-light flex-grow">
+              {% if product.images.size > 0 %}
+                <img src="{{ product.images.first | image_url: width: 800 }}"
+                     alt="{{ product.images.first.alt | default: product.title }}"
+                     class="main-product-image w-full h-96 lg:h-[500px] xl:h-[600px] object-cover"
+                     data-image-src="{{ product.images.first.src }}">
+              {% else %}
+                <img src="{{ 'placeholder-image.png' | asset_url }}"
+                     alt="{{ product.title | default: 'Product image' }}"
+                     class="main-product-image w-full h-96 lg:h-[500px] xl:h-[600px] object-cover">
+              {% endif %}
+            </div>
+            
+          </div>
+          
+          <!-- Product Details Section (Right Side) -->
+          <div class="product-details-section">
+            
+            <!-- Product Category -->
+            {% if section.settings.show_category %}
+              {% assign category_text = product.type | default: product.vendor | default: section.settings.fallback_category %}
+              {% if category_text != blank %}
+              <div class="product-category mb-sm">
+                <span class="{{ section.settings.category_font_family | default: 'font-body' }} {{ section.settings.category_font_size | default: 'text-sm' }} {{ section.settings.category_font_size_desktop | default: 'lg:text-sm' }} {{ section.settings.category_font_weight | default: 'font-medium' }} {{ section.settings.category_color | default: 'text-neutral' }} uppercase tracking-wide">
+                  {{ category_text }}
+                </span>
+              </div>
+              {% endif %}
+            {% endif %}
+            
+            <!-- Product Title -->
+            <h1 class="{{ section.settings.title_font_family | default: 'font-primary' }} {{ section.settings.title_font_size | default: 'text-3xl' }} {{ section.settings.title_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.title_font_weight | default: 'font-bold' }} {{ section.settings.title_color | default: 'text-black' }} leading-tight mb-md">
+              {{ product.title }}
+            </h1>
+            
+            <!-- Product Description -->
+            {% if product.description != blank %}
+            <div class="product-description mb-lg">
+              <p class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-base' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-neutral-dark' }} leading-relaxed">
+                {{ product.description | truncate: 200 }}
+              </p>
+            </div>
+            {% endif %}
+            
+            <!-- Trust Badges -->
+            {% if section.settings.show_trust_badges %}
+            <div class="trust-badges flex flex-wrap gap-md mb-lg">
+              {% for block in section.blocks %}
+                {% if block.type == 'trust_badge' and block.settings.badge_text != blank %}
+                <div class="trust-badge flex items-center gap-xs" {{ block.shopify_attributes }}>
+                  <div class="badge-icon w-6 h-6 bg-success rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <span class="{{ section.settings.badge_font_size | default: 'text-sm' }} {{ section.settings.badge_color | default: 'text-neutral-dark' }} font-medium">{{ block.settings.badge_text | default: 'Trust Badge' }}</span>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Reviews Section -->
+            {% if section.settings.show_reviews %}
+            <div class="reviews-section flex items-center gap-md mb-lg">
+              <!-- Star Rating -->
+              <div class="star-rating flex items-center gap-xs">
+                {% for i in (1..5) %}
+                  {% if i <= 4 %}
+                    <svg class="w-5 h-5 text-warning fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  {% elsif i == 5 %}
+                    <svg class="w-5 h-5 text-neutral-light fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      <path d="M10 0L12.345 7.873L20 7.873L14.327 12.745L16.673 20.618L10 15.745Z" fill="currentColor"/>
+                    </svg>
+                  {% else %}
+                    <svg class="w-5 h-5 text-neutral-light fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <!-- Review Count -->
+              <span class="{{ section.settings.review_font_size | default: 'text-sm' }} {{ section.settings.review_color | default: 'text-neutral' }} font-medium">
+                {{ section.settings.review_count | default: '136' }} Reviews
+              </span>
+            </div>
+            {% endif %}
+            
+            <!-- Color Variants -->
+            {% assign color_option = product.options_by_name['Color'] %}
+            {% if color_option and section.settings.show_color_variants %}
+            <div class="color-variants mb-lg">
+              <div class="variant-label mb-sm">
+                <span class="{{ section.settings.variant_label_font_size | default: 'text-sm' }} {{ section.settings.variant_label_color | default: 'text-black' }} font-medium uppercase tracking-wide">
+                  COLOR: <span class="selected-color-name font-bold">{{ color_option.selected_value.name | upcase }}</span>
+                </span>
+              </div>
+              <div class="color-options flex gap-sm">
+                {% for value in color_option.values %}
+                  <label class="color-option cursor-pointer">
+                    <input type="radio" 
+                           name="color-variant" 
+                           value="{{ value.name }}" 
+                           class="sr-only color-input"
+                           {% if value == color_option.selected_value %}checked{% endif %}>
+                    <div class="color-swatch w-8 h-8 rounded-full border-2 border-neutral-light hover:border-black transition-colors duration-200 {% if value == color_option.selected_value %}ring-2 ring-black ring-offset-2{% endif %}"
+                         style="background-color: {{ value.name | handleize | prepend: 'var(--color-' | append: ')' | default: '#' | append: value.name | handleize }};"
+                         data-color="{{ value.name }}">
+                    </div>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            
+            
+            <!-- Purchase Options and Add to Cart Section -->
+            <div class="purchase-section">
+              {% form 'product', product, class: 'product-form', id: 'product-form-header' %}
+                
+                <!-- Error Messages -->
+                {% if not_purchasable %}
+                <div class="error-messages-container mb-lg">
+                  {% if product.out_of_stock %}
+                    <div class="error-message text-sm bg-red-100 text-red-600 p-3 rounded-md">
+                      This product is out of stock
+                    </div>
+                  {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Enhanced Subscription/Purchase Options -->
+                {% unless subscription_only and allow_subscription == false %}
+                <div class="purchase-options-wrapper mb-lg">
+                  <div class="purchase-options-container space-y-3">
+                    
+                    <!-- Subscription Option -->
+                    {% if allow_subscription %}
+                    <div class="subscription-option-card bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-colors duration-200 {% if subscription_only or request.query_parameters.subscribe %}border-blue-500 bg-blue-50{% else %}border-gray-200 hover:border-blue-300{% endif %}">
+                      <div class="subscribe-option flex items-start gap-4 p-6" data-option="subscription">
+                        <div class="radio-wrapper mt-1">
+                          {% if subscription_only %}
+                            <input
+                              type='radio'
+                              name='fluid-checkout-subscribe'
+                              value='subscription'
+                              id='subscribe-and-save-header'
+                              checked
+                              class="w-5 h-5 text-blue-600 border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                            >
+                          {% else %}
+                            <input
+                              type='radio'
+                              name='fluid-checkout-subscribe'
+                              value='subscription'
+                              id='subscribe-and-save-header'
+                              {% if request.query_parameters.subscribe %}checked{% endif %}
+                              class="w-5 h-5 text-blue-600 border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                            >
+                          {% endif %}
+                        </div>
+                        
+                        <label for='subscribe-and-save-header' class="flex-1 cursor-pointer">
+                          <div class="subscription-header flex justify-between items-start mb-3">
+                            <div class="subscription-info">
+                              <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ 'product.subscribe' | t }}</h3>
+                              {% assign saved_percentage = product.saved_percentage_on_subscription | plus: 0 %}
+                              {% if saved_percentage > 1 %}
+                                <div class="savings-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                  </svg>
+                                  Save {{ saved_percentage }}%
+                                </div>
+                              {% endif %}
+                            </div>
+                            <div class="price-display text-right">
+                              <p class='subscription-price {{ section.settings.price_font_size | default: 'text-2xl' }} font-bold text-blue-600'>{{ product.subscription_price }}</p>
+                              {% if saved_percentage > 1 %}
+                                <p class="text-sm text-gray-500 line-through">{{ product.price }}</p>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <div class="subscription-benefits">
+                            <ul class="space-y-2">
+                              {% if saved_percentage > 1 %}
+                                <li class="flex items-center text-sm text-gray-700">
+                                  <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                  </svg>
+                                  Save {{ saved_percentage }}% compared to one-time purchase
+                                </li>
+                              {% endif %}
+                              <li class="flex items-center text-sm text-gray-700">
+                                <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Update or cancel anytime
+                              </li>
+                              <li class="flex items-center text-sm text-gray-700">
+                                <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Never run out - automatic delivery
+                              </li>
+                            </ul>
+                          </div>
+
+                          {% if product.subscription_plans.size > 1 %}
+                            <div class="subscription-plans mt-4" {% unless request.query_parameters.subscribe or subscription_only %}style="display: none;"{% endunless %}>
+                              <div class="flex flex-col gap-2">
+                                <p class="text-sm font-medium text-gray-700">Delivery frequency:</p>
+                                <select class='subscription-plans-dropdown option-value w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500'>
+                                  {% for subscription_plan in product.subscription_plans%}
+                                    <option {% if subscription_plan.selected %}selected{% endif %} value='{{ subscription_plan.id }}' data-subscription-price="{{ subscription_plan.display_subscription_price }}">{{ subscription_plan.name }}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          {% endif %}
+                        </label>
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- One-time Purchase Option -->
+                    {% unless subscription_only %}
+                      <div class="one-time-purchase-card bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-colors duration-200 {% unless request.query_parameters.subscribe or subscription_only %}border-gray-400{% else %}border-gray-200 hover:border-gray-400{% endunless %}">
+                        <div class='subscribe-option flex items-start gap-4 p-6' data-option="one-time">
+                          <div class="radio-wrapper mt-1">
+                            <input
+                              type='radio'
+                              name='fluid-checkout-subscribe'
+                              value='regular'
+                              id='one-time-purchase-header'
+                              {% unless request.query_parameters.subscribe or subscription_only %}checked{% endunless %}
+                              class="w-5 h-5 text-blue-600 border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                            >
+                          </div>
+                          
+                          <label for='one-time-purchase-header' class="flex-1 cursor-pointer">
+                            <div class='flex justify-between items-center'>
+                              <div>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ 'product.one_time_purchase' | t }}</h3>
+                                <p class="text-sm text-gray-600 mt-1">Single purchase, no commitment</p>
+                              </div>
+                              <div class="text-right">
+                                <p class='purchase-price {{ section.settings.price_font_size | default: 'text-2xl' }} font-bold text-gray-900'>{{ product.price }}</p>
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    {% endunless %}
+                    
+                  </div>
+                </div>
+                {% endunless %}
+                
+                <!-- Product Options -->
+                {% for option in product.options_with_values %}
+                  <div class="product-option-section flex flex-col gap-2 mb-md">
+                    <p class="text-base font-medium text-gray-700">{{ option.name }}</p>
+                    <select name="fluid-checkout-option-{{ option.option_id }}" class="custom-select variation-dropdown">
+                      {% for value in option.values %}
+                        <option value="{{ value.id }}" {% if value.selected %}selected{% endif %}>{{ value.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                {% endfor %}
+                
+                <!-- Add to Cart Section with Inline Quantity -->
+                {% unless not_purchasable %}
+                <div class="btn-section flex flex-col gap-y-6">
+                  <div class="add-to-cart-row flex items-stretch {% if section.settings.show_quantity %}gap-lg{% else %}justify-end{% endif %}">
+                    <!-- Quantity Selector -->
+                    {% if section.settings.show_quantity %}
+                    <div class="quantity-selector-wrapper flex-shrink-0">
+                      <div class="quantity-selector flex items-center {{ section.settings.quantity_border_radius | default: 'rounded-lg' }}">
+                        <button type="button" 
+                                class="quantity-decrease flex items-center justify-center transition-all duration-200 hover:bg-opacity-80 active:scale-95" 
+                                onclick="updateQuantity(-1)"
+                                aria-label="Decrease quantity">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/>
+                          </svg>
+                        </button>
+                        <div class="quantity-display flex items-center justify-center {{ section.settings.quantity_font_size | default: 'text-lg' }} font-semibold">
+                          <span id="quantity-display">1</span>
+                        </div>
+                        <button type="button" 
+                                class="quantity-increase flex items-center justify-center transition-all duration-200 hover:bg-opacity-80 active:scale-95" 
+                                onclick="updateQuantity(1)"
+                                aria-label="Increase quantity">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Add to Cart Button -->
+                    <button type="button"
+                            class="add-to-cart-btn btn btn-{{ section.settings.button_style | default: 'filled' }}-{{ section.settings.button_color | default: 'black' }} {{ section.settings.button_size | default: 'btn-lg' }} flex-1 {{ settings.button_border_radius | default: 'rounded-lg' }} transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                            data-fluid-add-to-cart="{{ selected_variant_id }}"
+                            data-fluid-quantity="1"
+                            {% if request.query_parameters.subscribe or product.subscription_only %}
+                              data-fluid-subscription-plan-id="{{ product.selected_subscription_plan_id }}"
+                            {% endif %}
+                            {% if not_purchasable %}disabled{% endif %}>
+                      <span class="btn-text font-semibold tracking-wide">
+                        {% if not_purchasable %}
+                          {{ section.settings.sold_out_text | default: 'Sold out' }}
+                        {% else %}
+                          {{ section.settings.add_to_cart_text | default: 'Add to bag' }}
+                        {% endif %}
+                      </span>
+                    </button>
+                  </div>
+                  
+                  <!-- Payment Options -->
+                  {% if section.settings.show_payment_options and product.available %}
+                  <div class="payment-options text-center">
+                    <span class="{{ section.settings.payment_font_size | default: 'text-sm' }} {{ section.settings.payment_color | default: 'text-neutral' }}">
+                      Pay 4 interest-free payments with <strong>Afterpay</strong>
+                    </span>
+                  </div>
+                  {% endif %}
+                </div>
+                {% endunless %}
+                
+              {% endform %}
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- Sticky Add to Cart Bar -->
+{% if section.settings.show_sticky_cart %}
+<div class="sticky-cart-bar fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-light shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out" id="sticky-cart-bar">
+  <div class="container">
+    <div class="sticky-cart-content max-w-7xl mx-auto px-lg lg:px-xl py-md flex items-center justify-between gap-md">
+      
+      <!-- Product Info (Left Side) -->
+      <div class="sticky-product-info flex items-center gap-md flex-1">
+        <!-- Product Image -->
+        {% if product.featured_image %}
+          <img src="{{ product.featured_image | image_url: width: 100 }}"
+               alt="{{ product.featured_image.alt | default: product.title }}"
+               class="sticky-product-image w-12 h-12 lg:w-16 lg:h-16 object-cover {{ section.settings.sticky_image_border_radius | default: 'rounded-lg' }}">
+        {% endif %}
+        
+        <!-- Product Details -->
+        <div class="sticky-product-details flex-1">
+          <h3 class="{{ section.settings.sticky_title_font_size | default: 'text-lg' }} {{ section.settings.sticky_title_color | default: 'text-black' }} font-bold leading-tight">
+            {{ product.title }}
+          </h3>
+          <p class="{{ section.settings.sticky_price_font_size | default: 'text-lg' }} {{ section.settings.sticky_price_color | default: 'text-black' }} font-bold">
+            {{ product.price | money }}
+          </p>
+        </div>
+      </div>
+      
+      <!-- Add to Cart Button (Right Side) -->
+      <div class="sticky-cart-actions flex items-center gap-sm">
+        <!-- Optional Quantity -->
+        {% if section.settings.sticky_show_quantity %}
+        <div class="sticky-quantity flex items-center border border-neutral-light {{ section.settings.sticky_quantity_border_radius | default: 'rounded-md' }}">
+          <button type="button" class="quantity-decrease-sticky px-sm py-xs text-neutral-dark hover:text-black transition-colors" onclick="updateStickyQuantity(-1)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+          </button>
+          <input type="number" 
+                 id="sticky-quantity" 
+                 value="1" 
+                 min="1" 
+                 class="sticky-quantity-value w-12 text-center border-0 focus:ring-0 {{ section.settings.sticky_quantity_font_size | default: 'text-sm' }}">
+          <button type="button" class="quantity-increase-sticky px-sm py-xs text-neutral-dark hover:text-black transition-colors" onclick="updateStickyQuantity(1)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+          </button>
+        </div>
+        {% endif %}
+        
+        <!-- Add to Cart Button -->
+        <button type="button" 
+                class="sticky-add-to-cart btn btn-{{ section.settings.sticky_button_style | default: 'filled' }}-{{ section.settings.sticky_button_color | default: 'black' }} {{ section.settings.sticky_button_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}"
+                onclick="addToCartFromSticky()"
+                {% unless product.available %}disabled{% endunless %}>
+          <span class="btn-text">
+            {% if product.available %}
+              {{ section.settings.sticky_add_to_cart_text | default: 'Add to bag' }}
+            {% else %}
+              {{ section.settings.sticky_sold_out_text | default: 'Sold out' }}
+            {% endif %}
+          </span>
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+// Enhanced Thumbnail switching and carousel functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const thumbnails = document.querySelectorAll('.thumbnail-item');
+  const mainImage = document.querySelector('.main-product-image');
+  const thumbnailsContainer = document.getElementById('thumbnails-container');
+  const thumbnailNavUp = document.querySelector('.thumbnail-nav-up');
+  const thumbnailNavDown = document.querySelector('.thumbnail-nav-down');
+  
+  let currentScrollIndex = 0;
+  const maxVisibleThumbnails = 5;
+  const totalThumbnails = thumbnails.length;
+  
+  // Initialize carousel state
+  function initCarousel() {
+    if (totalThumbnails <= maxVisibleThumbnails) {
+      // Hide navigation if not needed
+      if (thumbnailNavUp) thumbnailNavUp.style.display = 'none';
+      if (thumbnailNavDown) thumbnailNavDown.style.display = 'none';
+      return;
+    }
+    
+    updateCarouselState();
+  }
+  
+  // Update carousel navigation state
+  function updateCarouselState() {
+    const maxScrollIndex = Math.max(0, totalThumbnails - maxVisibleThumbnails);
+    
+    // Update navigation button visibility
+    if (thumbnailNavUp) {
+      thumbnailNavUp.style.display = currentScrollIndex > 0 ? 'flex' : 'none';
+    }
+    
+    if (thumbnailNavDown) {
+      thumbnailNavDown.style.display = currentScrollIndex < maxScrollIndex ? 'flex' : 'none';
+    }
+    
+    // Update transform
+    if (thumbnailsContainer) {
+      const thumbnailHeight = thumbnails[0] ? thumbnails[0].offsetHeight : 0;
+      const gap = 4; // gap-xs equivalent (0.25rem = 4px)
+      const translateY = currentScrollIndex * (thumbnailHeight + gap);
+      thumbnailsContainer.style.transform = `translateY(-${translateY}px)`;
+    }
+  }
+  
+  // Scroll thumbnails function
+  window.scrollThumbnails = function(direction) {
+    const maxScrollIndex = Math.max(0, totalThumbnails - maxVisibleThumbnails);
+    
+    if (direction === 'up' && currentScrollIndex > 0) {
+      currentScrollIndex--;
+    } else if (direction === 'down' && currentScrollIndex < maxScrollIndex) {
+      currentScrollIndex++;
+    }
+    
+    updateCarouselState();
+  };
+  
+  // Thumbnail click functionality
+  thumbnails.forEach(function(thumbnail, index) {
+    thumbnail.addEventListener('click', function() {
+      // Remove active class from all thumbnails
+      thumbnails.forEach(function(thumb) {
+        thumb.classList.remove('active');
+      });
+      
+      // Add active class to clicked thumbnail
+      this.classList.add('active');
+      
+      // Update main image
+      const thumbnailImg = this.querySelector('.thumbnail-image');
+      const imageSource = this.getAttribute('data-image-src');
+      if (thumbnailImg && mainImage && imageSource) {
+        // Use the original image source with larger width
+        mainImage.src = imageSource + '?width=800';
+        mainImage.alt = thumbnailImg.alt;
+      }
+      
+      // Auto-scroll to show clicked thumbnail if it's out of view
+      if (totalThumbnails > maxVisibleThumbnails) {
+        const visibleStart = currentScrollIndex;
+        const visibleEnd = currentScrollIndex + maxVisibleThumbnails - 1;
+        
+        if (index < visibleStart) {
+          // Thumbnail is above visible area, scroll up
+          currentScrollIndex = index;
+          updateCarouselState();
+        } else if (index > visibleEnd) {
+          // Thumbnail is below visible area, scroll down
+          currentScrollIndex = Math.min(index - maxVisibleThumbnails + 1, totalThumbnails - maxVisibleThumbnails);
+          updateCarouselState();
+        }
+      }
+    });
+  });
+  
+  // Initialize carousel
+  initCarousel();
+  
+  // Color variant functionality
+  const colorInputs = document.querySelectorAll('.color-input');
+  const selectedColorName = document.querySelector('.selected-color-name');
+  
+  colorInputs.forEach(function(input) {
+    input.addEventListener('change', function() {
+      if (selectedColorName) {
+        selectedColorName.textContent = this.value.toUpperCase();
+      }
+      
+      // Update color swatch styling
+      const colorOptions = document.querySelectorAll('.color-option');
+      colorOptions.forEach(function(option) {
+        const swatch = option.querySelector('.color-swatch');
+        const radioInput = option.querySelector('.color-input');
+        
+        if (radioInput.checked) {
+          swatch.classList.add('ring-2', 'ring-black', 'ring-offset-2');
+        } else {
+          swatch.classList.remove('ring-2', 'ring-black', 'ring-offset-2');
+        }
+      });
+    });
+  });
+  
+  // Sticky cart bar functionality
+  {% if section.settings.show_sticky_cart %}
+  const stickyCartBar = document.getElementById('sticky-cart-bar');
+  const productHeaderSection = document.querySelector('.product-header');
+  let isSticky = false;
+  
+  function handleStickyCart() {
+    if (!stickyCartBar || !productHeaderSection) {
+      console.log('Sticky cart elements not found:', { stickyCartBar, productHeaderSection });
+      return;
+    }
+    
+    const headerRect = productHeaderSection.getBoundingClientRect();
+    const shouldShow = headerRect.bottom < 0; // Show when header is completely out of view
+    
+    console.log('Sticky cart check:', { 
+      headerBottom: headerRect.bottom, 
+      shouldShow, 
+      isSticky 
+    });
+    
+    if (shouldShow && !isSticky) {
+      stickyCartBar.style.transform = 'translateY(0)';
+      stickyCartBar.style.visibility = 'visible';
+      isSticky = true;
+      console.log('Showing sticky cart');
+    } else if (!shouldShow && isSticky) {
+      stickyCartBar.style.transform = 'translateY(100%)';
+      stickyCartBar.style.visibility = 'hidden';
+      isSticky = false;
+      console.log('Hiding sticky cart');
+    }
+  }
+  
+  // Throttled scroll handler for performance
+  let ticking = false;
+  function handleScroll() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        handleStickyCart();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  // Sync quantities between main form and sticky bar
+  function syncQuantities() {
+    const mainQuantityDisplay = document.getElementById('quantity-display');
+    const stickyQuantity = document.getElementById('sticky-quantity');
+    
+    if (mainQuantityDisplay && stickyQuantity) {
+      const value = Math.max(1, parseInt(mainQuantityDisplay.textContent) || 1);
+      mainQuantityDisplay.textContent = value;
+      stickyQuantity.value = value;
+    }
+  }
+  
+  // Initial sync
+  syncQuantities();
+  
+  // Set initial state
+  stickyCartBar.style.transform = 'translateY(100%)';
+  stickyCartBar.style.visibility = 'visible';
+  
+  // Initial check
+  handleStickyCart();
+  {% endif %}
+  
+  // Enhanced Subscription/Purchase Options Toggle
+  const subscriptionRadioHeader = document.getElementById('subscribe-and-save-header');
+  const oneTimeRadioHeader = document.getElementById('one-time-purchase-header');
+  const subscriptionPlans = document.querySelector('.subscription-plans');
+  const subscriptionCard = document.querySelector('.subscription-option-card .subscribe-option');
+  const oneTimeCard = document.querySelector('.one-time-purchase-card .subscribe-option');
+  
+  function toggleSubscriptionPlans() {
+    if (subscriptionRadioHeader && subscriptionPlans) {
+      if (subscriptionRadioHeader.checked) {
+        subscriptionPlans.style.display = 'block';
+      } else {
+        subscriptionPlans.style.display = 'none';
+      }
+    }
+  }
+  
+  function updateCardStates() {
+    // Update subscription card state
+    const subscriptionCardElement = document.querySelector('.subscription-option-card');
+    if (subscriptionCardElement && subscriptionRadioHeader) {
+      if (subscriptionRadioHeader.checked) {
+        subscriptionCardElement.classList.add('selected');
+      } else {
+        subscriptionCardElement.classList.remove('selected');
+      }
+    }
+    
+    // Update one-time card state
+    const oneTimeCardElement = document.querySelector('.one-time-purchase-card');
+    if (oneTimeCardElement && oneTimeRadioHeader) {
+      if (oneTimeRadioHeader.checked) {
+        oneTimeCardElement.classList.add('selected');
+      } else {
+        oneTimeCardElement.classList.remove('selected');
+      }
+    }
+  }
+  
+  function handlePurchaseOptionChange() {
+    toggleSubscriptionPlans();
+    updateCardStates();
+  }
+  
+  if (subscriptionRadioHeader) {
+    subscriptionRadioHeader.addEventListener('change', handlePurchaseOptionChange);
+  }
+  
+  if (oneTimeRadioHeader) {
+    oneTimeRadioHeader.addEventListener('change', handlePurchaseOptionChange);
+  }
+  
+  // Card click handlers
+  const subscriptionCardElement = document.querySelector('.subscription-option-card');
+  const oneTimeCardElement = document.querySelector('.one-time-purchase-card');
+  
+  if (subscriptionCardElement) {
+    subscriptionCardElement.addEventListener('click', function(e) {
+      if (e.target.type !== 'radio' && subscriptionRadioHeader) {
+        subscriptionRadioHeader.checked = true;
+        handlePurchaseOptionChange();
+      }
+    });
+  }
+  
+  if (oneTimeCardElement) {
+    oneTimeCardElement.addEventListener('click', function(e) {
+      if (e.target.type !== 'radio' && oneTimeRadioHeader) {
+        oneTimeRadioHeader.checked = true;
+        handlePurchaseOptionChange();
+      }
+    });
+  }
+  
+  // Initial state
+  handlePurchaseOptionChange();
+});
+
+// Quantity update functionality
+function updateQuantity(change) {
+  const quantityDisplay = document.getElementById('quantity-display');
+  if (quantityDisplay) {
+    let currentValue = parseInt(quantityDisplay.textContent) || 1;
+    let newValue = currentValue + change;
+    
+    if (newValue < 1) newValue = 1;
+    
+    quantityDisplay.textContent = newValue;
+    
+    // Update the data attribute on the add to cart button
+    const addToCartBtn = document.querySelector('.add-to-cart-btn');
+    if (addToCartBtn) {
+      addToCartBtn.setAttribute('data-fluid-quantity', newValue);
+    }
+    
+    // Sync with sticky quantity
+    {% if section.settings.show_sticky_cart %}
+    const stickyQuantity = document.getElementById('sticky-quantity');
+    if (stickyQuantity) {
+      stickyQuantity.value = newValue;
+    }
+    {% endif %}
+  }
+}
+
+{% if section.settings.show_sticky_cart %}
+// Sticky quantity update functionality
+function updateStickyQuantity(change) {
+  const stickyQuantityInput = document.getElementById('sticky-quantity');
+  if (stickyQuantityInput) {
+    let currentValue = parseInt(stickyQuantityInput.value) || 1;
+    let newValue = currentValue + change;
+    
+    if (newValue < 1) newValue = 1;
+    
+    stickyQuantityInput.value = newValue;
+    
+    // Sync with main quantity display
+    const mainQuantityDisplay = document.getElementById('quantity-display');
+    if (mainQuantityDisplay) {
+      mainQuantityDisplay.textContent = newValue;
+    }
+    
+    // Update the data attribute on the add to cart button
+    const addToCartBtn = document.querySelector('.add-to-cart-btn');
+    if (addToCartBtn) {
+      addToCartBtn.setAttribute('data-fluid-quantity', newValue);
+    }
+  }
+}
+
+// Add to cart from sticky bar
+function addToCartFromSticky() {
+  const mainForm = document.getElementById('product-form-header');
+  const stickyQuantity = document.getElementById('sticky-quantity');
+  const mainQuantity = document.getElementById('quantity');
+  
+  // Sync quantities before submitting
+  if (stickyQuantity && mainQuantity) {
+    mainQuantity.value = stickyQuantity.value;
+  }
+  
+  // Trigger the main form submission
+  if (mainForm) {
+    const submitButton = mainForm.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.click();
+    }
+  }
+}
+{% endif %}
+</script>
+
+{% schema %}
+{
+  "name": "Product Header",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product Category"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_category",
+      "label": "Show Product Category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "fallback_category",
+      "label": "Fallback Category Text",
+      "default": "Product",
+      "info": "Text to show if product has no type or vendor. Leave blank to hide category when not available."
+    },
+    {
+      "type": "select",
+      "id": "category_font_family",
+      "label": "Category Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "category_font_size",
+      "label": "Category Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "category_font_size_desktop",
+      "label": "Category Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" }
+      ],
+      "default": "lg:text-sm"
+    },
+    {
+      "type": "select",
+      "id": "category_font_weight",
+      "label": "Category Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "category_color",
+      "label": "Category Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Product Title Styling"
+    },
+    {
+      "type": "select",
+      "id": "title_font_family",
+      "label": "Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "title_font_size",
+      "label": "Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "title_font_size_desktop",
+      "label": "Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "title_color",
+      "label": "Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Product Description Styling"
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Trust Badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Show Trust Badges",
+      "default": true,
+      "info": "Enable this to show custom trust badges. Add trust badge blocks below to create your badges."
+    },
+    {
+      "type": "select",
+      "id": "badge_font_size",
+      "label": "Badge Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "badge_color",
+      "label": "Badge Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Reviews Section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show Reviews",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Review Count",
+      "default": "136"
+    },
+    {
+      "type": "select",
+      "id": "review_font_size",
+      "label": "Review Text Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "review_color",
+      "label": "Review Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Product Variants"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_color_variants",
+      "label": "Show Color Variants",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "variant_label_font_size",
+      "label": "Variant Label Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "variant_label_color",
+      "label": "Variant Label Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Add to Cart Section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "Show Quantity Selector",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_text",
+      "label": "Add to Cart Button Text",
+      "default": "Add to bag"
+    },
+    {
+      "type": "text",
+      "id": "sold_out_text",
+      "label": "Sold Out Button Text",
+      "default": "Sold out"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "button_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "black"
+    },
+    {
+      "type": "select",
+      "id": "button_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_options",
+      "label": "Show Payment Options",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "payment_font_size",
+      "label": "Payment Options Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "payment_color",
+      "label": "Payment Options Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Price Styling"
+    },
+    {
+      "type": "select",
+      "id": "price_font_size",
+      "label": "Price Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "price_color",
+      "label": "Price Color",
+      "options": [
+        { "value": "#000000", "label": "Black" },
+        { "value": "#ffffff", "label": "White" },
+        { "value": "#374151", "label": "Gray" },
+        { "value": "#059669", "label": "Green" },
+        { "value": "#dc2626", "label": "Red" },
+        { "value": "#2563eb", "label": "Blue" }
+      ],
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "price_font_weight",
+      "label": "Price Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "header",
+      "content": "Form Label Styling"
+    },
+    {
+      "type": "select",
+      "id": "form_label_font_size",
+      "label": "Form Label Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "form_label_color",
+      "label": "Form Label Color",
+      "options": [
+        { "value": "#000000", "label": "Black" },
+        { "value": "#374151", "label": "Gray" },
+        { "value": "#6b7280", "label": "Light Gray" },
+        { "value": "#ffffff", "label": "White" }
+      ],
+      "default": "#374151"
+    },
+    {
+      "type": "select",
+      "id": "form_label_font_weight",
+      "label": "Form Label Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "header",
+      "content": "Quantity Selector Styling"
+    },
+    {
+      "type": "select",
+      "id": "quantity_font_size",
+      "label": "Quantity Display Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "quantity_border_radius",
+      "label": "Quantity Selector Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "header",
+      "content": "Sticky Cart Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sticky_cart",
+      "label": "Show Sticky Cart Bar",
+      "default": true,
+      "info": "Shows a fixed cart bar at bottom when product header scrolls out of view"
+    },
+    {
+      "type": "text",
+      "id": "sticky_add_to_cart_text",
+      "label": "Sticky Add to Cart Text",
+      "default": "Add to bag"
+    },
+    {
+      "type": "text",
+      "id": "sticky_sold_out_text",
+      "label": "Sticky Sold Out Text",
+      "default": "Sold out"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_show_quantity",
+      "label": "Show Quantity in Sticky Bar",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "sticky_button_style",
+      "label": "Sticky Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "sticky_button_color",
+      "label": "Sticky Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "black"
+    },
+    {
+      "type": "select",
+      "id": "sticky_button_size",
+      "label": "Sticky Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "select",
+      "id": "sticky_title_font_size",
+      "label": "Sticky Product Title Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "sticky_title_color",
+      "label": "Sticky Product Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "sticky_price_font_size",
+      "label": "Sticky Price Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "sticky_price_color",
+      "label": "Sticky Price Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "sticky_image_border_radius",
+      "label": "Sticky Product Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "select",
+      "id": "sticky_quantity_border_radius",
+      "label": "Sticky Quantity Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" }
+      ],
+      "default": "rounded-md"
+    },
+    {
+      "type": "select",
+      "id": "sticky_quantity_font_size",
+      "label": "Sticky Quantity Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "image_border_radius",
+      "label": "Main Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "select",
+      "id": "thumbnail_border_radius",
+      "label": "Thumbnail Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" }
+      ],
+      "default": "rounded-md"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-lg"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust Badge",
+      "settings": [
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge Text",
+          "placeholder": "e.g. HSA/FSA Accepted, FDA Registered, 30-Day Returns",
+          "info": "Enter the text you want to display with a green checkmark"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Header",
+      "blocks": [
+        {
+          "type": "trust_badge",
+          "settings": {
+            "badge_text": "HSA/FSA Accepted"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "badge_text": "FDA Registered"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "badge_text": "30-Day Returns"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,48 @@
+{
+  "background_color": "bg-neutral-light",
+  "background_image": "",
+  "section_padding_y_mobile": "py-xl",
+  "section_padding_y_desktop": "lg:py-3xl",
+  "section_border_radius": "rounded-none",
+  
+  "container_background_color": "",
+  "container_background_image": "",
+  "container_border_radius": "rounded-none",
+  "container_padding_y_mobile": "py-xl",
+  "container_padding_y_desktop": "lg:py-3xl",
+  "container_padding_x_mobile": "px-lg",
+  "container_padding_x_desktop": "lg:px-xl",
+  
+  "show_section_header": true,
+  "section_heading": "Lorem ipsum dolor sit amet consectetur",
+  "section_description": "",
+  "heading_font_size": "text-3xl",
+  "heading_font_size_desktop": "lg:text-4xl",
+  "heading_font_weight": "font-bold",
+  "heading_line_height": "leading-tight",
+  "heading_margin_bottom": "mb-2xl",
+  "heading_text_color": "",
+  "description_font_size": "text-base",
+  "description_font_size_desktop": "lg:text-lg",
+  "description_line_height": "leading-relaxed",
+  "description_text_color": "",
+  
+  "item_background_color": "bg-white",
+  "item_border_radius": "rounded-lg",
+  "item_padding": "p-lg",
+  "item_text_color": "",
+  
+  "icon_background_color": "bg-neutral-light",
+  "icon_border_radius": "rounded-lg",
+  "icon_size": "w-12 h-12",
+  "icon_margin_bottom": "mb-md",
+  
+  "title_font_size": "text-base",
+  "title_font_size_desktop": "lg:text-lg",
+  "title_font_weight": "font-medium",
+  "title_line_height": "leading-snug",
+  
+  "show_arrows": true,
+  "arrow_color": "",
+  "arrow_margin_top": "mt-sm"
+}

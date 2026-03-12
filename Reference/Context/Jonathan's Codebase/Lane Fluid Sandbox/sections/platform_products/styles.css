@@ -1,0 +1,85 @@
+/* Platform Products Section Styles */
+.platform-products-section {
+  position: relative;
+}
+
+.platform-header {
+  max-width: 800px;
+}
+
+.platform-header.text-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.platform-heading {
+  line-height: 1.1;
+}
+
+.platform-description {
+  line-height: 1.7;
+  opacity: 0.85;
+}
+
+.platform-product-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.platform-product-image {
+  max-width: 100%;
+}
+
+.platform-product-image .product-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.platform-product-title {
+  line-height: 1.2;
+}
+
+.platform-product-description {
+  line-height: 1.7;
+  opacity: 0.85;
+  flex-grow: 1;
+}
+
+.platform-product-link {
+  font-weight: 600;
+  transition: gap 0.3s ease;
+}
+
+.platform-product-link:hover {
+  gap: 12px;
+}
+
+.platform-paint-accent {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  max-width: 100px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .platform-product-image .product-img {
+    height: 180px;
+  }
+  
+  .platform-paint-accent {
+    max-width: 150px;
+  }
+}

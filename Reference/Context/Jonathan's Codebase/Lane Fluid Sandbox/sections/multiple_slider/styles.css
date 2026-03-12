@@ -1,0 +1,35 @@
+.gap-28 {
+    gap: 4rem;
+  }
+  
+  @media (min-width: 991px) {
+    .gap-28 {
+      gap: 5rem;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .gap-28 {
+      gap: 7rem;
+    }
+  }
+  
+  .gap-20 {
+    gap: 4rem;
+  }
+  
+  @media (min-width: 1280px) {
+    .gap-20 {
+      gap: 5rem;
+    }
+  }
+  
+  .section-title {
+    margin-bottom: 3rem;
+  }
+  
+  @media (min-width: 1024px) {
+    .section-title {
+      margin-bottom: 5rem;
+    }
+  }

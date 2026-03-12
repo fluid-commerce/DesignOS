@@ -1,0 +1,667 @@
+<!-- Blog section  -->
+<section class="blog-section" style="
+  padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px; 
+  padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px; 
+  background-color: {{ section.settings.background_color | default: '#ffffff' }}; 
+">
+  <style>
+    @media (min-width: 1280px) {
+      .blog-section {
+        padding-top: {{ section.settings.section_padding_top_desktop | default: 100 }}px !important;
+        padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 80 }}px !important;
+      }
+    }
+  </style>
+  <div class="container">
+    <div class="header text-center">
+      <div class="{{ section.settings.heading_font_size | default: 'text-h1' }} {{ section.settings.heading_font_size_desktop | default: 'xl-tab-text-5xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }}" style="color: {{ section.settings.heading_color | default: '#000000' }};">{{ section.settings.heading | default: "Short heading goes here" }}</div>
+      {% if section.settings.intro_text != blank %}
+      <p class="{{ section.settings.intro_font_size | default: 'text-base' }} {{ section.settings.intro_font_size_desktop | default: 'xl-tab-text-lg' }} {{ section.settings.intro_font_weight | default: 'font-normal' }} pt-5" style="color: {{ section.settings.intro_color | default: '#000000' }};">{{ section.settings.intro_text }}</p>
+      {% endif %}
+    </div>
+
+    <div class="blog-grid-section pt-12 sm-desktop-pt-20">
+      <div class="grid grid-cols-1 {{ section.settings.grid_columns_tablet | default: 'lg-tab-grid-cols-2' }} {{ section.settings.grid_columns_desktop | default: 'xl-desktop-grid-cols-3' }} gap-{{ section.settings.grid_gap | default: 12 }} blog-grid">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'blog_post' %}
+              <div class="blog-col flex flex-col gap-6" {{ block.fluid_attributes }}>
+                <figure class="blog-image relative overflow-hidden" style="
+                  border-radius: {{ block.settings.image_border_radius | default: 0 }}px;
+                  height: {{ block.settings.image_height | default: 'auto' }};
+                ">
+                  {% if block.settings.blog_image != blank %}
+                    <img src="{{ block.settings.blog_image | image_url: width: 600 }}" alt="{{ block.settings.blog_title | default: 'Blog post' }}" class="image-cover" loading="lazy"/>
+                  {% else %}
+                    <img src="{{ 'blog-placeholder.png' | asset_url }}" alt="blog" class="image-cover"/>
+                  {% endif %}
+                </figure>
+                <div class="blog-content">
+                  {% if block.settings.show_category and block.settings.blog_category != blank %}
+                  <div class="blog-category mb-2">
+                    <span class="{{ block.settings.category_font_size | default: 'text-sm' }} {{ block.settings.category_font_weight | default: 'font-medium' }}" style="color: {{ block.settings.category_color | default: '#666666' }};">{{ block.settings.blog_category }}</span>
+                  </div>
+                  {% endif %}
+                  <h4 class="mb-2 {{ block.settings.title_font_size | default: 'text-h4' }} {{ block.settings.title_font_size_desktop | default: 'xl-tab-text-h4' }} {{ block.settings.title_font_weight | default: 'font-semibold' }}" style="color: {{ block.settings.title_color | default: '#000000' }};">{{ block.settings.blog_title | default: "Blog title heading will go here" }}</h4>
+                  <p class="{{ block.settings.content_font_size | default: 'text-base' }} {{ block.settings.content_font_size_desktop | default: 'xl-tab-text-base' }} {{ block.settings.content_font_weight | default: 'font-normal' }}" style="color: {{ block.settings.content_color | default: '#000000' }};">
+                    {{ block.settings.blog_excerpt | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare." }}
+                  </p>
+                  {% if block.settings.show_author and block.settings.author_name != blank %}
+                  <div class="blog-author mt-4 flex items-center gap-3">
+                    {% if block.settings.author_image != blank %}
+                      <img src="{{ block.settings.author_image | image_url: width: 40 }}" alt="{{ block.settings.author_name }}" class="rounded-full w-10 h-10 object-cover">
+                    {% endif %}
+                    <div>
+                      <p class="{{ block.settings.author_font_size | default: 'text-sm' }} {{ block.settings.author_font_weight | default: 'font-medium' }}" style="color: {{ block.settings.author_color | default: '#000000' }};">{{ block.settings.author_name }}</p>
+                      {% if block.settings.publish_date != blank %}
+                      <p class="text-xs" style="color: {{ block.settings.date_color | default: '#666666' }};">{{ block.settings.publish_date }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% endif %}
+                  {% if block.settings.show_read_more %}
+                  <div class="blog-btn mt-{{ block.settings.button_margin_top | default: 3 }}">
+                    <a href="{{ block.settings.blog_url | default: '#' }}" class="btn btn-link {{ block.settings.button_style | default: 'btn-link' }}" style="color: {{ block.settings.button_color | default: '#000000' }};">
+                      <span>{{ block.settings.button_text | default: "Read more" }}</span>
+                      {% if block.settings.show_button_icon %}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="25"
+                        viewBox="0 0 24 25"
+                        fill="none"
+                        class="mt-1"
+                      >
+                        <path
+                          d="M9.70697 17.3491L15.414 11.6421L9.70697 5.93506L8.29297 7.34906L12.586 11.6421L8.29297 15.9351L9.70697 17.3491Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      {% endif %}
+                    </a>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+          {% endcase %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Blog Section",
+  "tag": "section",
+  "class": "blog-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Short heading goes here"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "label": "Intro Text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "grid_columns_tablet",
+      "label": "Grid Columns (Tablet)",
+      "options": [
+        { "value": "lg-tab-grid-cols-1", "label": "1 Column" },
+        { "value": "lg-tab-grid-cols-2", "label": "2 Columns" },
+        { "value": "lg-tab-grid-cols-3", "label": "3 Columns" }
+      ],
+      "default": "lg-tab-grid-cols-2"
+    },
+    {
+      "type": "select",
+      "id": "grid_columns_desktop",
+      "label": "Grid Columns (Desktop)",
+      "options": [
+        { "value": "xl-desktop-grid-cols-1", "label": "1 Column" },
+        { "value": "xl-desktop-grid-cols-2", "label": "2 Columns" },
+        { "value": "xl-desktop-grid-cols-3", "label": "3 Columns" },
+        { "value": "xl-desktop-grid-cols-4", "label": "4 Columns" }
+      ],
+      "default": "xl-desktop-grid-cols-3"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "label": "Grid Gap",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Background & Spacing"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Heading Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h1", "label": "H1" },
+        { "value": "text-h2", "label": "H2" }
+      ],
+      "default": "text-h2"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" },
+        { "value": "xl-tab-text-3xl", "label": "3X Large" },
+        { "value": "xl-tab-text-5xl", "label": "5X Large" }
+      ],
+      "default": "xl-tab-text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Intro Text Typography"
+    },
+    {
+      "type": "select",
+      "id": "intro_font_size",
+      "label": "Intro Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "intro_font_size_desktop",
+      "label": "Intro Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "intro_font_weight",
+      "label": "Intro Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "intro_color",
+      "label": "Intro Color",
+      "default": "#000000"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "blog_post",
+      "name": "Blog Post",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Blog Content"
+        },
+        {
+          "type": "image_picker",
+          "id": "blog_image",
+          "label": "Blog Image",
+          "info": "Recommended size: 600x400px"
+        },
+        {
+          "type": "text",
+          "id": "blog_title",
+          "label": "Blog Title",
+          "default": "Blog title heading will go here"
+        },
+        {
+          "type": "textarea",
+          "id": "blog_excerpt",
+          "label": "Blog Excerpt",
+          "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique."
+        },
+        {
+          "type": "url",
+          "id": "blog_url",
+          "label": "Blog URL",
+          "default": "#"
+        },
+        {
+          "type": "header",
+          "content": "Image Settings"
+        },
+        {
+          "type": "range",
+          "id": "image_border_radius",
+          "min": 0,
+          "max": 20,
+          "step": 2,
+          "unit": "px",
+          "label": "Image Border Radius",
+          "default": 0
+        },
+        {
+          "type": "select",
+          "id": "image_height",
+          "label": "Image Height",
+          "options": [
+            { "value": "auto", "label": "Auto" },
+            { "value": "200px", "label": "Small (200px)" },
+            { "value": "250px", "label": "Medium (250px)" },
+            { "value": "300px", "label": "Large (300px)" }
+          ],
+          "default": "auto"
+        },
+        {
+          "type": "header",
+          "content": "Category Settings"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_category",
+          "label": "Show Category",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "blog_category",
+          "label": "Blog Category",
+          "default": ""
+        },
+        {
+          "type": "select",
+          "id": "category_font_size",
+          "label": "Category Font Size",
+          "options": [
+            { "value": "text-xs", "label": "Extra Small" },
+            { "value": "text-sm", "label": "Small" },
+            { "value": "text-base", "label": "Base" }
+          ],
+          "default": "text-sm"
+        },
+        {
+          "type": "select",
+          "id": "category_font_weight",
+          "label": "Category Font Weight",
+          "options": [
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-medium"
+        },
+        {
+          "type": "color_background",
+          "id": "category_color",
+          "label": "Category Color",
+          "default": "#666666"
+        },
+        {
+          "type": "header",
+          "content": "Title Typography"
+        },
+        {
+          "type": "select",
+          "id": "title_font_size",
+          "label": "Title Font Size (Mobile)",
+          "options": [
+            { "value": "text-lg", "label": "Large" },
+            { "value": "text-xl", "label": "Extra Large" },
+            { "value": "text-2xl", "label": "2X Large" },
+            { "value": "text-h4", "label": "H4" }
+          ],
+          "default": "text-h4"
+        },
+        {
+          "type": "select",
+          "id": "title_font_size_desktop",
+          "label": "Title Font Size (Desktop)",
+          "options": [
+            { "value": "xl-tab-text-lg", "label": "Large" },
+            { "value": "xl-tab-text-xl", "label": "Extra Large" },
+            { "value": "xl-tab-text-2xl", "label": "2X Large" },
+            { "value": "xl-tab-text-h4", "label": "H4" }
+          ],
+          "default": "xl-tab-text-h4"
+        },
+        {
+          "type": "select",
+          "id": "title_font_weight",
+          "label": "Title Font Weight",
+          "options": [
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-semibold"
+        },
+        {
+          "type": "color_background",
+          "id": "title_color",
+          "label": "Title Color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "Content Typography"
+        },
+        {
+          "type": "select",
+          "id": "content_font_size",
+          "label": "Content Font Size (Mobile)",
+          "options": [
+            { "value": "text-sm", "label": "Small" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "Large" }
+          ],
+          "default": "text-base"
+        },
+        {
+          "type": "select",
+          "id": "content_font_size_desktop",
+          "label": "Content Font Size (Desktop)",
+          "options": [
+            { "value": "xl-tab-text-sm", "label": "Small" },
+            { "value": "xl-tab-text-base", "label": "Base" },
+            { "value": "xl-tab-text-lg", "label": "Large" }
+          ],
+          "default": "xl-tab-text-base"
+        },
+        {
+          "type": "select",
+          "id": "content_font_weight",
+          "label": "Content Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" }
+          ],
+          "default": "font-normal"
+        },
+        {
+          "type": "color_background",
+          "id": "content_color",
+          "label": "Content Color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "Author Settings"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_author",
+          "label": "Show Author",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Author Image",
+          "info": "Recommended size: 40x40px"
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Author Name",
+          "default": ""
+        },
+        {
+          "type": "text",
+          "id": "publish_date",
+          "label": "Publish Date",
+          "default": "",
+          "info": "e.g., March 15, 2024"
+        },
+        {
+          "type": "select",
+          "id": "author_font_size",
+          "label": "Author Font Size",
+          "options": [
+            { "value": "text-xs", "label": "Extra Small" },
+            { "value": "text-sm", "label": "Small" },
+            { "value": "text-base", "label": "Base" }
+          ],
+          "default": "text-sm"
+        },
+        {
+          "type": "select",
+          "id": "author_font_weight",
+          "label": "Author Font Weight",
+          "options": [
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semi Bold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-medium"
+        },
+        {
+          "type": "color_background",
+          "id": "author_color",
+          "label": "Author Color",
+          "default": "#000000"
+        },
+        {
+          "type": "color_background",
+          "id": "date_color",
+          "label": "Date Color",
+          "default": "#666666"
+        },
+        {
+          "type": "header",
+          "content": "Button Settings"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_read_more",
+          "label": "Show Read More Button",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "Read more"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button Style",
+          "options": [
+            { "value": "btn-link", "label": "Link" },
+            { "value": "btn-bg-primary", "label": "Primary Background" },
+            { "value": "btn-border-primary", "label": "Primary Border" }
+          ],
+          "default": "btn-link"
+        },
+        {
+          "type": "color_background",
+          "id": "button_color",
+          "label": "Button Color",
+          "default": "#000000"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_button_icon",
+          "label": "Show Button Icon",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "button_margin_top",
+          "min": 1,
+          "max": 8,
+          "step": 1,
+          "label": "Button Margin Top",
+          "default": 3
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Blog Section",
+      "blocks": [
+        {
+          "type": "blog_post",
+          "settings": {
+            "blog_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_sap0uuh5SxemSBq7KwZp_z17SgJSDN",
+            "blog_title": "How to Build a Successful Online Business",
+            "blog_excerpt": "Learn the essential strategies and tips for creating a thriving online business from scratch. This comprehensive guide covers everything you need to know.",
+            "blog_category": "Business",
+            "show_category": true,
+            "author_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_Aecnt3MASgOodip2XVp8_6F36orOmE1",
+            "author_name": "Sarah Johnson",
+            "show_author": true,
+            "publish_date": "March 15, 2024",
+            "show_read_more": true,
+            "button_text": "Read more"
+          }
+        },
+        {
+          "type": "blog_post",
+          "settings": {
+            "blog_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_sap0uuh5SxemSBq7KwZp_F2U3GnGkA",
+            "blog_title": "The Future of Digital Marketing Trends",
+            "blog_excerpt": "Discover the latest trends shaping the digital marketing landscape and how to leverage them for your brand's success in the coming year.",
+            "blog_category": "Marketing",
+            "show_category": true,
+            "author_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_Aecnt3MASgOodip2XVp8_323PLhH2Jg",
+            "author_name": "Michael Chen",
+            "show_author": true,
+            "publish_date": "March 12, 2024",
+            "show_read_more": true,
+            "button_text": "Read more"
+          }
+        },
+        {
+          "type": "blog_post",
+          "settings": {
+            "blog_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_sap0uuh5SxemSBq7KwZp_rOxahGdf0",
+            "blog_title": "Mastering Remote Work Productivity",
+            "blog_excerpt": "Explore proven techniques and tools to maximize your productivity while working remotely. Transform your home office into a productivity powerhouse.",
+            "blog_category": "Productivity",
+            "show_category": true,
+            "author_image": "https://ik.imagekit.io/fluid/filestack-migration/filestack_Aecnt3MASgOodip2XVp8_sGGOB6ChV",
+            "author_name": "Emma Davis",
+            "show_author": true,
+            "publish_date": "March 10, 2024",
+            "show_read_more": true,
+            "button_text": "Read more"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

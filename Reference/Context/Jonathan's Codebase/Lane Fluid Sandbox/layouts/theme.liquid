@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="{{localization.language.iso_code}}">
+  <head>
+    {{ content_for_header }}
+
+    {% if request.page_type == 'page' %}
+      <meta content="https://ik.imagekit.io/fluid/filestack-migration/filestack_0GoeytXqRJGDBz3RIZ4g_XOvivpw6OV" property="og:image">
+      <meta content="image/png" property="og:image:type">
+    {% endif %}
+    
+    <!-- Custom Font Preloads for Better Performance -->
+    <link rel="preload" as="font" href="{{ 'NeueHaasDisplay-Black.ttf' | asset_url }}" type="font/ttf" crossorigin>
+    <link rel="preload" as="font" href="{{ 'NeueHaasDisplay-Bold.ttf' | asset_url }}" type="font/ttf" crossorigin>
+    <link rel="preload" as="font" href="{{ 'NeueHaasDisplay-Mediu.ttf' | asset_url }}" type="font/ttf" crossorigin>
+    <link rel="preload" as="font" href="{{ 'flfontbold.ttf' | asset_url }}" type="font/ttf" crossorigin>
+    
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css"/>
+    <link rel="stylesheet" href="{{ 'reset.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'design-system.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'config.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'utilities.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'design-utilities.css' | asset_url }}">
+    {% style %}
+
+    /* Custom Font Face Declarations */
+      @font-face {
+        font-family: 'NeueHaasDisplay';
+        src: url('{{ "NeueHaasDisplay-Mediu.ttf" | asset_url }}') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'NeueHaasDisplay';
+        src: url('{{ "NeueHaasDisplay-Bold.ttf" | asset_url }}') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'NeueHaasDisplay';
+        src: url('{{ "NeueHaasDisplay-Black.ttf" | asset_url }}') format('truetype');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'FLFont';
+        src: url('{{ "flfontbold.ttf" | asset_url }}') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+      }
+      /* Theme-driven CSS Variable Overrides */
+      :root {
+        /* Override design system defaults with theme settings */
+        --font-family-primary: {{ settings.font_family_primary | default: "NeueHaasDisplay, Arial, sans-serif" }};
+        --font-family-body: {{ settings.font_family_body | default: "NeueHaasDisplay, Arial, sans-serif" }};
+        --font-family-handwritten: {{ settings.font_family_handwritten | default: "FLFont, Arial, sans-serif" }};
+        --font-family-serif: {{ settings.font_family_serif | default: "Georgia, serif" }};
+        
+        --font-weight-light: {{ settings.font_weight_light | default: 300 }};
+        --font-weight-regular: {{ settings.font_weight_regular | default: 400 }};
+        --font-weight-medium: {{ settings.font_weight_medium | default: 500 }};
+        --font-weight-bold: {{ settings.font_weight_bold | default: 700 }};
+        --font-weight-black: {{ settings.font_weight_black | default: 900 }};
+        
+        --font-size-xs: {{ settings.font_size_xs | default: 0.75 | append: 'rem' }};
+        --font-size-sm: {{ settings.font_size_sm | default: 0.875 | append: 'rem' }};
+        --font-size-base: {{ settings.font_size_base | default: 1 | append: 'rem' }};
+        --font-size-lg: {{ settings.font_size_lg | default: 1.125 | append: 'rem' }};
+        --font-size-xl: {{ settings.font_size_xl | default: 1.25 | append: 'rem' }};
+        --font-size-2xl: {{ settings.font_size_2xl | default: 1.5 | append: 'rem' }};
+        --font-size-3xl: {{ settings.font_size_3xl | default: 2 | append: 'rem' }};
+        --font-size-4xl: {{ settings.font_size_4xl | default: 2.5 | append: 'rem' }};
+        --font-size-5xl: {{ settings.font_size_5xl | default: 3 | append: 'rem' }};
+        --font-size-6xl: {{ settings.font_size_6xl | default: 4 | append: 'rem' }};
+        
+        --heading-h1-size: {{ settings.heading_h1_size | default: 2.375 | append: 'rem' }};
+        --heading-h2-size: {{ settings.heading_h2_size | default: 2 | append: 'rem' }};
+        --heading-h3-size: {{ settings.heading_h3_size | default: 1.5 | append: 'rem' }};
+        --heading-h4-size: {{ settings.heading_h4_size | default: 1.125 | append: 'rem' }};
+        --heading-h5-size: {{ settings.heading_h5_size | default: 0.875 | append: 'rem' }};
+        --heading-h6-size: {{ settings.heading_h6_size | default: 0.75 | append: 'rem' }};
+        
+        --line-height-none: {{ settings.line_height_none | default: 1 }};
+        --line-height-tight: {{ settings.line_height_tight | default: 1.125 }};
+        --line-height-normal: {{ settings.line_height_normal | default: 1.2 }};
+        --line-height-relaxed: {{ settings.line_height_relaxed | default: 1.42857143 }};
+        --line-height-loose: {{ settings.line_height_loose | default: 1.625 }};
+        
+        --color-white: {{ settings.color_white | default: '#ffffff' }};
+        --color-black: {{ settings.color_black | default: '#000000' }};
+        
+        /* Spacing overrides from theme settings */
+        --space-xs: {{ settings.space_xs | default: 0.25 | append: 'rem' }};
+        --space-sm: {{ settings.space_sm | default: 0.5 | append: 'rem' }};
+        --space-md: {{ settings.space_md | default: 1 | append: 'rem' }};
+        --space-lg: {{ settings.space_lg | default: 1.5 | append: 'rem' }};
+        --space-xl: {{ settings.space_xl | default: 2 | append: 'rem' }};
+        --space-2xl: {{ settings.space_2xl | default: 3 | append: 'rem' }};
+        --space-3xl: {{ settings.space_3xl | default: 4 | append: 'rem' }};
+        --space-4xl: {{ settings.space_4xl | default: 5 | append: 'rem' }};
+        --space-5xl: {{ settings.space_5xl | default: 6 | append: 'rem' }};
+        --color-primary: {{ settings.color_primary | default: '#42b1ff' }};
+        --color-secondary: {{ settings.color_secondary | default: '#44b574' }};
+        --color-tertiary: {{ settings.color_tertiary | default: '#c985e5' }};
+        --color-quaternary: {{ settings.color_quaternary | default: '#f79009' }};
+        --color-success: {{ settings.color_success | default: '#44b574' }};
+        --color-warning: {{ settings.color_warning | default: '#f79009' }};
+        --color-error: {{ settings.color_error | default: '#e65561' }};
+        --color-info: {{ settings.color_info | default: '#42b1ff' }};
+        --color-neutral: {{ settings.color_neutral | default: '#7f7f7f' }};
+        --color-neutral-light: {{ settings.color_neutral_light | default: '#b2b2b2' }};
+        --color-neutral-dark: {{ settings.color_neutral_dark | default: '#4c4c4c' }};
+        --color-body: {{ settings.color_body | default: '#000000' }};
+        
+        --space-1: {{ settings.space_1 | default: 0.25 | append: 'rem' }};
+        --space-2: {{ settings.space_2 | default: 0.5 | append: 'rem' }};
+        --space-3: {{ settings.space_3 | default: 0.75 | append: 'rem' }};
+        --space-4: {{ settings.space_4 | default: 1 | append: 'rem' }};
+        --space-5: {{ settings.space_5 | default: 1.25 | append: 'rem' }};
+        --space-6: {{ settings.space_6 | default: 1.5 | append: 'rem' }};
+        --space-8: {{ settings.space_8 | default: 2 | append: 'rem' }};
+        --space-10: {{ settings.space_10 | default: 2.5 | append: 'rem' }};
+        --space-12: {{ settings.space_12 | default: 3 | append: 'rem' }};
+        --space-16: {{ settings.space_16 | default: 4 | append: 'rem' }};
+        --space-20: {{ settings.space_20 | default: 5 | append: 'rem' }};
+        --space-24: {{ settings.space_24 | default: 6 | append: 'rem' }};
+        
+        --radius-none: {{ settings.radius_none | default: 0 | append: 'rem' }};
+        --radius-sm: {{ settings.radius_sm | default: 0.125 | append: 'rem' }};
+        --radius-md: {{ settings.radius_md | default: 0.25 | append: 'rem' }};
+        --radius-lg: {{ settings.radius_lg | default: 0.5 | append: 'rem' }};
+        --radius-xl: {{ settings.radius_xl | default: 0.75 | append: 'rem' }};
+        --radius-2xl: {{ settings.radius_2xl | default: 1 | append: 'rem' }};
+        --radius-3xl: {{ settings.radius_3xl | default: 1.5 | append: 'rem' }};
+        
+        --container-sm: {{ settings.container_sm | default: 24 | append: 'rem' }};
+        --container-md: {{ settings.container_md | default: 28 | append: 'rem' }};
+        --container-lg: {{ settings.container_lg | default: 32 | append: 'rem' }};
+        --container-xl: {{ settings.container_xl | default: 36 | append: 'rem' }};
+        --container-2xl: {{ settings.container_2xl | default: 42 | append: 'rem' }};
+        
+        --duration-150: {{ settings.duration_fast | default: 150 | append: 'ms' }};
+        --duration-300: {{ settings.duration_normal | default: 300 | append: 'ms' }};
+        --duration-500: {{ settings.duration_slow | default: 500 | append: 'ms' }};
+        
+        /* Legacy backward compatibility */
+        --ff-body: var(--font-family-body);
+        --fw-body: var(--font-weight-regular);
+        --fs-body: var(--font-size-base);
+        --fs-sm: var(--font-size-sm);
+        --fs-md: var(--font-size-lg);
+        --fs-lg: var(--font-size-xl);
+        --fs-h6: var(--heading-h6-size);
+        --fs-h5: var(--heading-h5-size);
+        --fs-h4: var(--heading-h4-size);
+        --fs-h3: var(--heading-h3-size);
+        --fs-h2: var(--heading-h2-size);
+        --fs-h1: var(--heading-h1-size);
+        --fs-3xl: var(--font-size-3xl);
+        --clr-primary: var(--color-primary);
+        --clr-secondary: var(--color-secondary);
+        --clr-white: var(--color-white);
+        --clr-gray: var(--color-neutral-lightest);
+        --clr-body: var(--color-body);
+        --clr-black: var(--color-black);
+      }
+    {% endstyle %}
+  </head>
+  <body>
+    {% section 'navbar' %}
+    {{ content_for_layout }}
+    {% section 'footer' %}
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+      ></script>
+      <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+
+    <script src="{{ 'global.js' | asset_url }}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Select all elements with the data-bg attribute
+        const elements = document.querySelectorAll("[data-bg]");
+
+        elements.forEach((element) => {
+          const bgImage = element.getAttribute("data-bg");
+          if (bgImage) {
+            element.style.backgroundImage = `url(${bgImage})`;
+          }
+        });
+      });
+      </script>
+  </body>
+</html>

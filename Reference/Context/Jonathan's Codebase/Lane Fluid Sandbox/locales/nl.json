@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Afrekenen",
+    "order_summary": "Bestelsamenvatting",
+    "shipping": "Verzendschatting",
+    "ships_in": "Verzonden binnen 3-5 werkdagen",
+    "shopping_cart": "Winkelwagen",
+    "subtotal": "Subtotaal",
+    "tax": "Belastingschatting",
+    "total": "Totaalbedrag"
+  },
+  "components": {
+    "comment_form": {
+      "email": "E-mail",
+      "full_name": "Volledige naam",
+      "leave_info": "Laat uw gegevens achter zodat {{ company }} weet wie u bent. U hoeft dit maar één keer te doen.",
+      "placeholder": "Voeg uw reactie toe",
+      "post": "Plaatsen",
+      "want_to_leave_comment": "Wilt u een reactie achterlaten?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Ik ga akkoord met de",
+    "all_products": "Alle producten",
+    "checkout": "Afrekenen",
+    "first_payment": "Eerste betaling op {{ date }}",
+    "learn_more": "Meer informatie",
+    "monthly_subscription": "Maandelijks abonnement",
+    "todays_purchase": "Aankoop van vandaag"
+  },
+  "footer": {
+    "all_rights_reserved": "Alle rechten voorbehouden",
+    "cookies_settings": "Cookie-instellingen",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Privacybeleid",
+    "terms_of_service": "Servicevoorwaarden"
+  },
+  "library": {
+    "commented": "heeft gereageerd",
+    "comments": "Reacties",
+    "playlist": "Afspeellijst"
+  },
+  "medium": {
+    "commented": "heeft gereageerd",
+    "comments": "Reacties",
+    "products": "Producten"
+  },
+  "navbar": {
+    "button_1": "Knop 1",
+    "button_2": "Knop 2",
+    "countries": "Landen",
+    "country": "Land",
+    "country_and_language": "Land en taal",
+    "done": "Klaar",
+    "language": "Taal",
+    "languages": "Talen",
+    "link_1": "Link een",
+    "link_2": "Link twee",
+    "link_3": "Link drie",
+    "link_4": "Link vier",
+    "save_and_close": "Opslaan en sluiten",
+    "select_country": "Selecteer uw land",
+    "select_language": "Taal selecteren",
+    "shop": "Winkel",
+    "enrollments": "Inschrijvingen",
+    "view_my_site": "Mijn site bekijken"
+  },
+  "product": {
+    "add_to_cart": "Toevoegen aan winkelwagen",
+    "buy_now": "Nu kopen",
+    "details": "Details",
+    "free_shipping": "Gratis verzending vanaf {{amount}}",
+    "product_name": "Productnaam",
+    "quantity": "Aantal",
+    "related_products": "Producten",
+    "related_products_intro": "Ontdek onze zorgvuldig geselecteerde aanvullende producten die perfect bij uw aankoop passen.",
+    "return": "Retour",
+    "return_content": "Wij accepteren retourzendingen binnen 30 dagen na aankoop. Artikelen moeten in originele staat zijn, ongebruikt en in de originele verpakking. Retourkosten zijn voor rekening van de klant, behalve bij productdefecten. Na ontvangst en inspectie van uw retour, restitueren wij het volledige aankoopbedrag.",
+    "reviews": "{{reviews}} beoordelingen",
+    "shipping": "Verzending",
+    "shipping_content": "Wij verzenden wereldwijd met een standaard levertijd van 3-7 werkdagen. Expressverzending is beschikbaar tegen meerprijs. Alle pakketten zijn verzekerd en traceerbaar. Verzendkosten worden berekend op basis van gewicht en bestemming bij het afrekenen.",
+    "shop_all": "Alles bekijken",
+    "stars": "{{stars}} sterren",
+    "tagline": "Slogan",
+    "testimonials": "Klantgetuigenissen",
+    "testimonials_intro": "Ontdek wat onze klanten zeggen over hun ervaringen met onze producten.",
+    "variant": "Variant",
+    "one_time_purchase":"Eenmalige aankoop",
+    "subscribe":"Abonneren"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Abonneer en bespaar {{save}}%",
+    "update_subscription": "Werk je abonnement op elk moment bij"
+  },
+  "shared": {
+    "button": "Knop",
+    "medium_heading": "Een middelgrote kop staat hier",
+    "medium_intro": "Ontdek ons uitzonderlijke productassortiment, ontworpen om al uw behoeften te vervullen met kwaliteit en elegantie.",
+    "short_heading": "Korte kop hier",
+    "short_intro": "Een beknopte introductie die de essentie van ons aanbod helder en krachtig presenteert.",
+    "tagline": "Slogan",
+    "view_all": "Alles bekijken"
+  },
+  "shop_page": {
+    "button": "Knop",
+    "heading": "Korte kop hier",
+    "intro": "Verken onze zorgvuldig samengestelde collectie van hoogwaardige producten.",
+    "products": "Producten",
+    "products_intro": "Elk product in ons assortiment is gekozen vanwege zijn uitzonderlijke kwaliteit.",
+    "tagline": "Slogan"
+  }
+}

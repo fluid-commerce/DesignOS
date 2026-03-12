@@ -1,0 +1,943 @@
+<!-- Before/After Comparison Section -->
+<section class="before-after-comparison section {{ section.settings.background_color | default: 'bg-white' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_padding_y_mobile | default: 'py-xl' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+      
+      <!-- Before/After Comparison Grid -->
+      <div class="comparison-grid grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch">
+        
+        <!-- Before Section (Left) -->
+        <div class="before-section {{ section.settings.before_background_color | default: 'bg-neutral-light' }} {{ section.settings.before_padding | default: 'p-xl lg:p-3xl' }} {{ section.settings.before_text_alignment | default: 'text-left' }}">
+          
+          <!-- Before Label -->
+          {% if section.settings.show_before_label %}
+          <div class="before-label {{ section.settings.before_label_margin_bottom | default: 'mb-lg' }}">
+            <span class="{{ section.settings.before_label_font_size | default: 'text-sm' }} {{ section.settings.before_label_font_weight | default: 'font-medium' }} {{ section.settings.before_label_color | default: 'text-neutral-dark' }} uppercase">
+              {{ section.settings.before_label | default: 'Before' }}
+            </span>
+          </div>
+          {% endif %}
+          
+          <!-- Before Heading -->
+          {% if section.settings.before_heading != blank %}
+          <h3 class="{{ section.settings.before_heading_font_family | default: 'font-primary' }} {{ section.settings.before_heading_font_size | default: 'text-2xl' }} {{ section.settings.before_heading_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.before_heading_font_weight | default: 'font-bold' }} {{ section.settings.before_heading_color | default: 'text-black' }} {{ section.settings.before_heading_line_height | default: 'leading-tight' }} {{ section.settings.before_heading_margin_bottom | default: 'mb-lg' }}">
+            {{ section.settings.before_heading }}
+          </h3>
+          {% endif %}
+          
+          <!-- Before Description -->
+          {% if section.settings.before_description != blank %}
+          <div class="before-description {{ section.settings.before_description_margin_bottom | default: 'mb-xl' }}">
+            <p class="{{ section.settings.before_description_font_size | default: 'text-base' }} {{ section.settings.before_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.before_description_line_height | default: 'leading-relaxed' }} {{ section.settings.before_description_color | default: 'text-neutral-dark' }}">
+              {{ section.settings.before_description }}
+            </p>
+          </div>
+          {% endif %}
+          
+          <!-- Before Image/Video -->
+          {% if section.settings.before_media_type == 'video' and section.settings.before_video != blank %}
+          <div class="before-media-wrapper {{ section.settings.before_image_margin_top | default: 'mt-xl' }}">
+            <div class="video-wrapper {{ section.settings.before_image_border_radius | default: 'rounded-lg' }} overflow-hidden">
+              <video 
+                class="w-full h-auto"
+                {% if section.settings.before_video_autoplay %}autoplay{% endif %}
+                {% if section.settings.before_video_loop %}loop{% endif %}
+                {% if section.settings.before_video_muted %}muted{% endif %}
+                {% if section.settings.before_video_controls %}controls{% endif %}
+                {% if section.settings.before_video_poster and section.settings.before_video_poster != blank %}poster="{{ section.settings.before_video_poster | image_url }}"{% endif %}
+                preload="metadata">
+                <source src="{{ section.settings.before_video }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+          {% elsif section.settings.before_image != blank %}
+          <div class="before-media-wrapper {{ section.settings.before_image_margin_top | default: 'mt-xl' }}">
+            <img src="{{ section.settings.before_image | image_url: width: 600 }}"
+                 alt="{{ section.settings.before_image_alt | default: 'Before image' }}"
+                 class="w-full h-auto {{ section.settings.before_image_border_radius | default: 'rounded-lg' }}"
+                 loading="lazy">
+          </div>
+          {% endif %}
+          
+        </div>
+        
+        <!-- After Section (Right) -->
+        <div class="after-section {{ section.settings.after_background_color | default: 'bg-black' }} {{ section.settings.after_padding | default: 'p-xl lg:p-3xl' }} {{ section.settings.after_text_alignment | default: 'text-left' }}">
+          
+          <!-- After Label -->
+          {% if section.settings.show_after_label %}
+          <div class="after-label {{ section.settings.after_label_margin_bottom | default: 'mb-lg' }}">
+            <span class="{{ section.settings.after_label_font_size | default: 'text-sm' }} {{ section.settings.after_label_font_weight | default: 'font-medium' }} {{ section.settings.after_label_color | default: 'text-white' }} uppercase">
+              {{ section.settings.after_label | default: 'After' }}
+            </span>
+          </div>
+          {% endif %}
+          
+          <!-- After Heading -->
+          {% if section.settings.after_heading != blank %}
+          <h3 class="{{ section.settings.after_heading_font_family | default: 'font-primary' }} {{ section.settings.after_heading_font_size | default: 'text-2xl' }} {{ section.settings.after_heading_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.after_heading_font_weight | default: 'font-bold' }} {{ section.settings.after_heading_color | default: 'text-white' }} {{ section.settings.after_heading_line_height | default: 'leading-tight' }} {{ section.settings.after_heading_margin_bottom | default: 'mb-lg' }}">
+            {{ section.settings.after_heading }}
+          </h3>
+          {% endif %}
+          
+          <!-- After Description -->
+          {% if section.settings.after_description != blank %}
+          <div class="after-description {{ section.settings.after_description_margin_bottom | default: 'mb-xl' }}">
+            <p class="{{ section.settings.after_description_font_size | default: 'text-base' }} {{ section.settings.after_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.after_description_line_height | default: 'leading-relaxed' }} {{ section.settings.after_description_color | default: 'text-white' }}">
+              {{ section.settings.after_description }}
+            </p>
+          </div>
+          {% endif %}
+          
+          <!-- After Image/Video -->
+          {% if section.settings.after_media_type == 'video' and section.settings.after_video != blank %}
+          <div class="after-media-wrapper {{ section.settings.after_image_margin_top | default: 'mt-xl' }}">
+            <div class="video-wrapper {{ section.settings.after_image_border_radius | default: 'rounded-lg' }} overflow-hidden">
+              <video 
+                class="w-full h-auto"
+                playsinline
+                {% if section.settings.after_video_autoplay %}autoplay{% endif %}
+                {% if section.settings.after_video_loop %}loop{% endif %}
+                {% if section.settings.after_video_muted %}muted{% endif %}
+                {% if section.settings.after_video_controls %}controls{% endif %}
+                {% if section.settings.after_video_poster and section.settings.after_video_poster != blank %}poster="{{ section.settings.after_video_poster | image_url }}"{% endif %}
+                preload="auto">
+                
+                <source src="{{ section.settings.after_video }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+          {% elsif section.settings.after_image != blank %}
+          <div class="after-media-wrapper {{ section.settings.after_image_margin_top | default: 'mt-xl' }}">
+            <img src="{{ section.settings.after_image | image_url: width: 600 }}"
+                 alt="{{ section.settings.after_image_alt | default: 'After image' }}"
+                 class="w-full h-auto {{ section.settings.after_image_border_radius | default: 'rounded-lg' }}"
+                 loading="lazy">
+          </div>
+          {% endif %}
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Before/After Comparison",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Before Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_before_label",
+      "label": "Show Before Label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "before_label",
+      "label": "Before Label",
+      "default": "Before We-Commerce"
+    },
+    {
+      "type": "select",
+      "id": "before_label_font_size",
+      "label": "Before Label Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "before_label_font_weight",
+      "label": "Before Label Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "before_label_color",
+      "label": "Before Label Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "text",
+      "id": "before_heading",
+      "label": "Before Heading",
+      "default": "Commerce is broken."
+    },
+    {
+      "type": "select",
+      "id": "before_heading_font_family",
+      "label": "Before Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "before_heading_font_size",
+      "label": "Before Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "before_heading_font_size_desktop",
+      "label": "Before Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" },
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "before_heading_font_weight",
+      "label": "Before Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "before_heading_color",
+      "label": "Before Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "textarea",
+      "id": "before_description",
+      "label": "Before Description",
+      "default": "Reps juggle five different apps. Attribution gets lost in spreadsheets. Customers abandon complicated checkouts. And nobody trusts they'll get credit for the sale."
+    },
+    {
+      "type": "select",
+      "id": "before_description_font_size",
+      "label": "Before Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "before_description_font_size_desktop",
+      "label": "Before Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "before_description_color",
+      "label": "Before Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "select",
+      "id": "before_media_type",
+      "label": "Before Media Type",
+      "options": [
+        { "value": "image", "label": "Image" },
+        { "value": "video", "label": "Video" }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "before_image",
+      "label": "Before Image"
+    },
+    {
+      "type": "text",
+      "id": "before_image_alt",
+      "label": "Before Image Alt Text",
+      "default": "Before image showing the problem"
+    },
+    {
+      "type": "url",
+      "id": "before_video",
+      "label": "Before Video URL",
+      "info": "Upload your video file and paste the URL here. Supports MP4 format."
+    },
+    {
+      "type": "checkbox",
+      "id": "before_video_autoplay",
+      "label": "Autoplay Before Video",
+      "default": false,
+      "info": "Note: Most browsers require muted videos for autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "before_video_loop",
+      "label": "Loop Before Video",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "before_video_muted",
+      "label": "Mute Before Video",
+      "default": true,
+      "info": "Recommended for autoplay videos"
+    },
+    {
+      "type": "checkbox",
+      "id": "before_video_controls",
+      "label": "Show Before Video Controls",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "before_video_poster",
+      "label": "Before Video Poster Image",
+      "info": "Thumbnail image shown before video plays"
+    },
+    
+    {
+      "type": "header",
+      "content": "After Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_after_label",
+      "label": "Show After Label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "after_label",
+      "label": "After Label",
+      "default": "With We-Commerce"
+    },
+    {
+      "type": "select",
+      "id": "after_label_font_size",
+      "label": "After Label Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "after_label_font_weight",
+      "label": "After Label Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "after_label_color",
+      "label": "After Label Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "text",
+      "id": "after_heading",
+      "label": "After Heading",
+      "default": "Let's fix it"
+    },
+    {
+      "type": "select",
+      "id": "after_heading_font_family",
+      "label": "After Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "after_heading_font_size",
+      "label": "After Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "after_heading_font_size_desktop",
+      "label": "After Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" },
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "after_heading_font_weight",
+      "label": "After Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "after_heading_color",
+      "label": "After Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "textarea",
+      "id": "after_description",
+      "label": "After Description",
+      "default": "One platform that connects every step of the journey. From the first share to the final commission, everything flows seamlessly together."
+    },
+    {
+      "type": "select",
+      "id": "after_description_font_size",
+      "label": "After Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "after_description_font_size_desktop",
+      "label": "After Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "after_description_color",
+      "label": "After Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "select",
+      "id": "after_media_type",
+      "label": "After Media Type",
+      "options": [
+        { "value": "image", "label": "Image" },
+        { "value": "video", "label": "Video" }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "after_image",
+      "label": "After Image"
+    },
+    {
+      "type": "text",
+      "id": "after_image_alt",
+      "label": "After Image Alt Text",
+      "default": "After image showing the solution"
+    },
+    {
+      "type": "url",
+      "id": "after_video",
+      "label": "After Video URL",
+      "info": "Upload your video file and paste the URL here. Supports MP4 format."
+    },
+    {
+      "type": "checkbox",
+      "id": "after_video_autoplay",
+      "label": "Autoplay After Video",
+      "default": false,
+      "info": "Note: Most browsers require muted videos for autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "after_video_loop",
+      "label": "Loop After Video",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "after_video_muted",
+      "label": "Mute After Video",
+      "default": true,
+      "info": "Recommended for autoplay videos"
+    },
+    {
+      "type": "checkbox",
+      "id": "after_video_controls",
+      "label": "Show After Video Controls",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "after_video_poster",
+      "label": "After Video Poster Image",
+      "info": "Thumbnail image shown before video plays"
+    },
+    
+    
+    {
+      "type": "header",
+      "content": "Before Section Styling"
+    },
+    {
+      "type": "select",
+      "id": "before_background_color",
+      "label": "Before Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "select",
+      "id": "before_padding",
+      "label": "Before Section Padding",
+      "options": [
+        { "value": "p-xs lg:p-sm", "label": "Extra Small" },
+        { "value": "p-sm lg:p-md", "label": "Small" },
+        { "value": "p-md lg:p-lg", "label": "Medium" },
+        { "value": "p-lg lg:p-xl", "label": "Large" },
+        { "value": "p-xl lg:p-2xl", "label": "Extra Large" },
+        { "value": "p-xl lg:p-3xl", "label": "2X Large" }
+      ],
+      "default": "p-xl lg:p-3xl"
+    },
+    {
+      "type": "select",
+      "id": "before_text_alignment",
+      "label": "Before Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-left"
+    },
+    
+    {
+      "type": "header",
+      "content": "After Section Styling"
+    },
+    {
+      "type": "select",
+      "id": "after_background_color",
+      "label": "After Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "select",
+      "id": "after_padding",
+      "label": "After Section Padding",
+      "options": [
+        { "value": "p-xs lg:p-sm", "label": "Extra Small" },
+        { "value": "p-sm lg:p-md", "label": "Small" },
+        { "value": "p-md lg:p-lg", "label": "Medium" },
+        { "value": "p-lg lg:p-xl", "label": "Large" },
+        { "value": "p-xl lg:p-2xl", "label": "Extra Large" },
+        { "value": "p-xl lg:p-3xl", "label": "2X Large" }
+      ],
+      "default": "p-xl lg:p-3xl"
+    },
+    {
+      "type": "select",
+      "id": "after_text_alignment",
+      "label": "After Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" },
+        { "value": "text-right", "label": "Right" }
+      ],
+      "default": "text-left"
+    },
+    
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Before/After Comparison",
+      "settings": {
+        "before_label": "Before We-Commerce",
+        "before_heading": "Commerce is broken.",
+        "before_description": "Reps juggle five different apps. Attribution gets lost in spreadsheets. Customers abandon complicated checkouts. And nobody trusts they'll get credit for the sale.",
+        "after_label": "With We-Commerce",
+        "after_heading": "Let's fix it",
+        "after_description": "One platform that connects every step of the journey. From the first share to the final commission, everything flows seamlessly together."
+      }
+    }
+  ]
+}
+{% endschema %}
+

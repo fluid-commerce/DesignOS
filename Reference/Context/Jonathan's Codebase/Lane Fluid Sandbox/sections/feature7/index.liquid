@@ -1,0 +1,346 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="feature7-section section-t-spacing section-{{ section.id }}-padding" 
+         style="background-color: {{ section.settings.background_color | default: '#ffffff' }};
+                {% if section.settings.background_image != blank %}
+                background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                {% endif %}
+                position: relative;">
+  
+  {% if section.settings.background_image != blank %}
+    <div class="feature7-overlay" 
+         style="background-color: {{ section.settings.overlay_color | default: '#000000' }}; 
+                opacity: {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }}; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                z-index: 1;"></div>
+  {% endif %}
+  
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="feature7-wrapper grid grid-cols-1 sm-desktop-grid-cols-2 gap-12 align-center {% if section.settings.image_on_left %}feature7-flipped{% endif %}">
+      
+      <!-- Content Column -->
+      <div class="feature7-content">
+        {% if section.settings.tagline != blank %}
+          <p class="feature7-tagline text-sm mb-4" 
+             style="color: {{ section.settings.tagline_color | default: '#6b7280' }};">
+            {{ section.settings.tagline }}
+          </p>
+        {% endif %}
+        
+        {% if section.settings.heading != blank %}
+          <h2 class="feature7__heading {{ section.settings.heading_size }} mb-6" 
+              style="color: {{ section.settings.heading_color | default: '#1a1a1a' }};">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
+        
+        {% if section.settings.content_description != blank %}
+          <p class="feature7-content-description text-lg mb-8" 
+             style="color: {{ section.settings.content_description_color | default: '#6b7280' }};">
+            {{ section.settings.content_description }}
+          </p>
+        {% endif %}
+        
+        <!-- Buttons -->
+        <div class="feature7-buttons flex flex-wrap gap-4">
+          {% if section.settings.show_primary_button and section.settings.primary_button_text != blank %}
+            <a href="{{ section.settings.primary_button_link | default: '#' }}" 
+               class="btn btn-bg-primary btn-border-primary"
+               style="background-color: {{ section.settings.primary_button_bg | default: 'var(--clr-primary)' }};
+                      color: {{ section.settings.primary_button_text_color | default: '#ffffff' }};
+                      border-color: {{ section.settings.primary_button_bg | default: 'var(--clr-primary)' }};">
+              {{ section.settings.primary_button_text }}
+            </a>
+          {% endif %}
+          
+          {% if section.settings.show_secondary_button and section.settings.secondary_button_text != blank %}
+            <a href="{{ section.settings.secondary_button_link | default: '#' }}" 
+               class="btn btn-border-black"
+               style="color: {{ section.settings.secondary_button_text_color | default: '#000000' }};
+                      border-color: {{ section.settings.secondary_button_border_color | default: '#000000' }};">
+              {{ section.settings.secondary_button_text }}
+              {% if section.settings.secondary_button_arrow %}
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-left: 8px;">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+              {% endif %}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Text Column -->
+      <div class="feature7-text-column">
+        {% if section.settings.right_column_description != blank %}
+          <p class="feature7-right-description text-lg" 
+             style="color: {{ section.settings.right_description_color | default: '#6b7280' }};">
+            {{ section.settings.right_column_description }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* Column flip functionality */
+.feature7-section .feature7-flipped .feature7-content {
+  order: 2;
+}
+
+.feature7-section .feature7-flipped .feature7-text-column {
+  order: 1;
+}
+
+@media (max-width: 1023px) {
+  .feature7-section .feature7-flipped .feature7-content,
+  .feature7-section .feature7-flipped .feature7-text-column {
+    order: initial;
+  }
+}
+
+@media (max-width: 767px) {
+  .feature7-section .feature7-wrapper {
+    gap: 48px;
+  }
+  
+  .feature7-section .feature7-content {
+    text-align: center;
+  }
+  
+  .feature7-section .feature7-buttons {
+    justify-content: center;
+  }
+  
+  .feature7-section .feature7-right-description {
+    text-align: center;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Feature 7",
+  "settings": [
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "info": "Optional tagline above the heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Long heading is what you see here in this feature section",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "content_description",
+      "label": "Content Description",
+      "info": "Description text in the content column"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h1",
+          "label": "Heading 1"
+        },
+        {
+          "value": "h2",
+          "label": "Heading 2"
+        },
+        {
+          "value": "h3",
+          "label": "Heading 3"
+        },
+        {
+          "value": "h4",
+          "label": "Heading 4"
+        },
+        {
+          "value": "h5",
+          "label": "Heading 5"
+        }
+      ],
+      "default": "h1",
+      "label": "Heading Size"
+    },
+    {
+      "type": "textarea",
+      "id": "right_column_description",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla.",
+      "label": "Right Column Description",
+      "info": "Description text in the right column"
+    },
+    {
+      "type": "checkbox",
+      "id": "image_on_left",
+      "default": false,
+      "label": "Text on Left",
+      "info": "Switch the order: text left, content right"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "default": "Button",
+      "label": "Primary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "default": "#",
+      "label": "Primary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_primary_button",
+      "default": false,
+      "label": "Show Primary Button"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "default": "Button",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "default": "#",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "default": false,
+      "label": "Show Secondary Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "secondary_button_arrow",
+      "default": true,
+      "label": "Show Arrow on Secondary Button"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#ffffff",
+      "label": "Background Color"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional background image (will override background color)"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "default": "#000000",
+      "label": "Background Overlay Color",
+      "info": "Color overlay on top of background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 40,
+      "info": "0% = transparent, 100% = solid color"
+    },
+    {
+      "type": "color_background",
+      "id": "tagline_color",
+      "default": "#6b7280",
+      "label": "Tagline Color"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "default": "#1a1a1a",
+      "label": "Heading Color"
+    },
+    {
+      "type": "color_background",
+      "id": "content_description_color",
+      "default": "#6b7280",
+      "label": "Content Description Color"
+    },
+    {
+      "type": "color_background",
+      "id": "right_description_color",
+      "default": "#6b7280",
+      "label": "Right Column Description Color"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_bg",
+      "default": "#000000",
+      "label": "Primary Button Background"
+    },
+    {
+      "type": "color_background",
+      "id": "primary_button_text_color",
+      "default": "#ffffff",
+      "label": "Primary Button Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_text_color",
+      "default": "#000000",
+      "label": "Secondary Button Text Color"
+    },
+    {
+      "type": "color_background",
+      "id": "secondary_button_border_color",
+      "default": "#000000",
+      "label": "Secondary Button Border Color"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 100
+    }
+  ]
+}
+{% endschema %}

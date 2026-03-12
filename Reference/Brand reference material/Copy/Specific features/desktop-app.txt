@@ -1,0 +1,110 @@
+💡 What Is the Desktop App?
+The We-Commerce Desktop App is a fully branded business workspace designed to give your reps everything they need to run and grow their business — from a computer. It’s built for the reps who prefer a full-screen experience to manage orders, follow up with customers, view reports, and stay organized — especially leaders who are juggling more volume and responsibilities.
+Just like the mobile app, it’s intuitive, modern, and loaded with the tools reps actually use — but optimized for multitasking and high-efficiency workflows. Whether they’re building pages for their team, managing subscriptions, reviewing performance, or sending follow-ups, it’s all in one place, always logged in, and ready to go.
+From your side, the desktop app gives you total control over what reps see and how they see it. You can tailor dashboards and tools based on their role, region, or rank — without a developer. You can make updates and deploy changes in seconds. And because it's part of the We-Commerce ecosystem, everything ties together: rep attribution, fast checkout, content sharing, AI tools, and personalization — all already built in.
+In short: it’s not just a nicer interface. It’s the rep’s home base — and your control center — for daily business activity.
+
+
+🔧 What We-Commerce Built
+We built a desktop platform that:
+Lets you design and customize the rep experience without developers
+
+
+Works in a browser or as a downloadable desktop app
+
+
+Automatically shows different views based on rep rank, language, or country
+
+
+Includes over 90 widgets to build dashboards, pages, and content
+
+
+Allows reps to track their own data, avoiding constant report requests
+
+
+Gives field leaders tools to build training content and team resources
+
+
+Sends real-time notifications for messages, activity, and updates
+
+
+Includes fast, logged-in ordering and full subscription management
+
+
+Comes with built-in CRM, AI, Fair Share attribution, and one-click checkout
+
+
+Ties directly into your entire We-Commerce system — nothing is siloed
+
+
+
+🚫 What You No Longer Need
+Custom software to give reps a home base
+
+
+Separate tools for content, messaging, and dashboards
+
+
+Manual processes for sending updates or launching promos
+
+
+Endless report requests from the field
+
+
+Standalone systems that reps ignore or find too complicated
+
+
+IT cycles every time you want to make a change
+
+
+
+✅ What You Get Instead
+A clean, professional desktop hub reps will actually use
+
+
+One place for reps to manage their business, sell, and follow up
+
+
+The flexibility to tailor the app experience to your teams
+
+
+Real-time insights, personalized content, and always-updated tools
+
+
+Full control over what’s shown and when — without involving engineering
+
+
+A seamless experience that’s fully powered by the We-Commerce ecosystem
+
+
+
+
+1. You can customize the desktop experience — without developers.
+Use simple drag-and-drop tools to build your company’s desktop views. Show different content by rank, role, country, or language. Tailor the experience without engineering help.
+
+2. You can deploy updates instantly — no tickets or rollout delays.
+Need to launch a campaign, update a dashboard, or push out new messaging? You can do it from your admin panel in seconds. No downloads, no waiting, no IT bottlenecks.
+
+3. Reps can run reports and view data without asking HQ.
+Instead of fielding constant requests for filtered reports or performance snapshots, let reps access and customize their own dashboards. You stay focused — they stay informed.
+
+4. Your top reps can create content and tools for their teams.
+Field leaders can use the same drag-and-drop builder to create team pages, PDFs, videos, and more — saving you from being the bottleneck for every training doc or team asset.
+
+5. It works in the browser or as a native desktop app — your choice.
+There’s nothing to install if reps want to run it in Chrome or Safari. But if they prefer the experience of a desktop app, there’s a version they can download and keep open on their machine.
+
+6. Reps get a full-screen workspace to manage everything in one place.
+The desktop version gives them more breathing room than mobile — perfect for placing orders, writing messages, reviewing dashboards, or multitasking while working from home.
+
+7. They get real-time alerts and notifications so they never miss a step.
+Messages, lead activity, subscription updates — it’s all pushed to them in real time. No missed follow-ups. No chasing reminders. Everything’s surfaced exactly when it matters.
+
+8. Everything reps need is already built in — no patching together tools.
+CRM, AI suggestions, one-click checkout, shareable links, Fair Share attribution — it’s all there. No toggling between platforms. No confusion. Just one system that does it all.
+
+9. Fast, logged-in ordering — plus full control of orders and subscriptions.
+Reps can order with one click, manage their subscriptions, and view their purchase history — all without leaving the app. It’s fast, frictionless, and built to keep them moving.
+
+10. It’s powered by the full We-Commerce ecosystem — not a standalone tool.
+The desktop app isn’t separate from your business — it is your business, plugged into everything else: mobile, checkout, content, attribution, personalization. The whole is greater than the sum of its parts — and this is where it all comes together.

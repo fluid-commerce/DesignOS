@@ -1,0 +1,85 @@
+{%- style -%}
+  .cta-banner-section-{{ section.id }} {
+    background-color: {{ section.settings.background_color | default: '#444444' }};
+  }
+{%- endstyle -%}
+
+<section class="cta-section cta-banner-section-{{ section.id }} relative placeholde-bg-color">
+  <!-- <div class="overlay-red absolute top-0 left-0 w-full h-full z-1"></div> -->
+  <!-- <img src="images/cta-desktop.png" alt="cta-image" class="absolute top-0 left-0 image-cover variation image-position-top hidden xl-phone-block"> -->
+  <!-- <img src="images/cta.jpeg" alt="cta-image" class="absolute top-0 left-0 image-cover variation xl-phone-hidden"> -->
+  <div class="container relative z-2">
+    <div class="wrapper text-white">
+      <h2 class="title">{{ section.settings.heading }}</h2>
+      <p class="xl-phone-text-lg leading-6 pt-6">
+        {{ section.settings.intro_text }}
+      </p>
+      <div class="btn-section flex flex-wrap gap-4 pt-4">
+        <a href="{{ section.settings.button_link }}" class="btn btn-bg-white">{{ section.settings.button_text }}</a>
+        <a href="{{ section.settings.button_link_secondary }}" class="btn btn-border-white">{{ section.settings.button_text_secondary }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "CTA Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Medium length heading goes here",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.",
+      "label": "Intro Text"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "default": "Button",
+      "label": "Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "default": "#",
+      "label": "Button Link"
+    },
+    {
+      "type": "text",
+      "id": "button_text_secondary",
+      "default": "Button",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link_secondary",
+      "default": "#",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "header",
+      "content": "Layout & Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "default": "#444444",
+      "label": "Background Color"
+    }
+  ]
+}
+{% endschema %}

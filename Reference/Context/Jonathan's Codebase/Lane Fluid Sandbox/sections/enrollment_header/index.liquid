@@ -1,0 +1,1568 @@
+<!-- Enrollment Header Section -->
+{% assign membership_product = membership_products.first %}
+
+<section class="enrollment-header {{ section.settings.background_color | default: 'bg-white' }} {{ section.settings.section_padding_y_mobile | default: 'py-lg' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-xl' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: 'bg-neutral-light' }} {{ section.settings.container_padding_y_mobile | default: 'py-lg' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      
+      <div class="max-w-7xl mx-auto">
+        
+        <!-- Enrollment Header Layout -->
+        <div class="enrollment-header-layout grid grid-cols-1 lg:grid-cols-2 gap-lg lg:gap-xl xl:gap-2xl items-start">
+          
+      <!-- Enrollment Images Section (Left Side) -->
+      <div class="enrollment-images-section flex-row gap-md">
+                        <!-- Main Enrollment Image -->
+            <div class="main-image-wrapper {{ section.settings.image_border_radius | default: 'rounded-lg' }} overflow-hidden flex-grow">
+              {% if images_array.size > 0 %}
+                <img src="{{ images_array.first }}"
+                     alt="{{ enrollment_pack.title }}"
+                     class="main-enrollment-image object-cover"
+                     data-image-src="{{ images_array.first }}">
+              {% else %}
+                <img src="{{ 'placeholder-image.png' | asset_url }}"
+                     alt="{{ enrollment_pack.title | default: 'Enrollment image' }}"
+                     class="main-enrollment-image object-cover">
+              {% endif %}
+            </div>
+        
+            <!-- Thumbnail Gallery (Vertical Carousel) -->
+            {% if images_array.size > 1 %}
+            <div class="image-thumbnails flex-shrink-0 relative">
+              <!-- Thumbnail Navigation Up -->
+              {% if images_array.size > 5 %}
+              <button class="thumbnail-nav-up absolute -top-2 left-1/2 transform -translate-x-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors duration-200" onclick="scrollThumbnails('up')" style="display: none;">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                </svg>
+              </button>
+              {% endif %}
+              
+              <!-- Thumbnails Container -->
+              <div class="thumbnails-viewport overflow-hidden">
+                <div class="thumbnails-vertical flex flex-col gap-sm transition-transform duration-300 ease-in-out" id="thumbnails-container">
+                  {% for image in images_array %}
+                    <div class="thumbnail-wrapper {{ section.settings.thumbnail_border_radius | default: 'rounded-sm' }} overflow-hidden  cursor-pointer thumbnail-item {% if forloop.first %}active{% endif %}" 
+                         data-image-src="{{ image }}" 
+                         data-image-index="{{ forloop.index0 }}">
+                      <img src="{{ image }}"
+                           alt="{{ enrollment_pack.title }}"
+                           class="thumbnail-image w-16 h-20 lg:w-20 lg:h-24 object-cover transition-all duration-200 hover:opacity-80">
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <!-- Thumbnail Navigation Down -->
+              {% if images_array.size > 5 %}
+              <button class="thumbnail-nav-down absolute -bottom-2 left-1/2 transform -translate-x-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors duration-200" onclick="scrollThumbnails('down')">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              {% endif %}
+            </div>
+            {% endif %}
+            
+
+                <div class="event-sponsors-section text-center">
+          <!-- Sponsors Heading -->
+          <div class="sponsors-heading main-price font-handwritten text-3xl mb-md">
+            {{ section.settings.sponsor_heading | default: 'Event Sponsors' }}
+          </div>
+          
+          <!-- Decorative Line -->
+          <div class="flex justify-center mb-md">
+            <svg class="sponsor-divider" width="300" height="2" viewBox="0 0 300 2">
+              <line x1="0" y1="1" x2="300" y2="1" stroke="#000000" stroke-width="2"/>
+            </svg>
+          </div>
+          
+          <!-- Sponsor Logos -->
+          <div class="sponsor-logos flex justify-center items-center">
+            <img src="https://ik.imagekit.io/fluid/980191006/images/XMHHAB/InfoTrax_logo_black_1lNtD0N4f.webp" 
+                 alt="{{ block.settings.sponsor_alt_text | default: 'Sponsor logo' }}"
+                 class="sponsor-logo h-8 object-contain">
+            <img src="https://ik.imagekit.io/fluid/980191006/images/G5RT9R/Revaly-Logo_BOB6Xesd5.png"
+              alt="{{ block.settings.sponsor_alt_text | default: 'Sponsor logo' }}"
+                 class="sponsor-logo h-8 object-contain">
+            <img src="https://ik.imagekit.io/fluid/980191006/images/TNHVN6/Gobi_Logo_aWOsqIdO2.png"
+              alt="{{ block.settings.sponsor_alt_text | default: 'Sponsor logo' }}"
+                 class="sponsor-logo-gobi h-8 object-contain">
+          </div>
+        </div>
+
+
+          </div>
+          
+          <!-- Enrollment Details Section (Right Side) -->
+          <div class="enrollment-details-section">
+            
+            <!-- Enrollment Category -->
+            {% if section.settings.show_category %}
+              {% assign category_text = enrollment_pack.type | default: section.settings.fallback_category %}
+              {% if category_text != blank %}
+              <div class="enrollment-category mb-sm">
+                <span class="{{ section.settings.category_font_family | default: 'font-body' }} {{ section.settings.category_font_size | default: 'text-sm' }} {{ section.settings.category_font_size_desktop | default: 'lg:text-sm' }} {{ section.settings.category_font_weight | default: 'font-medium' }} {{ section.settings.category_color | default: 'text-neutral' }} uppercase tracking-wide">
+                  {{ category_text }}
+                </span>
+              </div>
+              {% endif %}
+            {% endif %}
+            
+            <!-- Enrollment Title -->
+            <h1 class="{{ section.settings.title_font_family | default: 'font-primary' }} {{ section.settings.title_font_size | default: 'text-3xl' }} {{ section.settings.title_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.title_font_weight | default: 'font-bold' }} {{ section.settings.title_color | default: 'text-black' }} leading-tight mb-md">
+              {{ membership_product.title | default: enrollment_pack.title }}
+            </h1>
+            
+            <!-- Enrollment Description -->
+            {% if description != blank %}
+            <div class="enrollment-description mb-lg">
+              <div class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-base' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-neutral-dark' }} leading-relaxed">
+                {{ description }}
+              </div>
+            </div>
+            {% endif %}
+            
+            <!-- Trust Badges -->
+            {% if section.settings.show_trust_badges %}
+            <div class="trust-badges flex flex-wrap gap-md mb-lg">
+              {% for block in section.blocks %}
+                {% if block.type == 'trust_badge' and block.settings.badge_text != blank %}
+                <div class="trust-badge flex items-center gap-xs" {{ block.fluid_attributes }}>
+                  <div class="badge-icon w-6 h-6 bg-success rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <span class="{{ section.settings.badge_font_size | default: 'text-sm' }} {{ section.settings.badge_color | default: 'text-neutral-dark' }} font-medium">{{ block.settings.badge_text | default: 'Trust Badge' }}</span>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Reviews Section -->
+            {% if section.settings.show_reviews %}
+            <div class="reviews-section flex items-center gap-md mb-lg">
+              <!-- Star Rating -->
+              <div class="star-rating flex items-center gap-xs">
+                {% for i in (1..5) %}
+                  {% if i <= 4 %}
+                    <svg class="w-5 h-5 text-warning fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  {% elsif i == 5 %}
+                    <svg class="w-5 h-5 text-neutral-light fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      <path d="M10 0L12.345 7.873L20 7.873L14.327 12.745L16.673 20.618L10 15.745Z" fill="currentColor"/>
+                    </svg>
+                  {% else %}
+                    <svg class="w-5 h-5 text-neutral-light fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <!-- Review Count -->
+              <span class="{{ section.settings.review_font_size | default: 'text-sm' }} {{ section.settings.review_color | default: 'text-neutral' }} font-medium">
+                {{ section.settings.review_count | default: '136' }} Reviews
+              </span>
+            </div>
+            {% endif %}
+            
+            <!-- Enrollment Information -->
+            {% if section.settings.show_enrollment_info and section.blocks.size > 0 %}
+            <div class="enrollment-info mb-lg">
+              {% for block in section.blocks %}
+                {% if block.type == 'enrollment_info' and block.settings.info_text != blank %}
+                <div class="info-item flex items-center gap-sm mb-sm" {{ block.fluid_attributes }}>
+                  <svg class="w-5 h-5 {{ section.settings.info_icon_color | default: 'text-primary' }}" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="{{ section.settings.info_font_size | default: 'text-sm' }} {{ section.settings.info_color | default: 'text-neutral-dark' }}">
+                    {{ block.settings.info_text }}
+                  </span>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Enrollment Action Section -->
+            <div class="enrollment-action-section">
+              
+              <!-- Enrollment Price Display -->
+              {% if membership_product.price %}
+              <div class="price-display mb-lg">
+                <div class="main-price {{ section.settings.price_font_family | default: 'font-primary' }} {{ section.settings.price_font_size | default: 'text-3xl' }} {{ section.settings.price_font_size_desktop | default: 'lg:text-4xl' }} {{ section.settings.price_font_weight | default: 'font-bold' }} {{ section.settings.price_color | default: 'text-black' }}">
+                  {{ membership_product.price }}
+                </div>
+                {% if section.settings.price_description != blank %}
+                <div class="price-description {{ section.settings.price_description_font_size | default: 'text-sm' }} {{ section.settings.price_description_color | default: 'text-neutral' }} mt-xs">
+                  {{ section.settings.price_description }}
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+              
+              <!-- Enrollment Button Section -->
+              <div class="btn-section flex flex-col gap-y-lg">
+                <div class="enrollment-button-row">
+                  <!-- Primary Enrollment Button -->
+                  <button type="button"
+                          class="enrollment-btn btn btn-{{ section.settings.button_style | default: 'filled' }}-{{ section.settings.button_color | default: 'primary' }} {{ section.settings.button_size | default: 'btn-lg' }} w-full {{ settings.button_border_radius | default: 'rounded-lg' }} transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] btn-text font-semibold tracking-wide"
+                          data-fluid-add-enrollment-pack="{{ enrollment_pack.id }}">
+                      {{ section.settings.enrollment_button_text | default: 'Start Enrollment' }}
+                  </button>
+                </div>
+                
+                <!-- Secondary Action -->
+                {% if section.settings.show_secondary_button %}
+                <div class="secondary-button-row">
+                  <a href="{{ section.settings.secondary_button_url | default: '#' }}"
+                     class="secondary-btn btn btn-{{ section.settings.secondary_button_style | default: 'outline' }}-{{ section.settings.secondary_button_color | default: 'neutral' }} {{ section.settings.secondary_button_size | default: 'btn-md' }} w-full {{ settings.button_border_radius | default: 'rounded-lg' }}">
+                    <span class="btn-text">
+                      {{ section.settings.secondary_button_text | default: 'Learn More' }}
+                    </span>
+                  </a>
+                </div>
+                {% endif %}
+                
+                <!-- Payment Information -->
+                {% if section.settings.show_payment_info %}
+                <div class="payment-info text-center">
+                  <span class="{{ section.settings.payment_info_font_size | default: 'text-sm' }} {{ section.settings.payment_info_color | default: 'text-neutral' }}">
+                    {{ section.settings.payment_info_text | default: 'Secure checkout • Cancel anytime' }}
+                  </span>
+                </div>
+                {% endif %}
+              </div>
+              
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- Sticky Enrollment Bar -->
+{% if section.settings.show_sticky_enrollment %}
+<div class="sticky-enrollment-bar fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-light shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out" id="sticky-enrollment-bar">
+  <div class="container">
+    <div class="sticky-enrollment-content max-w-7xl mx-auto px-lg lg:px-xl py-md flex items-center justify-between gap-md">
+      
+      <!-- Enrollment Info (Left Side) -->
+      <div class="sticky-enrollment-info flex items-center gap-md flex-1">
+        <!-- Enrollment Image -->
+        {% if images_array.size > 0 %}
+          <img src="{{ images_array.first }}"
+               alt="{{ membership_product.title | default: enrollment_pack.title }}"
+               class="sticky-enrollment-image w-12 h-12 lg:w-16 lg:h-16 object-cover {{ section.settings.sticky_image_border_radius | default: 'rounded-lg' }}">
+        {% endif %}
+        
+        <!-- Enrollment Details -->
+        <div class="sticky-enrollment-details flex-1">
+          <h3 class="{{ section.settings.sticky_title_font_size | default: 'text-lg' }} {{ section.settings.sticky_title_color | default: 'text-black' }} font-bold leading-tight">
+            {{ membership_product.title | default: enrollment_pack.title }}
+          </h3>
+          {% if membership_product.price %}
+          <p class="{{ section.settings.sticky_price_font_size | default: 'text-lg' }} {{ section.settings.sticky_price_color | default: 'text-black' }} font-bold">
+            {{ membership_product.price }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Start Enrollment Button (Right Side) -->
+      <div class="sticky-enrollment-actions flex items-center gap-sm">
+        <button type="button" 
+                class="sticky-start-enrollment btn btn-{{ section.settings.sticky_button_style | default: 'filled' }}-{{ section.settings.sticky_button_color | default: 'primary' }} {{ section.settings.sticky_button_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}"
+                data-fluid-add-enrollment-pack="{{ enrollment_pack.id }}">
+          <span class="btn-text">
+            {{ section.settings.sticky_enrollment_text | default: 'Start Enrollment' }}
+          </span>
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+// Enhanced Thumbnail switching and carousel functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const thumbnails = document.querySelectorAll('.thumbnail-item');
+  const mainImage = document.querySelector('.main-enrollment-image');
+  const thumbnailsContainer = document.getElementById('thumbnails-container');
+  const thumbnailNavUp = document.querySelector('.thumbnail-nav-up');
+  const thumbnailNavDown = document.querySelector('.thumbnail-nav-down');
+  
+  let currentScrollIndex = 0;
+  const maxVisibleThumbnails = 5;
+  const totalThumbnails = thumbnails.length;
+  
+  // Initialize carousel state
+  function initCarousel() {
+    if (totalThumbnails <= maxVisibleThumbnails) {
+      // Hide navigation if not needed
+      if (thumbnailNavUp) thumbnailNavUp.style.display = 'none';
+      if (thumbnailNavDown) thumbnailNavDown.style.display = 'none';
+      return;
+    }
+    
+    updateCarouselState();
+  }
+  
+  // Update carousel navigation state
+  function updateCarouselState() {
+    const maxScrollIndex = Math.max(0, totalThumbnails - maxVisibleThumbnails);
+    
+    // Update navigation button visibility
+    if (thumbnailNavUp) {
+      thumbnailNavUp.style.display = currentScrollIndex > 0 ? 'flex' : 'none';
+    }
+    
+    if (thumbnailNavDown) {
+      thumbnailNavDown.style.display = currentScrollIndex < maxScrollIndex ? 'flex' : 'none';
+    }
+    
+    // Update transform
+    if (thumbnailsContainer) {
+      const thumbnailHeight = thumbnails[0] ? thumbnails[0].offsetHeight : 0;
+      const gap = 4; // gap-xs equivalent (0.25rem = 4px)
+      const translateY = currentScrollIndex * (thumbnailHeight + gap);
+      thumbnailsContainer.style.transform = `translateY(-${translateY}px)`;
+    }
+  }
+  
+  // Scroll thumbnails function
+  window.scrollThumbnails = function(direction) {
+    const maxScrollIndex = Math.max(0, totalThumbnails - maxVisibleThumbnails);
+    
+    if (direction === 'up' && currentScrollIndex > 0) {
+      currentScrollIndex--;
+    } else if (direction === 'down' && currentScrollIndex < maxScrollIndex) {
+      currentScrollIndex++;
+    }
+    
+    updateCarouselState();
+  };
+  
+  // Thumbnail click functionality
+  thumbnails.forEach(function(thumbnail, index) {
+    thumbnail.addEventListener('click', function() {
+      // Remove active class from all thumbnails
+      thumbnails.forEach(function(thumb) {
+        thumb.classList.remove('active');
+      });
+      
+      // Add active class to clicked thumbnail
+      this.classList.add('active');
+      
+      // Update main image
+      const thumbnailImg = this.querySelector('.thumbnail-image');
+      const imageSource = this.getAttribute('data-image-src');
+      if (thumbnailImg && mainImage && imageSource) {
+        // Use the image source directly since images_array contains full URLs
+        mainImage.src = imageSource;
+        mainImage.alt = thumbnailImg.alt;
+      }
+      
+      // Auto-scroll to show clicked thumbnail if it's out of view
+      if (totalThumbnails > maxVisibleThumbnails) {
+        const visibleStart = currentScrollIndex;
+        const visibleEnd = currentScrollIndex + maxVisibleThumbnails - 1;
+        
+        if (index < visibleStart) {
+          // Thumbnail is above visible area, scroll up
+          currentScrollIndex = index;
+          updateCarouselState();
+        } else if (index > visibleEnd) {
+          // Thumbnail is below visible area, scroll down
+          currentScrollIndex = Math.min(index - maxVisibleThumbnails + 1, totalThumbnails - maxVisibleThumbnails);
+          updateCarouselState();
+        }
+      }
+    });
+  });
+  
+  // Initialize carousel
+  initCarousel();
+  
+  // Sticky enrollment bar functionality
+  {% if section.settings.show_sticky_enrollment %}
+  const stickyEnrollmentBar = document.getElementById('sticky-enrollment-bar');
+  const enrollmentHeaderSection = document.querySelector('.enrollment-header');
+  let isSticky = false;
+  
+  function handleStickyEnrollment() {
+    if (!stickyEnrollmentBar || !enrollmentHeaderSection) {
+      return;
+    }
+    
+    const headerRect = enrollmentHeaderSection.getBoundingClientRect();
+    const shouldShow = headerRect.bottom < 0; // Show when header is completely out of view
+    
+    if (shouldShow && !isSticky) {
+      stickyEnrollmentBar.style.transform = 'translateY(0)';
+      stickyEnrollmentBar.style.visibility = 'visible';
+      isSticky = true;
+    } else if (!shouldShow && isSticky) {
+      stickyEnrollmentBar.style.transform = 'translateY(100%)';
+      stickyEnrollmentBar.style.visibility = 'hidden';
+      isSticky = false;
+    }
+  }
+  
+  // Throttled scroll handler for performance
+  let ticking = false;
+  function handleScroll() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        handleStickyEnrollment();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  // Set initial state
+  stickyEnrollmentBar.style.transform = 'translateY(100%)';
+  stickyEnrollmentBar.style.visibility = 'visible';
+  
+  // Initial check
+  handleStickyEnrollment();
+  {% endif %}
+});
+</script>
+
+{% schema %}
+{
+  "name": "Enrollment Header",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Enrollment Category"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_category",
+      "label": "Show Enrollment Category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "fallback_category",
+      "label": "Fallback Category Text",
+      "default": "Enrollment Pack",
+      "info": "Text to show if enrollment has no type. Leave blank to hide category when not available."
+    },
+    {
+      "type": "select",
+      "id": "category_font_family",
+      "label": "Category Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "category_font_size",
+      "label": "Category Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "category_font_size_desktop",
+      "label": "Category Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "Extra Small" },
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" }
+      ],
+      "default": "lg:text-sm"
+    },
+    {
+      "type": "select",
+      "id": "category_font_weight",
+      "label": "Category Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "category_color",
+      "label": "Category Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Enrollment Title Styling"
+    },
+    {
+      "type": "select",
+      "id": "title_font_family",
+      "label": "Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "title_font_size",
+      "label": "Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "title_font_size_desktop",
+      "label": "Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "title_color",
+      "label": "Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Enrollment Description Styling"
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Trust Badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Show Trust Badges",
+      "default": true,
+      "info": "Enable this to show custom trust badges. Add trust badge blocks below to create your badges."
+    },
+    {
+      "type": "select",
+      "id": "badge_font_size",
+      "label": "Badge Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "badge_color",
+      "label": "Badge Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Reviews Section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show Reviews",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Review Count",
+      "default": "136"
+    },
+    {
+      "type": "select",
+      "id": "review_font_size",
+      "label": "Review Text Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "review_color",
+      "label": "Review Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Enrollment Information"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_enrollment_info",
+      "label": "Show Enrollment Information",
+      "default": true,
+      "info": "Enable this to show enrollment information items. Add enrollment info blocks below to create your information items."
+    },
+    {
+      "type": "select",
+      "id": "info_font_size",
+      "label": "Information Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "info_color",
+      "label": "Information Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "select",
+      "id": "info_icon_color",
+      "label": "Information Icon Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-primary"
+    },
+    {
+      "type": "header",
+      "content": "Price Display"
+    },
+    {
+      "type": "select",
+      "id": "price_font_family",
+      "label": "Price Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "price_font_size",
+      "label": "Price Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "price_font_size_desktop",
+      "label": "Price Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "price_font_weight",
+      "label": "Price Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "price_color",
+      "label": "Price Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "text",
+      "id": "price_description",
+      "label": "Price Description",
+      "default": "One-time payment",
+      "info": "Optional text to display below the price"
+    },
+    {
+      "type": "select",
+      "id": "price_description_font_size",
+      "label": "Price Description Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "price_description_color",
+      "label": "Price Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Primary Enrollment Button"
+    },
+    {
+      "type": "text",
+      "id": "enrollment_button_text",
+      "label": "Enrollment Button Text",
+      "default": "Start Enrollment"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "button_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "button_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "header",
+      "content": "Secondary Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_button",
+      "label": "Show Secondary Button",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "label": "Secondary Button Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_url",
+      "label": "Secondary Button URL",
+      "default": "#"
+    },
+    {
+      "type": "select",
+      "id": "secondary_button_style",
+      "label": "Secondary Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "select",
+      "id": "secondary_button_color",
+      "label": "Secondary Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" },
+        { "value": "neutral", "label": "Neutral" }
+      ],
+      "default": "neutral"
+    },
+    {
+      "type": "select",
+      "id": "secondary_button_size",
+      "label": "Secondary Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "header",
+      "content": "Payment Information"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_info",
+      "label": "Show Payment Information",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "payment_info_text",
+      "label": "Payment Information Text",
+      "default": "Secure checkout • Cancel anytime"
+    },
+    {
+      "type": "select",
+      "id": "payment_info_font_size",
+      "label": "Payment Info Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "payment_info_color",
+      "label": "Payment Info Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral"
+    },
+    {
+      "type": "header",
+      "content": "Sticky Enrollment Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sticky_enrollment",
+      "label": "Show Sticky Enrollment Bar",
+      "default": true,
+      "info": "Shows a fixed enrollment bar at bottom when enrollment header scrolls out of view"
+    },
+    {
+      "type": "text",
+      "id": "sticky_enrollment_text",
+      "label": "Sticky Enrollment Button Text",
+      "default": "Start Enrollment"
+    },
+    {
+      "type": "select",
+      "id": "sticky_button_style",
+      "label": "Sticky Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "sticky_button_color",
+      "label": "Sticky Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "sticky_button_size",
+      "label": "Sticky Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "select",
+      "id": "sticky_title_font_size",
+      "label": "Sticky Title Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "sticky_title_color",
+      "label": "Sticky Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "sticky_price_font_size",
+      "label": "Sticky Price Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "sticky_price_color",
+      "label": "Sticky Price Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "sticky_image_border_radius",
+      "label": "Sticky Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "image_border_radius",
+      "label": "Main Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "select",
+      "id": "thumbnail_border_radius",
+      "label": "Thumbnail Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" }
+      ],
+      "default": "rounded-md"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-lg"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    },
+    {
+      "type": "header",
+      "content": "Event Sponsors"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_event_sponsors",
+      "label": "Show Event Sponsors",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "sponsor_heading",
+      "label": "Sponsor Heading Text",
+      "default": "Event Sponsors"
+    },
+    {
+      "type": "select",
+      "id": "sponsor_logo_height",
+      "label": "Sponsor Logo Height",
+      "options": [
+        { "value": "h-8", "label": "Small" },
+        { "value": "h-12", "label": "Medium" },
+        { "value": "h-16", "label": "Large" },
+        { "value": "h-20", "label": "Extra Large" }
+      ],
+      "default": "h-12"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust Badge",
+      "settings": [
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge Text",
+          "placeholder": "e.g. HSA/FSA Accepted, FDA Registered, 30-Day Returns",
+          "info": "Enter the text you want to display with a green checkmark"
+        }
+      ]
+    },
+    {
+      "type": "enrollment_info",
+      "name": "Enrollment Information",
+      "settings": [
+        {
+          "type": "text",
+          "id": "info_text",
+          "label": "Information Text",
+          "placeholder": "e.g. Monthly subscription included, Cancel anytime, Free shipping",
+          "info": "Enter the text you want to display with a checkmark icon"
+        }
+      ]
+    },
+    {
+      "type": "sponsor_logo",
+      "name": "Sponsor Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "sponsor_image",
+          "label": "Sponsor Logo Image"
+        },
+        {
+          "type": "text",
+          "id": "sponsor_alt_text",
+          "label": "Logo Alt Text",
+          "placeholder": "e.g. InfoTrax Logo",
+          "info": "Describe the sponsor logo for accessibility"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Enrollment Header",
+      "blocks": [
+        {
+          "type": "trust_badge",
+          "settings": {
+            "badge_text": "HSA/FSA Accepted"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "badge_text": "FDA Registered"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "badge_text": "30-Day Returns"
+          }
+        },
+        {
+          "type": "enrollment_info",
+          "settings": {
+            "info_text": "Monthly subscription included"
+          }
+        },
+        {
+          "type": "enrollment_info",
+          "settings": {
+            "info_text": "Cancel anytime"
+          }
+        },
+        {
+          "type": "enrollment_info",
+          "settings": {
+            "info_text": "Free shipping included"
+          }
+        },
+        {
+          "type": "sponsor_logo",
+          "settings": {
+            "sponsor_alt_text": "InfoTrax Logo"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

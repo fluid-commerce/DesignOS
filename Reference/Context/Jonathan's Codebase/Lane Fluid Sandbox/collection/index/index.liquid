@@ -1,0 +1,619 @@
+{% assign carousel_id = section.id | append: '-carousel-' | append: collection.handle | append: '-' | append: collection.id %}
+<div class="container" id="dummy-container"></div>
+{%- style -%}
+  .product-collection-{{ section.id }} {
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px;
+    background-color: {{ section.settings.background_color | default: 'transparent' }};
+  }
+
+  @media (min-width: 768px) {
+    .product-collection-{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 50 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 50 }}px;
+    }
+  }
+{%- endstyle -%}
+
+{% for collection in collections %}
+    <section class="product-collection-section section-t-spacing product-collection-{{ section.id }}">
+      
+        {% if section.settings.show_collection_title %}
+            <div class="header-section">
+                <div class="container">
+                    <div class="wrapper flex flex-wrap align-end">
+                        <div class="desc">
+                            <div class="{{ section.settings.title_font_size | default: 'text-5xl' }} {{ section.settings.title_font_size_desktop | default: 'xl-tab-text-5xl' }} {{ section.settings.title_font_weight | default: 'font-bold' }}"
+                                style="color: {{ section.settings.title_color | default: '#000000' }};">
+                                {{ collection.title | default: 'Collection' }}
+                            </div>
+                        </div>
+                        {% if section.settings.show_view_all_button %}
+                            <div class="btn-section text-right hidden sm-desktop-block">
+                            <a href="{{ collection.url }}" 
+                                class="btn text-center {{ section.settings.button_style | default: 'btn-border-black' }}"
+                                style="
+                                background-color: {{ section.settings.button_background_color | default: 'transparent' }};
+                                color: {{ section.settings.button_text_color | default: '#000000' }};
+                                border-color: {{ section.settings.button_border_color | default: '#000000' }};
+                                border-width: {{ section.settings.button_border_width | default: 1 }}px;
+                                ">
+                                {{ section.settings.view_all_button_text | default: 'View All' }}
+                            </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- .header-section -->
+        {% endif %}
+    
+        <div class="product-list-section carousel-container mt-12">
+            <div class="container">
+                <div class="product-carousel {{ carousel_id }} splide" data-carousel-id="{{ carousel_id }}">
+                    <div class="splide__track">
+                        <ul class="splide__list">
+                            {% for product in collection.products limit: section.settings.products_limit | default: 6 %}
+                                <li class="splide__slide">
+                                    <div class="carousel-product">
+                                        <div class="image-section">
+                                            {% if product.images.size > 0 %}
+                                                <img
+                                                src="{{ product.images[0].src }}"
+                                                alt="{{ product.title }}"
+                                                class="image-cover"
+                                                />
+                                            {% else %}
+                                                <img
+                                                src="{{ product.image | image_url }}"
+                                                alt="{{ product.title }}"
+                                                class="image-cover"
+                                                />
+                                            {% endif %}
+                                        </div>
+                                        <div class="desc pt-4">
+                                            <div class="{{ section.settings.product_title_font_size | default: 'text-base' }} {{ section.settings.product_title_font_size_desktop | default: 'xl-tab-text-lg' }} {{ section.settings.product_title_font_weight | default: 'font-semibold' }}"
+                                                style="color: {{ section.settings.product_title_color | default: '#000000' }};">
+                                                {{ product.title }}
+                                            </div>
+                                            {% if section.settings.show_product_variant %}
+                                                <p class="{{ section.settings.product_variant_font_size | default: 'text-sm' }} {{ section.settings.product_variant_font_size_desktop | default: 'xl-tab-text-sm' }} {{ section.settings.product_variant_font_weight | default: 'font-normal' }} pt-1"
+                                                    style="color: {{ section.settings.product_variant_color | default: '#666666' }};">
+                                                    Variant
+                                                </p>
+                                            {% endif %}
+                                            {% unless section.settings.hide_price %}
+                                                <div class="{{ section.settings.product_price_font_size | default: 'text-lg' }} {{ section.settings.product_price_font_size_desktop | default: 'xl-tab-text-xl' }} {{ section.settings.product_price_font_weight | default: 'font-bold' }} pt-2"
+                                                    style="color: {{ section.settings.product_price_color | default: '#000000' }};">
+                                                    {{ product.price }}
+                                                </div>
+                                            {% endunless %}
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+    
+                    {% if section.settings.show_carousel_arrows %}
+                    <div class="splide__arrows splide-arrow-section mt-12">
+                        <button class="slide-arrow splide__arrow splide__arrow--prev arrow-prev-btn"
+                                style="
+                                color: {{ section.settings.arrow_color | default: '#000000' }};
+                                width: {{ section.settings.arrow_size | default: 48 }}px; 
+                                height: {{ section.settings.arrow_size | default: 48 }}px;
+                                ">
+                            <svg
+                                width="{{ section.settings.arrow_size | default: 24 }}"
+                                height="{{ section.settings.arrow_size | default: 25 }}"
+                                viewBox="0 0 24 25"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                d="M20 11.4004H7.83L13.42 5.81039L12 4.40039L4 12.4004L12 20.4004L13.41 18.9904L7.83 13.4004H20V11.4004Z"
+                                fill="{{ section.settings.arrow_color | default: 'black' }}"
+                                />
+                            </svg>
+                        </button>
+                        <button class="slide-arrow splide__arrow splide__arrow--next arrow-next-btn"
+                                style="
+                                color: {{ section.settings.arrow_color | default: '#000000' }};
+                                width: {{ section.settings.arrow_size | default: 48 }}px; 
+                                height: {{ section.settings.arrow_size | default: 48 }}px;
+                                ">
+                            <svg
+                                width="{{ section.settings.arrow_size | default: 24 }}"
+                                height="{{ section.settings.arrow_size | default: 25 }}"
+                                viewBox="0 0 24 25"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                d="M20 11.4004H7.83L13.42 5.81039L12 4.40039L4 12.4004L12 20.4004L13.41 18.9904L7.83 13.4004H20V11.4004Z"
+                                fill="{{ section.settings.arrow_color | default: 'black' }}"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            <!-- .product-carousel -->
+            </div>
+        </div>
+        <!-- .carousel-section -->
+    </section>
+{% endfor %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Initialize all collection carousels on the page
+      function initializeAllCollectionCarousels() {
+        // Find all collection carousels
+        const collectionCarousels = document.querySelectorAll('.product-carousel');
+        
+        collectionCarousels.forEach((carousel, index) => {
+          // Get the carousel ID from the data attribute
+          const carouselId = carousel.getAttribute('data-carousel-id');
+          
+          if (carouselId) {
+            // Initialize this specific carousel using the carousel element directly
+            const productCarousel = new Splide(carousel, {
+              perPage: 1,
+              perMove: 1,
+              speed: 500,
+              mediaQuery: "min",
+              interval: 5000,
+              padding: {
+                right: "64px",
+              },
+              gap: "24px",
+              breakpoints: {
+                576: {
+                  perPage: 2,
+                },
+                768: {
+                  perPage: 3,
+                },
+                1200: {
+                  gap: "48px",
+                  padding: {
+                    right: "80px",
+                  },
+                },
+              },
+            });
+            productCarousel.mount();
+          }
+        });
+      }
+
+      // Set spacing for carousel containers
+      function setCarouselContainerSpacing() {
+        const dummyContainer = document.getElementById('dummy-container');
+        if (!dummyContainer) {
+          return;
+        }
+
+        const containerRect = dummyContainer.getBoundingClientRect();
+        const paddingLeft = containerRect.left;
+        
+        $('.carousel-container').each(function() {
+          $(this).css('padding-left', paddingLeft + 'px');
+        });
+      }
+      
+      // Initialize all carousels
+      initializeAllCollectionCarousels();
+      setCarouselContainerSpacing();
+
+      // Handle window resize
+      $(window).resize(function() {
+        setCarouselContainerSpacing();
+      });
+    });
+</script>
+
+{% schema %}
+    {
+        "name": "Collection",
+        "tag": "section",
+        "class": "collection-section",
+        "enabled_on": {
+            "templates": ["collection_page"]
+    },
+    "settings": [
+        {
+            "type": "header",
+            "content": "Content Settings"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_collection_title",
+            "label": "Show Collection Title",
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "title_font_size",
+            "label": "Title Font Size (Mobile)",
+            "options": [
+                { "value": "text-xl", "label": "Extra Large" },
+                { "value": "text-2xl", "label": "2X Large" },
+                { "value": "text-3xl", "label": "3X Large" },
+                { "value": "text-5xl", "label": "5X Large" },
+                { "value": "text-h2", "label": "H2" }
+            ],
+            "default": "text-5xl"
+        },
+        {
+            "type": "select",
+            "id": "title_font_size_desktop",
+            "label": "Title Font Size (Desktop)",
+            "options": [
+                { "value": "sm-desktop-text-xl", "label": "Extra Large" },
+                { "value": "sm-desktop-text-2xl", "label": "2X Large" },
+                { "value": "sm-desktop-text-3xl", "label": "3X Large" },
+                { "value": "sm-desktop-text-5xl", "label": "5X Large" },
+                { "value": "sm-desktop-text-h2", "label": "H2" }
+            ],
+            "default": "sm-desktop-text-5xl"
+        },
+        {
+            "type": "select",
+            "id": "title_font_weight",
+            "label": "Title Font Weight",
+            "options": [
+                { "value": "font-light", "label": "Light" },
+                { "value": "font-normal", "label": "Normal" },
+                { "value": "font-medium", "label": "Medium" },
+                { "value": "font-semibold", "label": "Semi Bold" },
+                { "value": "font-bold", "label": "Bold" },
+                { "value": "font-extrabold", "label": "Extra Bold" }
+            ],
+            "default": "font-bold"
+        },
+        {
+            "type": "color_background",
+            "id": "title_color",
+            "label": "Title Color",
+            "default": "#000000"
+        },
+        {
+            "type": "header",
+            "content": "View All Button Settings"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_view_all_button",
+            "label": "Show View All Button",
+            "default": true
+        },
+        {
+            "type": "text",
+            "id": "view_all_button_text",
+            "label": "View All Button Text",
+            "default": "View All"
+        },
+        {
+            "type": "select",
+            "id": "button_style",
+            "label": "Button Style",
+            "options": [
+                { "value": "btn-border-primary", "label": "Primary Border" },
+                { "value": "btn-bg-primary", "label": "Primary Background" },
+                { "value": "btn-border-black", "label": "Black Border" },
+                { "value": "btn-bg-black", "label": "Black Background" }
+            ],
+            "default": "btn-border-black"
+        },
+        {
+            "type": "color_background",
+            "id": "button_background_color",
+            "label": "Button Background Color",
+            "default": "transparent"
+        },
+        {
+            "type": "color_background",
+            "id": "button_text_color",
+            "label": "Button Text Color",
+            "default": "#000000"
+        },
+        {
+            "type": "color_background",
+            "id": "button_border_color",
+            "label": "Button Border Color",
+            "default": "#000000"
+        },
+        {
+            "type": "range",
+            "id": "button_border_width",
+            "min": 0,
+            "max": 5,
+            "step": 1,
+            "unit": "px",
+            "label": "Button Border Width",
+            "default": 1
+        },
+        {
+            "type": "header",
+            "content": "Product Display Settings"
+        },
+        {
+            "type": "range",
+            "id": "products_limit",
+            "min": 3,
+            "max": 24,
+            "step": 3,
+            "label": "Number of Products to Show",
+            "default": 6
+        },
+        {
+            "type": "checkbox",
+            "id": "show_product_variant",
+            "label": "Show Product Variant",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "hide_price",
+            "label": "Hide Product Price",
+            "default": false
+        },
+        {
+            "type": "header",
+            "content": "Layout Settings"
+        },
+        {
+            "type": "color_background",
+            "id": "background_color",
+            "label": "Background Color",
+            "default": "transparent"
+        },
+        {
+            "type": "range",
+            "id": "section_padding_top_mobile",
+            "min": 0,
+            "max": 200,
+            "step": 10,
+            "unit": "px",
+            "label": "Section Padding Top (Mobile)",
+            "default": 40
+        },
+        {
+            "type": "range",
+            "id": "section_padding_bottom_mobile",
+            "min": 0,
+            "max": 200,
+            "step": 10,
+            "unit": "px",
+            "label": "Section Padding Bottom (Mobile)",
+            "default": 40
+        },
+        {
+            "type": "range",
+            "id": "section_padding_top_desktop",
+            "min": 0,
+            "max": 200,
+            "step": 10,
+            "unit": "px",
+            "label": "Section Padding Top (Desktop)",
+            "default": 50
+        },
+        {
+            "type": "range",
+            "id": "section_padding_bottom_desktop",
+            "min": 0,
+            "max": 200,
+            "step": 10,
+            "unit": "px",
+            "label": "Section Padding Bottom (Desktop)",
+            "default": 50
+        },
+        
+        {
+            "type": "header",
+            "content": "Product Title Typography"
+        },
+        {
+            "type": "select",
+            "id": "product_title_font_size",
+            "label": "Product Title Font Size (Mobile)",
+            "options": [
+                { "value": "text-sm", "label": "Small" },
+                { "value": "text-base", "label": "Base" },
+                { "value": "text-lg", "label": "Large" },
+                { "value": "text-xl", "label": "Extra Large" }
+            ],
+            "default": "text-base"
+        },
+        {
+            "type": "select",
+            "id": "product_title_font_size_desktop",
+            "label": "Product Title Font Size (Desktop)",
+            "options": [
+                { "value": "sm-desktop-text-sm", "label": "Small" },
+                { "value": "sm-desktop-text-base", "label": "Base" },
+                { "value": "sm-desktop-text-lg", "label": "Large" },
+                { "value": "sm-desktop-text-xl", "label": "Extra Large" }
+            ],
+            "default": "sm-desktop-text-lg"
+        },
+        {
+            "type": "select",
+            "id": "product_title_font_weight",
+            "label": "Product Title Font Weight",
+            "options": [
+                { "value": "font-light", "label": "Light" },
+                { "value": "font-normal", "label": "Normal" },
+                { "value": "font-medium", "label": "Medium" },
+                { "value": "font-semibold", "label": "Semi Bold" },
+                { "value": "font-bold", "label": "Bold" }
+            ],
+            "default": "font-semibold"
+        },
+        {
+            "type": "color_background",
+            "id": "product_title_color",
+            "label": "Product Title Color",
+            "default": "#000000"
+        },
+        {
+            "type": "header",
+            "content": "Product Variant Typography"
+        },
+        {
+            "type": "select",
+            "id": "product_variant_font_size",
+            "label": "Product Variant Font Size (Mobile)",
+            "options": [
+                { "value": "text-xs", "label": "Extra Small" },
+                { "value": "text-sm", "label": "Small" },
+                { "value": "text-base", "label": "Base" },
+                { "value": "text-lg", "label": "Large" }
+            ],
+            "default": "text-sm"
+        },
+        {
+            "type": "select",
+            "id": "product_variant_font_size_desktop",
+            "label": "Product Variant Font Size (Desktop)",
+            "options": [
+                { "value": "sm-desktop-text-xs", "label": "Extra Small" },
+                { "value": "sm-desktop-text-sm", "label": "Small" },
+                { "value": "sm-desktop-text-base", "label": "Base" },
+                { "value": "sm-desktop-text-lg", "label": "Large" }
+            ],
+            "default": "sm-desktop-text-sm"
+        },
+        {
+            "type": "select",
+            "id": "product_variant_font_weight",
+            "label": "Product Variant Font Weight",
+            "options": [
+                { "value": "font-light", "label": "Light" },
+                { "value": "font-normal", "label": "Normal" },
+                { "value": "font-medium", "label": "Medium" },
+                { "value": "font-semibold", "label": "Semi Bold" },
+                { "value": "font-bold", "label": "Bold" }
+            ],
+            "default": "font-normal"
+        },
+        {
+            "type": "color_background",
+            "id": "product_variant_color",
+            "label": "Product Variant Color",
+            "default": "#666666"
+        },
+        {
+            "type": "header",
+            "content": "Product Price Typography"
+        },
+        {
+            "type": "select",
+            "id": "product_price_font_size",
+            "label": "Product Price Font Size (Mobile)",
+            "options": [
+                { "value": "text-sm", "label": "Small" },
+                { "value": "text-base", "label": "Base" },
+                { "value": "text-lg", "label": "Large" },
+                { "value": "text-xl", "label": "Extra Large" }
+            ],
+            "default": "text-lg"
+        },
+        {
+            "type": "select",
+            "id": "product_price_font_size_desktop",
+            "label": "Product Price Font Size (Desktop)",
+            "options": [
+                { "value": "sm-desktop-text-sm", "label": "Small" },
+                { "value": "sm-desktop-text-base", "label": "Base" },
+                { "value": "sm-desktop-text-lg", "label": "Large" },
+                { "value": "sm-desktop-text-xl", "label": "Extra Large" }
+            ],
+            "default": "sm-desktop-text-xl"
+        },
+        {
+            "type": "select",
+            "id": "product_price_font_weight",
+            "label": "Product Price Font Weight",
+            "options": [
+                { "value": "font-light", "label": "Light" },
+                { "value": "font-normal", "label": "Normal" },
+                { "value": "font-medium", "label": "Medium" },
+                { "value": "font-semibold", "label": "Semi Bold" },
+                { "value": "font-bold", "label": "Bold" }
+            ],
+            "default": "font-bold"
+        },
+        {
+            "type": "color_background",
+            "id": "product_price_color",
+            "label": "Product Price Color",
+            "default": "#000000"
+        },
+        {
+            "type": "header",
+            "content": "Carousel Settings"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_carousel_arrows",
+            "label": "Show Carousel Arrows",
+            "default": true
+        },
+        {
+            "type": "color_background",
+            "id": "arrow_color",
+            "label": "Arrow Color",
+            "default": "#000000"
+        },
+        {
+            "type": "range",
+            "id": "arrow_size",
+            "min": 24,
+            "max": 48,
+            "step": 4,
+            "unit": "px",
+            "label": "Arrow Size",
+            "default": 48
+        }
+    ],
+    "presets": [
+        {
+        "name": "Collection",
+        "settings": {
+            "show_collection_title": true,
+            "show_view_all_button": true,
+            "view_all_button_text": "View All",
+            "products_limit": 6,
+            "show_product_variant": true,
+            "hide_price": false,
+            "title_font_size": "text-5xl",
+            "title_font_size_desktop": "sm-desktop-text-5xl",
+            "title_font_weight": "font-bold",
+            "title_color": "#000000",
+            "button_style": "btn-border-black",
+            "product_title_font_size": "text-base",
+            "product_title_font_size_desktop": "sm-desktop-text-lg",
+            "product_title_font_weight": "font-semibold",
+            "product_title_color": "#000000",
+            "product_variant_font_size": "text-sm",
+            "product_variant_font_size_desktop": "sm-desktop-text-sm",
+            "product_variant_font_weight": "font-normal",
+            "product_variant_color": "#666666",
+            "product_price_font_size": "text-lg",
+            "product_price_font_size_desktop": "sm-desktop-text-xl",
+            "product_price_font_weight": "font-bold",
+            "product_price_color": "#000000",
+            "show_carousel_arrows": true,
+            "arrow_color": "#000000",
+            "arrow_size": 24,
+            "section_padding_top_mobile": 40,
+            "section_padding_bottom_mobile": 40,
+            "section_padding_top_desktop": 50,
+            "section_padding_bottom_desktop": 50
+        }
+        }
+    ]
+    }
+{% endschema %}

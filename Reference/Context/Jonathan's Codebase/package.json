@@ -1,0 +1,10 @@
+{
+  "name": "template-library-preview",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx serve . -p 4200 --no-clipboard"
+  },
+  "dependencies": {
+    "@fluid-commerce/dam-picker": "^0.1.0"
+  }
+}

@@ -1,0 +1,732 @@
+
+<!-- Content Hero Section -->
+<section class="content-hero {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }} {{ section.settings.background_color }}" 
+         id="{{ section.id }}"
+         {% if section.settings.background_image != blank %}
+         style="background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');"
+         {% endif %}>
+  <div class="container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+       {% if section.settings.container_background_image != blank %}
+       style="background-image: url('{{ section.settings.container_background_image | image_url: width: 1200 }}');"
+       {% endif %}>
+    
+    <!-- Content Grid -->
+    <div class="content-grid {{ section.settings.layout_reverse | default: false }}">
+      
+      <!-- Content Column -->
+      <div class="content-column">
+        
+        <!-- Tagline -->
+        {% if section.settings.show_tag and section.settings.tag_text != blank %}
+          <div class="tagline-wrapper {{ section.settings.tag_margin_bottom }}">
+            <div class="tagline {{ section.settings.tag_font_family | default: 'font-handwritten' }} {{ section.settings.tag_text_color }} {{ section.settings.tag_font_size }} {{ section.settings.tag_font_weight }}">
+              {{ section.settings.tag_text }}
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Heading -->
+        {% if section.settings.content_heading != blank %}
+          <div class="heading-wrapper {{ section.settings.heading_margin_bottom }}">
+            <h2 class="content-heading {{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size }} {{ section.settings.heading_font_size_desktop }} {{ section.settings.heading_font_weight }} {{ section.settings.heading_line_height }} {{ section.settings.heading_text_color | default: 'text-black' }}">
+              {{ section.settings.content_heading }}
+            </h2>
+          </div>
+        {% endif %}
+        
+        <!-- Description -->
+        {% if section.settings.content_description != blank %}
+          <div class="description-wrapper {{ section.settings.description_margin_bottom }}">
+            <div class="content-description {{ section.settings.description_font_family | default: 'font-primary' }} {{ section.settings.description_font_size }} {{ section.settings.description_font_size_desktop }} {{ section.settings.description_line_height }} {{ section.settings.description_text_color | default: 'text-neutral-dark' }}">
+              {{ section.settings.content_description }}
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- CTA Button -->
+        {% if section.settings.show_cta_button and section.settings.cta_button_text != blank %}
+          <div class="cta-wrapper {{ section.settings.cta_margin_top }}">
+            {% if section.settings.cta_button_link != blank %}
+              <a href="{{ section.settings.cta_button_link }}" 
+                 class="cta-button {{ section.settings.cta_button_style }} {{ section.settings.cta_button_size }} {{ section.settings.cta_button_color }} {{ section.settings.cta_button_border_radius }}"
+                 {% if section.settings.cta_button_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                {{ section.settings.cta_button_text }}
+              </a>
+            {% else %}
+              <button class="cta-button {{ section.settings.cta_button_style }} {{ section.settings.cta_button_size }} {{ section.settings.cta_button_color }} {{ section.settings.cta_button_border_radius }}">
+                {{ section.settings.cta_button_text }}
+              </button>
+            {% endif %}
+          </div>
+        {% endif %}
+        
+      </div>
+      
+      <!-- Image Column -->
+      <div class="image-column">
+        <div class="image-wrapper {{ section.settings.image_border_radius }}">
+          {% if section.settings.hero_image != blank %}
+            <img src="{{ section.settings.hero_image | image_url: width: 800 }}"
+                 alt="{{ section.settings.image_alt | default: section.settings.content_heading }}"
+                 class="hero-image"
+                 loading="lazy">
+          {% else %}
+            <img src="{{ 'placeholder-image.png' | asset_url }}"
+                 alt="Placeholder image for {{ section.settings.content_heading }}"
+                 class="hero-image"
+                 loading="lazy">
+          {% endif %}
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Content Hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-neutral-light"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" },
+        { "value": "lg:py-4xl", "label": "4X Large" },
+        { "value": "lg:py-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "checkbox",
+      "id": "layout_reverse",
+      "label": "Reverse Layout",
+      "default": false,
+      "info": "When enabled, image will be on the left and content on the right"
+    },
+    
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" },
+        { "value": "py-4xl", "label": "4X Large" },
+        { "value": "py-5xl", "label": "5X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" },
+        { "value": "lg:py-4xl", "label": "4X Large" },
+        { "value": "lg:py-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" },
+        { "value": "px-4xl", "label": "4X Large" },
+        { "value": "px-5xl", "label": "5X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" },
+        { "value": "lg:px-4xl", "label": "4X Large" },
+        { "value": "lg:px-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:px-xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tag",
+      "label": "Show Tag",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tag_text",
+      "label": "Tag Text",
+      "default": "Lorem Ipsum"
+    },
+    {
+      "type": "text",
+      "id": "content_heading",
+      "label": "Content Heading",
+      "default": "Lorem ipsum dolor sit amet consectetur"
+    },
+    {
+      "type": "textarea",
+      "id": "content_description",
+      "label": "Content Description",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image Alt Text",
+      "default": ""
+    },
+    
+    {
+      "type": "header",
+      "content": "Tagline Styling"
+    },
+    {
+      "type": "select",
+      "id": "tag_font_family",
+      "label": "Tagline Font Family",
+      "options": [
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "tag_text_color",
+      "label": "Tag Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "tag_font_size",
+      "label": "Tag Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-sm"
+    },
+    {
+      "type": "select",
+      "id": "tag_font_weight",
+      "label": "Tag Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "tag_margin_bottom",
+      "label": "Tag Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" }
+      ],
+      "default": "mb-lg"
+    },
+    
+    {
+      "type": "header",
+      "content": "Heading Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" },
+        { "value": "font-handwritten", "label": "Handwritten" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-xl", "label": "X-Large" },
+        { "value": "text-2xl", "label": "2X-Large" },
+        { "value": "text-3xl", "label": "3X-Large" },
+        { "value": "text-4xl", "label": "4X-Large" },
+        { "value": "text-5xl", "label": "5X-Large" },
+        { "value": "text-6xl", "label": "6X-Large" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "X-Large" },
+        { "value": "lg:text-2xl", "label": "2X-Large" },
+        { "value": "lg:text-3xl", "label": "3X-Large" },
+        { "value": "lg:text-4xl", "label": "4X-Large" },
+        { "value": "lg:text-5xl", "label": "5X-Large" },
+        { "value": "lg:text-6xl", "label": "6X-Large" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_line_height",
+      "label": "Heading Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-tight"
+    },
+    {
+      "type": "select",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "heading_margin_bottom",
+      "label": "Heading Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" },
+        { "value": "mb-3xl", "label": "3X Large" }
+      ],
+      "default": "mb-2xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Description Typography"
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" },
+        { "value": "font-handwritten", "label": "Handwritten" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "X-Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "X-Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_line_height",
+      "label": "Description Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-relaxed"
+    },
+    {
+      "type": "select",
+      "id": "description_text_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "description_margin_bottom",
+      "label": "Description Margin Bottom",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" },
+        { "value": "mb-3xl", "label": "3X Large" }
+      ],
+      "default": "mb-2xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "select",
+      "id": "image_border_radius",
+      "label": "Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-3xl", "label": "3X-Large" }
+      ],
+      "default": "rounded-2xl"
+    },
+    
+    {
+      "type": "header",
+      "content": "CTA Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta_button",
+      "label": "Show CTA Button",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "cta_button_text",
+      "label": "CTA Button Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "cta_button_link",
+      "label": "CTA Button Link",
+      "default": "https://admin.fluid.app/sign-up"
+    },
+    {
+      "type": "checkbox",
+      "id": "cta_button_new_tab",
+      "label": "Open in New Tab",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "cta_button_style",
+      "label": "CTA Button Style",
+      "options": [
+        { "value": "btn-filled", "label": "Filled" },
+        { "value": "btn-outline", "label": "Outline" },
+        { "value": "btn-ghost", "label": "Ghost" }
+      ],
+      "default": "btn-filled"
+    },
+    {
+      "type": "select",
+      "id": "cta_button_color",
+      "label": "CTA Button Color",
+      "options": [
+        { "value": "btn-primary", "label": "Primary" },
+        { "value": "btn-secondary", "label": "Secondary" },
+        { "value": "btn-tertiary", "label": "Tertiary" },
+        { "value": "btn-success", "label": "Success" },
+        { "value": "btn-warning", "label": "Warning" },
+        { "value": "btn-error", "label": "Error" },
+        { "value": "btn-black", "label": "Black" },
+        { "value": "btn-white", "label": "White" }
+      ],
+      "default": "btn-primary"
+    },
+    {
+      "type": "select",
+      "id": "cta_button_size",
+      "label": "CTA Button Size",
+      "options": [
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "X-Large" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "select",
+      "id": "cta_button_border_radius",
+      "label": "CTA Button Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "X-Large" },
+        { "value": "rounded-2xl", "label": "2X-Large" },
+        { "value": "rounded-full", "label": "Full (Pill)" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "select",
+      "id": "cta_margin_top",
+      "label": "CTA Margin Top",
+      "options": [
+        { "value": "mt-xs", "label": "Extra Small" },
+        { "value": "mt-sm", "label": "Small" },
+        { "value": "mt-md", "label": "Medium" },
+        { "value": "mt-lg", "label": "Large" },
+        { "value": "mt-xl", "label": "Extra Large" },
+        { "value": "mt-2xl", "label": "2X Large" },
+        { "value": "mt-3xl", "label": "3X Large" }
+      ],
+      "default": "mt-2xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Content Hero"
+    }
+  ]
+}
+{% endschema %}

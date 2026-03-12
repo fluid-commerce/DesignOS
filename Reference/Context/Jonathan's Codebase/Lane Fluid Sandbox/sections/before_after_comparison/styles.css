@@ -1,0 +1,188 @@
+/* Before/After Comparison Section Styles */
+
+.before-after-comparison {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Override global overlays - only apply when background image exists */
+.before-after-comparison::after {
+  display: none !important;
+}
+
+/* Section background image overlay */
+.before-after-comparison[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Container styles */
+.before-after-comparison .inner-container {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Container background image overlay */
+.before-after-comparison .inner-container[data-bg]:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* Ensure content stays above overlays */
+.before-after-comparison .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Comparison Grid Layout */
+.before-after-comparison .comparison-grid {
+  width: 100%;
+  min-height: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Mobile: Stack vertically */
+@media (max-width: 1023px) {
+  .before-after-comparison .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-radius: 12px;
+  }
+  
+  .before-after-comparison .before-section,
+  .before-after-comparison .after-section {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+}
+
+/* Desktop: Side by side */
+@media (min-width: 1024px) {
+  .before-after-comparison .comparison-grid {
+    grid-template-columns: 1fr 1fr;
+    min-height: 500px;
+  }
+  
+  .before-after-comparison .before-section,
+  .before-after-comparison .after-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 100%;
+  }
+}
+
+/* Before Section Specific Styles */
+.before-after-comparison .before-section {
+  position: relative;
+  width: 100%;
+}
+
+/* After Section Specific Styles */
+.before-after-comparison .after-section {
+  position: relative;
+  width: 100%;
+}
+
+/* Label Styling */
+.before-after-comparison .before-label,
+.before-after-comparison .after-label {
+  display: inline-block;
+  letter-spacing: 0.05em;
+}
+
+/* Content Spacing */
+.before-after-comparison .before-description,
+.before-after-comparison .after-description {
+  max-width: 90%;
+}
+
+@media (min-width: 1024px) {
+  .before-after-comparison .before-description,
+  .before-after-comparison .after-description {
+    max-width: 85%;
+  }
+}
+
+/* Image Styling */
+.before-after-comparison .before-image-wrapper,
+.before-after-comparison .after-image-wrapper {
+  width: 100%;
+}
+
+.before-after-comparison .before-image-wrapper img,
+.before-after-comparison .after-image-wrapper img {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+}
+
+@media (min-width: 1024px) {
+  .before-after-comparison .before-image-wrapper img,
+  .before-after-comparison .after-image-wrapper img {
+    max-height: 350px;
+  }
+}
+
+
+/* Responsive Typography Adjustments */
+@media (max-width: 767px) {
+  .before-after-comparison .before-section,
+  .before-after-comparison .after-section {
+    text-align: center;
+  }
+  
+  .before-after-comparison .before-description,
+  .before-after-comparison .after-description {
+    max-width: 100%;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .before-after-comparison .before-section {
+    border: 2px solid currentColor;
+  }
+  
+  .before-after-comparison .after-section {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  /* Reserved for future interactive elements */
+}
+
+/* Print Styles */
+@media print {
+  .before-after-comparison .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  
+  .before-after-comparison .before-section,
+  .before-after-comparison .after-section {
+    page-break-inside: avoid;
+    border: 1px solid #000;
+    padding: var(--space-lg);
+  }
+}
+

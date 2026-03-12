@@ -1,0 +1,274 @@
+/* Content Showcase Section Styles */
+
+.content-showcase {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Override global content-showcase overlay - only apply when background image exists */
+.content-showcase::after {
+  display: none !important;
+}
+
+/* Only add overlay when section has background image */
+.content-showcase[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Inner container styling and background image support */
+.content-showcase .inner-container {
+  position: relative;
+  z-index: var(--z-20);
+}
+
+/* Container overlay logic */
+.content-showcase .inner-container::after {
+  display: none !important;
+}
+
+.content-showcase .inner-container[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Ensure content stays above overlay */
+.content-showcase .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Layout flip functionality */
+@media (min-width: 1024px) {
+  .content-showcase .content-grid.lg\:flip-layout .left-content {
+    order: 2; /* Move to right side */
+  }
+
+  .content-showcase .content-grid.lg\:flip-layout .right-content {
+    order: 1; /* Move to left side */
+  }
+}
+
+/* Alternative selector for flip layout (in case escaping is an issue) */
+@media (min-width: 1024px) {
+  .content-showcase .content-grid[class*="flip-layout"] .left-content {
+    order: 2; /* Move to right side */
+  }
+
+  .content-showcase .content-grid[class*="flip-layout"] .right-content {
+    order: 1; /* Move to left side */
+  }
+}
+
+/* Content spacing and layout - NEW STRUCTURE */
+.content-showcase .left-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.content-showcase .right-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.content-showcase .headline-wrapper h2 {
+  margin-bottom: 0;
+  line-height: 1.1;
+}
+
+.content-showcase .main-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.content-showcase .supporting-images-wrapper {
+  width: 100%;
+}
+
+.content-showcase .images-grid {
+  gap: var(--space-md);
+}
+
+.content-showcase .support-image-1 {
+  grid-column: span 1;
+  margin-top: var(--space-xl); /* Stagger the left image */
+}
+
+.content-showcase .support-image-2 {
+  grid-column: span 1;
+}
+
+/* Ensure no hover effects on images */
+.content-showcase img {
+  transition: none !important;
+  transform: none !important;
+  cursor: default !important;
+}
+
+.content-showcase img:hover {
+  transition: none !important;
+  transform: none !important;
+  scale: 1 !important;
+  opacity: 1 !important;
+}
+
+.content-showcase .text-content-wrapper {
+  width: 100%;
+}
+
+/* Better content organization and spacing */
+.content-showcase .subheading-wrapper p {
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.content-showcase .body-content-wrapper {
+  width: 100%;
+  line-height: 1.6;
+}
+
+.content-showcase .body-content-wrapper p {
+  margin-bottom: var(--space-md);
+  line-height: inherit;
+}
+
+.content-showcase .body-content-wrapper p:last-child {
+  margin-bottom: 0;
+}
+
+.content-showcase .body-content-wrapper strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.content-showcase .body-content-wrapper em {
+  font-style: italic;
+}
+
+.content-showcase .body-content-wrapper ul,
+.content-showcase .body-content-wrapper ol {
+  margin-bottom: var(--space-md);
+  padding-left: var(--space-lg);
+}
+
+.content-showcase .body-content-wrapper li {
+  margin-bottom: var(--space-sm);
+}
+
+.content-showcase .buttons-wrapper {
+  margin-top: var(--space-xl);
+}
+
+.content-showcase .buttons-wrapper a {
+  min-width: 140px;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 990px) {
+  .content-showcase .content-grid {
+    gap: var(--space-xl);
+    grid-template-columns: 1fr;
+  }
+  
+  .content-showcase .left-content {
+    gap: var(--space-lg);
+  }
+  
+  .content-showcase .right-content {
+    gap: var(--space-lg);
+  }
+  
+  .content-showcase .images-grid {
+    gap: var(--space-sm);
+  }
+  
+  .content-showcase .support-image-1 img,
+  .content-showcase .support-image-2 img {
+    height: 200px;
+  }
+}
+
+@media (min-width: 991px) {
+  .content-showcase .content-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  
+  .content-showcase .left-content {
+    gap: var(--space-2xl);
+  }
+  
+  .content-showcase .right-content {
+    gap: var(--space-2xl);
+  }
+  
+  .content-showcase .images-grid {
+    gap: var(--space-lg);
+  }
+  
+  .content-showcase .support-image-1 img,
+  .content-showcase .support-image-2 img {
+    height: 240px;
+  }
+}
+
+/* Content showcase specific adjustments */
+.content-showcase .inner-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Text highlighting */
+.content-showcase .highlight-text {
+  position: relative;
+  display: inline-block;
+}
+
+/* Typography rhythm */
+.content-showcase h1 {
+  line-height: 1.2;
+  margin-bottom: 0;
+}
+
+.content-showcase h2 {
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+.content-showcase p {
+  margin-bottom: 0;
+}
+
+/* Image aspect ratios and object fit */
+.content-showcase img {
+  transition: transform 0.3s ease;
+}
+
+.content-showcase img:hover {
+  transform: scale(1.02);
+}
+
+/* Placeholder styling for missing images */
+.content-showcase .images-wrapper > div > div {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

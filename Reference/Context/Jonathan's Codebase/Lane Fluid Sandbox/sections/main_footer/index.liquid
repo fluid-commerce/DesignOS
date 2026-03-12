@@ -1,0 +1,264 @@
+{%- style -%}
+  {%- if section.settings.reset_footer_bg_color != true and section.settings.footer_bg_color != blank -%}
+  footer.site-footer{
+      background-color: {{ section.settings.footer_bg_color }};
+    }
+  {%- endif -%}
+
+  {%- if section.settings.reset_footer_text_color != true and section.settings.footer_text_color != blank -%}
+    footer.site-footer{
+      color: {{ section.settings.footer_text_color }};
+    }
+    footer.site-footer svg path{
+      fill: {{ section.settings.footer_text_color }};
+    }
+    footer.site-footer a {
+      color: {{ section.settings.footer_text_color }};
+    }
+  {%- endif -%}
+
+  footer.site-footer {
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    font-size: {{ section.settings.footer_text_size }}px;
+  }
+
+  @media screen and (min-width: 768px) {
+    footer.site-footer {
+      padding-top: {{ section.settings.padding_top_desktop }}px;
+      padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+    }
+  }
+  
+{%- endstyle -%}
+{% unless request.page_type == 'medium' or request.page_type == 'library' %}   
+  <!-- site footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div
+        class="flex flex-between align-center flex-wrap footer-wrap md-tab-flex-row flex-col gap-12 md-tab-gap-6"
+      >
+        <a href="#" class="site-logo">
+          <img src="{% if company.logo_url != blank %}{{ company.logo_url }}{% else %}{{ 'footer-logo.png' |  asset_url }}{% endif %}" alt="logo" />
+        </a>
+        <nav class="footer-nav flex-1">
+          <ul
+            class="flex justify-center align-center gap-4 flex-wrap md-tab-flex-row flex-col gap-4"
+          >
+            {% for item in section.settings.menu.menu_items %}
+              <li>
+                <a class="{{ section.settings.footer_menu_font_weight }}" href="{{ item.url }}">{{ item.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+        <div class="social-icons flex justify-end align-center gap-3">
+          <a href="#"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="25"
+              viewBox="0 0 24 25"
+              fill="none"
+            >
+              <path
+                d="M22 13.2032C22 7.6466 17.5229 3.14209 12 3.14209C6.47715 3.14209 2 7.6466 2 13.2032C2 18.2249 5.65684 22.3873 10.4375 23.1421V16.1115H7.89844V13.2032H10.4375V10.9866C10.4375 8.46505 11.9305 7.07221 14.2146 7.07221C15.3088 7.07221 16.4531 7.26872 16.4531 7.26872V9.7447H15.1922C13.95 9.7447 13.5625 10.5203 13.5625 11.316V13.2032H16.3359L15.8926 16.1115H13.5625V23.1421C18.3432 22.3873 22 18.2251 22 13.2032Z"
+                fill="black"
+              />
+            </svg>
+          </a>
+          <a href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="25"
+              viewBox="0 0 24 25"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M16 4.14209H8C5.23858 4.14209 3 6.38067 3 9.14209V17.1421C3 19.9035 5.23858 22.1421 8 22.1421H16C18.7614 22.1421 21 19.9035 21 17.1421V9.14209C21 6.38067 18.7614 4.14209 16 4.14209ZM19.25 17.1421C19.2445 18.9347 17.7926 20.3866 16 20.3921H8C6.20735 20.3866 4.75549 18.9347 4.75 17.1421V9.14209C4.75549 7.34944 6.20735 5.89758 8 5.89209H16C17.7926 5.89758 19.2445 7.34944 19.25 9.14209V17.1421ZM16.75 9.39209C17.3023 9.39209 17.75 8.94437 17.75 8.39209C17.75 7.83981 17.3023 7.39209 16.75 7.39209C16.1977 7.39209 15.75 7.83981 15.75 8.39209C15.75 8.94437 16.1977 9.39209 16.75 9.39209ZM12 8.64209C9.51472 8.64209 7.5 10.6568 7.5 13.1421C7.5 15.6274 9.51472 17.6421 12 17.6421C14.4853 17.6421 16.5 15.6274 16.5 13.1421C16.5027 11.9478 16.0294 10.8017 15.1849 9.95717C14.3404 9.11268 13.1943 8.63943 12 8.64209ZM9.25 13.1421C9.25 14.6609 10.4812 15.8921 12 15.8921C13.5188 15.8921 14.75 14.6609 14.75 13.1421C14.75 11.6233 13.5188 10.3921 12 10.3921C10.4812 10.3921 9.25 11.6233 9.25 13.1421Z"
+                fill="black"
+              />
+            </svg>
+          </a>
+          <a href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="25"
+              viewBox="0 0 24 25"
+              fill="none"
+            >
+              <path
+                d="M17.1761 5.14209H19.9362L13.9061 11.9195L21 21.1421H15.4456L11.0951 15.5487L6.11723 21.1421H3.35544L9.80517 13.8929L3 5.14209H8.69545L12.6279 10.2547L17.1761 5.14209ZM16.2073 19.5175H17.7368L7.86441 6.68137H6.2232L16.2073 19.5175Z"
+                fill="black"
+              />
+            </svg>
+          </a>
+          <a href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="25"
+              viewBox="0 0 24 25"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M4.5 4.14209C3.67157 4.14209 3 4.81366 3 5.64209V20.6421C3 21.4705 3.67157 22.1421 4.5 22.1421H19.5C20.3284 22.1421 21 21.4705 21 20.6421V5.64209C21 4.81366 20.3284 4.14209 19.5 4.14209H4.5ZM8.52076 8.14481C8.52639 9.10106 7.81061 9.69028 6.96123 9.68606C6.16107 9.68184 5.46357 9.04481 5.46779 8.14622C5.47201 7.30106 6.13998 6.62184 7.00764 6.64153C7.88795 6.66122 8.52639 7.30669 8.52076 8.14481ZM12.2797 10.9038H9.75971H9.7583V19.4637H12.4217V19.264C12.4217 18.8841 12.4214 18.5041 12.4211 18.124C12.4203 17.1102 12.4194 16.0953 12.4246 15.0818C12.426 14.8357 12.4372 14.5798 12.5005 14.3449C12.7381 13.4674 13.5271 12.9007 14.4074 13.04C14.9727 13.1285 15.3467 13.4562 15.5042 13.9892C15.6013 14.3224 15.6449 14.681 15.6491 15.0284C15.6605 16.076 15.6589 17.1236 15.6573 18.1713C15.6567 18.5411 15.6561 18.9111 15.6561 19.2809V19.4623H18.328V19.257C18.328 18.805 18.3278 18.3531 18.3275 17.9012C18.327 16.7717 18.3264 15.6422 18.3294 14.5123C18.3308 14.0018 18.276 13.4984 18.1508 13.0048C17.9638 12.2707 17.5771 11.6632 16.9485 11.2245C16.5027 10.9123 16.0133 10.7112 15.4663 10.6887C15.404 10.6861 15.3412 10.6827 15.2781 10.6793C14.9984 10.6642 14.7141 10.6488 14.4467 10.7028C13.6817 10.856 13.0096 11.2062 12.5019 11.8235C12.4429 11.8943 12.3852 11.9662 12.2991 12.0735L12.2797 12.0978V10.9038ZM5.68164 19.4665H8.33242V10.9094H5.68164V19.4665Z"
+                fill="black"
+              />
+            </svg>
+          </a>
+          <a href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="25"
+              viewBox="0 0 24 25"
+              fill="none"
+            >
+              <path
+                d="M21.5931 8.10242C21.4792 7.67982 21.2566 7.29443 20.9475 6.98459C20.6383 6.67475 20.2534 6.45128 19.8311 6.33642C18.2651 5.90642 12.0001 5.89942 12.0001 5.89942C12.0001 5.89942 5.73609 5.89242 4.16909 6.30342C3.74701 6.42357 3.36291 6.6502 3.05365 6.96156C2.7444 7.27291 2.52037 7.65854 2.40309 8.08142C1.99009 9.64742 1.98609 12.8954 1.98609 12.8954C1.98609 12.8954 1.98209 16.1594 2.39209 17.7094C2.62209 18.5664 3.29709 19.2434 4.15509 19.4744C5.73709 19.9044 11.9851 19.9114 11.9851 19.9114C11.9851 19.9114 18.2501 19.9184 19.8161 19.5084C20.2386 19.3938 20.6238 19.1708 20.9337 18.8616C21.2436 18.5524 21.4675 18.1677 21.5831 17.7454C21.9971 16.1804 22.0001 12.9334 22.0001 12.9334C22.0001 12.9334 22.0201 9.66842 21.5931 8.10242ZM9.99609 15.9044L10.0011 9.90442L15.2081 12.9094L9.99609 15.9044Z"
+                fill="black"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div
+        class="footer-bottom mt-12 md-tab-mt-0 flex justify-center align-center gap-6 md-tab-flex-row flex-col {{ section.settings.footer_copy_right_font_weight }}"
+      >
+        <span class="copyright">© 2024 Relume. {{ 'footer.all_rights_reserved' | t }}.</span>
+        <div
+          class="terms-policy flex justify-center align-center gap-6 md-tab-flex-row flex-col gap-6"
+        >
+          <a href="" class="underline">{{ 'footer.privacy_policy' | t }}</a>
+          <a href="" class="underline">{{ 'footer.terms_of_service' | t }}</a>
+          <a href="" class="underline">{{ 'footer.cookies_settings' | t }}</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+{% endunless %}
+
+{% schema %}
+{
+  "name": "main_footer",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "footer",
+      "label": "Menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "reset_footer_bg_color",
+      "label": "Reset footer background to default",
+      "default": false
+    },
+    {
+      "type": "color_background",
+      "id": "footer_bg_color",
+      "label": "Footer Background Color",
+      "default": ""
+    },
+    {
+      "type": "range",
+      "id": "footer_text_size",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Footer Font Size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "footer_menu_font_weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Regular" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-semibold", "label": "Default" }
+      ],
+      "default": "font-semibold",
+      "label": "Footer Menu Font Weight"
+    },
+    {
+      "type": "select",
+      "id": "footer_copy_right_font_weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Regular" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-normal", "label": "Default" }
+      ],
+      "default": "font-normal",
+      "label": "Footer Copy Right Section Font Weight"
+    },
+    {
+      "type": "checkbox",
+      "id": "reset_footer_text_color",
+      "label": "Reset Footer Text Color to default",
+      "default": false
+    },
+    {
+      "type": "color_background",
+      "id": "footer_text_color",
+      "default": "#000",
+      "label": "Footer Text Color"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Footer Main Section Padding Top(Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Footer Main Section Padding Bottom(Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Footer Main Section Padding Top(Mobile)",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Footer Main Section Padding Bottom(Mobile)",
+      "default": 48
+    }
+  ]
+}
+{% endschema %}

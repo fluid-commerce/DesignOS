@@ -1,0 +1,909 @@
+<link rel="stylesheet" href="{{ 'fw_platform_tabs/styles.css' | asset_url }}">
+
+<section class="fw-platform-tabs-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }}"
+  {% if section.settings.background_image != blank %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+
+  <div class="fw-platform-tabs-container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+    {% if section.settings.container_background_image != blank %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+
+    {% if section.settings.eyebrow != blank or section.settings.headline != blank %}
+    <div class="fw-platform-tabs-header">
+
+      {% if section.settings.eyebrow != blank %}
+      <p class="fw-platform-tabs-eyebrow {{ section.settings.eyebrow_font_family }} {{ section.settings.eyebrow_font_size }} {{ section.settings.eyebrow_font_size_desktop }} {{ section.settings.eyebrow_font_weight }} {{ section.settings.eyebrow_color }}">
+        {{ section.settings.eyebrow }}
+      </p>
+      {% endif %}
+
+      {% if section.settings.headline != blank %}
+      <h2 class="fw-platform-tabs-headline {{ section.settings.headline_font_family }} {{ section.settings.headline_font_size }} {{ section.settings.headline_font_size_desktop }} {{ section.settings.headline_font_weight }} {{ section.settings.headline_color }}">
+        {{ section.settings.headline }}
+      </h2>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+    <div class="fw-tabs-row" role="tablist">
+      {% for block in section.blocks %}
+      <button class="fw-tab-item{% if forloop.first %} active{% endif %}"
+              role="tab"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-controls="fw-tab-panel-{{ forloop.index }}"
+              id="fw-tab-{{ forloop.index }}">
+        {{ block.settings.tab_label | default: 'Tab' }}
+      </button>
+      {% endfor %}
+    </div>
+
+    {% for block in section.blocks %}
+    <div class="fw-tab-content{% if forloop.first %} active{% endif %}"
+         role="tabpanel"
+         id="fw-tab-panel-{{ forloop.index }}"
+         aria-labelledby="fw-tab-{{ forloop.index }}"
+         {{ block.fluid_attributes }}>
+
+      <div class="fw-tab-text">
+
+        {% if block.settings.tab_title != blank %}
+        <h3 class="fw-tab-title {{ block.settings.tab_title_font_family }} {{ block.settings.tab_title_font_size }} {{ block.settings.tab_title_font_size_desktop }} {{ block.settings.tab_title_font_weight }} {{ block.settings.tab_title_color }}">
+          {{ block.settings.tab_title }}
+        </h3>
+        {% endif %}
+
+        {% if block.settings.tab_body != blank %}
+        <div class="fw-tab-body {{ block.settings.tab_body_font_family }} {{ block.settings.tab_body_font_size }} {{ block.settings.tab_body_font_size_desktop }} {{ block.settings.tab_body_font_weight }} {{ block.settings.tab_body_color }}">
+          {{ block.settings.tab_body }}
+        </div>
+        {% endif %}
+
+        {% if block.settings.tab_button_show %}
+        <a href="{{ block.settings.tab_button_url | default: '#' }}"
+           class="fw-tab-btn btn btn-{{ block.settings.tab_button_style | default: 'ghost' }}-{{ block.settings.tab_button_color | default: 'primary' }} {{ block.settings.tab_button_size | default: 'btn-md' }}">
+          {{ block.settings.tab_button_text | default: 'Learn More' }}
+        </a>
+        {% endif %}
+
+      </div>
+
+      <div class="fw-tab-media">
+        <div class="fw-tab-media-inner">
+          {% if block.settings.tab_image != blank %}
+          <img src="{{ block.settings.tab_image | image_url }}"
+               alt="{{ block.settings.tab_image_alt | default: '' }}"
+               loading="lazy">
+          {% endif %}
+          <div class="fw-tab-video-placeholder">
+            <span class="fw-tab-play-btn" aria-label="Play video">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="6,3 20,12 6,21"/></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+    {% endif %}
+
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var section = document.querySelector('.fw-platform-tabs-section');
+  if (!section) return;
+  var tabs = section.querySelectorAll('.fw-tab-item');
+  var contents = section.querySelectorAll('.fw-tab-content');
+  tabs.forEach(function(tab, i) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      contents.forEach(function(c) { c.classList.remove('active'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      if (contents[i]) contents[i].classList.add('active');
+    });
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "FW Platform Tabs",
+  "tag": "section",
+  "class": "fw-platform-tabs",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text",
+      "default": "Everything Your Business Needs"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_family",
+      "label": "Eyebrow Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size",
+      "label": "Eyebrow Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size_desktop",
+      "label": "Eyebrow Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_weight",
+      "label": "Eyebrow Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_color",
+      "label": "Eyebrow Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-info"
+    },
+
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline Text",
+      "default": "One platform. No integration headaches. No mystery scripts."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_family",
+      "label": "Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+
+    {
+      "type": "header",
+      "content": "Tab Indicator"
+    },
+    {
+      "type": "select",
+      "id": "active_tab_color",
+      "label": "Active Tab Indicator Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-primary"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "XS" },
+        { "value": "px-sm", "label": "SM" },
+        { "value": "px-md", "label": "MD" },
+        { "value": "px-lg", "label": "LG" },
+        { "value": "px-xl", "label": "XL" },
+        { "value": "px-2xl", "label": "2XL" },
+        { "value": "px-3xl", "label": "3XL" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "XS" },
+        { "value": "lg:px-sm", "label": "SM" },
+        { "value": "lg:px-md", "label": "MD" },
+        { "value": "lg:px-lg", "label": "LG" },
+        { "value": "lg:px-xl", "label": "XL" },
+        { "value": "lg:px-2xl", "label": "2XL" },
+        { "value": "lg:px-3xl", "label": "3XL" }
+      ],
+      "default": "lg:px-3xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Tab Label"
+        },
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab Label",
+          "default": "Tab"
+        },
+
+        {
+          "type": "header",
+          "content": "Tab Title"
+        },
+        {
+          "type": "text",
+          "id": "tab_title",
+          "label": "Tab Title",
+          "default": "Feature title goes here."
+        },
+        {
+          "type": "select",
+          "id": "tab_title_font_family",
+          "label": "Tab Title Font Family",
+          "options": [
+            { "value": "font-primary", "label": "Primary" },
+            { "value": "font-body", "label": "Body" },
+            { "value": "font-handwritten", "label": "Handwritten" },
+            { "value": "font-serif", "label": "Serif" }
+          ],
+          "default": "font-primary"
+        },
+        {
+          "type": "select",
+          "id": "tab_title_font_size",
+          "label": "Tab Title Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "XS" },
+            { "value": "text-sm", "label": "SM" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "LG" },
+            { "value": "text-xl", "label": "XL" },
+            { "value": "text-2xl", "label": "2XL" },
+            { "value": "text-3xl", "label": "3XL" },
+            { "value": "text-4xl", "label": "4XL" },
+            { "value": "text-5xl", "label": "5XL" },
+            { "value": "text-6xl", "label": "6XL" },
+            { "value": "text-7xl", "label": "7XL" },
+            { "value": "text-8xl", "label": "8XL" },
+            { "value": "text-9xl", "label": "9XL" }
+          ],
+          "default": "text-xl"
+        },
+        {
+          "type": "select",
+          "id": "tab_title_font_size_desktop",
+          "label": "Tab Title Font Size (Desktop)",
+          "options": [
+            { "value": "lg:text-xs", "label": "XS" },
+            { "value": "lg:text-sm", "label": "SM" },
+            { "value": "lg:text-base", "label": "Base" },
+            { "value": "lg:text-lg", "label": "LG" },
+            { "value": "lg:text-xl", "label": "XL" },
+            { "value": "lg:text-2xl", "label": "2XL" },
+            { "value": "lg:text-3xl", "label": "3XL" },
+            { "value": "lg:text-4xl", "label": "4XL" },
+            { "value": "lg:text-5xl", "label": "5XL" },
+            { "value": "lg:text-6xl", "label": "6XL" },
+            { "value": "lg:text-7xl", "label": "7XL" },
+            { "value": "lg:text-8xl", "label": "8XL" },
+            { "value": "lg:text-9xl", "label": "9XL" }
+          ],
+          "default": "lg:text-2xl"
+        },
+        {
+          "type": "select",
+          "id": "tab_title_font_weight",
+          "label": "Tab Title Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semibold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-bold"
+        },
+        {
+          "type": "select",
+          "id": "tab_title_color",
+          "label": "Tab Title Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-white"
+        },
+
+        {
+          "type": "header",
+          "content": "Tab Body"
+        },
+        {
+          "type": "richtext",
+          "id": "tab_body",
+          "label": "Tab Body Text",
+          "default": "<p>Describe this platform feature here.</p>"
+        },
+        {
+          "type": "select",
+          "id": "tab_body_font_family",
+          "label": "Tab Body Font Family",
+          "options": [
+            { "value": "font-primary", "label": "Primary" },
+            { "value": "font-body", "label": "Body" },
+            { "value": "font-handwritten", "label": "Handwritten" },
+            { "value": "font-serif", "label": "Serif" }
+          ],
+          "default": "font-body"
+        },
+        {
+          "type": "select",
+          "id": "tab_body_font_size",
+          "label": "Tab Body Font Size (Mobile)",
+          "options": [
+            { "value": "text-xs", "label": "XS" },
+            { "value": "text-sm", "label": "SM" },
+            { "value": "text-base", "label": "Base" },
+            { "value": "text-lg", "label": "LG" },
+            { "value": "text-xl", "label": "XL" },
+            { "value": "text-2xl", "label": "2XL" },
+            { "value": "text-3xl", "label": "3XL" },
+            { "value": "text-4xl", "label": "4XL" },
+            { "value": "text-5xl", "label": "5XL" },
+            { "value": "text-6xl", "label": "6XL" },
+            { "value": "text-7xl", "label": "7XL" },
+            { "value": "text-8xl", "label": "8XL" },
+            { "value": "text-9xl", "label": "9XL" }
+          ],
+          "default": "text-base"
+        },
+        {
+          "type": "select",
+          "id": "tab_body_font_size_desktop",
+          "label": "Tab Body Font Size (Desktop)",
+          "options": [
+            { "value": "lg:text-xs", "label": "XS" },
+            { "value": "lg:text-sm", "label": "SM" },
+            { "value": "lg:text-base", "label": "Base" },
+            { "value": "lg:text-lg", "label": "LG" },
+            { "value": "lg:text-xl", "label": "XL" },
+            { "value": "lg:text-2xl", "label": "2XL" },
+            { "value": "lg:text-3xl", "label": "3XL" },
+            { "value": "lg:text-4xl", "label": "4XL" },
+            { "value": "lg:text-5xl", "label": "5XL" },
+            { "value": "lg:text-6xl", "label": "6XL" },
+            { "value": "lg:text-7xl", "label": "7XL" },
+            { "value": "lg:text-8xl", "label": "8XL" },
+            { "value": "lg:text-9xl", "label": "9XL" }
+          ],
+          "default": "lg:text-lg"
+        },
+        {
+          "type": "select",
+          "id": "tab_body_font_weight",
+          "label": "Tab Body Font Weight",
+          "options": [
+            { "value": "font-light", "label": "Light" },
+            { "value": "font-normal", "label": "Normal" },
+            { "value": "font-medium", "label": "Medium" },
+            { "value": "font-semibold", "label": "Semibold" },
+            { "value": "font-bold", "label": "Bold" }
+          ],
+          "default": "font-normal"
+        },
+        {
+          "type": "select",
+          "id": "tab_body_color",
+          "label": "Tab Body Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-primary", "label": "Primary" },
+            { "value": "text-secondary", "label": "Secondary" },
+            { "value": "text-tertiary", "label": "Tertiary" },
+            { "value": "text-quaternary", "label": "Quaternary" },
+            { "value": "text-success", "label": "Success" },
+            { "value": "text-warning", "label": "Warning" },
+            { "value": "text-error", "label": "Error" },
+            { "value": "text-info", "label": "Info" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-light", "label": "Neutral Light" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-neutral"
+        },
+
+        {
+          "type": "header",
+          "content": "Tab Button"
+        },
+        {
+          "type": "checkbox",
+          "id": "tab_button_show",
+          "label": "Show Button",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "tab_button_text",
+          "label": "Button Text",
+          "default": "Learn More →"
+        },
+        {
+          "type": "url",
+          "id": "tab_button_url",
+          "label": "Button URL"
+        },
+        {
+          "type": "select",
+          "id": "tab_button_style",
+          "label": "Button Style",
+          "options": [
+            { "value": "filled", "label": "Filled" },
+            { "value": "outline", "label": "Outline" },
+            { "value": "ghost", "label": "Ghost" }
+          ],
+          "default": "ghost"
+        },
+        {
+          "type": "select",
+          "id": "tab_button_color",
+          "label": "Button Color",
+          "options": [
+            { "value": "primary", "label": "Primary" },
+            { "value": "secondary", "label": "Secondary" },
+            { "value": "tertiary", "label": "Tertiary" },
+            { "value": "quaternary", "label": "Quaternary" },
+            { "value": "success", "label": "Success" },
+            { "value": "warning", "label": "Warning" },
+            { "value": "error", "label": "Error" },
+            { "value": "info", "label": "Info" },
+            { "value": "black", "label": "Black" },
+            { "value": "white", "label": "White" }
+          ],
+          "default": "white"
+        },
+        {
+          "type": "select",
+          "id": "tab_button_size",
+          "label": "Button Size",
+          "options": [
+            { "value": "btn-xs", "label": "XS" },
+            { "value": "btn-sm", "label": "SM" },
+            { "value": "btn-md", "label": "MD" },
+            { "value": "btn-lg", "label": "LG" },
+            { "value": "btn-xl", "label": "XL" }
+          ],
+          "default": "btn-md"
+        },
+
+        {
+          "type": "header",
+          "content": "Tab Media"
+        },
+        {
+          "type": "image_picker",
+          "id": "tab_image",
+          "label": "Tab Image / Screenshot",
+          "info": "Screenshot or video placeholder for this tab"
+        },
+        {
+          "type": "text",
+          "id": "tab_image_alt",
+          "label": "Image Alt Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FW Platform Tabs",
+      "settings": {
+        "eyebrow": "Everything Your Business Needs",
+        "headline": "One platform. No integration headaches. No mystery scripts.",
+        "background_color": "bg-black"
+      },
+      "blocks": [
+        {
+          "type": "tab",
+          "settings": {
+            "tab_label": "Fair Share™",
+            "tab_title": "Your reps deserve to trust the system. Fair Share makes that possible.",
+            "tab_body": "<p>Every piece of company content — videos, articles, PDFs — becomes a personalized, trackable link for each rep. They add their face and story. Customers see a human they trust. Everything is attributed automatically.</p><p>Complex scenarios handled: multiple reps sharing to one buyer, orphan sign-ups, previously sponsored customers. You set the rules. The system executes them.</p>",
+            "tab_button_show": true,
+            "tab_button_text": "Learn about Fair Share →",
+            "tab_button_style": "ghost",
+            "tab_button_color": "white"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "tab_label": "Payments",
+            "tab_title": "Commissions, payouts, and compliance — handled.",
+            "tab_body": "<p>Real-time commission calculations, multi-currency payouts, and tax compliance built in. No bolt-on integrations, no spreadsheet reconciliation, no midnight fire drills before commission day.</p><p>Your finance team gets clean data. Your reps get paid on time. Every time.</p>",
+            "tab_button_show": true,
+            "tab_button_text": "Learn about Payments →",
+            "tab_button_style": "ghost",
+            "tab_button_color": "white"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "tab_label": "Mobile App",
+            "tab_title": "A branded app your reps actually want to use.",
+            "tab_body": "<p>Custom-branded mobile app with your look, your voice, your tools. Reps manage their entire business from their phone — orders, contacts, content sharing, team performance.</p><p>Push notifications keep them engaged. Offline mode keeps them selling. No app store headaches — we handle it all.</p>",
+            "tab_button_show": true,
+            "tab_button_text": "Learn about Mobile App →",
+            "tab_button_style": "ghost",
+            "tab_button_color": "white"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "tab_label": "Live Editor",
+            "tab_title": "Design your storefront. No developers required.",
+            "tab_body": "<p>Drag-and-drop page builder with real-time preview. Your marketing team builds landing pages, product showcases, and campaign pages without writing a single line of code.</p><p>Full theme control, section-based layouts, and responsive design — all from the browser.</p>",
+            "tab_button_show": true,
+            "tab_button_text": "Learn about Live Editor →",
+            "tab_button_style": "ghost",
+            "tab_button_color": "white"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "tab_label": "Live Shopping",
+            "tab_title": "Turn live events into shoppable experiences.",
+            "tab_body": "<p>Broadcast live video with integrated product cards, real-time chat, and one-tap checkout. Reps host their own shows. Customers buy without leaving the stream.</p><p>Replays are automatically shoppable. Attribution follows every sale back to the host rep.</p>",
+            "tab_button_show": true,
+            "tab_button_text": "Learn about Live Shopping →",
+            "tab_button_style": "ghost",
+            "tab_button_color": "white"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "tab_label": "Sync Tool",
+            "tab_title": "Keep your systems in lockstep.",
+            "tab_body": "<p>Bi-directional sync with your ERP, CRM, warehouse, and compensation engine. Real-time webhooks, batch imports, and a clean API that your developers will actually enjoy working with.</p><p>No more data silos. No more export-import-pray workflows. One source of truth.</p>",
+            "tab_button_show": true,
+            "tab_button_text": "Learn about Sync Tool →",
+            "tab_button_style": "ghost",
+            "tab_button_color": "white"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

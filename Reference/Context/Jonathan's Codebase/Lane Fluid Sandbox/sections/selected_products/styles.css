@@ -1,0 +1,183 @@
+/* Selected Products Section */
+.selected-products {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Override global overlays - only apply when background image exists */
+.selected-products::after {
+  display: none !important;
+}
+
+/* Section background image overlay */
+.selected-products[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Container styles */
+.selected-products .inner-container {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Container background image overlay */
+.selected-products .inner-container[data-bg]:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* Ensure content stays above overlays */
+.selected-products .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Products Grid Layout */
+.selected-products .products-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+/* Dynamic grid columns based on block count */
+@media (min-width: 768px) {
+  .selected-products .products-grid.md\:grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .selected-products .products-grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .selected-products .products-grid.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .selected-products .products-grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .selected-products .products-grid {
+    gap: var(--space-xl);
+  }
+}
+
+/* Product Item Container */
+.selected-products .product-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Product Image Container with Hover Effects */
+.selected-products .product-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.selected-products .product-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Primary Image Styles */
+.selected-products .product-image-primary {
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transform: scale(1);
+}
+
+/* Hover Image Styles */
+.selected-products .product-image-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  opacity: 0;
+  transform: scale(1.05);
+}
+
+/* Hover Effects - Only on Image Container */
+.selected-products .product-image-wrapper:hover .product-image-primary {
+  transform: scale(1.05);
+}
+
+.selected-products .product-image-wrapper:hover .product-image-hover {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Smooth transition when hover image is not available */
+.selected-products .product-image-wrapper:not(:has(.product-image-hover)):hover .product-image-primary {
+  transform: scale(1.05);
+}
+
+/* Product Info Spacing */
+.selected-products .product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Product Name Link Hover Effect */
+.selected-products .product-info h3 a {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.selected-products .product-info h3 a:hover {
+  opacity: 0.7;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+  .selected-products .products-grid {
+    gap: var(--space-md);
+  }
+  
+  .selected-products .product-image-primary,
+  .selected-products .product-image-hover {
+    height: 16rem; /* h-64 equivalent */
+  }
+}
+
+@media (min-width: 768px) {
+  .selected-products .product-image-primary,
+  .selected-products .product-image-hover {
+    height: 20rem; /* lg:h-80 equivalent */
+  }
+}
+
+/* Focus states for accessibility */
+.selected-products .product-image-wrapper:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .selected-products .product-image-primary,
+  .selected-products .product-image-hover {
+    transition: none;
+  }
+  
+  .selected-products .product-image-wrapper:hover .product-image-primary,
+  .selected-products .product-image-wrapper:hover .product-image-hover {
+    transform: none;
+  }
+}

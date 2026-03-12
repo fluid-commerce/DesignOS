@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fluid Feature Spotlight — Smart Routing</title>
+  <style>
+    /* ============================================================
+       @font-face declarations — correct src paths (Weight: 95)
+    ============================================================ */
+    @font-face {
+      font-family: 'flfontbold';
+      src: url('../../../assets/fonts/flfontbold.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'NeueHaas';
+      src: url('../../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+      font-weight: 100 900;
+      font-style: normal;
+    }
+
+    /* ============================================================
+       Reset & base
+    ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+    }
+
+    /* ============================================================
+       Post container — 1080x1080 Instagram (Weight: 95)
+    ============================================================ */
+    .fluid-post {
+      --accent: #FF8B58;  /* orange accent from copy.md */
+      position: relative;
+      overflow: hidden;
+      background: #000000;  /* pure black, NOT dark gray (Weight: 95) */
+      color: #ffffff;
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+      width: 1080px;
+      height: 1080px;
+    }
+
+    /* ============================================================
+       Brushstrokes — img-based, mix-blend-mode: screen (Weight: 95)
+       Edge-bleed: pushed past canvas edges (Weight: 85)
+    ============================================================ */
+    .fluid-feature-spotlight-brush {
+      position: absolute;
+      mix-blend-mode: screen;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .fluid-feature-spotlight-brush--top-right {
+      top: -80px;
+      right: -70px;
+      width: 520px;
+      transform: rotate(5deg);
+    }
+
+    .fluid-feature-spotlight-brush--bottom-left {
+      bottom: -80px;
+      left: -70px;
+      width: 500px;
+      transform: rotate(-8deg);
+    }
+
+    /* ============================================================
+       Side label — vertical, ultra-light opacity
+    ============================================================ */
+    .fluid-feature-spotlight-side-label {
+      position: absolute;
+      left: 44px;
+      top: 50%;
+      transform: translateY(-50%) rotate(180deg);
+      writing-mode: vertical-rl;
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* ============================================================
+       Upper zone — headline, body, tagline
+    ============================================================ */
+    .fluid-feature-spotlight-upper {
+      position: absolute;
+      top: 112px;
+      left: 88px;
+      right: 88px;
+      z-index: 2;
+    }
+
+    /* Headline (Weight: 95) */
+    .fluid-feature-spotlight-headline {
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 86px;
+      line-height: 0.92;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 40px;
+    }
+
+    /* Circle sketch wrapper — mask-image + backgroundColor technique (Weight: 85-90) */
+    .circled-wrapper {
+      position: relative;
+      display: inline-block;
+      isolation: isolate;
+    }
+
+    .circled-text {
+      position: relative;
+      z-index: 1;
+      color: var(--accent);
+    }
+
+    .circled-decoration {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+      left: -25%;
+      top: -35%;
+      width: 150%;
+      height: 170%;
+      transform: rotate(-8deg);
+    }
+
+    /* THE KEY: color via background-color, shape via mask — NOT hue-rotate (Weight: 95) */
+    .circled-decoration-inner {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: var(--accent);
+      -webkit-mask-image: url('../../../assets/circles/masks/circle-2.png');
+      mask-image: url('../../../assets/circles/masks/circle-2.png');
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      opacity: 0.55;
+    }
+
+    /* Body copy */
+    .fluid-feature-spotlight-body {
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 22px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.45);
+      max-width: 700px;
+      margin-bottom: 28px;
+    }
+
+    /* FLFont tagline */
+    .fluid-feature-spotlight-tagline {
+      font-family: 'flfontbold', cursive;
+      font-size: 28px;
+      line-height: 1.2;
+      color: var(--accent);
+    }
+
+    /* ============================================================
+       Lower zone — feature card (name + 3 pills, no description)
+    ============================================================ */
+    .fluid-feature-spotlight-lower {
+      position: absolute;
+      bottom: 120px;
+      left: 88px;
+      right: 88px;
+      z-index: 2;
+    }
+
+    .fluid-feature-spotlight-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .fluid-feature-card-name {
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #ffffff;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Feature points as pills */
+    .fluid-feature-card-points {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .fluid-feature-card-point {
+      font-family: 'NeueHaas', 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: rgba(255, 139, 88, 0.12);
+      border: 1px solid rgba(255, 139, 88, 0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      white-space: nowrap;
+    }
+
+    /* ============================================================
+       Footer — three fixed elements (Weight: 95)
+       Instagram padding: 22px 68px (Weight: 85)
+    ============================================================ */
+    .fluid-feature-spotlight-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 68px;
+      z-index: 10;
+    }
+
+    .fluid-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .fluid-footer-left img {
+      height: 18px;
+      opacity: 0.8;
+    }
+
+    .fluid-footer-separator {
+      width: 1px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .fluid-footer-right img {
+      height: 22px;
+      opacity: 0.8;
+    }
+
+    /* ============================================================
+       Subtle top accent line
+    ============================================================ */
+    .fluid-feature-spotlight-accent-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0.7;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <div class="fluid-post fluid-post--instagram fluid-feature-spotlight">
+
+    <!-- Accent top line -->
+    <div class="fluid-feature-spotlight-accent-line"></div>
+
+    <!-- BRUSHSTROKE 1: top-right — diagonal sweep, bleeds off canvas edge (Weight: 85-95) -->
+    <img
+      class="fluid-feature-spotlight-brush fluid-feature-spotlight-brush--top-right"
+      src="../../../assets/brushstrokes/brushstroke-diagonal-sweep.png"
+      alt=""
+      aria-hidden="true"
+    >
+
+    <!-- BRUSHSTROKE 2: bottom-left — bottom grounding, bleeds off canvas edge (Weight: 85-95) -->
+    <img
+      class="fluid-feature-spotlight-brush fluid-feature-spotlight-brush--bottom-left"
+      src="../../../assets/brushstrokes/brushstroke-bottom-grounding.png"
+      alt=""
+      aria-hidden="true"
+    >
+
+    <!-- SIDE LABEL -->
+    <div class="fluid-feature-spotlight-side-label">Fluid Payments</div>
+
+    <!-- Upper zone: headline + body + tagline -->
+    <div class="fluid-feature-spotlight-upper">
+
+      <!-- HEADLINE: "ALREADY" gets circle sketch — mask-image + backgroundColor technique -->
+      <h1 class="fluid-feature-spotlight-headline">
+        IT DECLINED.<br>
+        FLUID
+        <span class="circled-wrapper">
+          <span class="circled-text">ALREADY</span>
+          <span class="circled-decoration">
+            <span class="circled-decoration-inner"></span>
+          </span>
+        </span>
+        FOUND<br>
+        ANOTHER WAY THROUGH.
+      </h1>
+
+      <!-- BODY -->
+      <p class="fluid-feature-spotlight-body">
+        Most platforms log the failure and move on. Fluid finds another path before the customer even notices.
+      </p>
+
+      <!-- TAGLINE (FLFont) -->
+      <p class="fluid-feature-spotlight-tagline">Every transaction gets its best shot.</p>
+
+    </div>
+
+    <!-- Lower zone: feature card — feature name + 3 pills only (no description per updated layout) -->
+    <div class="fluid-feature-spotlight-lower">
+      <div class="fluid-feature-spotlight-card">
+        <div class="fluid-feature-card-name">Smart Routing</div>
+        <ul class="fluid-feature-card-points">
+          <li class="fluid-feature-card-point">Smart Routing</li>
+          <li class="fluid-feature-card-point">7 PSPs</li>
+          <li class="fluid-feature-card-point">Zero Downtime</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FOOTER: three fixed elements — flags | separator | wordmark | fluid dots (Weight: 95) -->
+    <footer class="fluid-feature-spotlight-footer">
+      <div class="fluid-footer-left">
+        <img src="../../../assets/logos/wecommerce-flags.png" alt="We-Commerce">
+        <div class="fluid-footer-separator"></div>
+        <img src="../../../assets/logos/wecommerce-logos.png" alt="We-Commerce">
+      </div>
+      <div class="fluid-footer-right">
+        <img src="../../../assets/logos/frame-3-fluid-dots.png" alt="Fluid">
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

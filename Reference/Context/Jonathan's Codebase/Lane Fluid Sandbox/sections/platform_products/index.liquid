@@ -1,0 +1,585 @@
+<!-- Platform Products Section -->
+<link rel="stylesheet" href="{{ 'platform_products/styles.css' | asset_url }}">
+
+<section class="platform-products-section {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }}">
+  <div class="container">
+    
+    <!-- Section Header -->
+    {% if section.settings.show_header %}
+    <div class="platform-header {{ section.settings.header_alignment }} mb-3xl">
+      {% if section.settings.show_tagline and section.settings.tagline != blank %}
+      <span class="platform-tagline {{ section.settings.tagline_font_family }} {{ section.settings.tagline_font_size }} {{ section.settings.tagline_font_size_desktop }} {{ section.settings.tagline_font_weight }} {{ section.settings.tagline_color }} mb-md block">
+        {{ section.settings.tagline }}
+      </span>
+      {% endif %}
+      
+      {% if section.settings.heading != blank %}
+      <h2 class="platform-heading {{ section.settings.heading_font_family }} {{ section.settings.heading_font_size }} {{ section.settings.heading_font_size_desktop }} {{ section.settings.heading_font_weight }} {{ section.settings.heading_color }} mb-lg">
+        {{ section.settings.heading }}
+      </h2>
+      {% endif %}
+      
+      {% if section.settings.description != blank %}
+      <p class="platform-description {{ section.settings.description_font_family }} {{ section.settings.description_font_size }} {{ section.settings.description_font_size_desktop }} {{ section.settings.description_font_weight }} {{ section.settings.description_color }} max-w-3xl {% if section.settings.header_alignment == 'text-center' %}mx-auto{% endif %}">
+        {{ section.settings.description }}
+      </p>
+      {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Products Grid -->
+    <div class="platform-products-grid grid grid-cols-1 lg:grid-cols-3 {{ section.settings.gap }}">
+      {% for block in section.blocks %}
+        {% if block.type == 'product_card' %}
+        <div class="platform-product-card {{ block.settings.card_background_color }} {{ section.settings.card_border_radius }} {{ section.settings.card_padding }}" {{ block.fluid_attributes }}>
+          
+          <!-- Product Image/Icon -->
+          {% if block.settings.product_image != blank %}
+          <div class="platform-product-image mb-lg">
+            <img src="{{ block.settings.product_image | image_url }}" alt="{{ block.settings.title }}" class="product-img">
+          </div>
+          {% endif %}
+          
+          <!-- Product Title -->
+          {% if block.settings.title != blank %}
+          <h3 class="platform-product-title {{ section.settings.card_title_font_family }} {{ section.settings.card_title_font_size }} {{ section.settings.card_title_font_size_desktop }} {{ section.settings.card_title_font_weight }} {{ block.settings.title_color }} mb-md">
+            {{ block.settings.title }}
+          </h3>
+          {% endif %}
+          
+          <!-- Product Description -->
+          {% if block.settings.description != blank %}
+          <p class="platform-product-description {{ section.settings.card_description_font_family }} {{ section.settings.card_description_font_size }} {{ section.settings.card_description_font_size_desktop }} {{ section.settings.card_description_font_weight }} {{ block.settings.description_color }}">
+            {{ block.settings.description }}
+          </p>
+          {% endif %}
+          
+          <!-- Optional Link -->
+          {% if block.settings.show_link and block.settings.link_url != blank %}
+          <a href="{{ block.settings.link_url }}" class="platform-product-link {{ section.settings.link_color }} mt-lg inline-flex items-center gap-sm">
+            {{ block.settings.link_text }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          {% endif %}
+          
+          <!-- Paint Accent -->
+          {% if block.settings.show_paint_accent and block.settings.paint_accent_image != blank %}
+          <img src="{{ block.settings.paint_accent_image | image_url }}" alt="" class="platform-paint-accent" aria-hidden="true">
+          {% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Platform Products",
+  "tag": "section",
+  "class": "platform-products",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "Show Section Header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline",
+      "label": "Show Tagline",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "The Platform"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_family",
+      "label": "Tagline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size",
+      "label": "Tagline Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size_desktop",
+      "label": "Tagline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" }
+      ],
+      "default": "lg:text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_weight",
+      "label": "Tagline Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "tagline_color",
+      "label": "Tagline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-secondary", "label": "Secondary" }
+      ],
+      "default": "text-secondary"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Three core products. One complete system."
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" }
+      ],
+      "default": "lg:text-6xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-black"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Everything you need to turn your reps into a traffic engine, your content into revenue, and your transactions into trust."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "header",
+      "content": "Card Styling"
+    },
+    {
+      "type": "select",
+      "id": "card_border_radius",
+      "label": "Card Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" }
+      ],
+      "default": "rounded-xl"
+    },
+    {
+      "type": "select",
+      "id": "card_padding",
+      "label": "Card Padding",
+      "options": [
+        { "value": "p-lg", "label": "Large" },
+        { "value": "p-xl", "label": "XL" },
+        { "value": "p-2xl", "label": "2XL" }
+      ],
+      "default": "p-xl"
+    },
+    {
+      "type": "select",
+      "id": "gap",
+      "label": "Grid Gap",
+      "options": [
+        { "value": "gap-md", "label": "Medium" },
+        { "value": "gap-lg", "label": "Large" },
+        { "value": "gap-xl", "label": "XL" }
+      ],
+      "default": "gap-lg"
+    },
+    {
+      "type": "header",
+      "content": "Card Title Typography"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_family",
+      "label": "Card Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_size",
+      "label": "Card Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" }
+      ],
+      "default": "text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_size_desktop",
+      "label": "Card Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" }
+      ],
+      "default": "lg:text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_weight",
+      "label": "Card Title Font Weight",
+      "options": [
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "header",
+      "content": "Card Description Typography"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_family",
+      "label": "Card Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_size",
+      "label": "Card Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_size_desktop",
+      "label": "Card Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "card_description_font_weight",
+      "label": "Card Description Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "link_color",
+      "label": "Link Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-secondary", "label": "Secondary" }
+      ],
+      "default": "text-secondary"
+    },
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xl", "label": "Small" },
+        { "value": "py-2xl", "label": "Medium" },
+        { "value": "py-3xl", "label": "Large" }
+      ],
+      "default": "py-2xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-2xl", "label": "Small" },
+        { "value": "lg:py-3xl", "label": "Medium" },
+        { "value": "lg:py-4xl", "label": "Large" }
+      ],
+      "default": "lg:py-3xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "product_image",
+          "label": "Product Image/Icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Product Title",
+          "default": "Fair Share"
+        },
+        {
+          "type": "select",
+          "id": "title_color",
+          "label": "Title Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" }
+          ],
+          "default": "text-black"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Product Description",
+          "default": "Automatic rep attribution that tracks the entire customer journey—not just the last click. When reps trust the system, they share. When they share, you win."
+        },
+        {
+          "type": "select",
+          "id": "description_color",
+          "label": "Description Color",
+          "options": [
+            { "value": "text-white", "label": "White" },
+            { "value": "text-black", "label": "Black" },
+            { "value": "text-neutral", "label": "Neutral" },
+            { "value": "text-neutral-dark", "label": "Neutral Dark" }
+          ],
+          "default": "text-neutral-dark"
+        },
+        {
+          "type": "select",
+          "id": "card_background_color",
+          "label": "Card Background Color",
+          "options": [
+            { "value": "bg-neutral-light", "label": "Neutral Light" },
+            { "value": "bg-neutral", "label": "Neutral" },
+            { "value": "bg-white", "label": "White" },
+            { "value": "bg-black", "label": "Black" }
+          ],
+          "default": "bg-neutral-light"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_link",
+          "label": "Show Link",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_paint_accent",
+          "label": "Show Paint Accent",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "paint_accent_image",
+          "label": "Paint Accent Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Platform Products",
+      "blocks": [
+        {
+          "type": "product_card",
+          "settings": {
+            "title": "Fair Share",
+            "description": "Automatic rep attribution that tracks the entire customer journey—not just the last click. When reps trust the system, they share. When they share, you win."
+          }
+        },
+        {
+          "type": "product_card",
+          "settings": {
+            "title": "Fluid Payments",
+            "description": "Cascading payment intelligence that automatically routes failed transactions across multiple processors—recovering $40K+ monthly on $1M volume."
+          }
+        },
+        {
+          "type": "product_card",
+          "settings": {
+            "title": "Sync Tool",
+            "description": "One clean connection to your commission engine. Real-time visibility. No mystery scripts. No single points of failure. Just data that works."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

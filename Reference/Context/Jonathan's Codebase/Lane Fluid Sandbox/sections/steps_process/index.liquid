@@ -1,0 +1,782 @@
+<!-- Steps Process Section -->
+<section class="steps-process section {{ section.settings.background_color | default: 'bg-black' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_padding_y_mobile | default: 'py-xl' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+      
+      <div class="max-w-7xl mx-auto text-center">
+        
+        <!-- Header Content -->
+        {% if section.settings.show_header %}
+        <div class="steps-header {{ section.settings.header_margin_bottom | default: 'mb-3xl' }}">
+          
+          {% if section.settings.main_heading != blank %}
+          <h1 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-4xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-6xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} {{ section.settings.heading_color | default: 'text-white' }} {{ section.settings.heading_line_height | default: 'leading-tight' }} {{ section.settings.heading_margin_bottom | default: 'mb-lg' }}">
+            {{ section.settings.main_heading }}
+          </h1>
+          {% endif %}
+          
+          {% if section.settings.description != blank %}
+          <div class="{{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.description_line_height | default: 'leading-relaxed' }} {{ section.settings.description_color | default: 'text-gray-300' }} max-w-4xl mx-auto">
+            {{ section.settings.description }}
+          </div>
+          {% endif %}
+          
+        </div>
+        {% endif %}
+        
+        <!-- Steps Grid -->
+        {% if section.blocks.size > 0 %}
+        <div class="steps-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 {{ section.settings.steps_gap | default: 'gap-xl' }} {{ section.settings.steps_margin_bottom | default: 'mb-3xl' }}">
+          
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'step_item' %}
+                <div class="step-card text-center" {{ block.fluid_attributes }}>
+                  
+                  <!-- Step Number -->
+                  {% if block.settings.step_number != blank %}
+                  <div class="step-number {{ section.settings.step_number_margin_bottom | default: 'mb-lg' }}">
+                    <span class="{{ section.settings.step_number_font_family | default: 'font-handwritten' }} {{ section.settings.step_number_font_size | default: 'text-4xl' }} {{ section.settings.step_number_font_size_desktop | default: 'lg:text-6xl' }} {{ section.settings.step_number_font_weight | default: 'font-bold' }} {{ section.settings.step_number_color | default: 'text-secondary' }} {{ section.settings.step_number_line_height | default: 'leading-none' }} italic">
+                      {{ block.settings.step_number }}
+                    </span>
+                  </div>
+                  {% endif %}
+                  
+                  <!-- Step Title -->
+                  {% if block.settings.step_title != blank %}
+                  <h3 class="{{ section.settings.step_title_font_family | default: 'font-primary' }} {{ section.settings.step_title_font_size | default: 'text-xl' }} {{ section.settings.step_title_font_size_desktop | default: 'lg:text-2xl' }} {{ section.settings.step_title_font_weight | default: 'font-bold' }} {{ section.settings.step_title_color | default: 'text-white' }} {{ section.settings.step_title_line_height | default: 'leading-tight' }} {{ section.settings.step_title_margin_bottom | default: 'mb-md' }}">
+                    {{ block.settings.step_title }}
+                  </h3>
+                  {% endif %}
+                  
+                  <!-- Step Description -->
+                  {% if block.settings.step_description != blank %}
+                  <div class="{{ section.settings.step_description_font_family | default: 'font-primary' }} {{ section.settings.step_description_font_size | default: 'text-base' }} {{ section.settings.step_description_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.step_description_font_weight | default: 'font-normal' }} {{ section.settings.step_description_color | default: 'text-white' }} {{ section.settings.step_description_line_height | default: 'leading-relaxed' }}">
+                    {{ block.settings.step_description }}
+                  </div>
+                  {% endif %}
+                  
+                </div>
+            {% endcase %}
+          {% endfor %}
+          
+        </div>
+        {% endif %}
+        
+        <!-- CTA Button -->
+        {% if section.settings.show_cta and section.settings.cta_text != blank %}
+        <div class="steps-cta">
+          <a href="{{ section.settings.cta_url | default: '#' }}" 
+             class="inline-block {{ section.settings.cta_background_color | default: 'bg-blue-500' }} {{ section.settings.cta_text_color | default: 'text-white' }} {{ section.settings.cta_font_size | default: 'text-lg' }} {{ section.settings.cta_font_weight | default: 'font-semibold' }} {{ section.settings.cta_padding | default: 'px-xl py-md' }} {{ section.settings.cta_border_radius | default: 'rounded-full' }} hover:opacity-90 transition-opacity duration-200"
+             {% if section.settings.cta_open_new_tab %}target="_blank" rel="noopener"{% endif %}>
+            {{ section.settings.cta_text }}
+          </a>
+        </div>
+        {% endif %}
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Steps Process",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Elements"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "Show Header Section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "main_heading",
+      "label": "Main Heading",
+      "default": "Live in 3 Steps, Not 3 Months"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Most platform implementations drag on forever. Months of planning meetings, integration calls, and 'we'll get back to you' emails. Your team gets frustrated. Your reps give up waiting. Growth stalls while you're stuck in setup mode. We-Commerce is different—you can be up and running in days, not quarters.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show CTA Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA Button Text",
+      "default": "Start Building"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA Button URL",
+      "default": "https://admin.fluid.app/sign-up"
+    },
+    {
+      "type": "checkbox",
+      "id": "cta_open_new_tab",
+      "label": "Open CTA in New Tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Header Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" },
+        { "value": "lg:text-7xl", "label": "7X Large" }
+      ],
+      "default": "lg:text-6xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-gray-100", "label": "Light Gray" },
+        { "value": "text-gray-900", "label": "Dark Gray" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-gray-300", "label": "Light Gray" },
+        { "value": "text-gray-400", "label": "Medium Gray" },
+        { "value": "text-gray-100", "label": "Very Light Gray" },
+        { "value": "text-gray-600", "label": "Dark Gray" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Step Number Typography"
+    },
+    {
+      "type": "select",
+      "id": "step_number_font_family",
+      "label": "Step Number Font Family",
+      "options": [
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "step_number_font_size",
+      "label": "Step Number Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-6xl", "label": "6X Large" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "step_number_font_size_desktop",
+      "label": "Step Number Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" },
+        { "value": "lg:text-7xl", "label": "7X Large" },
+        { "value": "lg:text-8xl", "label": "8X Large" }
+      ],
+      "default": "lg:text-6xl"
+    },
+    {
+      "type": "select",
+      "id": "step_number_font_weight",
+      "label": "Step Number Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "step_number_color",
+      "label": "Step Number Color",
+      "options": [
+        { "value": "text-secondary", "label": "Secondary (Theme)" },
+        { "value": "text-primary", "label": "Primary (Theme)" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-purple-400", "label": "Purple" },
+        { "value": "text-blue-400", "label": "Blue" },
+        { "value": "text-pink-400", "label": "Pink" },
+        { "value": "text-green-400", "label": "Green" },
+        { "value": "text-yellow-400", "label": "Yellow" },
+        { "value": "text-red-400", "label": "Red" },
+        { "value": "text-indigo-400", "label": "Indigo" }
+      ],
+      "default": "text-secondary"
+    },
+    {
+      "type": "select",
+      "id": "step_number_line_height",
+      "label": "Step Number Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" }
+      ],
+      "default": "leading-none"
+    },
+    {
+      "type": "select",
+      "id": "step_number_margin_bottom",
+      "label": "Step Number Bottom Margin",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" },
+        { "value": "mb-2xl", "label": "2X Large" }
+      ],
+      "default": "mb-lg"
+    },
+    {
+      "type": "header",
+      "content": "Step Title Typography"
+    },
+    {
+      "type": "select",
+      "id": "step_title_font_family",
+      "label": "Step Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" },
+        { "value": "font-handwritten", "label": "Handwritten" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "step_title_font_size",
+      "label": "Step Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "step_title_font_size_desktop",
+      "label": "Step Title Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" },
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" }
+      ],
+      "default": "lg:text-2xl"
+    },
+    {
+      "type": "select",
+      "id": "step_title_font_weight",
+      "label": "Step Title Font Weight",
+      "options": [
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "step_title_color",
+      "label": "Step Title Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary (Theme)" },
+        { "value": "text-secondary", "label": "Secondary (Theme)" },
+        { "value": "text-gray-100", "label": "Light Gray" },
+        { "value": "text-gray-900", "label": "Dark Gray" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "select",
+      "id": "step_title_line_height",
+      "label": "Step Title Line Height",
+      "options": [
+        { "value": "leading-none", "label": "None" },
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" }
+      ],
+      "default": "leading-tight"
+    },
+    {
+      "type": "select",
+      "id": "step_title_margin_bottom",
+      "label": "Step Title Bottom Margin",
+      "options": [
+        { "value": "mb-xs", "label": "Extra Small" },
+        { "value": "mb-sm", "label": "Small" },
+        { "value": "mb-md", "label": "Medium" },
+        { "value": "mb-lg", "label": "Large" },
+        { "value": "mb-xl", "label": "Extra Large" }
+      ],
+      "default": "mb-md"
+    },
+    {
+      "type": "header",
+      "content": "Step Description Typography"
+    },
+    {
+      "type": "select",
+      "id": "step_description_font_family",
+      "label": "Step Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-secondary", "label": "Secondary" },
+        { "value": "font-accent", "label": "Accent" },
+        { "value": "font-handwritten", "label": "Handwritten" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "step_description_font_size",
+      "label": "Step Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "step_description_font_size_desktop",
+      "label": "Step Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "step_description_font_weight",
+      "label": "Step Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "step_description_color",
+      "label": "Step Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-gray-100", "label": "Very Light Gray" },
+        { "value": "text-gray-300", "label": "Light Gray" },
+        { "value": "text-gray-400", "label": "Medium Gray" },
+        { "value": "text-gray-600", "label": "Dark Gray" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary (Theme)" },
+        { "value": "text-secondary", "label": "Secondary (Theme)" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "select",
+      "id": "step_description_line_height",
+      "label": "Step Description Line Height",
+      "options": [
+        { "value": "leading-tight", "label": "Tight" },
+        { "value": "leading-snug", "label": "Snug" },
+        { "value": "leading-normal", "label": "Normal" },
+        { "value": "leading-relaxed", "label": "Relaxed" },
+        { "value": "leading-loose", "label": "Loose" }
+      ],
+      "default": "leading-relaxed"
+    },
+    {
+      "type": "header",
+      "content": "CTA Button Styling"
+    },
+    {
+      "type": "select",
+      "id": "cta_background_color",
+      "label": "CTA Background Color",
+      "options": [
+        { "value": "bg-primary", "label": "Primary (Theme)" },
+        { "value": "bg-secondary", "label": "Secondary (Theme)" },
+        { "value": "bg-blue-500", "label": "Blue" },
+        { "value": "bg-cyan-500", "label": "Cyan" },
+        { "value": "bg-purple-500", "label": "Purple" },
+        { "value": "bg-green-500", "label": "Green" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" }
+      ],
+      "default": "bg-primary"
+    },
+    {
+      "type": "select",
+      "id": "cta_text_color",
+      "label": "CTA Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-blue-900", "label": "Dark Blue" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-neutral-light", "label": "Light Neutral" },
+        { "value": "bg-neutral-dark", "label": "Dark Neutral" },
+        { "value": "bg-gray-900", "label": "Dark Gray" },
+        { "value": "bg-gray-800", "label": "Medium Dark Gray" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-neutral-light", "label": "Light Neutral" },
+        { "value": "bg-neutral-dark", "label": "Dark Neutral" },
+        { "value": "bg-gray-50", "label": "Light Gray" },
+        { "value": "bg-gray-100", "label": "Very Light Gray" },
+        { "value": "bg-gray-800", "label": "Dark Gray" },
+        { "value": "bg-gray-900", "label": "Very Dark Gray" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step_item",
+      "name": "Step",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "step_number",
+          "label": "Step Number",
+          "default": "STEP 1.",
+          "info": "e.g., 'STEP 1.', 'STEP 2.', etc."
+        },
+        {
+          "type": "text",
+          "id": "step_title",
+          "label": "Step Title",
+          "default": "Connect your commission engine"
+        },
+        {
+          "type": "richtext",
+          "id": "step_description",
+          "label": "Step Description",
+          "default": "<p>Link your existing commission engine (Exigo, ByDesign, Pillars) with our sync tool. Your genealogy, compensation plan, and member data flow over automatically. No manual imports, no data migration headaches.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Steps Process",
+      "settings": {
+        "main_heading": "Live in 3 Steps, Not 3 Months",
+        "description": "<p>Most platform implementations drag on forever. Months of planning meetings, integration calls, and 'we'll get back to you' emails. Your team gets frustrated. Your reps give up waiting. Growth stalls while you're stuck in setup mode. We-Commerce is different—you can be up and running in days, not quarters.</p>",
+        "cta_text": "Start Building"
+      },
+      "blocks": [
+        {
+          "type": "step_item",
+          "settings": {
+            "step_number": "STEP 1.",
+            "step_title": "Connect your commission engine",
+            "step_description": "<p>Link your existing commission engine (Exigo, ByDesign, Pillars) with our sync tool. Your genealogy, compensation plan, and member data flow over automatically. No manual imports, no data migration headaches.</p>"
+          }
+        },
+        {
+          "type": "step_item",
+          "settings": {
+            "step_number": "STEP 2.",
+            "step_title": "Upload your content and build your first page",
+            "step_description": "<p>Add your marketing materials to the content library and create your first converting page with the drag-and-drop builder. Your reps can start sharing immediately while you build out the rest.</p>"
+          }
+        },
+        {
+          "type": "step_item",
+          "settings": {
+            "step_number": "STEP 3.",
+            "step_title": "Activate FairShare™ and go live",
+            "step_description": "<p>Turn on attribution tracking and your reps can start sharing with confidence. Every click gets tracked, every sale gets credited, every commission gets synced. The system works from day one.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

@@ -1,0 +1,927 @@
+ <!-- Heading section -->
+<section class="heading-section {{ section.settings.background_color | default: 'bg-black' }} {{ section.settings.section_padding_y_mobile | default: 'py-10' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-20' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_border_radius | default: 'rounded-none' }} {{ section.settings.container_padding_y_mobile | default: 'py-8' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-12' }} {{ section.settings.container_padding_x_mobile | default: 'px-6' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-8' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      <div class="grid gap-8 heading-grid {% if section.settings.flip_layout %}flip-layout{% endif %}">
+       <div class="heading flex flex-col justify-start lg-tab-justify-end" style="gap: var(--space-4);"
+       >
+         <h6 class="{{ section.settings.tagline_font_family | default: 'font-body' }} {{ section.settings.tagline_font_size | default: 'text-base' }} {{ section.settings.tagline_font_weight | default: 'font-normal' }} {{ section.settings.tagline_color | default: 'text-white' }}">
+           {{ section.settings.tagline | default: "Tagline" }}
+         </h6>
+         <h1 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-3xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} {{ section.settings.heading_color | default: 'text-white' }}">
+           {{ section.settings.heading | default: "Medium length section heading goes here" }}
+         </h1>
+       </div>
+       <div class="heading-item flex flex-col" style="gap: var(--space-8);">
+         <p class="{{ section.settings.description_font_family | default: 'font-body' }} {{ section.settings.description_font_size | default: 'text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }} {{ section.settings.description_color | default: 'text-white' }}">
+           {{ section.settings.description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat." }}
+         </p>
+         <div class="grid sub-heading-grid" style="gap: var(--space-8);">
+           <div class="flex flex-col" style="gap: var(--space-4);">
+             <h3 class="{{ section.settings.subheading_one_font_family | default: 'font-primary' }} {{ section.settings.subheading_one_font_size | default: 'text-xl' }} {{ section.settings.subheading_one_font_weight | default: 'font-medium' }} {{ section.settings.subheading_one_color | default: 'text-white' }}">
+               {{ section.settings.subheading_one_title | default: "Subheading one" }}
+             </h3>
+             <p class="{{ section.settings.subheading_one_description_font_family | default: 'font-body' }} {{ section.settings.subheading_one_description_font_size | default: 'text-base' }} {{ section.settings.subheading_one_description_font_weight | default: 'font-normal' }} {{ section.settings.subheading_one_description_color | default: 'text-white' }}">
+               {{ section.settings.subheading_one_description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros." }}
+             </p>
+           </div>
+           <div class="flex flex-col" style="gap: var(--space-4);">
+             <h3 class="{{ section.settings.subheading_two_font_family | default: 'font-primary' }} {{ section.settings.subheading_two_font_size | default: 'text-xl' }} {{ section.settings.subheading_two_font_weight | default: 'font-medium' }} {{ section.settings.subheading_two_color | default: 'text-white' }}">
+               {{ section.settings.subheading_two_title | default: "Subheading two" }}
+             </h3>
+             <p class="{{ section.settings.subheading_two_description_font_family | default: 'font-body' }} {{ section.settings.subheading_two_description_font_size | default: 'text-base' }} {{ section.settings.subheading_two_description_font_weight | default: 'font-normal' }} {{ section.settings.subheading_two_description_color | default: 'text-white' }}">
+               {{ section.settings.subheading_two_description | default: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros." }}
+             </p>
+           </div>
+         </div>
+         <div class="flex justify-start items-center" style="gap: var(--space-4);">
+           {% if section.settings.show_button_one %}
+           <a href="{{ section.settings.button_one_url | default: '#' }}" 
+              class="btn btn-{{ section.settings.button_one_style | default: 'filled' }}-{{ section.settings.button_one_color | default: 'white' }} {{ section.settings.button_one_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}">
+             {{ section.settings.button_one_text | default: "Button 1" }}
+           </a>
+           {% endif %}
+           {% if section.settings.show_button_two %}
+           <a href="{{ section.settings.button_two_url | default: '#' }}" 
+              class="btn btn-{{ section.settings.button_two_style | default: 'outline' }}-{{ section.settings.button_two_color | default: 'white' }} {{ section.settings.button_two_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}">
+             {{ section.settings.button_two_text | default: "Button 2" }}
+           </a>
+           {% endif %}
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+</section>
+
+{% schema %}
+{
+  "name": "Banner 1",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Tagline"
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline Text",
+      "default": "Tagline"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_family",
+      "label": "Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size",
+      "label": "Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small (12px)" },
+        { "value": "text-sm", "label": "Small (14px)" },
+        { "value": "text-base", "label": "Base (16px)" },
+        { "value": "text-lg", "label": "Large (18px)" },
+        { "value": "text-xl", "label": "Extra Large (20px)" },
+        { "value": "text-2xl", "label": "2X Large (24px)" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_weight",
+      "label": "Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "tagline_color",
+      "label": "Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "default": "Medium length section heading goes here"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Font Size",
+      "options": [
+        { "value": "text-lg", "label": "Large (18px)" },
+        { "value": "text-xl", "label": "Extra Large (20px)" },
+        { "value": "text-2xl", "label": "2X Large (24px)" },
+        { "value": "text-3xl", "label": "3X Large (32px)" },
+        { "value": "text-4xl", "label": "4X Large (40px)" },
+        { "value": "text-5xl", "label": "5X Large (48px)" },
+        { "value": "text-6xl", "label": "6X Large (64px)" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat."
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-xs", "label": "Extra Small" },
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" }
+      ],
+      "default": "xl-tab-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "description_color",
+      "label": "Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Subheading 1"
+    },
+    {
+      "type": "text",
+      "id": "subheading_one_title",
+      "label": "Title",
+      "default": "Subheading one"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_font_family",
+      "label": "Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_font_size",
+      "label": "Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_font_size_desktop",
+      "label": "Title Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" }
+      ],
+      "default": "xl-tab-text-xl"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_color",
+      "label": "Title Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading_one_description",
+      "label": "Description",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros."
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-xs", "label": "Extra Small" },
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-base"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "subheading_one_description_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Subheading 2"
+    },
+    {
+      "type": "text",
+      "id": "subheading_two_title",
+      "label": "Title",
+      "default": "Subheading two"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_font_family",
+      "label": "Title Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_font_size",
+      "label": "Title Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_font_size_desktop",
+      "label": "Title Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" }
+      ],
+      "default": "xl-tab-text-xl"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_color",
+      "label": "Title Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading_two_description",
+      "label": "Description",
+      "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros."
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-xs", "label": "Extra Small" },
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-base"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "subheading_two_description_color",
+      "label": "Description Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-white"
+    },
+    {
+      "type": "header",
+      "content": "Button 1 Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_one",
+      "label": "Show Button One",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_one_text",
+      "label": "Button Text",
+      "default": "button 1"
+    },
+    {
+      "type": "url",
+      "id": "button_one_url",
+      "label": "Button URL",
+      "default": "#"
+    },
+    {
+      "type": "select",
+      "id": "button_one_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "button_one_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "white"
+    },
+    {
+      "type": "select",
+      "id": "button_one_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-xs", "label": "Extra Small" },
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "header",
+      "content": "Button 2 Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_two",
+      "label": "Show Button Two",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_two_text",
+      "label": "Button Text",
+      "default": "button 2"
+    },
+    {
+      "type": "url",
+      "id": "button_two_url",
+      "label": "Button URL",
+      "default": "#"
+    },
+    {
+      "type": "select",
+      "id": "button_two_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "select",
+      "id": "button_two_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "white"
+    },
+    {
+      "type": "select",
+      "id": "button_two_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-xs", "label": "Extra Small" },
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-black"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-0", "label": "None" },
+        { "value": "py-4", "label": "Small" },
+        { "value": "py-8", "label": "Medium" },
+        { "value": "py-10", "label": "Large" },
+        { "value": "py-12", "label": "Extra Large" },
+        { "value": "py-16", "label": "2X Large" },
+        { "value": "py-20", "label": "3X Large" },
+        { "value": "py-24", "label": "4X Large" }
+      ],
+      "default": "py-10"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-0", "label": "None" },
+        { "value": "lg:py-8", "label": "Small" },
+        { "value": "lg:py-12", "label": "Medium" },
+        { "value": "lg:py-16", "label": "Large" },
+        { "value": "lg:py-20", "label": "Extra Large" },
+        { "value": "lg:py-24", "label": "2X Large" }
+      ],
+      "default": "lg:py-20"
+    },
+    {
+      "type": "checkbox",
+      "id": "flip_layout",
+      "label": "Flip Layout (Desktop)",
+      "info": "On desktop, show content on the left and headings on the right",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-0", "label": "None" },
+        { "value": "py-4", "label": "Small" },
+        { "value": "py-6", "label": "Medium" },
+        { "value": "py-8", "label": "Large" },
+        { "value": "py-10", "label": "Extra Large" },
+        { "value": "py-12", "label": "2X Large" },
+        { "value": "py-16", "label": "3X Large" }
+      ],
+      "default": "py-8"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-0", "label": "None" },
+        { "value": "lg:py-6", "label": "Small" },
+        { "value": "lg:py-8", "label": "Medium" },
+        { "value": "lg:py-10", "label": "Large" },
+        { "value": "lg:py-12", "label": "Extra Large" },
+        { "value": "lg:py-16", "label": "2X Large" },
+        { "value": "lg:py-20", "label": "3X Large" }
+      ],
+      "default": "lg:py-12"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-0", "label": "None" },
+        { "value": "px-4", "label": "Small" },
+        { "value": "px-6", "label": "Medium" },
+        { "value": "px-8", "label": "Large" },
+        { "value": "px-10", "label": "Extra Large" },
+        { "value": "px-12", "label": "2X Large" }
+      ],
+      "default": "px-6"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-0", "label": "None" },
+        { "value": "lg:px-6", "label": "Small" },
+        { "value": "lg:px-8", "label": "Medium" },
+        { "value": "lg:px-10", "label": "Large" },
+        { "value": "lg:px-12", "label": "Extra Large" },
+        { "value": "lg:px-16", "label": "2X Large" }
+      ],
+      "default": "lg:px-8"
+    }
+  ]
+}
+{% endschema %}

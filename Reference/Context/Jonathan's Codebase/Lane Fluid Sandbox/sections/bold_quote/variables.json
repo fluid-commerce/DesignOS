@@ -1,0 +1,7 @@
+{
+  "name": "Bold Quote",
+  "description": "A testimonial quote section with author attribution and optional decorative elements",
+  "category": "Testimonial",
+  "tags": ["quote", "testimonial", "review", "customer"],
+  "version": "1.0.0"
+}

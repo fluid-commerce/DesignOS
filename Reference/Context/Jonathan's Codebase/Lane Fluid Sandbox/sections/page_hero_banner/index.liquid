@@ -1,0 +1,430 @@
+{%- style -%}
+  .page-hero-banner-{{ section.id }} {
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 40 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 40 }}px;
+    background-color: {{ section.settings.background_color | default: '#000000' }};
+  }
+  
+  @media (min-width: 1280px) {
+    .page-hero-banner-{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 80 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 80 }}px;
+    }
+  }
+  
+  .page-hero-banner-{{ section.id }} .tagline {
+    color: {{ section.settings.tagline_color | default: '#ffffff' }};
+  }
+  
+  .page-hero-banner-{{ section.id }} .heading {
+    color: {{ section.settings.heading_color | default: '#ffffff' }};
+  }
+  
+  .page-hero-banner-{{ section.id }} .description {
+    color: {{ section.settings.description_color | default: '#ffffff' }};
+  }
+  
+  .page-hero-banner-{{ section.id }} .cta-button {
+    background-color: {{ section.settings.button_background_color | default: '#ffffff' }};
+    color: {{ section.settings.button_text_color | default: '#000000' }};
+    border: {{ section.settings.button_border_width | default: 1 }}px solid {{ section.settings.button_border_color | default: '#ffffff' }};
+  }
+  .page-hero-banner-{{ section.id }} .overlay-gradient {
+    background-color: {{ section.settings.overlay_color | default: '#000000' }};
+    opacity: {{ section.settings.overlay_opacity | default: 0.5 }};
+  }
+{%- endstyle -%}
+
+<section class="banner relative placeholde-bg-color page-hero-banner-{{ section.id }}">
+  {% if section.settings.background_image %}
+    <img src="{{ section.settings.background_image | img_url: 'master' }}" alt="{{ section.settings.background_image.alt | default: 'Banner background' }}" class="absolute top-0 left-0 image-cover">
+  {% endif %}
+  
+  {% if section.settings.show_overlay %}
+    <div class="overlay-gradient absolute top-0 left-0 w-full h-full z-1"></div>
+  {% endif %}
+  
+  <div class="container relative z-2">
+    <div class="wrapper xl-phone-flex flex-col justify-{{ section.settings.text_alignment | default: 'center' }}">
+      {% if section.settings.show_tagline %}
+        <h6 class="tagline leading-none {{ section.settings.tagline_font_size | default: 'text-base' }} {{ section.settings.tagline_font_size_desktop | default: 'sm-desktop-text-base' }} {{ section.settings.tagline_font_weight | default: 'font-normal' }}">
+          {% if section.settings.tagline contains 'shop_page.' or section.settings.tagline contains 'shared.' %}
+            {{ section.settings.tagline | t }}
+          {% else %}
+            {{ section.settings.tagline }}
+          {% endif %}
+        </h6>
+      {% endif %}
+      
+      <div class="heading {{ section.settings.heading_font_size | default: 'text-2xl' }} {{ section.settings.heading_font_size_desktop | default: 'xl-tab-text-5xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} pt-3 sm-desktop-pt-4">
+        {% if section.settings.heading contains 'shop_page.' or section.settings.heading contains 'shared.' %}
+          {{ section.settings.heading | t }}
+        {% else %}
+          {{ section.settings.heading }}
+        {% endif %}
+      </div>
+      
+      {% if section.settings.show_description %}
+        <p class="description {{ section.settings.description_font_size | default: 'text-base' }} {{ section.settings.description_font_size_desktop | default: 'xl-phone-text-lg' }} {{ section.settings.description_font_weight | default: 'font-normal' }} leading-6 pt-5 sm-desktop-pt-6">
+          {% if section.settings.description contains 'shop_page.' or section.settings.description contains 'shared.' %}
+            {{ section.settings.description | t }}
+          {% else %}
+            {{ section.settings.description }}
+          {% endif %}
+        </p>
+      {% endif %}
+      
+      {% if section.settings.show_button %}
+        <div class="pt-6 sm-desktop-pt-8 flex justify-start align-center">
+          <a href="{{ section.settings.button_url | default: '#' }}" class="cta-button btn {{ section.settings.button_style | default: 'btn-bg-white' }}">
+            {{ section.settings.button_text | default: 'Shop Now' }}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Page Hero Banner",
+  "tag": "section",
+  "class": "page-hero-banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline",
+      "label": "Show Tagline",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Welcome to our store"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Main Heading",
+      "default": "Discover Amazing Products"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Explore our curated collection of high-quality products designed to enhance your lifestyle."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL",
+      "default": "#"
+    },
+    {
+      "type": "header",
+      "content": "Background Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Recommended size: 1920x1080px or larger"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Show Overlay",
+      "default": false
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Overlay Opacity",
+      "default": 0.5
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Tagline Typography"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size",
+      "label": "Tagline Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_size_desktop",
+      "label": "Tagline Font Size (Desktop)",
+      "options": [
+        { "value": "sm-tab-text-sm", "label": "Small" },
+        { "value": "sm-tab-text-base", "label": "Base" },
+        { "value": "sm-tab-text-lg", "label": "Large" },
+        { "value": "sm-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "sm-tab-text-base"
+    },
+    {
+      "type": "select",
+      "id": "tagline_font_weight",
+      "label": "Tagline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "tagline_color",
+      "label": "Tagline Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Heading Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-h3", "label": "H3" }
+      ],
+      "default": "text-h3"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-xl", "label": "Extra Large" },
+        { "value": "xl-tab-text-2xl", "label": "2X Large" },
+        { "value": "xl-tab-text-3xl", "label": "3X Large" },
+        { "value": "xl-tab-text-5xl", "label": "5X Large" },
+        { "value": "xl-tab-text-h3", "label": "H3" }
+      ],
+      "default": "xl-tab-text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-extrabold", "label": "Extra Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "color_background",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Description Typography"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "xl-tab-text-sm", "label": "Small" },
+        { "value": "xl-tab-text-base", "label": "Base" },
+        { "value": "xl-tab-text-lg", "label": "Large" },
+        { "value": "xl-tab-text-xl", "label": "Extra Large" }
+      ],
+      "default": "xl-tab-text-lg"
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "color_background",
+      "id": "description_color",
+      "label": "Description Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "btn-bg-white", "label": "White Background" },
+        { "value": "btn-border-white", "label": "White Border" },
+        { "value": "btn-bg-black", "label": "Black Background" },
+        { "value": "btn-border-black", "label": "Black Border" }
+      ],
+      "default": "btn-bg-white"
+    },
+    {
+      "type": "color_background",
+      "id": "button_background_color",
+      "label": "Button Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_background",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color_background",
+      "id": "button_border_color",
+      "label": "Button Border Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Border Width",
+      "default": 1
+    }
+  ]
+}
+{% endschema %}
+
+  

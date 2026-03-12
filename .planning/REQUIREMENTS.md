@@ -109,6 +109,26 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **SAFE-01**: sync.sh only writes files it owns and never deletes files or directories it didn't create (verified by pre/post checksum)
 - [ ] **SAFE-02**: Ownership manifest tracks which files in `~/.claude/commands/` were created by sync.sh so stale Fluid skills can be cleaned without risking non-Fluid files
 
+### Merger (Jonathan's Codebase Integration)
+
+- [ ] **MRGR-01**: SQLite database with better-sqlite3 stores all metadata (Campaign > Asset > Frame > Iteration hierarchy, annotations, statuses) with HTML variations on disk referenced by path
+- [ ] **MRGR-02**: TypeScript type system defines Campaign, Asset, Frame, Iteration, CampaignAnnotation interfaces matching the SQLite schema
+- [ ] **MRGR-03**: Slot schema types faithfully port Jonathan's field config format (text/image/divider fields, brush element, carousel count) to TypeScript
+- [ ] **MRGR-04**: Thin API layer via Vite middleware — all data access (agents, MCP tools, UI) goes through /api/ endpoints, not direct file or DB writes
+- [ ] **MRGR-05**: Unified campaign dashboard as primary organizing unit with filter/sort by content type (no separate tabs per content type)
+- [ ] **MRGR-06**: Full-size preview drill-down at every level (Campaign > Asset > Frame > Iteration) using iframe rendering at native dimensions
+- [ ] **MRGR-07**: Breadcrumb navigation for jumping to any level with back button for one-level-up
+- [ ] **MRGR-08**: Content editor right sidebar with schema-driven slot fields — identical editing experience for template-based and AI-generated assets
+- [ ] **MRGR-09**: Photo repositioning with Fit/Fill modes and focus point drag, applied via postMessage to iframe
+- [ ] **MRGR-10**: Brush/transform SVG overlay for one movable element per template (drag/rotate/scale), ported from Jonathan's implementation
+- [ ] **MRGR-11**: Carousel support with per-frame iteration history and slide selector in right sidebar
+- [ ] **MRGR-12**: MCP tools (push_asset, read_annotations, read_statuses, read_history, iterate_request) rewired from file access to SQLite API
+- [ ] **MRGR-13**: Jonathan's 8 templates ported as locked TypeScript configs with SlotSchema definitions
+- [ ] **MRGR-14**: Collapsible left (AI chat) and right (content editor) sidebars with independent toggle controls
+- [ ] **MRGR-15**: Campaign orchestrator skill (/fluid-campaign) takes a brief, decomposes into per-channel tasks, dispatches to existing skill pipelines
+- [ ] **MRGR-16**: DAM integration UI elements merged from Jonathan's codebase (Fluid DAM indicator, Browse Assets button, file attachment flow)
+- [ ] **MRGR-17**: 5 fixed option slots per channel matching Jonathan's UI design
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -215,12 +235,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ASSET-04 | Phase 4.2 | Planned |
 | SAFE-01 | Phase 4.3 | Planned |
 | SAFE-02 | Phase 4.3 | Planned |
+| MRGR-01 | Phase 7 | Planned (07-01) |
+| MRGR-02 | Phase 7 | Planned (07-01) |
+| MRGR-03 | Phase 7 | Planned (07-01) |
+| MRGR-04 | Phase 7 | Planned (07-02, 07-05) |
+| MRGR-05 | Phase 7 | Planned (07-03, 07-06) |
+| MRGR-06 | Phase 7 | Planned (07-03, 07-06) |
+| MRGR-07 | Phase 7 | Planned (07-03) |
+| MRGR-08 | Phase 7 | Planned (07-04, 07-06) |
+| MRGR-09 | Phase 7 | Planned (07-04) |
+| MRGR-10 | Phase 7 | Planned (07-04) |
+| MRGR-11 | Phase 7 | Planned (07-04) |
+| MRGR-12 | Phase 7 | Planned (07-05) |
+| MRGR-13 | Phase 7 | Planned (07-05) |
+| MRGR-14 | Phase 7 | Planned (07-03, 07-06) |
+| MRGR-15 | Phase 7 | Planned (07-07) |
+| MRGR-16 | Phase 7 | Planned (07-07) |
+| MRGR-17 | Phase 7 | Planned (07-07) |
 
 **Coverage:**
-- v1 requirements: 63 total
-- Mapped to phases: 63
+- v1 requirements: 80 total
+- Mapped to phases: 80
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-11 after Phase 4.2 and 4.3 insertion*
+*Last updated: 2026-03-12 after Phase 7 (Merger) requirement definition*

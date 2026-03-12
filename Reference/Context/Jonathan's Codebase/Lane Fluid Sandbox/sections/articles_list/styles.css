@@ -1,0 +1,213 @@
+/* Articles List Section */
+.articles-list {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Override global overlays - only apply when background image exists */
+.articles-list::after {
+  display: none !important;
+}
+
+/* Section background image overlay */
+.articles-list[data-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  display: block !important;
+}
+
+/* Container styles */
+.articles-list .inner-container {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Container background image overlay */
+.articles-list .inner-container[data-bg]:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  z-index: var(--z-0);
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* Ensure content stays above overlays */
+.articles-list .inner-container > * {
+  position: relative;
+  z-index: var(--z-10);
+}
+
+/* Section Header Layout */
+.articles-list .section-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-3xl);
+}
+
+@media (min-width: 1024px) {
+  .articles-list .section-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* Articles Grid Layout */
+.articles-list .articles-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+/* Dynamic grid columns based on block count */
+@media (min-width: 768px) {
+  .articles-list .articles-grid.md\:grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .articles-list .articles-grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .articles-list .articles-grid.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .articles-list .articles-grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .articles-list .articles-grid {
+    gap: var(--space-xl);
+  }
+}
+
+/* Article Item Container */
+.articles-list .article-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Article Image Container with Hover Effects */
+.articles-list .article-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+}
+
+.articles-list .article-image {
+  width: 100%;
+  height: 16rem; /* h-64 equivalent */
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (min-width: 1024px) {
+  .articles-list .article-image {
+    height: 18rem; /* lg:h-72 equivalent */
+  }
+}
+
+/* Hover effect for article images */
+.articles-list .article-image-wrapper:hover .article-image {
+  transform: scale(1.05);
+}
+
+/* Article Content Spacing */
+.articles-list .article-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Article Date Styling */
+.articles-list .article-date time {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Article Title Link Hover Effect */
+.articles-list .article-content h3 a {
+  transition: opacity 0.2s ease-in-out;
+  text-decoration: none;
+}
+
+.articles-list .article-content h3 a:hover {
+  opacity: 0.7;
+}
+
+/* Article Title Styling */
+.articles-list .article-content h3 {
+  line-height: 1.25;
+  margin: 0;
+}
+
+/* Article Excerpt Styling */
+.articles-list .article-content p {
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Button Wrapper Alignment */
+.articles-list .explore-button-wrapper {
+  flex-shrink: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+  .articles-list .articles-grid {
+    gap: var(--space-md);
+  }
+  
+  .articles-list .article-image {
+    height: 14rem; /* Smaller on mobile */
+  }
+  
+  .articles-list .section-header {
+    text-align: center;
+  }
+}
+
+/* Focus states for accessibility */
+.articles-list .article-content h3 a:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.articles-list .explore-button-wrapper a:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .articles-list .article-image {
+    transition: none;
+  }
+  
+  .articles-list .article-image-wrapper:hover .article-image {
+    transform: none;
+  }
+  
+  .articles-list .article-content h3 a {
+    transition: none;
+  }
+}

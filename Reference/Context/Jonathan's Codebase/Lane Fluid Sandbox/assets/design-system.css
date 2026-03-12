@@ -1,0 +1,414 @@
+/**
+ * Design System
+ * Generated from existing project styles
+ * 
+ * Contents:
+ * 1. Custom Fonts
+ * 2. Typography
+ * 3. Colors 
+ * 4. Spacing
+ * 5. Border & Radius
+ * 6. Layout & Grid
+ * 7. Opacity & Effects
+ */
+
+/* ===== CUSTOM FONTS ===== */
+
+:root {
+  /* ===== TYPOGRAPHY ===== */
+  
+  /* Font Families - Theme Connected */
+  --font-family-primary: {{ settings.font_family_primary | default: 'NeueHaasDisplay, Arial, sans-serif' }};
+  --font-family-body: {{ settings.font_family_body | default: 'NeueHaasDisplay, Arial, sans-serif' }};
+  --font-family-handwritten: {{ settings.font_family_handwritten | default: 'FLFont, Arial, sans-serif' }};
+  --font-family-serif: {{ settings.font_family_serif | default: 'Georgia, serif' }};
+  --font-family-mono: monospace, monospace;
+  --font-family-icons: 'webflow-icons';
+  
+  /* Font Weights - Theme Connected */
+  --font-weight-light: {{ settings.font_weight_light | default: 300 }};
+  --font-weight-regular: {{ settings.font_weight_regular | default: 400 }};
+  --font-weight-medium: {{ settings.font_weight_medium | default: 500 }};
+  --font-weight-bold: {{ settings.font_weight_bold | default: 700 }};
+  --font-weight-black: {{ settings.font_weight_black | default: 900 }};
+  
+  /* Font Sizes - Theme Connected */
+  --font-size-xs: {{ settings.font_size_xs | default: 0.75 }}rem;    /* Extra Small */
+  --font-size-sm: {{ settings.font_size_sm | default: 0.875 }}rem;   /* Small */
+  --font-size-base: {{ settings.font_size_base | default: 1 }}rem;   /* Base */
+  --font-size-lg: {{ settings.font_size_lg | default: 1.125 }}rem;   /* Large */
+  --font-size-xl: {{ settings.font_size_xl | default: 1.25 }}rem;    /* Extra Large */
+  --font-size-2xl: {{ settings.font_size_2xl | default: 1.5 }}rem;   /* 2X Large */
+  --font-size-3xl: {{ settings.font_size_3xl | default: 2 }}rem;     /* 3X Large */
+  --font-size-4xl: {{ settings.font_size_4xl | default: 2.5 }}rem;   /* 4X Large */
+  --font-size-5xl: {{ settings.font_size_5xl | default: 3 }}rem;     /* 5X Large */
+  --font-size-6xl: {{ settings.font_size_6xl | default: 4 }}rem;     /* 6X Large */
+  --font-size-7xl: 5rem;      /* 7X Large (static for now) */
+  --font-size-8xl: 6rem;      /* 8X Large (static for now) */
+  
+  /* Line Heights - Theme Connected */
+  --line-height-none: {{ settings.line_height_none | default: 1 }};
+  --line-height-tight: {{ settings.line_height_tight | default: 1.125 }};
+  --line-height-normal: {{ settings.line_height_normal | default: 1.2 }};
+  --line-height-relaxed: {{ settings.line_height_relaxed | default: 1.42857143 }};
+  --line-height-loose: {{ settings.line_height_loose | default: 1.625 }};
+  
+  /* Heading Sizes (Webflow defaults) */
+  --heading-h1-size: 2.375rem;  /* 38px */
+  --heading-h1-line: 2.75rem;   /* 44px */
+  --heading-h2-size: 2rem;      /* 32px */
+  --heading-h2-line: 2.25rem;   /* 36px */
+  --heading-h3-size: 1.5rem;    /* 24px */
+  --heading-h3-line: 1.875rem;  /* 30px */
+  --heading-h4-size: 1.125rem;  /* 18px */
+  --heading-h4-line: 1.5rem;    /* 24px */
+  --heading-h5-size: 0.875rem;  /* 14px */
+  --heading-h5-line: 1.25rem;   /* 20px */
+  --heading-h6-size: 0.75rem;   /* 12px */
+  --heading-h6-line: 1.125rem;  /* 18px */
+  
+  /* ===== BORDER RADIUS ===== */
+  
+  /* Border Radius - Theme Connected */
+  --radius-none: {{ settings.radius_none | default: 0 }}rem;
+  --radius-sm: {{ settings.radius_sm | default: 0.125 }}rem;
+  --radius-md: {{ settings.radius_md | default: 0.25 }}rem;
+  --radius-lg: {{ settings.radius_lg | default: 0.5 }}rem;
+  --radius-xl: {{ settings.radius_xl | default: 0.75 }}rem;
+  --radius-2xl: {{ settings.radius_2xl | default: 1 }}rem;
+  --radius-3xl: {{ settings.radius_3xl | default: 1.5 }}rem;
+  
+  /* ===== SPACING ===== */
+  
+  /* Semantic Spacing - Theme Connected */
+  --space-xs: {{ settings.space_xs | default: 0.25 }}rem;    /* Extra Small */
+  --space-sm: {{ settings.space_sm | default: 0.5 }}rem;     /* Small */
+  --space-md: {{ settings.space_md | default: 1 }}rem;       /* Medium */
+  --space-lg: {{ settings.space_lg | default: 1.5 }}rem;     /* Large */
+  --space-xl: {{ settings.space_xl | default: 2 }}rem;       /* Extra Large */
+  --space-2xl: {{ settings.space_2xl | default: 3 }}rem;     /* 2X Large */
+  --space-3xl: {{ settings.space_3xl | default: 4 }}rem;     /* 3X Large */
+  --space-4xl: {{ settings.space_4xl | default: 5 }}rem;     /* 4X Large */
+  --space-5xl: {{ settings.space_5xl | default: 6 }}rem;     /* 5X Large */
+  
+  /* Numbered Spacing Scale (mapped to semantic spacing for consistency) */
+  --space-0: 0;
+  --space-1: var(--space-xs);     /* 4px - Extra Small */
+  --space-2: var(--space-sm);     /* 8px - Small */
+  --space-3: 0.75rem;             /* 12px - Between small and medium */
+  --space-4: var(--space-md);     /* 16px - Medium */
+  --space-5: 1.25rem;             /* 20px - Between medium and large */
+  --space-6: var(--space-lg);     /* 24px - Large */
+  --space-8: var(--space-xl);     /* 32px - Extra Large */
+  --space-10: 2.5rem;             /* 40px - Between xl and 2xl */
+  --space-12: var(--space-2xl);   /* 48px - 2X Large */
+  --space-16: var(--space-3xl);   /* 64px - 3X Large */
+  --space-20: var(--space-4xl);   /* 80px - 4X Large */
+  --space-24: var(--space-5xl);   /* 96px - 5X Large */
+
+  /* ===== COLORS ===== */
+  
+  /* Primitive Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  
+  /* Neutral Palette */
+  --color-neutral-darkest: #000000;
+  --color-neutral-darker: #191919;
+  --color-neutral-dark: #4c4c4c;
+  --color-neutral: #7f7f7f;
+  --color-neutral-light: #b2b2b2;
+  --color-neutral-lighter: #d8d8d8;
+  --color-neutral-lightest: #f2f2f2;
+  
+  /* Pampas (Warm Neutral) Palette */
+  --color-pampas-darkest: #484745;
+  --color-pampas-darker: #605f5d;
+  --color-pampas-dark: #c0bfba;
+  --color-pampas: #f1efe9;
+  --color-pampas-light: #f5f3ef;
+  --color-pampas-lighter: #fcfbfa;
+  --color-pampas-lightest: #fdfdfc;
+  
+  /* Dodger Blue Palette */
+  --color-blue-darkest: #13354c;
+  --color-blue-darker: #1a4666;
+  --color-blue-dark: #348dcc;
+  --color-blue: #42b1ff;
+  --color-blue-light: #7ac8ff;
+  --color-blue-lighter: #d9efff;
+  --color-blue-lightest: #ecf7ff;
+  
+  /* Lavender (Purple) Palette */
+  --color-lavender-darkest: #3c2744;
+  --color-lavender-darker: #50355b;
+  --color-lavender-dark: #a06ab7;
+  --color-lavender: #c985e5;
+  --color-lavender-light: #d9a9ec;
+  --color-lavender-lighter: #f4e6f9;
+  --color-lavender-lightest: #f9f2fc;
+  
+  /* Ocean Green Palette */
+  --color-green-darkest: #143622;
+  --color-green-darker: #1b482e;
+  --color-green-dark: #36905c;
+  --color-green: #44b574;
+  --color-green-light: #7ccb9d;
+  --color-green-lighter: #d9f0e3;
+  --color-green-lightest: #ecf7f1;
+  
+  /* Semantic Colors */
+  --color-primary: #42b1ff;
+  --color-secondary: #44b574;
+  --color-tertiary: #c985e5;
+  --color-quaternary: #f79009;
+
+  --color-success: #44b574;
+  --color-warning: #f79009;
+  --color-error: #e65561;
+  --color-info: #42b1ff;
+  
+  /* ===== OPACITY VARIANTS ===== */
+  
+  /* White Opacity */
+  --opacity-white-5: #ffffff0d;    /* 5% */
+  --opacity-white-10: #ffffff1a;   /* 10% */
+  --opacity-white-15: #ffffff26;   /* 15% */
+  --opacity-white-20: #ffffff33;   /* 20% */
+  --opacity-white-30: #ffffff4d;   /* 30% */
+  --opacity-white-40: #ffffff66;   /* 40% */
+  --opacity-white-50: #ffffff80;   /* 50% */
+  --opacity-white-60: #ffffff99;   /* 60% */
+  
+  /* Black Opacity */
+  --opacity-black-5: #0000000d;    /* 5% */
+  --opacity-black-10: #0000001a;   /* 10% */
+  --opacity-black-15: #00000026;   /* 15% */
+  --opacity-black-20: #00000033;   /* 20% */
+  --opacity-black-30: #0000004d;   /* 30% */
+  --opacity-black-40: #00000066;   /* 40% */
+  --opacity-black-50: #00000080;   /* 50% */
+  --opacity-black-60: #00000099;   /* 60% */
+  
+  /* ===== SPACING ===== */
+  
+  /* Base Spacing Scale */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;   /* 2px */
+  --space-1: 0.25rem;      /* 4px */
+  --space-1-5: 0.375rem;   /* 6px */
+  --space-2: 0.5rem;       /* 8px */
+  --space-2-5: 0.625rem;   /* 10px */
+  --space-3: 0.75rem;      /* 12px */
+  --space-3-5: 0.875rem;   /* 14px */
+  --space-4: 1rem;         /* 16px */
+  --space-5: 1.25rem;      /* 20px */
+  --space-6: 1.5rem;       /* 24px */
+  --space-7: 1.75rem;      /* 28px */
+  --space-8: 2rem;         /* 32px */
+  --space-9: 2.25rem;      /* 36px */
+  --space-10: 2.5rem;      /* 40px */
+  --space-11: 2.75rem;     /* 44px */
+  --space-12: 3rem;        /* 48px */
+  --space-14: 3.5rem;      /* 56px */
+  --space-16: 4rem;        /* 64px */
+  --space-20: 5rem;        /* 80px */
+  --space-24: 6rem;        /* 96px */
+  --space-28: 7rem;        /* 112px */
+  --space-32: 8rem;        /* 128px */
+  
+  /* Semantic Spacing */
+  --space-section: var(--space-16);
+  --space-component: var(--space-8);
+  --space-element: var(--space-4);
+  --space-inline: var(--space-2);
+  
+  /* ===== BORDER & RADIUS ===== */
+  
+  /* Border Widths */
+  --border-0: 0px;
+  --border-1: 1px;
+  --border-2: 2px;
+  --border-3: 3px;
+  --border-4: 4px;
+  --border-5: 5px;
+  
+  /* Border Radius - Static fallbacks (theme-connected versions defined above) */
+  
+  /* UI Radius (from existing design) */
+  --radius-small: 16px;
+  --radius-medium: 16px;
+  --radius-large: 16px;
+  
+  /* ===== LAYOUT & GRID ===== */
+  
+  /* Container Widths */
+  --container-xs: 20rem;     /* 320px */
+  --container-sm: 24rem;     /* 384px */
+  --container-md: 28rem;     /* 448px */
+  --container-lg: 32rem;     /* 512px */
+  --container-xl: 36rem;     /* 576px */
+  --container-2xl: 42rem;    /* 672px */
+  --container-3xl: 48rem;    /* 768px */
+  --container-4xl: 56rem;    /* 896px */
+  --container-5xl: 64rem;    /* 1024px */
+  --container-6xl: 72rem;    /* 1152px */
+  --container-7xl: 80rem;    /* 1280px */
+  
+  /* Webflow Container */
+  --container-webflow: 940px;
+  
+  /* Grid Gaps */
+  --gap-0: 0;
+  --gap-1: 0.25rem;    /* 4px */
+  --gap-2: 0.5rem;     /* 8px */
+  --gap-3: 0.75rem;    /* 12px */
+  --gap-4: 1rem;       /* 16px */
+  --gap-5: 1.25rem;    /* 20px */
+  --gap-6: 1.5rem;     /* 24px */
+  --gap-8: 2rem;       /* 32px */
+  --gap-10: 2.5rem;    /* 40px */
+  --gap-12: 3rem;      /* 48px */
+  --gap-16: 4rem;      /* 64px */
+  
+  /* Default Grid Gap (from existing) */
+  --grid-gap: 16px;
+  
+  /* ===== SHADOWS ===== */
+  
+  /* Box Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-2xl: 0 50px 100px -20px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  
+  /* Webflow Badge Shadow */
+  --shadow-webflow-badge: 0 0 0 1px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.1);
+  
+  /* ===== Z-INDEX SCALE ===== */
+  
+  --z-0: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-50: 50;
+  --z-auto: auto;
+  
+  /* Semantic Z-Index */
+  --z-dropdown: 900;
+  --z-sticky: 950;
+  --z-fixed: 1000;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  --z-lightbox: 2000;
+  --z-webflow-badge: 2147483647;
+  
+  /* ===== TRANSITIONS ===== */
+  
+  /* Transition Durations */
+  --duration-75: 75ms;
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-700: 700ms;
+  --duration-1000: 1000ms;
+  
+  /* Transition Timing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Common Transitions */
+  --transition-all: all var(--duration-300) var(--ease-in-out);
+  --transition-colors: color var(--duration-300) var(--ease-in-out), 
+                       background-color var(--duration-300) var(--ease-in-out), 
+                       border-color var(--duration-300) var(--ease-in-out);
+  --transition-opacity: opacity var(--duration-300) var(--ease-in-out);
+  --transition-transform: transform var(--duration-300) var(--ease-in-out);
+  
+  /* ===== BREAKPOINTS ===== */
+  
+  /* Note: CSS custom properties can't be used in media queries, */
+  /* but these can be referenced in documentation or JS */
+  --breakpoint-xs: 475px;   /* Extra small devices */
+  --breakpoint-sm: 640px;   /* Small devices */
+  --breakpoint-md: 768px;   /* Medium devices */
+  --breakpoint-lg: 1024px;  /* Large devices */
+  --breakpoint-xl: 1280px;  /* Extra large devices */
+  --breakpoint-2xl: 1536px; /* 2X Large devices */
+  
+  /* Webflow Breakpoints */
+  --breakpoint-tablet: 991px;
+  --breakpoint-mobile-landscape: 767px;
+  --breakpoint-mobile-portrait: 479px;
+}
+
+/* ===== COLOR SCHEMES ===== */
+
+/* Light Theme (Default) */
+:root {
+  --scheme-background: var(--color-white);
+  --scheme-foreground: var(--color-neutral-lightest);
+  --scheme-text: var(--color-neutral-darkest);
+  --scheme-text-muted: var(--color-neutral-dark);
+  --scheme-border: var(--opacity-black-15);
+  --scheme-accent: var(--color-neutral-darkest);
+}
+
+/* Color Scheme 1: Default Light */
+:root {
+  --scheme-1-background: var(--color-white);
+  --scheme-1-foreground: var(--color-neutral-lightest);
+  --scheme-1-text: var(--color-neutral-darkest);
+  --scheme-1-border: var(--opacity-black-15);
+  --scheme-1-accent: var(--color-neutral-darkest);
+}
+
+/* Color Scheme 2: Warm Light */
+:root {
+  --scheme-2-background: var(--color-pampas-light);
+  --scheme-2-foreground: var(--color-pampas);
+  --scheme-2-text: var(--color-neutral-darkest);
+  --scheme-2-border: var(--opacity-black-15);
+  --scheme-2-accent: var(--color-neutral-darkest);
+}
+
+/* Color Scheme 3: Lavender Dark */
+:root {
+  --scheme-3-background: var(--color-lavender-darker);
+  --scheme-3-foreground: var(--color-lavender-darkest);
+  --scheme-3-text: var(--color-white);
+  --scheme-3-border: var(--opacity-white-20);
+  --scheme-3-accent: var(--color-pampas);
+}
+
+/* Color Scheme 4: Neutral Dark */
+:root {
+  --scheme-4-background: var(--color-neutral-darker);
+  --scheme-4-foreground: var(--color-neutral-darkest);
+  --scheme-4-text: var(--color-white);
+  --scheme-4-border: var(--opacity-white-20);
+  --scheme-4-accent: var(--color-pampas);
+}
+
+/* Color Scheme 5: Lavender Medium */
+:root {
+  --scheme-5-background: var(--color-lavender-dark);
+  --scheme-5-foreground: var(--color-lavender);
+  --scheme-5-text: var(--color-white);
+  --scheme-5-border: var(--opacity-white-20);
+  --scheme-5-accent: var(--color-pampas);
+}

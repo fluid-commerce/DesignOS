@@ -1,0 +1,59 @@
+<div class="pagination flex align-center mt-12 gap-3">
+  <div class="pagination-summary flex align-center gap-1 flex-wrap">
+    Showing
+    <span>{{ paginate.current_offset}} </span>to<span> {{ paginate.end_offset }} </span>of<span> {{pagination.total_count}}</span> results
+  </div>
+  <div class="flex justify-end flex-1">
+    <nav
+      class="pagination-list flex justify-end align-center"
+    >
+      {%- if paginate.previous -%}
+        <a href="{{ paginate.previous.url }}{{ anchor }}" class="pagination-prev pagination-arrow">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="7"
+              height="11"
+              viewBox="0 0 7 11"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.03325 1.16465C6.1737 1.30528 6.25259 1.4959 6.25259 1.69465C6.25259 1.8934 6.1737 2.08403 6.03325 2.22465L2.31325 5.94465L6.03325 9.66465C6.10693 9.73331 6.16604 9.81612 6.20703 9.90811C6.24802 10.0001 6.27006 10.0994 6.27184 10.2001C6.27361 10.3008 6.25509 10.4009 6.21737 10.4943C6.17965 10.5876 6.1235 10.6725 6.05228 10.7437C5.98107 10.8149 5.89623 10.8711 5.80284 10.9088C5.70946 10.9465 5.60943 10.965 5.50872 10.9632C5.40802 10.9615 5.30871 10.9394 5.21671 10.8984C5.12471 10.8574 5.04191 10.7983 4.97325 10.7247L0.723246 6.47465C0.582796 6.33403 0.503906 6.1434 0.503906 5.94465C0.503906 5.7459 0.582796 5.55528 0.723246 5.41465L4.97325 1.16465C5.11387 1.0242 5.3045 0.945312 5.50325 0.945312C5.702 0.945312 5.89262 1.0242 6.03325 1.16465Z"
+                fill="black"
+              />
+            </svg>
+        </a>
+      {% endif %}
+      {%- for part in paginate.parts -%}
+        {%- if part.is_link -%}
+          <a href="{{ part.url }}{{ anchor }}">{{- part.title -}}</a>
+        {%- else -%}
+          {%- if part.title == paginate.current_page -%}
+            <a href="#" class="is-active">{{- part.title -}}</a>
+          {%- else -%}
+            <a href="#">...</a>
+          {%- endif -%}
+        {%- endif-%}
+      {% endfor %}
+      {%- if paginate.next -%}
+        <a href="{{ paginate.next.url }}{{ anchor }}" class="pagination-next pagination-arrow">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="7"
+              height="11"
+              viewBox="0 0 7 11"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.03325 1.16465C6.1737 1.30528 6.25259 1.4959 6.25259 1.69465C6.25259 1.8934 6.1737 2.08403 6.03325 2.22465L2.31325 5.94465L6.03325 9.66465C6.10693 9.73331 6.16604 9.81612 6.20703 9.90811C6.24802 10.0001 6.27006 10.0994 6.27184 10.2001C6.27361 10.3008 6.25509 10.4009 6.21737 10.4943C6.17965 10.5876 6.1235 10.6725 6.05228 10.7437C5.98107 10.8149 5.89623 10.8711 5.80284 10.9088C5.70946 10.9465 5.60943 10.965 5.50872 10.9632C5.40802 10.9615 5.30871 10.9394 5.21671 10.8984C5.12471 10.8574 5.04191 10.7983 4.97325 10.7247L0.723246 6.47465C0.582796 6.33403 0.503906 6.1434 0.503906 5.94465C0.503906 5.7459 0.582796 5.55528 0.723246 5.41465L4.97325 1.16465C5.11387 1.0242 5.3045 0.945312 5.50325 0.945312C5.702 0.945312 5.89262 1.0242 6.03325 1.16465Z"
+                fill="black"
+              />
+            </svg>
+        </a>
+      {%- endif -%}
+    </nav>
+  </div>
+</div>

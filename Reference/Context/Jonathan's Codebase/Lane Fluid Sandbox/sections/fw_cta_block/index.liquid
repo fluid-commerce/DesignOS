@@ -1,0 +1,864 @@
+<link rel="stylesheet" href="{{ 'fw_cta_block/styles.css' | asset_url }}">
+
+<section class="fw-cta-block {{ section.settings.background_color }} {{ section.settings.section_padding_y_mobile }} {{ section.settings.section_padding_y_desktop }} {{ section.settings.section_border_radius }}"
+  {% if section.settings.background_image != blank %}data-bg="{{ section.settings.background_image | image_url }}"{% endif %}>
+
+  {% if section.settings.show_decorations %}
+  <div class="fw-cta-block__decorations" aria-hidden="true">
+    {% if section.settings.decoration_image_1 != blank %}
+    <img src="{{ section.settings.decoration_image_1 | image_url }}" alt="" class="fw-cta-block__decoration fw-cta-block__decoration--1">
+    {% endif %}
+    {% if section.settings.decoration_image_2 != blank %}
+    <img src="{{ section.settings.decoration_image_2 | image_url }}" alt="" class="fw-cta-block__decoration fw-cta-block__decoration--2">
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if section.settings.bg_decoration_image != blank %}
+  <img src="{{ section.settings.bg_decoration_image | image_url }}" alt="" class="fw-cta-block__bg-decoration" aria-hidden="true">
+  {% endif %}
+
+  <div class="fw-cta-block__container {{ section.settings.container_background_color }} {{ section.settings.container_border_radius }} {{ section.settings.container_padding_y_mobile }} {{ section.settings.container_padding_y_desktop }} {{ section.settings.container_padding_x_mobile }} {{ section.settings.container_padding_x_desktop }}"
+    {% if section.settings.container_background_image != blank %}data-bg="{{ section.settings.container_background_image | image_url }}"{% endif %}>
+
+    <div class="fw-cta-block__content {{ section.settings.text_alignment }} {{ section.settings.content_max_width }}">
+
+      {% if section.settings.eyebrow != blank %}
+      <p class="fw-cta-block__eyebrow {{ section.settings.eyebrow_font_family }} {{ section.settings.eyebrow_font_size }} {{ section.settings.eyebrow_font_size_desktop }} {{ section.settings.eyebrow_font_weight }} {{ section.settings.eyebrow_color }}">
+        {{ section.settings.eyebrow }}
+      </p>
+      {% endif %}
+
+      {% if section.settings.headline != blank %}
+      <h2 class="fw-cta-block__headline {{ section.settings.headline_font_family }} {{ section.settings.headline_font_size }} {{ section.settings.headline_font_size_desktop }} {{ section.settings.headline_font_weight }} {{ section.settings.headline_color }}">
+        {{ section.settings.headline }}
+      </h2>
+      {% endif %}
+
+      {% if section.settings.body != blank %}
+      <div class="fw-cta-block__body {{ section.settings.body_font_family }} {{ section.settings.body_font_size }} {{ section.settings.body_font_size_desktop }} {{ section.settings.body_font_weight }} {{ section.settings.body_color }}">
+        {{ section.settings.body }}
+      </div>
+      {% endif %}
+
+      <div class="fw-cta-block__buttons {% if section.settings.text_alignment == 'text-center' %}fw-cta-block__buttons--center{% endif %}">
+        {% if section.settings.show_button_one %}
+        <a href="{{ section.settings.button_one_url | default: '#' }}"
+           class="btn btn-{{ section.settings.button_one_style | default: 'filled' }}-{{ section.settings.button_one_color | default: 'primary' }} {{ section.settings.button_one_size | default: 'btn-md' }} {{ section.settings.button_one_font_weight | default: 'font-medium' }}">
+          {{ section.settings.button_one_text | default: 'Learn More' }}
+        </a>
+        {% endif %}
+
+        {% if section.settings.show_button_two %}
+        <a href="{{ section.settings.button_two_url | default: '#' }}"
+           class="btn btn-{{ section.settings.button_two_style | default: 'ghost' }}-{{ section.settings.button_two_color | default: 'white' }} {{ section.settings.button_two_size | default: 'btn-md' }} {{ section.settings.button_two_font_weight | default: 'font-medium' }}">
+          {{ section.settings.button_two_text | default: 'Book a Demo' }}
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "FW CTA Block",
+  "tag": "section",
+  "class": "fw-cta-block-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow Text",
+      "default": "Switching doesn't have to be scary"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_family",
+      "label": "Eyebrow Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-handwritten"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size",
+      "label": "Eyebrow Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_size_desktop",
+      "label": "Eyebrow Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_font_weight",
+      "label": "Eyebrow Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "eyebrow_color",
+      "label": "Eyebrow Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-primary"
+    },
+
+    {
+      "type": "header",
+      "content": "Headline"
+    },
+    {
+      "type": "textarea",
+      "id": "headline",
+      "label": "Headline Text",
+      "default": "We'll get you live in one week. Not 90 days. One week."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_family",
+      "label": "Headline Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size",
+      "label": "Headline Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-3xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_size_desktop",
+      "label": "Headline Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Headline Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-primary"
+    },
+
+    {
+      "type": "header",
+      "content": "Body"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body Text",
+      "default": "<p>Blitz Week is an intensive 4-day launch at our headquarters in Lehi, Utah. You leave with your platform live. Fully configured. Production-ready. For partners on a 3-year agreement — it's 100% free.</p>"
+    },
+    {
+      "type": "select",
+      "id": "body_font_family",
+      "label": "Body Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "body_font_size",
+      "label": "Body Font Size (Mobile)",
+      "options": [
+        { "value": "text-xs", "label": "XS" },
+        { "value": "text-sm", "label": "SM" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "LG" },
+        { "value": "text-xl", "label": "XL" },
+        { "value": "text-2xl", "label": "2XL" },
+        { "value": "text-3xl", "label": "3XL" },
+        { "value": "text-4xl", "label": "4XL" },
+        { "value": "text-5xl", "label": "5XL" },
+        { "value": "text-6xl", "label": "6XL" },
+        { "value": "text-7xl", "label": "7XL" },
+        { "value": "text-8xl", "label": "8XL" },
+        { "value": "text-9xl", "label": "9XL" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "body_font_size_desktop",
+      "label": "Body Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-xs", "label": "XS" },
+        { "value": "lg:text-sm", "label": "SM" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "LG" },
+        { "value": "lg:text-xl", "label": "XL" },
+        { "value": "lg:text-2xl", "label": "2XL" },
+        { "value": "lg:text-3xl", "label": "3XL" },
+        { "value": "lg:text-4xl", "label": "4XL" },
+        { "value": "lg:text-5xl", "label": "5XL" },
+        { "value": "lg:text-6xl", "label": "6XL" },
+        { "value": "lg:text-7xl", "label": "7XL" },
+        { "value": "lg:text-8xl", "label": "8XL" },
+        { "value": "lg:text-9xl", "label": "9XL" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "body_font_weight",
+      "label": "Body Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "body_color",
+      "label": "Body Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-primary"
+    },
+
+    {
+      "type": "header",
+      "content": "Content Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "text-left", "label": "Left" },
+        { "value": "text-center", "label": "Center" }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "content_max_width",
+      "label": "Content Max Width",
+      "options": [
+        { "value": "max-w-3xl", "label": "3XL (768px)" },
+        { "value": "max-w-4xl", "label": "4XL (896px)" },
+        { "value": "max-w-5xl", "label": "5XL (1024px)" },
+        { "value": "max-w-6xl", "label": "6XL (1152px)" },
+        { "value": "max-w-7xl", "label": "7XL (1280px)" },
+        { "value": "max-w-full", "label": "Full Width" }
+      ],
+      "default": "max-w-4xl"
+    },
+
+    {
+      "type": "header",
+      "content": "Button One"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_one",
+      "label": "Show Button One",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_one_text",
+      "label": "Button One Text",
+      "default": "Learn About Blitz Week"
+    },
+    {
+      "type": "url",
+      "id": "button_one_url",
+      "label": "Button One URL"
+    },
+    {
+      "type": "select",
+      "id": "button_one_style",
+      "label": "Button One Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "ghost", "label": "Ghost" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "button_one_color",
+      "label": "Button One Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "button_one_size",
+      "label": "Button One Size",
+      "options": [
+        { "value": "btn-xs", "label": "XS" },
+        { "value": "btn-sm", "label": "SM" },
+        { "value": "btn-md", "label": "MD" },
+        { "value": "btn-lg", "label": "LG" },
+        { "value": "btn-xl", "label": "XL" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "select",
+      "id": "button_one_font_weight",
+      "label": "Button One Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+
+    {
+      "type": "header",
+      "content": "Button Two"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_two",
+      "label": "Show Button Two",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_two_text",
+      "label": "Button Two Text",
+      "default": "Book a Demo First →"
+    },
+    {
+      "type": "url",
+      "id": "button_two_url",
+      "label": "Button Two URL"
+    },
+    {
+      "type": "select",
+      "id": "button_two_style",
+      "label": "Button Two Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "ghost", "label": "Ghost" }
+      ],
+      "default": "ghost"
+    },
+    {
+      "type": "select",
+      "id": "button_two_color",
+      "label": "Button Two Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "button_two_size",
+      "label": "Button Two Size",
+      "options": [
+        { "value": "btn-xs", "label": "XS" },
+        { "value": "btn-sm", "label": "SM" },
+        { "value": "btn-md", "label": "MD" },
+        { "value": "btn-lg", "label": "LG" },
+        { "value": "btn-xl", "label": "XL" }
+      ],
+      "default": "btn-lg"
+    },
+    {
+      "type": "select",
+      "id": "button_two_font_weight",
+      "label": "Button Two Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semibold" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-medium"
+    },
+
+    {
+      "type": "header",
+      "content": "Decorative Elements"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_decorations",
+      "label": "Show Decorative Brush Strokes",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "decoration_image_1",
+      "label": "Decoration Image 1",
+      "info": "Brush stroke overlay (top-right area)"
+    },
+    {
+      "type": "image_picker",
+      "id": "decoration_image_2",
+      "label": "Decoration Image 2",
+      "info": "Brush stroke overlay (bottom-left area)"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_decoration_image",
+      "label": "Background Decoration Image",
+      "info": "Ghost brush stroke overlay spanning the full section (low opacity)"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-quaternary"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "bg-transparent", "label": "Transparent" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "bg-transparent"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "SM" },
+        { "value": "rounded", "label": "Default" },
+        { "value": "rounded-md", "label": "MD" },
+        { "value": "rounded-lg", "label": "LG" },
+        { "value": "rounded-xl", "label": "XL" },
+        { "value": "rounded-2xl", "label": "2XL" },
+        { "value": "rounded-3xl", "label": "3XL" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "XS" },
+        { "value": "py-sm", "label": "SM" },
+        { "value": "py-md", "label": "MD" },
+        { "value": "py-lg", "label": "LG" },
+        { "value": "py-xl", "label": "XL" },
+        { "value": "py-2xl", "label": "2XL" },
+        { "value": "py-3xl", "label": "3XL" }
+      ],
+      "default": "py-md"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "XS" },
+        { "value": "lg:py-sm", "label": "SM" },
+        { "value": "lg:py-md", "label": "MD" },
+        { "value": "lg:py-lg", "label": "LG" },
+        { "value": "lg:py-xl", "label": "XL" },
+        { "value": "lg:py-2xl", "label": "2XL" },
+        { "value": "lg:py-3xl", "label": "3XL" }
+      ],
+      "default": "lg:py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "XS" },
+        { "value": "px-sm", "label": "SM" },
+        { "value": "px-md", "label": "MD" },
+        { "value": "px-lg", "label": "LG" },
+        { "value": "px-xl", "label": "XL" },
+        { "value": "px-2xl", "label": "2XL" },
+        { "value": "px-3xl", "label": "3XL" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "XS" },
+        { "value": "lg:px-sm", "label": "SM" },
+        { "value": "lg:px-md", "label": "MD" },
+        { "value": "lg:px-lg", "label": "LG" },
+        { "value": "lg:px-xl", "label": "XL" },
+        { "value": "lg:px-2xl", "label": "2XL" },
+        { "value": "lg:px-3xl", "label": "3XL" }
+      ],
+      "default": "lg:px-3xl"
+    }
+  ],
+  "presets": [
+    {
+      "name": "FW CTA Block - Blitz Week",
+      "settings": {
+        "eyebrow": "Switching doesn't have to be scary",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-primary",
+        "headline": "We'll get you live in one week. Not 90 days. One week.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-5xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-primary",
+        "body": "<p>Blitz Week is an intensive 4-day launch at our headquarters in Lehi, Utah. You leave with your platform live. Fully configured. Production-ready. For partners on a 3-year agreement — it's 100% free.</p>",
+        "body_font_family": "font-body",
+        "body_font_size": "text-base",
+        "body_font_size_desktop": "lg:text-lg",
+        "body_font_weight": "font-normal",
+        "body_color": "text-primary",
+        "text_alignment": "text-center",
+        "content_max_width": "max-w-4xl",
+        "show_button_one": true,
+        "button_one_text": "Learn About Blitz Week",
+        "button_one_style": "filled",
+        "button_one_color": "primary",
+        "button_one_size": "btn-lg",
+        "button_one_font_weight": "font-medium",
+        "show_button_two": true,
+        "button_two_text": "Book a Demo First →",
+        "button_two_style": "ghost",
+        "button_two_color": "primary",
+        "button_two_size": "btn-lg",
+        "button_two_font_weight": "font-medium",
+        "show_decorations": false,
+        "background_color": "bg-quaternary",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-xl",
+        "container_padding_x_mobile": "px-lg",
+        "container_padding_x_desktop": "lg:px-3xl"
+      }
+    },
+    {
+      "name": "FW CTA Block - Closing CTA",
+      "settings": {
+        "eyebrow": "Ready to stop fighting your technology?",
+        "eyebrow_font_family": "font-handwritten",
+        "eyebrow_font_size": "text-lg",
+        "eyebrow_font_size_desktop": "lg:text-2xl",
+        "eyebrow_font_weight": "font-normal",
+        "eyebrow_color": "text-info",
+        "headline": "The fastest-growing direct selling companies have already figured this out.",
+        "headline_font_family": "font-primary",
+        "headline_font_size": "text-3xl",
+        "headline_font_size_desktop": "lg:text-5xl",
+        "headline_font_weight": "font-bold",
+        "headline_color": "text-white",
+        "body": "<p>The gap between leaders and laggards is widening every quarter. Your competitors are launching campaigns in hours while you're waiting 90 days for IT.</p>",
+        "body_font_family": "font-body",
+        "body_font_size": "text-base",
+        "body_font_size_desktop": "lg:text-lg",
+        "body_font_weight": "font-normal",
+        "body_color": "text-neutral",
+        "text_alignment": "text-center",
+        "content_max_width": "max-w-4xl",
+        "show_button_one": true,
+        "button_one_text": "Book a Demo",
+        "button_one_style": "filled",
+        "button_one_color": "white",
+        "button_one_size": "btn-lg",
+        "button_one_font_weight": "font-medium",
+        "show_button_two": true,
+        "button_two_text": "Read the We-Commerce Manifesto →",
+        "button_two_style": "ghost",
+        "button_two_color": "white",
+        "button_two_size": "btn-lg",
+        "button_two_font_weight": "font-medium",
+        "show_decorations": false,
+        "background_color": "bg-black",
+        "section_padding_y_mobile": "py-xl",
+        "section_padding_y_desktop": "lg:py-3xl",
+        "section_border_radius": "rounded-none",
+        "container_background_color": "bg-transparent",
+        "container_border_radius": "rounded-none",
+        "container_padding_y_mobile": "py-md",
+        "container_padding_y_desktop": "lg:py-xl",
+        "container_padding_x_mobile": "px-lg",
+        "container_padding_x_desktop": "lg:px-3xl"
+      }
+    }
+  ]
+}
+{% endschema %}

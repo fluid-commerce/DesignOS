@@ -1,0 +1,1064 @@
+{%- style -%}
+  /* NAVBAR/HEADER */
+  header.site-header {
+    padding: {{ section.settings.navbar_vertical_padding_mobile }}px 0;
+  }
+
+  @media screen and (min-width: 768px) {
+    header.site-header {
+      padding: {{ section.settings.navbar_vertical_padding_desktop }}px 0;
+    }
+  }
+  {%- if section.settings.reset_navbar_bg_color != true -%}
+    header.site-header:not(.is-floating) {
+      background-color: {{ section.settings.navbar_bg_color }};
+    }
+    header.site-header.is-sticky {
+      background-color: {{ section.settings.sticky_navbar_bg_color }};
+    }
+  {%- endif -%}
+    header.site-header.is-sticky {
+      border-bottom-width: {{ section.settings.navbar_border_width }}px !important;
+    }
+  {%- if section.settings.reset_navbar_border_color != true  -%}
+    header.site-header.is-sticky{
+      border-color: {{ section.settings.navbar_border_color }} !important;
+    }
+  {%- endif -%}
+
+  /* Navbar Text Color */
+  {%- if section.settings.reset_navbar_text_color != true and section.settings.navbar_text_color != blank -%}
+    .site-header:not(.is-floating),
+    .site-header .primary-menu a,
+    .site-header .primary-menu a:hover{
+      color: {{ section.settings.navbar_text_color }};
+    }
+    .site-header .menu-toggle-button span,
+    .site-header:not(.is-floating) .language-country-selection-section .seperator {
+      background-color:  {{ section.settings.navbar_text_color }};
+    }
+    .site-header:not(.is-floating) .language-country-selection-section {
+      border-color:  {{ section.settings.navbar_text_color }};
+    }
+  {%- endif -%}
+
+  {%- if section.settings.reset_sticky_navbar_text_color != true and section.settings.sticky_navbar_text_color != blank -%}
+    .site-header.is-sticky,
+    .site-header.is-sticky .primary-menu a,
+    .site-header.is-sticky .primary-menu a:hover,
+    .media-header .author-content{
+      color: {{ section.settings.sticky_navbar_text_color }};
+    }
+    .site-header .menu-toggle-button span,
+    header.site-header.is-sticky .language-country-selection-section .seperator {
+      background-color:  {{ section.settings.sticky_navbar_text_color }};
+    }
+    .site-header.is-sticky .language-country-selection-section {
+      border-color: {{ section.settings.stikcy_navbar_text_color }};
+    }
+  {%- endif -%}
+
+  /* Navbar Font Size */
+  header.site-header,
+  header.site-header .language-country-selection-section{
+    font-size: {{ section.settings.navbar_text_size }}px;
+    font-weight: {{ section.settings.navbar_font_weight }};
+  }
+
+  /* SUB MENU */
+  @media (min-width: 991px) {
+    .site-header .primary-menu .menu-has-children .sub-menu {
+      border-width: {{ section.settings.sub_menu_border_width }}px;
+      border-radius: {{ section.settings.sub_menu_border_radius }}px;
+    }
+    {%- if section.settings.reset_sub_menu_bg_color != true and section.settings.sub_menu_bg_color != blank -%}
+      .site-header .primary-menu .menu-has-children .sub-menu {
+        background-color: {{ section.settings.sub_menu_bg_color }};
+      }
+    {%- endif -%}
+
+    {%- if section.settings.reset_sub_menu_border_color != true and section.settings.sub_menu_border_color != blank -%}
+      .site-header .primary-menu .menu-has-children .sub-menu {
+        border-color: {{ section.settings.sub_menu_border_color }};
+      }
+    {%- endif -%}
+
+    {%- if section.settings.reset_sub_menu_text_color != true and section.settings.sub_menu_text_color != blank -%}
+      .site-header .primary-menu .menu-has-children .sub-menu a{
+        color: {{ section.settings.sub_menu_text_color }};
+      }
+    {%- endif -%}
+    .site-header .primary-menu .menu-has-children .sub-menu{
+      font-size: {{ section.settings.sub_menu_text_size }}px;
+      font-weight: {{ section.settings.sub_menu_font_weight }};
+    }
+  }
+  /* LANGUAGE DROPDOWN */
+  {%- if section.settings.reset_lang_bg_color != true and section.settings.lang_bg_color != blank -%}
+    header.site-header ul.language-country-dropdown-menu {
+      background-color: {{ section.settings.lang_bg_color }};
+    }
+  {%- endif -%}
+
+  {%- if section.settings.reset_lang_text_color != true and section.settings.lang_text_color != blank -%}
+    header.site-header ul.language-country-dropdown-menu label{
+      color: {{ section.settings.lang_text_color }};
+    }
+  {%- endif -%}
+
+  header.site-header ul.language-country-dropdown-menu label{
+    font-size: {{ section.settings.lang_text_size }}px;
+  }
+
+  {%- if section.settings.reset_save_and_close_text_color != true and section.settings.save_and_close_text_color != blank -%}
+    header.site-header .saveLocaleBtn{
+      color: {{ section.settings.save_and_close_text_color }};
+    }
+  {%- endif -%}
+  header.site-header .saveLocaleBtn{
+    font-size: {{ section.settings.save_and_close_text_size }}px !important;
+    font-weight: {{ section.settings.save_and_close_font_weight }} !important
+  }
+  /* BUTTON */
+
+  {%- if section.settings.reset_secondary_button_styles != true -%}
+    a.btn.btn-border-primary {
+      border-color: {{ section.settings.secondary_button_border_color }};
+      color: {{ section.settings.secondary_button_text_color }};
+    }
+    .site-header.is-sticky a.btn.btn-border-primary{
+      border-color: {{ section.settings.sticky_secondary_button_border_color }};
+      color: {{ section.settings.sticky_secondary_button_text_color }};
+    }
+  {%- endif -%}
+
+  {%- if section.settings.reset_primary_button_styles != true -%}
+    a.btn.btn-bg-primary {
+      border-color: {{ section.settings.primary_button_bg_color }};
+      background-color: {{ section.settings.primary_button_background_color }};
+      color: {{ section.settings.primary_button_text_color }};
+    }
+    .site-header.is-sticky a.btn.btn-bg-primary {
+      border-color: {{ section.settings.sticky_primary_button_background_color }};
+      background-color: {{ section.settings.sticky_primary_button_background_color }};
+      color: {{ section.settings.sticky_primary_button_text_color }};
+    }
+  {%- endif -%}
+
+{%- endstyle -%}
+
+{% capture feature_buttons %}
+  <a id="show-cart" class="btn btn-outline-primary btn-md {{ settings.button_border_radius | default: 'rounded' }}" href="{{ cart_url }}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+    <span class="cart-count" id="cart-count" data-count="0">0</span>
+  </a>
+  {% if section.settings.show_button_two %}
+    <a href="{{ section.settings.button_two_url | default: '#' }}" 
+       class="btn btn-{{ section.settings.button_two_style | default: 'outline' }}-{{ section.settings.button_two_color | default: 'primary' }} {{ section.settings.button_two_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}"
+       data-floating-style="{{ section.settings.floating_button_two_style | default: 'outline' }}"
+       data-floating-color="{{ section.settings.floating_button_two_color | default: 'primary' }}"
+       data-sticky-style="{{ section.settings.button_two_style | default: 'outline' }}"
+       data-sticky-color="{{ section.settings.button_two_color | default: 'primary' }}">
+      {{ section.settings.button_two_text | default: 'Button 2' }}
+    </a>
+  {% endif %}
+  {% if section.settings.show_button_one %}
+    <a href="{{ section.settings.button_one_url | default: '#' }}" 
+       class="btn btn-{{ section.settings.button_one_style | default: 'filled' }}-{{ section.settings.button_one_color | default: 'primary' }} {{ section.settings.button_one_size | default: 'btn-md' }} {{ settings.button_border_radius | default: 'rounded' }}"
+       data-floating-style="{{ section.settings.floating_button_one_style | default: 'filled' }}"
+       data-floating-color="{{ section.settings.floating_button_one_color | default: 'primary' }}"
+       data-sticky-style="{{ section.settings.button_one_style | default: 'filled' }}"
+       data-sticky-color="{{ section.settings.button_one_color | default: 'primary' }}">
+      {{ section.settings.button_one_text | default: 'Button 1' }}
+    </a>
+  {% endif %}
+{% endcapture %}
+
+{% if request.page_type == 'medium' or request.page_type == 'library' %}
+  {% assign header_class = "media-header is-sticky" %}
+{% elsif   request.page_type == 'home_page' or request.page_type == 'shop_page' or request.page_type == 'collection_page' or request.page_type == 'join_page'%}
+  {% assign header_class = "is-floating" %}
+{% else %}
+  {% assign header_class = "is-sticky" %}
+{% endif %}
+
+<div class='body-overlay' id='body-overlay'></div>
+<div class="transparent-overlay" id="transparent-overlay"></div>
+
+<header class="site-header {{ header_class }} {{ section.settings.background_color | default: 'bg-white' }} {{ section.settings.section_padding_y_mobile | default: 'py-md' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-md' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}">
+  <div class="container">
+    <div class="site-header-wrap">
+      <a href="{{ company.home_page_url }}" class="site-logo">
+        {% if company.logo_url != blank %}
+        <img
+          src="{{ company.logo_url }}"
+          alt="logo"
+        />
+        {% else %}
+          <div class="logo">
+            LOGO
+          </div>
+        {% endif %}
+      </a>
+      <div class="menu-toggle">
+        <div class="menu-toggle-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <div class="menu-wrapper">
+        <nav>
+          <ul class="primary-menu {{ section.settings.nav_font_family | default: 'font-primary' }} {{ section.settings.nav_font_size | default: 'text-base' }} {{ section.settings.nav_font_weight | default: 'font-medium' }} {{ section.settings.nav_text_color | default: 'text-black' }}" 
+              data-floating-color="{{ section.settings.floating_nav_text_color | default: 'text-black' }}" 
+              data-sticky-color="{{ section.settings.nav_text_color | default: 'text-black' }}" 
+              id="primary-nav-menu">
+            {% if section.settings.menu.menu_items.size > 0 %}
+              {% macro nested_menu items, class_name %}
+                  {% for item in items %}
+                    {% if item.sub_menu_items.size > 0 %}
+                        <li class='menu-has-children'>
+                          <a href="#">
+                            {{ item.title }}
+                            <span class="arrow-down">
+                              <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M7.39819 7.16341C7.17851 7.38308 6.82241 7.38308 6.60274 7.16341L0.867876 1.42853C0.648208 1.20886 0.648208 0.852756 0.867876 0.633081L1.13305 0.367881C1.35271 0.148206 1.70887 0.148206 1.92854 0.367881L7.00046 5.43983L12.0724 0.367881C12.2921 0.148206 12.6482 0.148206 12.8679 0.367881L13.1331 0.633081C13.3527 0.852756 13.3527 1.20886 13.1331 1.42853L7.39819 7.16341Z" fill="currentColor"></path>
+                              </svg>
+                            </span>
+                          </a>
+                          <ul class="sub-menu">
+                            {% macro_call nested_menu item.sub_menu_items, 'sub-menu' %}
+                          </ul>
+                        </li>
+                    {% else %}
+                      <li>
+                        <a href='{{ item.url }}'>{{ item.title }}</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+              {% endmacro %}
+              {% macro_call nested_menu section.settings.menu.menu_items, 'menu' %}
+            {% endif %}
+          </ul>
+        </nav>
+        <div class="header-right">
+          <!-- Compact Language/Country Selector -->
+          {% comment %}
+          <div class="compact-locale-selector" id="compact-locale-dropdown">
+            <button class="locale-trigger btn btn-outline-primary btn-md {{ settings.button_border_radius | default: 'rounded' }}" aria-expanded="false">
+              <span class="flag-icon fi fi-{{ current_country_iso }}"></span>
+              <span class="locale-text">{{ current_selected_locale | upcase }}</span>
+              <svg class="dropdown-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            
+            <div class="locale-dropdown-menu" style="opacity: 0 !important; visibility: hidden !important; display: none !important;">
+              <div class="dropdown-header">
+                <h6>Select Region & Language</h6>
+              </div>
+              
+              <ul class="locale-options">
+                <!-- Current Selection -->
+                <li>
+                  <a href="#" class="locale-option active" 
+                     data-country="{{ current_country_iso }}" 
+                     data-language="{{ current_selected_locale }}"
+                     data-country-name="{{ current_country_name }}"
+                     data-language-name="{{ current_language_name }}">
+                    <span class="flag-icon fi fi-{{ current_country_iso }}"></span>
+                    <div class="locale-info">
+                      <span class="country-name">{{ current_country_name }}</span>
+                      <span class="language-name">{{ current_language_name }}</span>
+                    </div>
+                    <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </li>
+                
+                <!-- Other Country Options -->
+                {% for country in countries %}
+                  {% unless country.selected %}
+                    <li>
+                      <a href="#" class="locale-option" 
+                         data-country="{{ country.iso }}" 
+                         data-language="{{ current_selected_locale }}"
+                         data-country-name="{{ country.name }}"
+                         data-language-name="{{ current_language_name }}">
+                        <span class="flag-icon fi fi-{{ country.iso }}"></span>
+                        <div class="locale-info">
+                          <span class="country-name">{{ country.name }}</span>
+                          <span class="language-name">{{ current_language_name }}</span>
+                        </div>
+                      </a>
+                    </li>
+                  {% endunless %}
+                {% endfor %}
+                
+                <!-- Language Options for Current Country -->
+                {% for language in language_options %}
+                  {% unless language.selected %}
+                    <li>
+                      <a href="#" class="locale-option" 
+                         data-country="{{ current_country_iso }}" 
+                         data-language="{{ language.iso }}"
+                         data-country-name="{{ current_country_name }}"
+                         data-language-name="{{ language.locale }}">
+                        <span class="flag-icon fi fi-{{ current_country_iso }}"></span>
+                        <div class="locale-info">
+                          <span class="country-name">{{ current_country_name }}</span>
+                          <span class="language-name">{{ language.locale }}</span>
+                        </div>
+                      </a>
+                    </li>
+                  {% endunless %}
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endcomment %}
+          {{ feature_buttons }}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Immediate FOUC Prevention -->
+<style>
+  .primary-menu .menu-has-children .sub-menu,
+  .locale-dropdown-menu {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    display: none !important;
+  }
+</style>
+
+
+<div class="mobile-menu-section" id="mobile-menu-section">
+  <div class="header-section">
+    <div class="logo-section">
+      <a href="{{ company.home_page_url }}" class="site-logo">
+        {% if company.logo_url != blank %}
+          <img
+            src="{{ company.logo_url }}"
+            alt="logo"
+          />
+          {% else %}
+            <div class="logo">
+              LOGO
+            </div>
+          {% endif %}
+      </a>
+    </div>
+    <div class="flex align-center gap-3">
+      <div class="language-country-section flex align-center gap-3" id="show-language-and-country">
+        <div class="country-section flex gap-3 align-center">
+        </div>
+
+        <div class="flex gap-3 align-center">
+        </div>
+      </div>
+      <div class="close-icon-section">
+        <span class="menu-close" id="close-mobile-menu">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M16.192 6.34424L11.949 10.5862L7.70697 6.34424L6.29297 7.75824L10.535 12.0002L6.29297 16.2422L7.70697 17.6562L11.949 13.4142L16.192 17.6562L17.606 16.2422L13.364 12.0002L17.606 7.75824L16.192 6.34424Z"
+              fill="black"
+            />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class='mobile-menu-container' id='mobile-menu-wrapper'></div>
+    <div class="button-section">
+      {{ feature_buttons }}
+    </div>
+  </div>
+
+</div>
+{% comment %} Mobile View:Language and country selection {%endcomment%}
+<div class="mobile-country-language-section custom-vertical-scrollbar locale-selector" id="mobile-country-language">
+  <div class="content-wrapper custom-vertical-scrollbar">
+    <div class="header-section">
+      <div class="arrow" id="close-language-and-country">
+        <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0.769531 7.88281C0.59375 7.70703 0.523438 7.49609 0.523438 7.25C0.523438 7.03906 0.59375 6.82812 0.769531 6.65234L6.95703 0.746094C7.30859 0.429688 7.83594 0.429688 8.15234 0.78125C8.46875 1.09766 8.46875 1.66016 8.11719 1.97656L3.44141 6.40625H15.4297C15.8867 6.40625 16.2734 6.79297 16.2734 7.25C16.2734 7.74219 15.8867 8.09375 15.4297 8.09375H3.44141L8.11719 12.5586C8.46875 12.875 8.46875 13.4023 8.15234 13.7539C7.83594 14.1055 7.30859 14.1055 6.95703 13.7891L0.769531 7.88281Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <h5>{{ 'navbar.country_and_language' | t }}</h5>
+    </div>
+
+    <ul class="country-tab-section tab-menu">
+      <li class="tab-item tab-menu-item active" id="country">
+        <div class="item-header">{{ 'navbar.country' | t }}</div>
+        <div class="caption-with-icon flex align-center justify-center gap-2">
+          <span class="flag-icon flag-icon-sm fi fi-{{ current_country_iso }}"></span>
+          <span class="country-name caption">{{ current_country_iso | upcase }}</span>
+        </div>
+      </li>
+      <li class="tab-item tab-menu-item" id="language">
+        <div class="item-header">{{ 'navbar.language' | t }}</div>
+        <div class="language-name caption">{{ current_selected_locale | upcase }}</div>
+      </li>
+    </ul>
+
+    <ul class="country-tab-content tab-content">
+      <li class="country-content active">
+        <div class="horizontal-spacing">
+          <div class="search-section search-layout-1">
+            <span class="search-icon">
+              <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3359 8.00781C13.3359 6.00391 12.2461 4.17578 10.5234 3.15625C8.76562 2.13672 6.62109 2.13672 4.89844 3.15625C3.14062 4.17578 2.08594 6.00391 2.08594 8.00781C2.08594 10.0469 3.14062 11.875 4.89844 12.8945C6.62109 13.9141 8.76562 13.9141 10.5234 12.8945C12.2461 11.875 13.3359 10.0469 13.3359 8.00781ZM12.2461 13.7734C10.9805 14.7578 9.39844 15.3203 7.71094 15.3203C3.66797 15.3203 0.398438 12.0508 0.398438 8.00781C0.398438 4 3.66797 0.695312 7.71094 0.695312C11.7188 0.695312 15.0234 4 15.0234 8.00781C15.0234 9.73047 14.4258 11.3125 13.4414 12.5781L18.1523 17.2539C18.4688 17.6055 18.4688 18.1328 18.1523 18.4492C17.8008 18.8008 17.2734 18.8008 16.957 18.4492L12.2461 13.7734Z" fill="currentColor"/>
+              </svg>
+            </span>
+            <input type="text" placeholder="Search Countries..." class="search-input search-country" data-target="country-list"/>
+          </div>
+        </div>
+        <h5 class="list-title horizontal-spacing">{{ 'navbar.countries' | t }}</h5>
+        <ul class="country-list item-list">
+          <li class="current-selected-item country-selector" id="current-selected-country" data-value="{{ current_country_iso }}">
+            <span class="flag-icon fi fi-{{ current_country_iso }}"></span>
+            <span class="country-name">{{ current_country_name }}</span>
+          </li>
+          {% for country in countries %}
+            <li class="country-item  {% if country.selected %} selected{% endif %}" data-value="{{ country.iso }}">
+              <span class="flag-icon fi fi-{{ country.iso }}"></span>
+              <span class="country-name">{{ country.name }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+
+      <li class="language-content hidden">
+        <div class="horizontal-spacing">
+          <div class="search-section search-layout-1">
+            <span class="search-icon">
+              <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3359 8.00781C13.3359 6.00391 12.2461 4.17578 10.5234 3.15625C8.76562 2.13672 6.62109 2.13672 4.89844 3.15625C3.14062 4.17578 2.08594 6.00391 2.08594 8.00781C2.08594 10.0469 3.14062 11.875 4.89844 12.8945C6.62109 13.9141 8.76562 13.9141 10.5234 12.8945C12.2461 11.875 13.3359 10.0469 13.3359 8.00781ZM12.2461 13.7734C10.9805 14.7578 9.39844 15.3203 7.71094 15.3203C3.66797 15.3203 0.398438 12.0508 0.398438 8.00781C0.398438 4 3.66797 0.695312 7.71094 0.695312C11.7188 0.695312 15.0234 4 15.0234 8.00781C15.0234 9.73047 14.4258 11.3125 13.4414 12.5781L18.1523 17.2539C18.4688 17.6055 18.4688 18.1328 18.1523 18.4492C17.8008 18.8008 17.2734 18.8008 16.957 18.4492L12.2461 13.7734Z" fill="currentColor"/>
+              </svg>
+            </span>
+            <input type="text" placeholder="Search Languages..." class="search-input search-language" data-target="language-list" />
+          </div>
+        </div>
+
+        <h5 class="list-title horizontal-spacing">{{ 'navbar.languages' | t }}</h5>
+
+        <ul class="language-list item-list">
+          <li class="current-selected-item language-selector" id="current-selected-language" data-value="{{ current_selected_locale}}">{{ current_language_name  }}</li>
+          {% for option in language_options %}
+            <li class="language-item {% if option.selected %}selected{% endif %}" data-value="{{ option.iso }}">{{ option.locale }}</li>
+          {% endfor %}
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div class="btn-section horizontal-spacing" id="country-language-submit-btn">
+    <button class="btn btn-bg-primary saveLocaleBtn mobile-save-btn">{{ 'navbar.done' | t }}</button>
+  </div>
+</div>
+
+<script src='https://code.jquery.com/jquery-3.7.1.min.js' integrity='sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=' crossorigin='anonymous'></script>
+<script src='https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="{{ 'header.js' | asset_url }}"></script>
+
+<script>
+// Header scroll handling to prevent covering content on load
+document.addEventListener('DOMContentLoaded', function() {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  
+  let hasScrolled = false;
+  
+  function handleScroll() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    if (scrollTop > 50 && !hasScrolled) {
+      header.classList.add('scrolled');
+      hasScrolled = true;
+    } else if (scrollTop <= 50 && hasScrolled) {
+      header.classList.remove('scrolled');
+      hasScrolled = false;
+    }
+  }
+  
+  // Initial check
+  handleScroll();
+  
+  // Listen for scroll events
+  window.addEventListener('scroll', handleScroll, { passive: true });
+});
+
+// Sub-menu positioning adjustment
+document.addEventListener('DOMContentLoaded', function() {
+  const menuItems = document.querySelectorAll('.primary-menu .menu-has-children');
+  
+  function adjustSubmenuPosition(item) {
+    const submenu = item.querySelector('.sub-menu');
+    if (!submenu) return;
+    
+    // Reset positioning classes
+    submenu.classList.remove('align-right', 'align-center');
+    
+    // Wait for next frame to get accurate measurements
+    requestAnimationFrame(() => {
+      const rect = submenu.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const containerPadding = 32;
+      
+      // Check if submenu extends beyond right edge
+      if (rect.right > viewportWidth - containerPadding) {
+        submenu.classList.add('align-right');
+        
+        // Double-check if right-aligned submenu now extends beyond left edge
+        requestAnimationFrame(() => {
+          const newRect = submenu.getBoundingClientRect();
+          if (newRect.left < containerPadding) {
+            submenu.classList.remove('align-right');
+            submenu.classList.add('align-center');
+          }
+        });
+      }
+    });
+  }
+  
+  menuItems.forEach(item => {
+    const submenu = item.querySelector('.sub-menu');
+    if (!submenu) return;
+    
+    item.addEventListener('mouseenter', () => adjustSubmenuPosition(item));
+  });
+  
+  // Recalculate on window resize
+  let resizeTimeout;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      menuItems.forEach(item => {
+        if (item.matches(':hover')) {
+          adjustSubmenuPosition(item);
+        }
+      });
+    }, 100);
+  });
+});
+
+// Compact Locale Selector Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const localeSelector = document.getElementById('compact-locale-dropdown');
+  const trigger = localeSelector?.querySelector('.locale-trigger');
+  const dropdown = localeSelector?.querySelector('.locale-dropdown-menu');
+  const options = localeSelector?.querySelectorAll('.locale-option');
+
+  if (!localeSelector || !trigger || !dropdown) return;
+
+  // Toggle dropdown
+  trigger.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const isOpen = localeSelector.classList.contains('active');
+    
+    if (isOpen) {
+      closeDropdown();
+    } else {
+      openDropdown();
+    }
+  });
+
+  // Handle option selection
+  options.forEach(option => {
+    option.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const country = this.dataset.country;
+      const language = this.dataset.language;
+      const countryName = this.dataset.countryName;
+      const languageName = this.dataset.languageName;
+      
+      // Update trigger display
+      const flagIcon = trigger.querySelector('.flag-icon');
+      const localeText = trigger.querySelector('.locale-text');
+      
+      flagIcon.className = `flag-icon fi fi-${country}`;
+      localeText.textContent = language.toUpperCase();
+      
+      // Update active state
+      options.forEach(opt => opt.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Save selection (integrate with existing locale system)
+      saveLocaleSelection(country, language);
+      
+      closeDropdown();
+    });
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!localeSelector.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && localeSelector.classList.contains('active')) {
+      closeDropdown();
+      trigger.focus();
+    }
+  });
+
+  function openDropdown() {
+    localeSelector.classList.add('active');
+    trigger.setAttribute('aria-expanded', 'true');
+    
+    // Focus first option for keyboard navigation
+    const firstOption = dropdown.querySelector('.locale-option');
+    if (firstOption) {
+      setTimeout(() => firstOption.focus(), 100);
+    }
+  }
+
+  function closeDropdown() {
+    localeSelector.classList.remove('active');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+
+  function saveLocaleSelection(country, language) {
+    // Integrate with existing locale saving system
+    if (typeof window.saveLocaleBtn === 'function') {
+      window.saveLocaleBtn(country, language);
+    } else {
+      // Fallback: reload page with new locale parameters
+      const url = new URL(window.location);
+      url.searchParams.set('country', country);
+      url.searchParams.set('locale', language);
+      window.location.href = url.toString();
+    }
+  }
+});
+
+  $(document).on("click","#mobile-menu-section .menu-has-children", function(){
+    if($(this).children('.sub-menu').hasClass('show-submenu')){
+      $(this).children('.sub-menu').removeClass('show-submenu')
+    } else{
+      $(this).children('.sub-menu').addClass('show-submenu')
+    
+    }
+  });
+</script>
+
+<script>
+// Immediate FOUC prevention - runs as soon as script loads
+(function() {
+  // Ensure all dropdowns are properly hidden immediately
+  const subMenus = document.querySelectorAll('.primary-menu .menu-has-children .sub-menu');
+  const localeDropdowns = document.querySelectorAll('.locale-dropdown-menu');
+  
+  subMenus.forEach(menu => {
+    menu.style.opacity = '0';
+    menu.style.visibility = 'hidden';
+    menu.style.display = 'none';
+  });
+  
+  localeDropdowns.forEach(dropdown => {
+    dropdown.style.opacity = '0';
+    dropdown.style.visibility = 'hidden';
+    dropdown.style.display = 'none';
+  });
+  
+  // Re-enable dropdowns after CSS is fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+      subMenus.forEach(menu => {
+        menu.style.display = '';
+      });
+      localeDropdowns.forEach(dropdown => {
+        dropdown.style.display = '';
+      });
+    }, 50); // Reduced delay
+  });
+})();
+</script>
+ 
+{% schema %}
+{
+  "name": "Main Navigation",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Navigation Content"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Navigation Menu",
+      "default": "main-menu"
+    },
+    
+    {
+      "type": "header",
+      "content": "Navigation Typography"
+    },
+    {
+      "type": "select",
+      "id": "nav_font_family",
+      "label": "Navigation Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary (NeueHaasDisplay)" },
+        { "value": "font-body", "label": "Body (NeueHaasDisplay)" },
+        { "value": "font-handwritten", "label": "Handwritten (FLFont)" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "nav_font_size",
+      "label": "Navigation Font Size",
+      "options": [
+        { "value": "text-xs", "label": "Extra Small" },
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "nav_font_weight",
+      "label": "Navigation Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-semibold", "label": "Semi Bold" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-medium"
+    },
+    {
+      "type": "select",
+      "id": "nav_text_color",
+      "label": "Navigation Text Color",
+      "options": [
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "select",
+      "id": "floating_nav_text_color",
+      "label": "Floating Header Text Color",
+      "info": "Text color when header is floating/transparent at top of page",
+      "options": [
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-white", "label": "White" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" }
+      ],
+      "default": "text-black"
+    },
+
+    {
+      "type": "header",
+      "content": "Button 1 Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_one",
+      "label": "Show Button One",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_one_text",
+      "label": "Button Text",
+      "default": "Button 1"
+    },
+    {
+      "type": "url",
+      "id": "button_one_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "select",
+      "id": "button_one_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "button_one_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "button_one_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-xs", "label": "Extra Small" },
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "select",
+      "id": "floating_button_one_style",
+      "label": "Floating Header Button Style",
+      "info": "Button style when header is floating/transparent",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "select",
+      "id": "floating_button_one_color",
+      "label": "Floating Header Button Color",
+      "info": "Button color when header is floating/transparent",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+
+    {
+      "type": "header",
+      "content": "Button 2 Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_two",
+      "label": "Show Button Two",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_two_text",
+      "label": "Button Text",
+      "default": "Button 2"
+    },
+    {
+      "type": "url",
+      "id": "button_two_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "select",
+      "id": "button_two_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "select",
+      "id": "button_two_color",
+      "label": "Button Color",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "button_two_size",
+      "label": "Button Size",
+      "options": [
+        { "value": "btn-xs", "label": "Extra Small" },
+        { "value": "btn-sm", "label": "Small" },
+        { "value": "btn-md", "label": "Medium" },
+        { "value": "btn-lg", "label": "Large" },
+        { "value": "btn-xl", "label": "Extra Large" }
+      ],
+      "default": "btn-md"
+    },
+    {
+      "type": "select",
+      "id": "floating_button_two_style",
+      "label": "Floating Header Button Style",
+      "info": "Button style when header is floating/transparent",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "select",
+      "id": "floating_button_two_color",
+      "label": "Floating Header Button Color",
+      "info": "Button color when header is floating/transparent",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "tertiary", "label": "Tertiary" },
+        { "value": "quaternary", "label": "Quaternary" },
+        { "value": "success", "label": "Success" },
+        { "value": "warning", "label": "Warning" },
+        { "value": "error", "label": "Error" },
+        { "value": "info", "label": "Info" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" }
+      ],
+      "default": "primary"
+    },
+
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Navigation Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-neutral-lightest", "label": "Neutral Lightest" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" },
+        { "value": "bg-transparent", "label": "Transparent" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "sticky_background_color",
+      "label": "Sticky Navigation Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-neutral-lightest", "label": "Neutral Lightest" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-dark", "label": "Neutral Dark" },
+        { "value": "bg-transparent", "label": "Transparent" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Mobile Vertical Padding",
+      "options": [
+        { "value": "py-0", "label": "None" },
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-md"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Desktop Vertical Padding",
+      "options": [
+        { "value": "lg:py-0", "label": "None" },
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-md"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Navigation Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" },
+        { "value": "rounded-full", "label": "Full" }
+      ],
+      "default": "rounded-none"
+    }
+  ]
+}
+{% endschema %}
+
+
+

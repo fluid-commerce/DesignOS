@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Bayaran",
+    "order_summary": "Buod ng Order",
+    "shipping": "Tantiya ng Padala",
+    "ships_in": "Ipapadala sa loob ng 3-5 araw ng trabaho",
+    "shopping_cart": "Shopping Cart",
+    "subtotal": "Subtotal",
+    "tax": "Tantiya ng Buwis",
+    "total": "Kabuuang bayad"
+  },
+  "components": {
+    "comment_form": {
+      "email": "Email",
+      "full_name": "Buong Pangalan",
+      "leave_info": "Pakiwan ang inyong impormasyon para malaman ng {{ company }} kung sino kayo. Kailangan ninyong gawin ito ng isang beses lang.",
+      "placeholder": "Idagdag ang inyong komento",
+      "post": "I-post",
+      "want_to_leave_comment": "Gusto ninyong mag-iwan ng komento?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Sumasang-ayon ako sa",
+    "all_products": "Lahat ng Produkto",
+    "checkout": "Bayaran",
+    "first_payment": "Unang Bayad sa {{ date }}",
+    "learn_more": "Alamin pa",
+    "monthly_subscription": "Buwanang Subscription",
+    "todays_purchase": "Pagbili Ngayon"
+  },
+  "footer": {
+    "all_rights_reserved": "Lahat ng karapatan ay nakalaan",
+    "cookies_settings": "Mga Setting ng Cookies",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Mga Tuntunin ng Serbisyo"
+  },
+  "library": {
+    "commented": "nag-komento",
+    "comments": "Mga Komento",
+    "playlist": "Playlist"
+  },
+  "medium": {
+    "commented": "nag-komento",
+    "comments": "Mga Komento",
+    "products": "Mga Produkto"
+  },
+  "navbar": {
+    "button_1": "Button 1",
+    "button_2": "Button 2",
+    "countries": "Mga Bansa",
+    "country": "Bansa",
+    "country_and_language": "Bansa at Wika",
+    "done": "Tapos",
+    "language": "Wika",
+    "languages": "Mga Wika",
+    "link_1": "Link isa",
+    "link_2": "Link dalawa",
+    "link_3": "Link tatlo",
+    "link_4": "Link apat",
+    "save_and_close": "I-save at Isara",
+    "select_country": "Piliin ang inyong bansa",
+    "select_language": "Piliin ang Wika",
+    "shop": "Tindahan",
+    "enrollments": "Mga Pag-enroll",
+    "view_my_site": "Tingnan ang Aking Site"
+  },
+  "product": {
+    "add_to_cart": "Idagdag sa Cart",
+    "buy_now": "Bilhin Ngayon",
+    "details": "Mga Detalye",
+    "free_shipping": "Libreng padala sa {{amount}} pataas",
+    "product_name": "Pangalan ng Produkto",
+    "quantity": "Dami",
+    "related_products": "Mga Produkto",
+    "related_products_intro": "Tuklasin ang aming maingat na piniling mga karagdagang produkto na perpektong tumugma sa inyong pagbili.",
+    "return": "Pagbabalik",
+    "return_content": "Tumatanggap kami ng mga pagbabalik sa loob ng 30 araw mula sa pagbili. Ang mga produkto ay dapat nasa orihinal na kondisyon, hindi pa nagamit at nasa orihinal na packaging. Ang gastos sa pagbabalik ay sa customer, maliban sa mga kaso ng produktong may sira. Matapos makatanggap at masuri ang inyong pagbabalik, ibabalik namin ang buong halaga ng pagbili.",
+    "reviews": "{{reviews}} mga review",
+    "shipping": "Padala",
+    "shipping_content": "Nagpapadala kami sa buong mundo na may standard na oras ng delivery na 3-7 araw ng trabaho. Ang express shipping ay available sa dagdag na bayad. Lahat ng mga package ay insured at maaaring i-track. Ang mga gastos sa padala ay kinakalkula base sa timbang at patutunguhan sa checkout.",
+    "shop_all": "Tingnan Lahat",
+    "stars": "{{stars}} bituin",
+    "tagline": "Tagline",
+    "testimonials": "Mga Testimonial ng Customer",
+    "testimonials_intro": "Alamin kung ano ang sinasabi ng aming mga customer tungkol sa kanilang mga karanasan sa aming mga produkto.",
+    "variant": "Variant",
+    "one_time_purchase":"Isang beses na pagbili",
+    "subscribe":"Mag-subscribe"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Mag-subscribe at makatipid ng {{save}}%",
+    "update_subscription": "I-update ang iyong subscription anumang oras"
+  },
+  "shared": {
+    "button": "Button",
+    "medium_heading": "Ang medium na haba ng heading ay nandito",
+    "medium_intro": "Tuklasin ang aming pambihirang hanay ng mga produkto na dinisenyo upang matugunan ang lahat ng inyong pangangailangan nang may kalidad at elegansya.",
+    "short_heading": "Maikling heading dito",
+    "short_intro": "Isang maigsi na panimula na nagpapakita ng kahulugan ng aming alok nang malinaw at may impact.",
+    "tagline": "Tagline",
+    "view_all": "Tingnan Lahat"
+  },
+  "shop_page": {
+    "button": "Button",
+    "heading": "Maikling heading dito",
+    "intro": "Galugarin ang aming maingat na piniling koleksyon ng mga produktong mataas ang kalidad.",
+    "products": "Mga Produkto",
+    "products_intro": "Bawat produkto sa aming lineup ay napili dahil sa pambihirang kalidad nito.",
+    "tagline": "Tagline"
+  }
+}

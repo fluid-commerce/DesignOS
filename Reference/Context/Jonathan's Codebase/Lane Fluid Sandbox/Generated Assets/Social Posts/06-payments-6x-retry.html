@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fluid Payments — 6x Retry</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* Accent: GREEN only — Terminal cascade */
+    .terminal { padding: 32px; margin-bottom: 32px; }
+    .terminal-label { font-family: var(--font-hand); font-size: 14px; font-weight: 700; color: var(--green); margin-bottom: 20px; }
+    .attempt { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
+    .attempt:last-child { border-bottom: none; }
+    .attempt-info { font-weight: 500; color: rgba(255,255,255,0.35); }
+    .attempt-info .num { color: rgba(255,255,255,0.15); margin-right: 12px; font-weight: 300; }
+    .status-declined { font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+    .status-approved { font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
+    .terminal-footer { margin-top: 16px; font-size: 12px; font-weight: 500; color: var(--green); opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="card card-ig">
+    <!-- Brushstrokes: 07 top-right diagonal + 05 mid-left horizontal accent -->
+    <img class="brush" src="../../Logos, textures/brushstroke07.png" alt="" style="top: -25px; right: -70px; width: 500px; opacity: 0.25;">
+    <img class="brush" src="../../Logos, textures/brushstroke05.png" alt="" style="bottom: -15px; left: -80px; width: 500px; opacity: 0.1; transform: rotate(-5deg);">
+
+    <div class="side-label">Fluid Payments</div>
+    <div class="slide-num">03/05</div>
+
+    <!-- Green circle sketch around "once" -->
+    <img class="circle-sketch circle-sketch-green" src="../../Logos, textures/circle sketch 1.png" alt="" style="top: 300px; left: 100px; width: 280px; transform: rotate(-3deg); opacity: 0.7;">
+
+    <div class="headline headline-ig">
+      Most<br>
+      platforms<br>
+      try once.<br>
+      We try six.
+    </div>
+
+    <div class="terminal dark-card">
+      <div class="terminal-label">Cascading Payment Intelligence</div>
+      <div class="attempt">
+        <div class="attempt-info"><span class="num">01</span> Processor A &middot; Standard routing</div>
+        <div class="status-declined">Declined</div>
+      </div>
+      <div class="attempt">
+        <div class="attempt-info"><span class="num">02</span> Processor B &middot; Alternate network</div>
+        <div class="status-declined">Declined</div>
+      </div>
+      <div class="attempt">
+        <div class="attempt-info"><span class="num">03</span> Processor C &middot; Different routing</div>
+        <div class="status-approved">Approved &checkmark;</div>
+      </div>
+      <div class="terminal-footer">Customer never knows. Sale goes through. Rep gets credit.</div>
+    </div>
+
+    <div class="sub-text sub-text-lg text-green">Every transaction gets its best shot.</div>
+
+    <div class="footer footer-ig">
+      <div class="footer-left">
+        <img src="../../Logos, textures/We-Commerce Flags.png" alt="Fluid" style="height: 16px;">
+        <span class="sep">|</span>
+        <img src="../../Logos, textures/We-Commerce Logos.png" alt="We-Commerce" style="height: 14px;">
+      </div>
+      <div class="footer-right">
+        <img src="../../Logos, textures/Frame 3.png" alt="fluid" style="height: 22px;">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

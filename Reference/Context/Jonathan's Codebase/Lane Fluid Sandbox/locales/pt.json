@@ -1,0 +1,115 @@
+{
+  "cart_page": {
+    "checkout": "Finalizar compra",
+    "order_summary": "Resumo do pedido",
+    "shipping": "Estimativa de envio",
+    "ships_in": "Enviado em 3-5 dias úteis",
+    "shopping_cart": "Carrinho de compras",
+    "subtotal": "Subtotal",
+    "tax": "Estimativa de impostos",
+    "total": "Total do pedido"
+  },
+  "components": {
+    "comment_form": {
+      "email": "E-mail",
+      "full_name": "Nome completo",
+      "leave_info": "Por favor, deixe suas informações para que a {{ company }} saiba quem você é. Você só precisa fazer isso uma vez.",
+      "placeholder": "Adicione seu comentário",
+      "post": "Publicar",
+      "want_to_leave_comment": "Quer deixar um comentário?"
+    }
+  },
+  "enrollment_pack": {
+    "agree_to": "Eu concordo com os",
+    "all_products": "Todos os produtos",
+    "checkout": "Finalizar compra",
+    "first_payment": "Primeiro pagamento em {{ date }}",
+    "learn_more": "Saiba mais",
+    "monthly_subscription": "Assinatura mensal",
+    "todays_purchase": "Compra de hoje"
+  },
+  "footer": {
+    "all_rights_reserved": "Todos os direitos reservados",
+    "cookies_settings": "Configurações de cookies",
+    "link_1": "Link 1",
+    "link_2": "Link 2",
+    "link_3": "Link 3",
+    "link_4": "Link 4",
+    "privacy_policy": "Política de privacidade",
+    "terms_of_service": "Termos de serviço"
+  },
+  "library": {
+    "commented": "comentou",
+    "comments": "Comentários",
+    "playlist": "Playlist"
+  },
+  "medium": {
+    "commented": "comentou",
+    "comments": "Comentários",
+    "products": "Produtos"
+  },
+  "navbar": {
+    "button_1": "Botão 1",
+    "button_2": "Botão 2",
+    "countries": "Países",
+    "country": "País",
+    "country_and_language": "País e idioma",
+    "done": "Concluído",
+    "language": "Idioma",
+    "languages": "Idiomas",
+    "link_1": "Link um",
+    "link_2": "Link dois",
+    "link_3": "Link três",
+    "link_4": "Link quatro",
+    "save_and_close": "Salvar e fechar",
+    "select_country": "Selecione seu país",
+    "select_language": "Selecionar idioma",
+    "shop": "Loja",
+    "enrollments": "Inscrições",
+    "view_my_site": "Ver meu site"
+  },
+  "product": {
+    "add_to_cart": "Adicionar ao carrinho",
+    "buy_now": "Comprar agora",
+    "details": "Detalhes",
+    "free_shipping": "Frete grátis acima de {{amount}}",
+    "product_name": "Nome do produto",
+    "quantity": "Quantidade",
+    "related_products": "Produtos",
+    "related_products_intro": "Descubra nossa seleção de produtos complementares cuidadosamente escolhidos que combinam perfeitamente com sua compra.",
+    "return": "Devolução",
+    "return_content": "Aceitamos devoluções em até 30 dias após a compra. Os itens devem estar em condição original, não utilizados e na embalagem original. Os custos de devolução são por conta do cliente, exceto em casos de defeito do produto. Após receber e inspecionar sua devolução, reembolsaremos o valor total da compra.",
+    "reviews": "{{reviews}} avaliações",
+    "shipping": "Envio",
+    "shipping_content": "Enviamos para todo o mundo com prazo de entrega padrão de 3-7 dias úteis. Envio expresso está disponível por taxa adicional. Todos os pacotes são segurados e rastreáveis. Os custos de envio são calculados com base no peso e destino no checkout.",
+    "shop_all": "Ver tudo",
+    "stars": "{{stars}} estrelas",
+    "tagline": "Slogan",
+    "testimonials": "Depoimentos de clientes",
+    "testimonials_intro": "Descubra o que nossos clientes dizem sobre suas experiências com nossos produtos.",
+    "variant": "Variante",
+    "one_time_purchase":"Compra única",
+    "subscribe":"Assinar"
+  },
+  "subscribe_feature": {
+    "subscribe_and_save": "Assine e economize {{save}}%",
+    "update_subscription": "Atualize sua assinatura a qualquer momento"
+  },
+  "shared": {
+    "button": "Botão",
+    "medium_heading": "Um título de tamanho médio vai aqui",
+    "medium_intro": "Descubra nossa linha excepcional de produtos desenvolvidos para atender todas as suas necessidades com qualidade e elegância.",
+    "short_heading": "Título curto aqui",
+    "short_intro": "Uma introdução concisa que apresenta o essencial da nossa oferta com clareza e impacto.",
+    "tagline": "Slogan",
+    "view_all": "Ver tudo"
+  },
+  "shop_page": {
+    "button": "Botão",
+    "heading": "Título curto aqui",
+    "intro": "Explore nossa coleção cuidadosamente selecionada de produtos de alta qualidade.",
+    "products": "Produtos",
+    "products_intro": "Cada produto em nossa linha foi escolhido por sua qualidade excepcional.",
+    "tagline": "Slogan"
+  }
+}

@@ -1,0 +1,847 @@
+<!-- You May Also Like Section -->
+<section class="you-may-also-like {{ section.settings.background_color | default: 'bg-white' }} {{ section.settings.section_padding_y_mobile | default: 'py-xl' }} {{ section.settings.section_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.section_border_radius | default: 'rounded-none' }}" {% if section.settings.background_image %}data-bg="{{ section.settings.background_image }}"{% endif %}>
+  <div class="container">
+    <div class="inner-container {{ section.settings.container_background_color | default: '' }} {{ section.settings.container_padding_y_mobile | default: 'py-xl' }} {{ section.settings.container_padding_y_desktop | default: 'lg:py-3xl' }} {{ section.settings.container_padding_x_mobile | default: 'px-lg' }} {{ section.settings.container_padding_x_desktop | default: 'lg:px-xl' }} {{ section.settings.container_border_radius | default: 'rounded-none' }}" {% if section.settings.container_background_image %}data-bg="{{ section.settings.container_background_image }}"{% endif %}>
+      
+      <div class="max-w-7xl mx-auto">
+        
+        <!-- Section Header -->
+        {% if section.settings.show_heading %}
+        <div class="section-header text-center mb-3xl">
+          <h2 class="{{ section.settings.heading_font_family | default: 'font-primary' }} {{ section.settings.heading_font_size | default: 'text-4xl' }} {{ section.settings.heading_font_size_desktop | default: 'lg:text-5xl' }} {{ section.settings.heading_font_weight | default: 'font-bold' }} {{ section.settings.heading_color | default: 'text-black' }} leading-tight">
+            {{ section.settings.heading | default: "You May Also Like" }}
+          </h2>
+        </div>
+        {% endif %}
+        
+        <!-- Products Grid -->
+        {% if section.blocks.size > 0 %}
+        <div class="products-wrapper">
+          {% assign block_count = section.blocks.size %}
+          {% assign grid_cols = 'md:grid-cols-1' %}
+          {% if block_count == 2 %}
+            {% assign grid_cols = 'md:grid-cols-2' %}
+          {% elsif block_count == 3 %}
+            {% assign grid_cols = 'md:grid-cols-3' %}
+          {% elsif block_count >= 4 %}
+            {% assign grid_cols = 'md:grid-cols-4' %}
+          {% endif %}
+
+          <div class="products-grid grid grid-cols-1 {{ grid_cols }} gap-lg lg:gap-xl">
+            {% for block in section.blocks %}
+              {% case block.type %}
+                {% when 'product_item' %}
+                  <div class="product-item" {{ block.fluid_attributes }}>
+                    
+                    {% comment %} Get product data from block settings {% endcomment %}
+                    {% if block.settings.product != blank %}
+                      {% assign selected_product = block.settings.product %}
+                      {% assign product_name = selected_product.title %}
+                      {% assign product_description = block.settings.custom_description | default: selected_product.description | truncate: 200 %}
+                      {% assign product_price = selected_product.price | money %}
+                      {% assign product_url = selected_product.url %}
+                      {% assign primary_image = block.settings.custom_primary_image | default: selected_product.featured_media %}
+                      {% assign hover_image = block.settings.custom_hover_image %}
+                      {% if selected_product.images.size > 1 and hover_image == blank %}
+                        {% assign hover_image = selected_product.images[1] %}
+                      {% endif %}
+                    {% else %}
+                      {% comment %} Fallback to manual entry {% endcomment %}
+                      {% assign product_name = block.settings.product_name %}
+                      {% assign product_description = block.settings.product_description %}
+                      {% assign product_price = block.settings.product_price %}
+                      {% assign product_url = block.settings.product_url %}
+                      {% assign primary_image = block.settings.primary_image %}
+                      {% assign hover_image = block.settings.hover_image %}
+                    {% endif %}
+                    
+                    <!-- Debug Info (remove in production) -->
+                    {% if section.settings.show_debug_info %}
+                    <div class="debug-info p-2 bg-yellow-100 text-xs mb-2">
+                      <strong>Debug:</strong><br>
+                      Product Selected: {{ block.settings.product.title | default: 'None' }}<br>
+                      Product ID: {{ selected_product.id }}<br>
+                      Product Name: {{ product_name }}<br>
+                      Product URL: {{ product_url }}<br>
+                      Primary Image: {{ primary_image }}<br>
+                      Price: {{ product_price }}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Product Image with Hover Effect -->
+                    <div class="product-image-wrapper {{ section.settings.image_border_radius | default: 'rounded-lg' }} overflow-hidden bg-neutral-light mb-lg">
+                      <div class="product-image-container relative">
+                        
+                        <!-- Primary Image -->
+                        {% if primary_image %}
+                          <img src="{{ primary_image | image_url: width: 400 }}"
+                               alt="{{ primary_image.alt | default: product_name }}"
+                               class="product-image-primary w-full h-64 lg:h-80 object-cover transition-all duration-500 ease-in-out">
+                        {% else %}
+                          <img src="{{ 'placeholder-image.png' | asset_url }}"
+                               alt="{{ product_name | default: 'Product image placeholder' }}"
+                               class="product-image-primary w-full h-64 lg:h-80 object-cover transition-all duration-500 ease-in-out">
+                        {% endif %}
+                        
+                        <!-- Hover Image (if provided) -->
+                        {% if hover_image %}
+                          <img src="{{ hover_image | image_url: width: 400 }}"
+                               alt="{{ hover_image.alt | default: product_name }}"
+                               class="product-image-hover absolute inset-0 w-full h-64 lg:h-80 object-cover transition-all duration-500 ease-in-out opacity-0">
+                        {% endif %}
+                        
+                      </div>
+                    </div>
+                    
+                    <!-- Product Info -->
+                    <div class="product-info space-y-sm">
+                      
+                      <!-- Product Name -->
+                      {% if product_name != blank %}
+                      <h3 class="{{ section.settings.product_name_font_family | default: 'font-primary' }} {{ section.settings.product_name_font_size | default: 'text-xl' }} {{ section.settings.product_name_font_size_desktop | default: 'lg:text-xl' }} {{ section.settings.product_name_font_weight | default: 'font-bold' }} {{ section.settings.product_name_color | default: 'text-black' }}">
+                        {% if product_url != blank %}
+                          <a href="{{ product_url }}" class="hover:opacity-70 transition-opacity duration-200">
+                            {{ product_name }}
+                          </a>
+                        {% else %}
+                          {{ product_name }}
+                        {% endif %}
+                      </h3>
+                      {% endif %}
+                      
+                      <!-- Product Description -->
+                      {% if section.settings.show_description and product_description != blank %}
+                      <p class="{{ section.settings.product_description_font_family | default: 'font-body' }} {{ section.settings.product_description_font_size | default: 'text-sm' }} {{ section.settings.product_description_font_size_desktop | default: 'lg:text-sm' }} {{ section.settings.product_description_font_weight | default: 'font-normal' }} {{ section.settings.product_description_color | default: 'text-neutral-dark' }} leading-relaxed">
+                        {{ product_description }}
+                      </p>
+                      {% endif %}
+                      
+                      <!-- Product Price -->
+                      {% if section.settings.show_price and product_price != blank %}
+                      <div class="product-price">
+                        <span class="{{ section.settings.product_price_font_family | default: 'font-body' }} {{ section.settings.product_price_font_size | default: 'text-lg' }} {{ section.settings.product_price_font_size_desktop | default: 'lg:text-lg' }} {{ section.settings.product_price_font_weight | default: 'font-bold' }} {{ section.settings.product_price_color | default: 'text-black' }}">
+                          {{ product_price }}
+                        </span>
+                      </div>
+                      {% endif %}
+                      
+                    </div>
+                    
+                  </div>
+              {% endcase %}
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+          <!-- No products message -->
+          {% if section.settings.show_no_products_message %}
+          <div class="no-products-message text-center py-xl">
+            <p class="{{ section.settings.no_products_font_size | default: 'text-base' }} {{ section.settings.no_products_color | default: 'text-neutral-dark' }}">
+              {{ section.settings.no_products_message | default: "No products found. Add some product blocks to display related products." }}
+            </p>
+          </div>
+          {% endif %}
+        {% endif %}
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "You May Also Like",
+  "class": "section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show Section Heading",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "default": "You May Also Like"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_family",
+      "label": "Heading Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading Font Size (Mobile)",
+      "options": [
+        { "value": "text-2xl", "label": "2X Large" },
+        { "value": "text-3xl", "label": "3X Large" },
+        { "value": "text-4xl", "label": "4X Large" },
+        { "value": "text-5xl", "label": "5X Large" },
+        { "value": "text-6xl", "label": "6X Large" }
+      ],
+      "default": "text-4xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-3xl", "label": "3X Large" },
+        { "value": "lg:text-4xl", "label": "4X Large" },
+        { "value": "lg:text-5xl", "label": "5X Large" },
+        { "value": "lg:text-6xl", "label": "6X Large" },
+        { "value": "lg:text-7xl", "label": "7X Large" }
+      ],
+      "default": "lg:text-5xl"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "heading_color",
+      "label": "Heading Text Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Product Display Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_debug_info",
+      "label": "Show Debug Information",
+      "default": false,
+      "info": "Shows debug information to help troubleshoot product data issues"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Product Description",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show Product Price",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Product Name Styling"
+    },
+    {
+      "type": "select",
+      "id": "product_name_font_family",
+      "label": "Product Name Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-primary"
+    },
+    {
+      "type": "select",
+      "id": "product_name_font_size",
+      "label": "Product Name Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" },
+        { "value": "text-2xl", "label": "2X Large" }
+      ],
+      "default": "text-xl"
+    },
+    {
+      "type": "select",
+      "id": "product_name_font_size_desktop",
+      "label": "Product Name Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" },
+        { "value": "lg:text-2xl", "label": "2X Large" }
+      ],
+      "default": "lg:text-xl"
+    },
+    {
+      "type": "select",
+      "id": "product_name_font_weight",
+      "label": "Product Name Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" },
+        { "value": "font-black", "label": "Black" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "product_name_color",
+      "label": "Product Name Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Product Description Styling"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_family",
+      "label": "Description Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_size",
+      "label": "Description Font Size (Mobile)",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_size_desktop",
+      "label": "Description Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-sm", "label": "Small" },
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" }
+      ],
+      "default": "lg:text-base"
+    },
+    {
+      "type": "select",
+      "id": "product_description_font_weight",
+      "label": "Description Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-normal"
+    },
+    {
+      "type": "select",
+      "id": "product_description_color",
+      "label": "Description Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Product Price Styling"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_family",
+      "label": "Price Font Family",
+      "options": [
+        { "value": "font-primary", "label": "Primary" },
+        { "value": "font-body", "label": "Body" },
+        { "value": "font-handwritten", "label": "Handwritten" },
+        { "value": "font-serif", "label": "Serif" }
+      ],
+      "default": "font-body"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_size",
+      "label": "Price Font Size (Mobile)",
+      "options": [
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" },
+        { "value": "text-xl", "label": "Extra Large" }
+      ],
+      "default": "text-lg"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_size_desktop",
+      "label": "Price Font Size (Desktop)",
+      "options": [
+        { "value": "lg:text-base", "label": "Base" },
+        { "value": "lg:text-lg", "label": "Large" },
+        { "value": "lg:text-xl", "label": "Extra Large" }
+      ],
+      "default": "lg:text-lg"
+    },
+    {
+      "type": "select",
+      "id": "product_price_font_weight",
+      "label": "Price Font Weight",
+      "options": [
+        { "value": "font-light", "label": "Light" },
+        { "value": "font-normal", "label": "Normal" },
+        { "value": "font-medium", "label": "Medium" },
+        { "value": "font-bold", "label": "Bold" }
+      ],
+      "default": "font-bold"
+    },
+    {
+      "type": "select",
+      "id": "product_price_color",
+      "label": "Price Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-black"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "image_border_radius",
+      "label": "Image Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-lg"
+    },
+    {
+      "type": "header",
+      "content": "No Products Message"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_no_products_message",
+      "label": "Show Message When No Products",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "no_products_message",
+      "label": "No Products Message",
+      "default": "No related products found."
+    },
+    {
+      "type": "select",
+      "id": "no_products_font_size",
+      "label": "No Products Message Font Size",
+      "options": [
+        { "value": "text-sm", "label": "Small" },
+        { "value": "text-base", "label": "Base" },
+        { "value": "text-lg", "label": "Large" }
+      ],
+      "default": "text-base"
+    },
+    {
+      "type": "select",
+      "id": "no_products_color",
+      "label": "No Products Message Color",
+      "options": [
+        { "value": "text-white", "label": "White" },
+        { "value": "text-black", "label": "Black" },
+        { "value": "text-primary", "label": "Primary" },
+        { "value": "text-secondary", "label": "Secondary" },
+        { "value": "text-tertiary", "label": "Tertiary" },
+        { "value": "text-quaternary", "label": "Quaternary" },
+        { "value": "text-success", "label": "Success" },
+        { "value": "text-warning", "label": "Warning" },
+        { "value": "text-error", "label": "Error" },
+        { "value": "text-info", "label": "Info" },
+        { "value": "text-neutral", "label": "Neutral" },
+        { "value": "text-neutral-light", "label": "Neutral Light" },
+        { "value": "text-neutral-dark", "label": "Neutral Dark" }
+      ],
+      "default": "text-neutral-dark"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "select",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "options": [
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": "bg-white"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_mobile",
+      "label": "Section Vertical Padding (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "section_padding_y_desktop",
+      "label": "Section Vertical Padding (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "section_border_radius",
+      "label": "Section Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "select",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "options": [
+        { "value": "", "label": "None (Transparent)" },
+        { "value": "bg-white", "label": "White" },
+        { "value": "bg-black", "label": "Black" },
+        { "value": "bg-primary", "label": "Primary" },
+        { "value": "bg-secondary", "label": "Secondary" },
+        { "value": "bg-tertiary", "label": "Tertiary" },
+        { "value": "bg-quaternary", "label": "Quaternary" },
+        { "value": "bg-success", "label": "Success" },
+        { "value": "bg-warning", "label": "Warning" },
+        { "value": "bg-error", "label": "Error" },
+        { "value": "bg-info", "label": "Info" },
+        { "value": "bg-neutral", "label": "Neutral" },
+        { "value": "bg-neutral-light", "label": "Neutral Light" }
+      ],
+      "default": ""
+    },
+    {
+      "type": "image_picker",
+      "id": "container_background_image",
+      "label": "Container Background Image"
+    },
+    {
+      "type": "select",
+      "id": "container_border_radius",
+      "label": "Container Border Radius",
+      "options": [
+        { "value": "rounded-none", "label": "None" },
+        { "value": "rounded-sm", "label": "Small" },
+        { "value": "rounded", "label": "Base" },
+        { "value": "rounded-md", "label": "Medium" },
+        { "value": "rounded-lg", "label": "Large" },
+        { "value": "rounded-xl", "label": "Extra Large" },
+        { "value": "rounded-2xl", "label": "2X Large" },
+        { "value": "rounded-3xl", "label": "3X Large" }
+      ],
+      "default": "rounded-none"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_mobile",
+      "label": "Container Padding Y (Mobile)",
+      "options": [
+        { "value": "py-xs", "label": "Extra Small" },
+        { "value": "py-sm", "label": "Small" },
+        { "value": "py-md", "label": "Medium" },
+        { "value": "py-lg", "label": "Large" },
+        { "value": "py-xl", "label": "Extra Large" },
+        { "value": "py-2xl", "label": "2X Large" },
+        { "value": "py-3xl", "label": "3X Large" }
+      ],
+      "default": "py-xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_y_desktop",
+      "label": "Container Padding Y (Desktop)",
+      "options": [
+        { "value": "lg:py-xs", "label": "Extra Small" },
+        { "value": "lg:py-sm", "label": "Small" },
+        { "value": "lg:py-md", "label": "Medium" },
+        { "value": "lg:py-lg", "label": "Large" },
+        { "value": "lg:py-xl", "label": "Extra Large" },
+        { "value": "lg:py-2xl", "label": "2X Large" },
+        { "value": "lg:py-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:py-3xl"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_mobile",
+      "label": "Container Padding X (Mobile)",
+      "options": [
+        { "value": "px-xs", "label": "Extra Small" },
+        { "value": "px-sm", "label": "Small" },
+        { "value": "px-md", "label": "Medium" },
+        { "value": "px-lg", "label": "Large" },
+        { "value": "px-xl", "label": "Extra Large" },
+        { "value": "px-2xl", "label": "2X Large" },
+        { "value": "px-3xl", "label": "3X Large" }
+      ],
+      "default": "px-lg"
+    },
+    {
+      "type": "select",
+      "id": "container_padding_x_desktop",
+      "label": "Container Padding X (Desktop)",
+      "options": [
+        { "value": "lg:px-xs", "label": "Extra Small" },
+        { "value": "lg:px-sm", "label": "Small" },
+        { "value": "lg:px-md", "label": "Medium" },
+        { "value": "lg:px-lg", "label": "Large" },
+        { "value": "lg:px-xl", "label": "Extra Large" },
+        { "value": "lg:px-2xl", "label": "2X Large" },
+        { "value": "lg:px-3xl", "label": "3X Large" }
+      ],
+      "default": "lg:px-xl"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_item",
+      "name": "Product Item",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Product Selection"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product",
+          "info": "Choose a product from your store - this will auto-populate title, price, description, and images"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_price",
+          "label": "Show Price",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Custom Overrides (Optional)"
+        },
+        {
+          "type": "textarea",
+          "id": "custom_description",
+          "label": "Custom Description",
+          "info": "Override the product description with custom text (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_primary_image",
+          "label": "Custom Primary Image",
+          "info": "Override the product's featured image (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_hover_image",
+          "label": "Custom Hover Image",
+          "info": "Custom hover image (will auto-use product's 2nd image if not set)"
+        },
+        {
+          "type": "header",
+          "content": "Manual Entry (Fallback Only)"
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Manual Product Name",
+          "default": "Product Name",
+          "info": "Only used if no product is selected above - leave blank to use selected product data"
+        },
+        {
+          "type": "textarea",
+          "id": "product_description",
+          "label": "Manual Product Description",
+          "default": "Brief description of the product and its benefits",
+          "info": "Only used if no product is selected above - leave blank to use selected product data"
+        },
+        {
+          "type": "text",
+          "id": "product_price",
+          "label": "Manual Product Price",
+          "default": "$99.99",
+          "info": "Only used if no product is selected above - leave blank to use selected product data",
+          "placeholder": "$99.99"
+        },
+        {
+          "type": "image_picker",
+          "id": "primary_image",
+          "label": "Manual Primary Image",
+          "info": "Only used if no product is selected above - leave blank to use selected product data"
+        },
+        {
+          "type": "image_picker",
+          "id": "hover_image",
+          "label": "Manual Hover Image",
+          "info": "Only used if no product is selected above - leave blank to use selected product data"
+        },
+        {
+          "type": "url",
+          "id": "product_url",
+          "label": "Manual Product URL",
+          "info": "Only used if no product is selected above - leave blank to use selected product data"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "You May Also Like",
+      "blocks": [
+        {
+          "type": "product_item"
+        },
+        {
+          "type": "product_item"
+        },
+        {
+          "type": "product_item"
+        },
+        {
+          "type": "product_item"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
