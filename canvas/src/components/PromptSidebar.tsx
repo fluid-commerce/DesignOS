@@ -4,6 +4,7 @@ import { StreamMessage } from './StreamMessage';
 import { useSessionStore } from '../store/sessions';
 import { useGenerationStore } from '../store/generation';
 import { useAnnotationStore } from '../store/annotations';
+import { useCampaignStore } from '../store/campaign';
 import { useAnnotations } from '../hooks/useAnnotations';
 import { buildIterationContext } from '../lib/context-bundler';
 import type { StreamUIMessage } from '../lib/stream-parser';
@@ -35,6 +36,9 @@ export function PromptSidebar() {
   const setActiveSessionId = useSessionStore((s) => s.setActiveSessionId);
   const clearSelection = useSessionStore((s) => s.clearSelection);
   const resetGeneration = useGenerationStore((s) => s.reset);
+  const activeCampaignId = useGenerationStore((s) => s.activeCampaignId);
+  const generationStatus = useGenerationStore((s) => s.status);
+  const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
   const { annotations } = useAnnotations();
 
   // Mode detection
@@ -70,6 +74,19 @@ export function PromptSidebar() {
   }, [displayMessages]);
 
   const [submittedPrompt, setSubmittedPrompt] = useState('');
+
+  // Navigate to the newly created campaign when generation completes
+  const prevStatusRef = useRef(generationStatus);
+  useEffect(() => {
+    if (prevStatusRef.current === 'generating' && generationStatus === 'complete' && activeCampaignId) {
+      // Small delay to let the server finish writing iteration records
+      const timer = setTimeout(() => {
+        navigateToCampaign(activeCampaignId);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    prevStatusRef.current = generationStatus;
+  }, [generationStatus, activeCampaignId, navigateToCampaign]);
 
   const handleGenerate = () => {
     const text = prompt.trim();

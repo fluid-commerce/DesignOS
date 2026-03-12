@@ -800,6 +800,45 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               await fs.mkdir(actualSessionDir, { recursive: true });
             }
 
+            // ── Auto-create Campaign > Asset > Frame in SQLite ──────────────
+            // This bridges the gap between AI sidebar generation and the
+            // campaign dashboard. Without this, generated assets only exist
+            // on disk in .fluid/working/ and never appear in the campaign view.
+            let campaignId: string | null = null;
+            let assetId: string | null = null;
+            let frameId: string | null = null;
+
+            if (!isIteration) {
+              try {
+                const titleWords = (prompt || 'Marketing Asset').split(/\s+/).slice(0, 6).join(' ');
+                const campaignTitle = titleWords.length > 40 ? titleWords.slice(0, 40) + '...' : titleWords;
+                const platform = body.skillType || 'social';
+
+                const campaign = createCampaign({
+                  title: campaignTitle,
+                  channels: [platform],
+                });
+                campaignId = campaign.id;
+
+                const asset = createAsset({
+                  campaignId: campaign.id,
+                  title: campaignTitle,
+                  assetType: platform,
+                  frameCount: 1,
+                });
+                assetId = asset.id;
+
+                const frame = createFrame({
+                  assetId: asset.id,
+                  frameIndex: 0,
+                });
+                frameId = frame.id;
+              } catch (err) {
+                console.error('[watcher] Failed to auto-create campaign hierarchy:', err);
+                // Non-fatal: generation still proceeds, just won't appear in dashboard
+              }
+            }
+
             // Each round gets its own subdirectory for file isolation.
             // This prevents iteration N from overwriting iteration N-1's files.
             const roundDir = path.join(actualSessionDir, `round-${roundNumber}`);
@@ -844,6 +883,16 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             parts.push(prompt || 'Generate a marketing asset');
             parts.push(`\nWrite all generated HTML output files to: ${roundDir}/`);
             parts.push(`IMPORTANT: Do NOT create, read, or modify any file named lineage.json. The system manages that file automatically.`);
+
+            // Tell agent about campaign hierarchy so it can use push_asset MCP tool
+            if (campaignId && assetId && frameId) {
+              parts.push(`\n--- CAMPAIGN CONTEXT ---`);
+              parts.push(`A campaign has been created for this generation. After generating each HTML variation, push it to the campaign using the push_asset MCP tool with these IDs:`);
+              parts.push(`  campaignId: ${campaignId}`);
+              parts.push(`  assetId: ${assetId}`);
+              parts.push(`  frameId: ${frameId}`);
+              parts.push(`Call push_asset once for each variation you generate, passing the full HTML as the "html" parameter.`);
+            }
 
             if (isIteration) {
               // Iteration mode: write winner HTML to a temp file to avoid E2BIG
@@ -911,8 +960,8 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             });
             (res as any).flushHeaders?.();
 
-            // Send session ID immediately
-            res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId })}\n\n`);
+            // Send session ID + campaign IDs immediately
+            res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId, assetId, frameId })}\n\n`);
 
             // Stream stdout line by line as SSE data events
             if (child.stdout) {
@@ -947,7 +996,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
             });
 
-            // On close: server updates lineage.json, then sends done event
+            // On close: server updates lineage.json, ingests orphan HTML files, then sends done event
             child.on('close', async (code: number | null) => {
               activeChild = null;
               try {
@@ -959,8 +1008,23 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               } catch (err) {
                 console.error('[watcher] Failed to update lineage:', err);
               }
+
+              // Auto-ingest: if the agent wrote HTML files to disk but didn't
+              // call push_asset, create iteration records so they show up in
+              // the campaign dashboard.
+              if (frameId) {
+                try {
+                  await autoIngestHtmlToIterations(
+                    roundDir, frameId, campaignId!, assetId!,
+                    path.resolve(srv.config.root, '..')
+                  );
+                } catch (err) {
+                  console.error('[watcher] Failed to auto-ingest HTML to iterations:', err);
+                }
+              }
+
               try {
-                res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId })}\n\n`);
+                res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId, campaignId })}\n\n`);
                 res.end();
               } catch {
                 // Response may already be closed (e.g. client disconnected)
@@ -1184,6 +1248,61 @@ async function updateLineageAfterGeneration(
   const tmpPath = lineagePath + '.tmp';
   await fs.writeFile(tmpPath, JSON.stringify(lineage, null, 2), 'utf-8');
   await fs.rename(tmpPath, lineagePath);
+}
+
+/**
+ * Auto-ingest HTML files from a round directory into the campaign hierarchy.
+ * Checks which files already have iteration records (created via push_asset)
+ * and creates records for any orphans. This ensures all generated variations
+ * appear in the campaign dashboard even if the agent wrote them directly to disk.
+ */
+async function autoIngestHtmlToIterations(
+  roundDir: string,
+  frameId: string,
+  campaignId: string,
+  assetId: string,
+  projectRoot: string,
+): Promise<void> {
+  let roundFiles: string[];
+  try {
+    roundFiles = await fs.readdir(roundDir);
+  } catch {
+    return; // round dir may not exist
+  }
+
+  const htmlFiles = roundFiles.filter(
+    (f) => f.endsWith('.html') && !f.startsWith('.') && f !== 'copy.html' && f !== 'layout.html' && f !== 'index.html'
+  );
+
+  if (htmlFiles.length === 0) return;
+
+  // Check existing iterations for this frame to avoid duplicates
+  const existingIterations = getIterations(frameId);
+  const existingPaths = new Set(existingIterations.map((it) => it.htmlPath));
+
+  for (let i = 0; i < htmlFiles.length; i++) {
+    // Build the relative path that would be stored in the DB.
+    // push_asset stores paths as: campaigns/{campaignId}/{assetId}/{frameId}/{iterationId}.html
+    // For disk-written files, we use the working dir path relative to project root.
+    const absPath = path.join(roundDir, htmlFiles[i]);
+    const relPath = path.relative(projectRoot, absPath);
+
+    // Skip if an iteration already references this path
+    if (existingPaths.has(relPath)) continue;
+
+    // Also check if any iteration htmlPath contains this filename (push_asset uses different paths)
+    const alreadyCovered = existingIterations.length > 0;
+
+    // Only create iterations if NONE exist for this frame (meaning agent didn't use push_asset at all)
+    if (alreadyCovered) continue;
+
+    createIteration({
+      frameId,
+      iterationIndex: i,
+      htmlPath: relPath,
+      source: 'ai',
+    });
+  }
 }
 
 /**

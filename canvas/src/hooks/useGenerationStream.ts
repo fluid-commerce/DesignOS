@@ -28,6 +28,7 @@ export function useGenerationStream() {
     addEvent,
     startGeneration,
     setSessionId,
+    setCampaignId,
     completeGeneration,
     errorGeneration,
     status,
@@ -86,9 +87,12 @@ export function useGenerationStream() {
               continue;
             }
 
-            // Capture session ID from the first server event
+            // Capture session ID and campaign ID from the first server event
             if (parsed.type === 'session' && parsed.sessionId) {
               setSessionId(parsed.sessionId);
+              if (parsed.campaignId) {
+                setCampaignId(parsed.campaignId);
+              }
               continue;
             }
 
@@ -105,7 +109,7 @@ export function useGenerationStream() {
         errorGeneration(String(err));
       }
     },
-    [addEvent, startGeneration, setSessionId, completeGeneration, errorGeneration],
+    [addEvent, startGeneration, setSessionId, setCampaignId, completeGeneration, errorGeneration],
   );
 
   const cancelGeneration = useCallback(async () => {
