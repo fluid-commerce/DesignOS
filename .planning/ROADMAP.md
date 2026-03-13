@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4.3: Install Process Safety** - Ensure sync.sh never wipes non-Fluid commands (GSD, plugins, etc.)
 - [x] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system (completed 2026-03-11)
 - [x] **Phase 7: Merge Jonathan's Codebase** - Rebuild Jonathan's content creation tool inside Chey's React/Vite/Zustand canvas app (completed 2026-03-12)
-- [ ] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths (Jonathan's 2026-03-12 commits partially address: edit-mode iteration view, asset path rewriting, postMessage live edits)
+- [x] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths (Jonathan's 2026-03-12 commits partially address: edit-mode iteration view, asset path rewriting, postMessage live edits) (completed 2026-03-13)
 
 ## Phase Details
 
@@ -239,14 +239,14 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7 > 8
 | 5. Learning Loop | 2/2 | Complete | 2026-03-11 |
 | 6. Marketing Skills Integration | 2/2 | Complete | 2026-03-11 |
 | 7. Merge Jonathan's Codebase | 7/7 | Complete | 2026-03-12 |
-| 8. AI Sidebar to Campaign Dashboard E2E | 3/4 | Gap closure pending |  |
+| 8. AI Sidebar to Campaign Dashboard E2E | 4/4 | Complete   | 2026-03-13 |
 
 ### Phase 9: Conversational chat UI — bottom input, message bubbles, auto-scroll
 
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 8
-**Plans:** 1/3 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 9 to break down)

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Not Started (2 plans ready, 0 executed)
-stopped_at: Completed 08-03-PLAN.md
-last_updated: "2026-03-12T22:55:14.120Z"
+stopped_at: "Completed 08-04-PLAN.md (gap closure: mosaic unwrap + StatusBadge)"
+last_updated: "2026-03-13T12:40:32.546Z"
 last_activity: 2026-03-12 -- Retroactive close of phases 3, 4, 4.1, 6 after audit
 progress:
-  total_phases: 13
-  completed_phases: 10
-  total_plans: 36
-  completed_plans: 34
+  total_phases: 12
+  completed_phases: 3
+  total_plans: 15
+  completed_plans: 27
   percent: 92
 ---
 
@@ -75,6 +75,7 @@ Progress: [█████████░] 92% (Overall: 33/36 plans)
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P01 | 8min | 1 tasks | 4 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P02 | 9 | 2 tasks | 3 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P03 | 25 | 2 tasks | 8 files |
+| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P04 | 2min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -180,6 +181,7 @@ Recent decisions affecting current work:
 - [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: buildAssetPreview/buildFramePreview extracted to preview-utils.ts as pure functions for testability; renderPreview closures in App.tsx stay thin
 - [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: Campaign mosaic uses html srcDoc in PreviewDescriptor with nested iframes — avoids DrillDownGrid refactor
 - [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: 500ms auto-navigate delay removed from PromptSidebar — Plan 02 done event is reliable
+- [Phase 08-04]: DrillDownItem.subtitle widened to ReactNode (not a new prop) — backward-compatible, avoids DrillDownGrid API churn
 
 ### Pending Todos
 
@@ -203,6 +205,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T22:55:14.118Z
-Stopped at: Completed 08-03-PLAN.md
+Last session: 2026-03-13T12:40:32.544Z
+Stopped at: Completed 08-04-PLAN.md (gap closure: mosaic unwrap + StatusBadge)
 Resume file: None

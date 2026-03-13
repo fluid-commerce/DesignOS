@@ -135,7 +135,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **E2E-02**: Iteration records have a generationStatus field ('pending'/'generating'/'complete') separate from user review status ('winner'/'rejected'/'final'/'unmarked')
 - [ ] **E2E-03**: Default campaign creates 7 assets (3 Instagram + 3 LinkedIn + 1 one-pager) from a single prompt, overridable by channel hints in the prompt
 - [ ] **E2E-04**: Multiple subagents spawn in parallel (one per asset) without lock collision, with campaign-level lock preventing concurrent full-campaign generations
-- [ ] **E2E-05**: Iframe previews at every navigation level — campaign cards show 2x2 mosaic, asset cards show full iframe, frame cards show full iframe
+- [x] **E2E-05**: Iframe previews at every navigation level — campaign cards show 2x2 mosaic, asset cards show full iframe, frame cards show full iframe
 - [ ] **E2E-06**: Sidebar detects campaign view context and offers "Add to existing campaign" mode, sending existingCampaignId in generate request
 - [ ] **E2E-07**: Auto-navigate to campaign view on generation completion, triggered by SSE done event (not timeout)
 
