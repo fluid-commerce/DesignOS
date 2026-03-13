@@ -4,7 +4,7 @@ import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types
 export type NavigationView = 'dashboard' | 'campaign' | 'creation' | 'slide';
 
 /** Top-level navigation tabs controlling the main viewport */
-export type NavTab = 'create' | 'my-creations' | 'templates' | 'patterns' | 'voice-guide';
+export type NavTab = 'create' | 'my-creations' | 'assets' | 'templates' | 'patterns' | 'voice-guide';
 
 /** Sub-tabs within the Create viewport */
 export type CreateViewportTab = 'campaigns' | 'creations';

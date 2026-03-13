@@ -5,6 +5,7 @@ import { LeftNav } from './LeftNav';
 import { ChatSidebar } from './ChatSidebar';
 import { VoiceGuide } from './VoiceGuide';
 import { BuildHero } from './BuildHero';
+import { AssetsScreen } from './AssetsScreen';
 
 interface AppShellProps {
   /**
@@ -71,8 +72,15 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
     switch (activeNavTab) {
       case 'create':
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
             <BuildHero />
+          </div>
+        );
+
+      case 'assets':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+            <AssetsScreen />
           </div>
         );
 

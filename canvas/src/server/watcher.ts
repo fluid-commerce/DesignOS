@@ -26,6 +26,9 @@ import {
   getAnnotations,
   createCampaignWithCreations,
   getCampaignPreviewUrls,
+  getSavedAssets,
+  createSavedAsset,
+  deleteSavedAsset,
 } from './db-api';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
@@ -559,6 +562,44 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               res.writeHead(201, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify(campaign));
             }
+            return;
+          }
+
+          // ── Saved assets (user library) ────────────────────────────────────
+
+          // GET /api/assets
+          if (url === '/api/assets' && method === 'GET') {
+            const assets = getSavedAssets();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(assets));
+            return;
+          }
+
+          // POST /api/assets
+          if (url === '/api/assets' && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.url || typeof body.url !== 'string') {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'url is required' }));
+              return;
+            }
+            const asset = createSavedAsset({
+              url: body.url,
+              name: body.name ?? null,
+              mimeType: body.mimeType ?? null,
+              source: body.source === 'upload' ? 'upload' : 'dam',
+            });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(asset));
+            return;
+          }
+
+          // DELETE /api/assets/:id
+          const assetIdMatch = url.match(/^\/api\/assets\/([^/]+)$/);
+          if (assetIdMatch && method === 'DELETE') {
+            deleteSavedAsset(assetIdMatch[1]);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
             return;
           }
 

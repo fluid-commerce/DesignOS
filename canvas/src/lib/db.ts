@@ -97,6 +97,15 @@ function initSchema(db: Database.Database): void {
       created_at INTEGER NOT NULL,
       FOREIGN KEY (iteration_id) REFERENCES iterations(id)
     );
+
+    CREATE TABLE IF NOT EXISTS saved_assets (
+      id TEXT PRIMARY KEY,
+      url TEXT NOT NULL,
+      name TEXT,
+      mime_type TEXT,
+      source TEXT NOT NULL DEFAULT 'dam',
+      created_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.

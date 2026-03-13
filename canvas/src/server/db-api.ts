@@ -401,3 +401,69 @@ export function getCampaignPreviewUrls(
     creationType: row.creation_type,
   }));
 }
+
+// ─── Saved assets (user library: add/save assets from DAM or upload) ─────────
+
+export interface SavedAsset {
+  id: string;
+  url: string;
+  name: string | null;
+  mimeType: string | null;
+  source: 'dam' | 'upload';
+  createdAt: number;
+}
+
+function rowToSavedAsset(row: Record<string, unknown>): SavedAsset {
+  return {
+    id: row.id as string,
+    url: row.url as string,
+    name: (row.name as string | null) ?? null,
+    mimeType: (row.mime_type as string | null) ?? null,
+    source: (row.source as 'dam' | 'upload') || 'dam',
+    createdAt: row.created_at as number,
+  };
+}
+
+export function getSavedAssets(): SavedAsset[] {
+  const db = getDb();
+  const rows = db.prepare(
+    'SELECT * FROM saved_assets ORDER BY created_at DESC'
+  ).all() as Record<string, unknown>[];
+  return rows.map(rowToSavedAsset);
+}
+
+export function createSavedAsset(input: {
+  url: string;
+  name?: string | null;
+  mimeType?: string | null;
+  source?: 'dam' | 'upload';
+}): SavedAsset {
+  const db = getDb();
+  const id = nanoid();
+  const now = Date.now();
+  const source = input.source ?? 'dam';
+  db.prepare(
+    'INSERT INTO saved_assets (id, url, name, mime_type, source, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(
+    id,
+    input.url,
+    input.name ?? null,
+    input.mimeType ?? null,
+    source,
+    now
+  );
+  return {
+    id,
+    url: input.url,
+    name: input.name ?? null,
+    mimeType: input.mimeType ?? null,
+    source,
+    createdAt: now,
+  };
+}
+
+export function deleteSavedAsset(id: string): void {
+  const db = getDb();
+  const stmt = db.prepare('DELETE FROM saved_assets WHERE id = ?');
+  stmt.run(id);
+}

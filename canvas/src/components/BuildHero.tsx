@@ -1,6 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { nanoid } from 'nanoid';
 import { FluidDAMModal } from './DAMPicker';
+import { IdeasGetStarted, type IdeaAction } from './IdeasGetStarted';
+
+/** Saved asset from /api/assets (same shape as IdeasGetStarted.SelectedAsset). */
+interface SavedAssetForIdeas {
+  id: string;
+  url: string;
+  name?: string | null;
+}
 
 // Project design tokens (from index.css)
 const BG_PRIMARY = 'var(--bg-primary, #0d0d0d)';
@@ -213,6 +221,8 @@ export function BuildHero() {
   const [videoDimensionDropdownOpen, setVideoDimensionDropdownOpen] = useState(false);
   const [damModalOpen, setDamModalOpen] = useState(false);
   const [selectedDamAssets, setSelectedDamAssets] = useState<Array<{ id: string; url: string; name?: string }>>([]);
+  const [savedAssets, setSavedAssets] = useState<SavedAssetForIdeas[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const creationDropdownRef = useRef<HTMLDivElement>(null);
   const socialPostFormatDropdownRef = useRef<HTMLDivElement>(null);
   const socialPostDimensionDropdownRef = useRef<HTMLDivElement>(null);
@@ -275,6 +285,22 @@ export function BuildHero() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [videoDimensionDropdownOpen]);
 
+  // Load saved assets (from Assets tab) so Ideas Get Started can suggest remixes
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/assets')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: Array<{ id: string; url: string; name?: string | null }>) => {
+        if (!cancelled && Array.isArray(data)) {
+          setSavedAssets(data.map((a) => ({ id: a.id, url: a.url, name: a.name ?? undefined })));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSavedAssets([]);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   const videoDimensionsForFormat = VIDEO_DIMENSIONS.filter((d) =>
     d.formats.includes(videoFormatId as 'story' | 'video')
   );
@@ -293,20 +319,51 @@ export function BuildHero() {
   const isSocialPost = creationTypeId === 'social-post';
   const isVideo = creationTypeId === 'instagram-story';
 
+  const ideasAssets = useMemo(
+    () => [...selectedDamAssets, ...savedAssets],
+    [selectedDamAssets, savedAssets]
+  );
+
+  const handleApplyIdea = useCallback((idea: IdeaAction) => {
+    if (idea.creationType) setCreationTypeId(idea.creationType);
+    if (idea.promptSuggestion) setInputValue(idea.promptSuggestion);
+    if (idea.socialPostFormatId) setSocialPostFormatId(idea.socialPostFormatId);
+    if (idea.socialPostDimensionId) setSocialPostDimensionId(idea.socialPostDimensionId);
+    if (idea.videoFormatId) setVideoFormatId(idea.videoFormatId);
+    if (idea.videoDimensionId) setVideoDimensionId(idea.videoDimensionId);
+    if (idea.templateId != null) setSelectedTemplateId(idea.templateId);
+  }, []);
+
   return (
     <div
       style={{
-        minHeight: '100%',
+        height: 924,
+        minHeight: 0,
         background: BG_PRIMARY,
         color: TEXT_PRIMARY,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.5rem',
+        justifyContent: 'flex-start',
+        paddingTop: '240px',
+        paddingBottom: '40px',
+        paddingLeft: '1.5rem',
+        paddingRight: '1.5rem',
+        gap: 0,
         fontFamily: 'inherit',
+        overflowY: 'auto',
       }}
     >
+      {/* Single centered column: title + input + chips + Discover (screenshot layout) */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          flexShrink: 0,
+        }}
+      >
       {/* Header */}
       <div style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <h1
@@ -319,7 +376,7 @@ export function BuildHero() {
             fontFamily: 'inherit',
           }}
         >
-          Build your ideas with Gemini
+          What do you want to create today?
         </h1>
         <div style={{ opacity: 0.5 }}>
           <SparklesIcon size={40} />
@@ -1203,6 +1260,12 @@ export function BuildHero() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Discover and remix ideas — part of the same centered block as in screenshot */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+        <IdeasGetStarted selectedAssets={ideasAssets} onApplyIdea={handleApplyIdea} />
+      </div>
       </div>
     </div>
   );
