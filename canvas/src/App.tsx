@@ -13,6 +13,7 @@ import { useFileWatcher } from './hooks/useFileWatcher';
 import type { Asset, Frame, Iteration } from './lib/campaign-types';
 import { TEMPLATE_METADATA, type TemplateMetadata } from './lib/template-configs';
 import { buildAssetPreview, buildFramePreview } from './lib/preview-utils';
+// Note: iteration previews always try the API — the server handles path resolution with multiple fallback strategies
 import { StatusBadge } from './components/StatusBadge';
 
 type CreationFlow = null | 'gallery' | 'customizer';

@@ -687,9 +687,10 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           // GET /api/iterations/:id/html — serves HTML with path rewrites, saved state, and postMessage listener
           const iterHtmlMatch = url.match(/^\/api\/iterations\/([^/]+)\/html$/);
           if (iterHtmlMatch && method === 'GET') {
+            const iterationId = iterHtmlMatch[1];
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterHtmlMatch[1]) as { html_path: string; user_state: string | null } | undefined;
+            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterationId) as { html_path: string; user_state: string | null } | undefined;
             if (!row?.html_path) {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('Not found');
@@ -697,11 +698,47 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             }
             const projectRoot = path.resolve(srv.config.root, '..');
             const socialTemplatesDir = path.resolve(projectRoot, 'templates/social');
-            let templatePath = path.resolve(projectRoot, row.html_path);
-            try {
-              await fs.access(templatePath);
-            } catch {
-              templatePath = path.join(socialTemplatesDir, path.basename(row.html_path));
+            const fluidDir = path.resolve(projectRoot, '.fluid');
+
+            // Try multiple path resolution strategies to find the HTML file
+            let templatePath = '';
+            let found = false;
+
+            // Strategy 1: stored html_path resolved against project root
+            const storedPath = path.resolve(projectRoot, row.html_path);
+            try { await fs.access(storedPath); templatePath = storedPath; found = true; } catch { /* noop */ }
+
+            // Strategy 2: stored html_path resolved against .fluid/ directory
+            if (!found) {
+              const fluidPath = path.resolve(fluidDir, row.html_path);
+              try { await fs.access(fluidPath); templatePath = fluidPath; found = true; } catch { /* noop */ }
+            }
+
+            // Strategy 3: canonical path .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html
+            if (!found) {
+              const hierarchy = db.prepare(`
+                SELECT a.campaign_id, f.asset_id, i.frame_id
+                FROM iterations i
+                JOIN frames f ON f.id = i.frame_id
+                JOIN assets a ON a.id = f.asset_id
+                WHERE i.id = ?
+              `).get(iterationId) as { campaign_id: string; asset_id: string; frame_id: string } | undefined;
+              if (hierarchy) {
+                const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.asset_id, hierarchy.frame_id, `${iterationId}.html`);
+                try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
+              }
+            }
+
+            // Strategy 4: fallback to templates/social/ by basename
+            if (!found) {
+              const fallbackPath = path.join(socialTemplatesDir, path.basename(row.html_path));
+              try { await fs.access(fallbackPath); templatePath = fallbackPath; found = true; } catch { /* noop */ }
+            }
+
+            if (!found) {
+              res.writeHead(404, { 'Content-Type': 'text/plain' });
+              res.end(`HTML file not found on disk (tried: stored="${row.html_path}", canonical=.fluid/campaigns/.../${iterationId}.html)`);
+              return;
             }
             try {
               let html = await fs.readFile(templatePath, 'utf-8');

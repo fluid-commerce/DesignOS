@@ -17,6 +17,15 @@ export interface PreviewDescriptorBasic {
   };
 }
 
+/** Returns true if the htmlPath looks like it could resolve to a real file. */
+function isValidHtmlPath(htmlPath: string | undefined | null): boolean {
+  if (!htmlPath) return false;
+  // Filter out placeholder/test paths that were never resolved to real files
+  const invalid = ['placeholder', 'test.html', '/path/to/variation.html', '/path/to/template.html'];
+  if (invalid.includes(htmlPath)) return false;
+  return true;
+}
+
 /**
  * Returns the native pixel dimensions for a given asset type.
  * Used to correctly scale iframe previews in DrillDownGrid cards.
@@ -38,7 +47,7 @@ export function buildAssetPreview(
   asset: Asset,
   latestIter: Iteration | undefined
 ): PreviewDescriptorBasic {
-  if (latestIter?.htmlPath && latestIter.generationStatus === 'complete') {
+  if (isValidHtmlPath(latestIter?.htmlPath) && latestIter!.generationStatus === 'complete') {
     const dims = getAssetDimensions(asset.assetType);
     return { src: `/api/iterations/${latestIter.id}/html`, ...dims };
   }
@@ -67,7 +76,7 @@ export function buildFramePreview(
         iter.iterationIndex > best.iterationIndex ? iter : best
       )
     : null;
-  if (latest?.htmlPath && latest.generationStatus === 'complete') {
+  if (isValidHtmlPath(latest?.htmlPath) && latest!.generationStatus === 'complete') {
     const dims = getAssetDimensions(parentAsset?.assetType ?? 'instagram');
     return { src: `/api/iterations/${latest.id}/html`, ...dims };
   }

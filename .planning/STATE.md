@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Not Started (2 plans ready, 0 executed)
-stopped_at: Phase 8 plans written (not executed). Jonathan pushing parallel changes to main.
-last_updated: "2026-03-12T23:30:00.000Z"
-last_activity: 2026-03-12 -- Merged Jonathan's 3 commits (template library UI, editor layer ordering, texture library + edit-mode iteration view)
+stopped_at: Phase 8 executed (4/4 plans). Preview path resolution + test DB isolation fixed. Awaiting human verification of live previews.
+last_updated: "2026-03-13T14:50:00.000Z"
+last_activity: 2026-03-13 -- Executed phase 8 gap closure (08-04), fixed preview path resolution (canonical .fluid/ fallback), fixed test DB pollution, cleaned 239 garbage campaigns from fluid.db
 progress:
   total_phases: 13
   completed_phases: 10
   total_plans: 36
-  completed_plans: 34
-  percent: 92
+  completed_plans: 35
+  percent: 94
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 8 (AI Sidebar to Campaign Dashboard E2E) — plans written, not executed
-Status: Plans Ready (3 plans written, 0 executed). Jonathan's latest commit partially addresses Phase 8 goals (edit-mode iteration view, asset path rewriting in /api/iterations/:id/html, postMessage listener for live edits).
-Last activity: 2026-03-12 -- Merged Jonathan's 3 commits into local main
+Phase: 8 (AI Sidebar to Campaign Dashboard E2E) — 4/4 plans executed, awaiting human verification
+Status: Executed. All 4 plans complete (08-01 thru 08-04). Post-execution fixes: server preview path resolution (4-strategy fallback), store iteration loading for frame previews, test DB isolation, production DB cleanup.
+Last activity: 2026-03-13 -- Phase 8 execution + preview path fixes + DB cleanup
 
 Progress: [████████░░] 85% (Overall: 30/36 plans — Phase 8 plans written but not executed)
 
@@ -187,6 +187,12 @@ Recent decisions affecting current work:
 - [Jonathan 2026-03-12]: /api/iterations/:id/html now rewrites asset paths, injects saved user_state, and adds postMessage listener for live edits — partially fulfills Phase 8 preview rendering goals
 - [Jonathan 2026-03-12]: Inline edit mode added to App.tsx — iterations open with live iframe + ContentEditor sidebar
 - [Jonathan 2026-03-12]: Image URL normalization in editor.ts — strips blob: and absolute URLs on save/load
+
+- [2026-03-13]: Preview path resolution: added 4-strategy fallback in /api/iterations/:id/html — stored path, .fluid/ relative, canonical .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html, templates/social basename
+- [2026-03-13]: Store fix: navigateToAsset now fetches iterations for all frames so frame preview cards show content instead of "No iterations"
+- [2026-03-13]: preview-utils: added isValidHtmlPath filter to skip placeholder/test.html paths from iframe rendering
+- [2026-03-13]: db.test.ts isolation: added FLUID_DB_PATH temp dir setup — was writing test data to production fluid.db on every vitest run
+- [2026-03-13]: DB cleanup: deleted 239 garbage campaigns (and cascaded assets/frames/iterations) created by test pollution. Kept 2 real campaigns.
 
 ### Parallel Development Note
 

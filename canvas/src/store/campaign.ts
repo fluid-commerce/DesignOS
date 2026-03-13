@@ -119,6 +119,22 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       iterations: [],
     });
     await get().fetchFrames(id);
+    // Fetch iterations for all frames so frame preview cards can show content
+    const { frames } = get();
+    if (frames.length > 0) {
+      const allIterations: Iteration[] = [];
+      await Promise.all(
+        frames.map(async (frame) => {
+          try {
+            const res = await fetch(`/api/frames/${frame.id}/iterations`);
+            if (!res.ok) return;
+            const iters: Iteration[] = await res.json();
+            allIterations.push(...iters);
+          } catch { /* noop */ }
+        })
+      );
+      set({ iterations: allIterations });
+    }
   },
 
   navigateToFrame: async (id: string) => {

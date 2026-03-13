@@ -12,13 +12,13 @@
 
 // @vitest-environment node
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import Database from 'better-sqlite3';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs';
 
-// These imports will fail until db-api.ts is created (TDD RED)
+import { closeDb } from '../lib/db';
 import {
   createCampaign,
   getCampaigns,
@@ -36,8 +36,17 @@ import {
   createCampaignWithAssets,
 } from '../server/db-api';
 
-// Reset the singleton for each test by using an in-memory or temp DB
-// We'll override the DB_PATH via a test setup that patches the module
+// Use a temp database so tests never pollute the production fluid.db
+beforeAll(() => {
+  closeDb();
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'db-test-'));
+  process.env.FLUID_DB_PATH = path.join(dir, 'test.db');
+});
+
+afterAll(() => {
+  closeDb();
+  delete process.env.FLUID_DB_PATH;
+});
 
 describe('db schema creation', () => {
   it('creates all 5 tables on first getDb() call', () => {
