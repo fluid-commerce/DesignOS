@@ -22,7 +22,7 @@ INPUTS:
   - Accent color: orange | blue | green | purple (from copy.md, social and one-pager modes only)
   - Template name (optional): archetype name for CSS reference
   - Fix feedback (optional): structured feedback from spec-check agent for fix loop re-runs
-  - Whether to embed assets as base64 (default: yes for portability)
+  - Assets referenced via /assets/ URL paths (served by Vite middleware)
   - {working_dir}/copy.md (written by copy-agent)
   - {working_dir}/layout.html or {working_dir}/section.liquid (written by layout-agent)
 OUTPUTS:
@@ -192,20 +192,16 @@ Embed font files for portability:
 ```css
 @font-face {
   font-family: 'flfontbold';
-  src: url('assets/fonts/flfontbold.ttf') format('truetype');
-  /* Or base64 data URI for full portability */
+  src: url('/assets/fonts/flfontbold.ttf') format('truetype');
 }
 @font-face {
   font-family: 'NeueHaas';
-  src: url('assets/fonts/Inter-VariableFont.ttf') format('truetype');
+  src: url('/assets/fonts/Inter-VariableFont.ttf') format('truetype');
   /* Inter serves as NeueHaas dev proxy */
 }
 ```
 
-When base64 embedding is requested (default): read the font files and embed as data URIs. Use Bash to base64-encode:
-```bash
-base64 -i assets/fonts/flfontbold.ttf
-```
+IMPORTANT: Always use `/assets/` URL paths (e.g., `/assets/fonts/flfontbold.ttf`). NEVER base64-encode font files — the canvas serves them via Vite middleware.
 
 ## Step 6: Add Brushstroke Textures
 
@@ -234,7 +230,7 @@ Use `Glob` to verify available files: `assets/brushstrokes/*.png`
 - Alternatives: edge framing, full-width sweep, bottom grounding
 - For manifesto posts: both-sides "curtain" framing
 
-For portability: embed brushstroke PNGs as base64 data URIs, or use relative paths from project root.
+Always use `/assets/` URL paths for brushstrokes (e.g., `/assets/brushstrokes/brush-texture-01.png`). NEVER base64-encode image files.
 
 ## Step 7: Add Circle Sketch Emphasis
 
@@ -256,7 +252,7 @@ Use white circle mask PNGs from `assets/circles/` with CSS mask-image:
   width: 320px;
   height: 120px;
   background-color: var(--accent); /* Weight 85: accent via backgroundColor, NOT hue-rotate */
-  mask-image: url('assets/circles/circle-1.png');
+  mask-image: url('/assets/circles/circle-1.png');
   mask-size: contain;
   mask-repeat: no-repeat;
   opacity: 0.5-0.7; /* Weight 80 */
