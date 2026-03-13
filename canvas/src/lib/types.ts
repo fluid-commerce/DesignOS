@@ -3,7 +3,7 @@ export interface SessionSummary {
   id: string;
   created: string;
   platform: string;
-  variationCount: number;
+  versionCount: number;
   hasAnnotations: boolean;
   latestRound: number;
   title?: string;
@@ -13,11 +13,11 @@ export interface SessionSummary {
 export interface SessionData {
   id: string;
   lineage: Lineage;
-  variations: VariationFile[];
+  variations: VersionFile[];
   annotations: AnnotationFile | null;
 }
 
-export interface VariationFile {
+export interface VersionFile {
   path: string;
   html: string;
   name: string;
@@ -27,7 +27,7 @@ export interface VariationFile {
 export interface AnnotationFile {
   sessionId: string;
   annotations: Annotation[];
-  statuses: Record<string, VariationStatus>;
+  statuses: Record<string, VersionStatus>;
 }
 
 export interface Annotation {
@@ -35,7 +35,7 @@ export interface Annotation {
   type: 'sidebar' | 'pin';
   author: string;
   authorType: 'human' | 'agent';
-  variationPath: string;
+  versionPath: string;
   text: string;
   createdAt: string;
   x?: number;        // percentage 0-100 (pin only)
@@ -52,7 +52,13 @@ export interface AnnotationReply {
   createdAt: string;
 }
 
-export type VariationStatus = 'winner' | 'rejected' | 'final' | 'unmarked';
+export type VersionStatus = 'winner' | 'rejected' | 'final' | 'unmarked';
+
+// Keep backward-compat aliases for VariationStatus / VariationFile during transition
+/** @deprecated Use VersionStatus */
+export type VariationStatus = VersionStatus;
+/** @deprecated Use VersionFile */
+export type VariationFile = VersionFile;
 
 // Lineage types (support both Phase 2 flat and Phase 4 round formats)
 export interface Lineage {
@@ -71,15 +77,15 @@ export interface Lineage {
 export interface Round {
   roundNumber: number;
   prompt: string;
-  variations: VariationInfo[];
+  variations: VersionInfo[];
   winnerId: string | null;
   timestamp: string;
 }
 
-export interface VariationInfo {
+export interface VersionInfo {
   id: string;
   path: string;
-  status: VariationStatus;
+  status: VersionStatus;
   specCheck: 'pass' | 'fail' | 'draft';
 }
 
@@ -94,7 +100,7 @@ export interface LegacyEntry {
 export interface IterationContext {
   winnerHtml: string;
   annotations: Annotation[];
-  statuses: Record<string, VariationStatus>;
+  statuses: Record<string, VersionStatus>;
   currentRound: number;
   originalPrompt: string;
 }
@@ -109,10 +115,13 @@ export interface GenerateRequestBody {
   iterationContext?: IterationContext;
 }
 
-// Dimension presets for known asset types
-export const ASSET_DIMENSIONS: Record<string, { width: number; height: number }> = {
+// Dimension presets for known creation types
+export const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
   'instagram': { width: 1080, height: 1080 },
   'linkedin-landscape': { width: 1200, height: 627 },
   'linkedin-wide': { width: 1340, height: 630 },
   'one-pager': { width: 816, height: 1056 },  // letter at 96dpi
 };
+
+/** @deprecated Use CREATION_DIMENSIONS */
+export const ASSET_DIMENSIONS = CREATION_DIMENSIONS;

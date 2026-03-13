@@ -52,27 +52,27 @@ function initSchema(db: Database.Database): void {
       updated_at INTEGER NOT NULL
     );
 
-    CREATE TABLE IF NOT EXISTS assets (
+    CREATE TABLE IF NOT EXISTS creations (
       id TEXT PRIMARY KEY,
       campaign_id TEXT NOT NULL,
       title TEXT NOT NULL,
-      asset_type TEXT NOT NULL,
-      frame_count INTEGER NOT NULL DEFAULT 1,
+      creation_type TEXT NOT NULL,
+      slide_count INTEGER NOT NULL DEFAULT 1,
       created_at INTEGER NOT NULL,
       FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
     );
 
-    CREATE TABLE IF NOT EXISTS frames (
+    CREATE TABLE IF NOT EXISTS slides (
       id TEXT PRIMARY KEY,
-      asset_id TEXT NOT NULL,
-      frame_index INTEGER NOT NULL,
+      creation_id TEXT NOT NULL,
+      slide_index INTEGER NOT NULL,
       created_at INTEGER NOT NULL,
-      FOREIGN KEY (asset_id) REFERENCES assets(id)
+      FOREIGN KEY (creation_id) REFERENCES creations(id)
     );
 
     CREATE TABLE IF NOT EXISTS iterations (
       id TEXT PRIMARY KEY,
-      frame_id TEXT NOT NULL,
+      slide_id TEXT NOT NULL,
       iteration_index INTEGER NOT NULL,
       html_path TEXT NOT NULL,
       slot_schema TEXT,
@@ -83,7 +83,7 @@ function initSchema(db: Database.Database): void {
       template_id TEXT,
       generation_status TEXT NOT NULL DEFAULT 'complete',
       created_at INTEGER NOT NULL,
-      FOREIGN KEY (frame_id) REFERENCES frames(id)
+      FOREIGN KEY (slide_id) REFERENCES slides(id)
     );
 
     CREATE TABLE IF NOT EXISTS annotations (
