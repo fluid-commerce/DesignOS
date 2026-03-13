@@ -250,3 +250,14 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7 > 8
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 9 to break down)
+
+### Phase 10: App Navigation Overhaul — Icon Left Nav + Collapsible Chat Sidebar
+
+**Goal:** Replace the current flat layout with a slim icon-based left nav (Campaigns, Templates, Patterns, Voice Guide) that controls the main viewport, reposition the AI chat sidebar between the left nav and viewport as a collapsible panel (toggled via bottom nav icon), and add Voice Guide as a new markdown-rendering viewport with vertical side-tabs for 13 brand knowledge docs
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, NAV-08
+**Depends on:** Phase 8
+**Plans:** 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Core layout overhaul: store extension, LeftNav, ChatSidebar, AppShell rewrite, viewport switching
+- [ ] 10-02-PLAN.md — Voice Guide (markdown renderer + side-tabs), patterns middleware, test updates, visual checkpoint
