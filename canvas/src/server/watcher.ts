@@ -275,6 +275,25 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         next();
       });
 
+      // Serve Template Library at /templates/ for the AppShell iframe
+      srv.middlewares.use(async (req, res, next) => {
+        if (req.method !== 'GET' || !req.url) return next();
+        const pathname = req.url.split('?')[0];
+        if (!pathname.startsWith('/templates/') && pathname !== '/templates') return next();
+        // Individual template HTML files are already handled by the /templates/:id.html middleware above;
+        // this handler serves the template library index at /templates/ and /templates/index.html
+        if (pathname !== '/templates' && pathname !== '/templates/') return next();
+        try {
+          const html = await fs.readFile(path.join(templatesDir, 'index.html'), 'utf-8');
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(html);
+          return;
+        } catch {
+          /* templates/index.html not found */
+        }
+        next();
+      });
+
       // Full-size preview screen: /preview/templates/:name.html — top bar, decorative bg, iframe, bottom bar with prev/next
       const previewTemplateOrder = [
         't1-quote', 't2-app-highlight', 't3-partner-alert', 't4-fluid-ad',

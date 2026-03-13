@@ -36,6 +36,8 @@ beforeEach(() => {
     loading: false,
     leftSidebarOpen: true,
     rightSidebarOpen: false,
+    activeNavTab: 'campaigns',
+    chatSidebarOpen: true,
     _requestId: 0,
   });
 });
@@ -488,5 +490,55 @@ describe('fetchLatestIterations', () => {
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
     expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeDefined();
+  });
+});
+
+// ============================================================
+// Phase 10: Top-level navigation tab and chat sidebar state
+// ============================================================
+
+describe('activeNavTab (Phase 10)', () => {
+  it('defaults to campaigns', () => {
+    const state = useCampaignStore.getState();
+    expect(state.activeNavTab).toBe('campaigns');
+  });
+
+  it('setActiveNavTab updates activeNavTab to templates', () => {
+    useCampaignStore.getState().setActiveNavTab('templates');
+    expect(useCampaignStore.getState().activeNavTab).toBe('templates');
+  });
+
+  it('setActiveNavTab updates activeNavTab to patterns', () => {
+    useCampaignStore.getState().setActiveNavTab('patterns');
+    expect(useCampaignStore.getState().activeNavTab).toBe('patterns');
+  });
+
+  it('setActiveNavTab updates activeNavTab to voice-guide', () => {
+    useCampaignStore.getState().setActiveNavTab('voice-guide');
+    expect(useCampaignStore.getState().activeNavTab).toBe('voice-guide');
+  });
+});
+
+describe('chatSidebarOpen (Phase 10)', () => {
+  it('defaults to true', () => {
+    const state = useCampaignStore.getState();
+    expect(state.chatSidebarOpen).toBe(true);
+  });
+
+  it('toggleChatSidebar flips chatSidebarOpen from true to false', () => {
+    useCampaignStore.getState().toggleChatSidebar();
+    expect(useCampaignStore.getState().chatSidebarOpen).toBe(false);
+  });
+
+  it('toggleChatSidebar flips chatSidebarOpen back to true', () => {
+    useCampaignStore.getState().toggleChatSidebar();
+    useCampaignStore.getState().toggleChatSidebar();
+    expect(useCampaignStore.getState().chatSidebarOpen).toBe(true);
+  });
+
+  it('leftSidebarOpen stays in sync with chatSidebarOpen', () => {
+    useCampaignStore.getState().toggleChatSidebar();
+    const state = useCampaignStore.getState();
+    expect(state.leftSidebarOpen).toBe(state.chatSidebarOpen);
   });
 });

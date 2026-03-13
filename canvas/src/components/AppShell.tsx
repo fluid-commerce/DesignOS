@@ -3,6 +3,7 @@ import { useCampaignStore } from '../store/campaign';
 import { Breadcrumb } from './Breadcrumb';
 import { LeftNav } from './LeftNav';
 import { ChatSidebar } from './ChatSidebar';
+import { VoiceGuide } from './VoiceGuide';
 
 interface AppShellProps {
   /**
@@ -28,10 +29,6 @@ interface AppShellProps {
    */
   onNewAsset?: () => void;
 
-  /**
-   * Voice Guide component (Plan 02 will pass this).
-   */
-  voiceGuideContent?: ReactNode;
 }
 
 const RIGHT_SIDEBAR_WIDTH = 320;
@@ -61,7 +58,7 @@ function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
   );
 }
 
-export function AppShell({ leftSidebar, rightSidebar, children, onNewAsset, voiceGuideContent }: AppShellProps) {
+export function AppShell({ leftSidebar, rightSidebar, children, onNewAsset }: AppShellProps) {
   const activeNavTab = useCampaignStore((s) => s.activeNavTab);
   const rightSidebarOpen = useCampaignStore((s) => s.rightSidebarOpen);
   const toggleRightSidebar = useCampaignStore((s) => s.toggleRightSidebar);
@@ -146,18 +143,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewAsset, voic
         );
 
       case 'voice-guide':
-        return voiceGuideContent ?? (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: '#555',
-            fontSize: '0.9rem',
-          }}>
-            Voice Guide — coming in Plan 02
-          </div>
-        );
+        return <VoiceGuide />;
 
       default:
         return null;
