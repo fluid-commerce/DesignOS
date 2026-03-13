@@ -1,18 +1,18 @@
-import type { Round, VariationStatus } from '../lib/types';
+import type { Round, VersionStatus } from '../lib/types';
 import { StatusBadge } from './StatusBadge';
 import { PromptReveal } from './PromptReveal';
 
 interface TimelineNodeProps {
   round: Round;
   isActive: boolean;
-  onVariationClick?: (variationPath: string) => void;
+  onVersionClick?: (versionPath: string) => void;
 }
 
 /**
  * Single node in the iteration timeline representing one round.
  * Shows round number, variation statuses, winner highlight, and collapsible prompt.
  */
-export function TimelineNode({ round, isActive, onVariationClick }: TimelineNodeProps) {
+export function TimelineNode({ round, isActive, onVersionClick }: TimelineNodeProps) {
   return (
     <div
       data-testid={`timeline-node-${round.roundNumber}`}
@@ -58,7 +58,7 @@ export function TimelineNode({ round, isActive, onVariationClick }: TimelineNode
             <button
               key={v.id}
               data-testid={`timeline-variation-${v.id}`}
-              onClick={() => onVariationClick?.(v.path)}
+              onClick={() => onVersionClick?.(v.path)}
               style={{
                 display: 'flex',
                 alignItems: 'center',

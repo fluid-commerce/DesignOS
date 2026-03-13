@@ -97,13 +97,13 @@ export async function discoverSessions(workingDir: string): Promise<SessionSumma
 
       // Count actual HTML files on disk (more reliable than lineage metadata)
       const diskVariations = await findVariationFiles(path.join(workingDir, dir));
-      const variationCount = diskVariations.length || countVariations(lineage);
+      const versionCount = diskVariations.length || countVariations(lineage);
 
       sessions.push({
         id: dir,
         created: lineage.created,
         platform: lineage.platform,
-        variationCount,
+        versionCount,
         hasAnnotations,
         latestRound,
         ...(lineage.title ? { title: lineage.title } : {}),

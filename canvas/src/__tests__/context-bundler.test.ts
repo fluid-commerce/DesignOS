@@ -6,13 +6,13 @@ function makeVariation(id: string, html: string): VariationFile {
   return { path: `/working/session/${id}.html`, html, name: `${id}.html` };
 }
 
-function makeAnnotation(variationPath: string, text: string): Annotation {
+function makeAnnotation(versionPath: string, text: string): Annotation {
   return {
     id: `ann-${Math.random().toString(36).slice(2, 8)}`,
     type: 'sidebar',
     author: 'tester',
     authorType: 'human',
-    variationPath,
+    versionPath,
     text,
     createdAt: new Date().toISOString(),
   };

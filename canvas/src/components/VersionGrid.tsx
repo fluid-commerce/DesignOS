@@ -44,7 +44,7 @@ export function VersionGrid({
     }}>
       {versions.map((v) => {
         const pins = annotations.filter(
-          (a) => a.variationPath === v.path && a.type === 'pin'
+          (a) => a.versionPath === v.path && a.type === 'pin'
         );
         return (
           <CreationFrame

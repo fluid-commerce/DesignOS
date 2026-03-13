@@ -1,10 +1,10 @@
-import type { Lineage, VariationStatus } from '../lib/types';
+import type { Lineage, VersionStatus } from '../lib/types';
 import { TimelineNode } from './TimelineNode';
 
 interface TimelineProps {
   lineage: Lineage;
-  statuses: Record<string, VariationStatus>;
-  onVariationClick?: (variationPath: string) => void;
+  statuses: Record<string, VersionStatus>;
+  onVersionClick?: (versionPath: string) => void;
 }
 
 /**
@@ -13,7 +13,7 @@ interface TimelineProps {
  *
  * Supports both Phase 4 (rounds) and Phase 2 (entries) lineage formats.
  */
-export function Timeline({ lineage, statuses, onVariationClick }: TimelineProps) {
+export function Timeline({ lineage, statuses, onVersionClick }: TimelineProps) {
   const rounds = lineage.rounds ?? [];
 
   // Legacy format: show entries as a single pseudo-round
@@ -29,14 +29,14 @@ export function Timeline({ lineage, statuses, onVariationClick }: TimelineProps)
               variations: lineage.entries.map((e, i) => ({
                 id: `v${i + 1}`,
                 path: e.output,
-                status: (statuses[e.output] ?? 'unmarked') as VariationStatus,
+                status: (statuses[e.output] ?? 'unmarked') as VersionStatus,
                 specCheck: 'draft' as const,
               })),
               winnerId: null,
               timestamp: lineage.created,
             }}
             isActive={true}
-            onVariationClick={onVariationClick}
+            onVersionClick={onVersionClick}
           />
         </div>
       </div>
@@ -63,7 +63,7 @@ export function Timeline({ lineage, statuses, onVariationClick }: TimelineProps)
             key={round.roundNumber}
             round={round}
             isActive={i === rounds.length - 1}
-            onVariationClick={onVariationClick}
+            onVersionClick={onVersionClick}
           />
         ))}
       </div>

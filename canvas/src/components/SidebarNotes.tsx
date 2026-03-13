@@ -4,7 +4,7 @@ import type { Annotation, VariationFile } from '../lib/types';
 interface SidebarNotesProps {
   notes: Annotation[];
   variations: VariationFile[];
-  onAddNote: (variationPath: string, text: string) => void;
+  onAddNote: (versionPath: string, text: string) => void;
   onClose: () => void;
 }
 
@@ -22,9 +22,9 @@ export function SidebarNotes({ notes, variations, onAddNote, onClose }: SidebarN
   const grouped = useMemo(() => {
     const map = new Map<string, Annotation[]>();
     for (const note of notes) {
-      const existing = map.get(note.variationPath) ?? [];
+      const existing = map.get(note.versionPath) ?? [];
       existing.push(note);
-      map.set(note.variationPath, existing);
+      map.set(note.versionPath, existing);
     }
     return map;
   }, [notes]);
