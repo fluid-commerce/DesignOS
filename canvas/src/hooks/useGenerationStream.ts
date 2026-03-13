@@ -9,6 +9,11 @@ interface GenerateOptions {
   skillType?: string;
   /** Session ID for iteration mode -- server echoes back the same ID */
   sessionId?: string;
+  /**
+   * When set, the server adds assets to this existing campaign instead of
+   * creating a new one. Sent as existingCampaignId in the POST body.
+   */
+  existingCampaignId?: string;
   /** Iteration context including winner HTML, annotations, and statuses */
   iterationContext?: {
     winnerHtml: string;

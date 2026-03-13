@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 8 context gathered (merged)
-last_updated: "2026-03-12T20:38:44.163Z"
-last_activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
+status: Not Started (2 plans ready, 0 executed)
+stopped_at: Phase 8 executed (4/4 plans). Preview path resolution + test DB isolation fixed. Awaiting human verification of live previews.
+last_updated: "2026-03-13T14:50:00.000Z"
+last_activity: 2026-03-13 -- Executed phase 8 gap closure (08-04), fixed preview path resolution (canonical .fluid/ fallback), fixed test DB pollution, cleaned 239 garbage campaigns from fluid.db
 progress:
   total_phases: 13
-  completed_phases: 8
-  total_plans: 33
-  completed_plans: 30
-  percent: 73
+  completed_phases: 10
+  total_plans: 36
+  completed_plans: 35
+  percent: 94
 ---
 
 # Project State
@@ -21,16 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phase 4 in progress. Canvas scaffold + MCP server + annotations/timeline complete. Next: end-to-end integration.
+**Current focus:** Phases 1-7 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 8 (sidebar-to-dashboard E2E), 9 (chat UI). Jonathan actively pushing changes to main outside GSD tracking — his work overlaps with Phase 8 (iteration view, asset path fixes) and adds new capabilities (texture library, template library UI).
 
 ## Current Position
 
-Phase: 4.1 of 5 (Canvas Polish & Integration Hardening)
-Plan: 4 of 4 in current phase (04.1-01, 04.1-02, 04.1-03 complete)
-Status: In Progress
-Last activity: 2026-03-11 -- Completed 04.1-02 session-aware prompt sidebar with iterate mode
+Phase: 8 (AI Sidebar to Campaign Dashboard E2E) — 4/4 plans executed, awaiting human verification
+Status: Executed. All 4 plans complete (08-01 thru 08-04). Post-execution fixes: server preview path resolution (4-strategy fallback), store iteration loading for frame previews, test DB isolation, production DB cleanup.
+Last activity: 2026-03-13 -- Phase 8 execution + preview path fixes + DB cleanup
 
-Progress: [███████░░░] 73% (Overall: 19/26 plans)
+Progress: [████████░░] 85% (Overall: 30/36 plans — Phase 8 plans written but not executed)
 
 ## Performance Metrics
 
@@ -73,6 +72,9 @@ Progress: [███████░░░] 73% (Overall: 19/26 plans)
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P05 | 7min | 2 tasks | 9 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P06 | 4min | 1 tasks | 5 files |
 | Phase 07-merge-jonathan-s-codebase-into-fluid-designos P07 | 5min | 2 tasks | 5 files |
+| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P01 | 8min | 1 tasks | 4 files |
+| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P02 | 9 | 2 tasks | 3 files |
+| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P03 | 25 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -170,6 +172,31 @@ Recent decisions affecting current work:
 - [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: /fluid-campaign blog channel uses inline Agent (Markdown output) — not fluid-social
 - [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: DAM token is env-var gated (VITE_FLUID_DAM_TOKEN); graceful fallback to local file picker when absent
 - [Phase 07-merge-jonathan-s-codebase-into-fluid-designos]: CampaignChannelSlots: 5 slots per channel is a hard constant matching Jonathan's locked decision
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: generationStatus is optional on Iteration interface so existing code compiles without changes; DB DEFAULT 'complete' ensures backward compatibility
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: getCampaignPreviewUrls uses INNER JOIN with MAX(iteration_index) subquery then GROUP BY asset for one preview per asset, LIMIT 4
+- [Phase 08-02]: activeCampaignGeneration lock covers full-campaign generations only; iterate mode uses legacy activeChild lock and is not blocked
+- [Phase 08-02]: parseChannelHints uses regex for channel detection; no hint defaults to 3 IG + 3 LI + 1 one-pager (7 total assets)
+- [Phase 08-02]: done SSE event fires only when all N children close — counter per child.on(close) prevents auto-navigate race
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: buildAssetPreview/buildFramePreview extracted to preview-utils.ts as pure functions for testability; renderPreview closures in App.tsx stay thin
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: Campaign mosaic uses html srcDoc in PreviewDescriptor with nested iframes — avoids DrillDownGrid refactor
+- [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: 500ms auto-navigate delay removed from PromptSidebar — Plan 02 done event is reliable
+
+- [Jonathan 2026-03-12]: Template Library serves at `/`, canvas app at `/app` — middleware in watcher.ts reads from Reference/Context/Jonathan's Codebase/ and rewrites asset paths
+- [Jonathan 2026-03-12]: Editor z-index replaced with Order dropdown (DOM-based layer reordering)
+- [Jonathan 2026-03-12]: Full texture library added — 65+ PNGs organized as textures/brush/, textures/circles/, textures/scribbles/, textures/lines/, textures/x/
+- [Jonathan 2026-03-12]: /api/iterations/:id/html now rewrites asset paths, injects saved user_state, and adds postMessage listener for live edits — partially fulfills Phase 8 preview rendering goals
+- [Jonathan 2026-03-12]: Inline edit mode added to App.tsx — iterations open with live iframe + ContentEditor sidebar
+- [Jonathan 2026-03-12]: Image URL normalization in editor.ts — strips blob: and absolute URLs on save/load
+
+- [2026-03-13]: Preview path resolution: added 4-strategy fallback in /api/iterations/:id/html — stored path, .fluid/ relative, canonical .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html, templates/social basename
+- [2026-03-13]: Store fix: navigateToAsset now fetches iterations for all frames so frame preview cards show content instead of "No iterations"
+- [2026-03-13]: preview-utils: added isValidHtmlPath filter to skip placeholder/test.html paths from iframe rendering
+- [2026-03-13]: db.test.ts isolation: added FLUID_DB_PATH temp dir setup — was writing test data to production fluid.db on every vitest run
+- [2026-03-13]: DB cleanup: deleted 239 garbage campaigns (and cascaded assets/frames/iterations) created by test pollution. Kept 2 real campaigns.
+
+### Parallel Development Note
+
+Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD phases but may overlap with or partially fulfill planned work. When executing Phase 8 plans, check what Jonathan has already shipped to avoid duplicating effort or creating conflicts. Key overlap areas: iteration preview rendering, asset path handling, edit mode UI.
 
 ### Pending Todos
 
@@ -193,6 +220,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T20:38:44.160Z
-Stopped at: Phase 8 context gathered (merged)
+Last session: 2026-03-12T23:30:00.000Z
+Stopped at: Phase 8 plans written (not executed). Merged Jonathan's 3 commits. Local and remote in sync.
 Resume file: .planning/phases/08-ai-sidebar-to-campaign-dashboard-end-to-end/08-CONTEXT.md

@@ -40,7 +40,7 @@ function normalizeImageUrlForSave(value: string): string {
   if (value.startsWith('data:') || !value.startsWith('http')) return value;
   try {
     const u = new URL(value);
-    if (u.origin === window.location.origin && u.pathname.startsWith('/template-assets/')) {
+    if (u.origin === window.location.origin && u.pathname.startsWith('/fluid-assets/')) {
       return u.pathname;
     }
   } catch {
@@ -49,7 +49,7 @@ function normalizeImageUrlForSave(value: string): string {
   return value;
 }
 
-/** Extract initial slot values from userState (preferred) or aiBaseline; normalize template-asset URLs to path-only */
+/** Extract initial slot values from userState (preferred) or aiBaseline; normalize fluid-asset URLs to path-only */
 function extractSlotValues(iteration: Iteration): Record<string, string> {
   const source = (iteration.userState || iteration.aiBaseline) as Record<string, string> | null;
   if (!source) return {};

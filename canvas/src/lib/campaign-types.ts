@@ -45,6 +45,7 @@ export interface Iteration {
   status: VariationStatus;     // 'winner' | 'rejected' | 'final' | 'unmarked'
   source: 'ai' | 'template';  // how iteration was created
   templateId: string | null;   // set when source='template'
+  generationStatus?: 'pending' | 'generating' | 'complete';  // AI generation lifecycle; defaults to 'complete'
   createdAt: number;           // Unix ms
 }
 

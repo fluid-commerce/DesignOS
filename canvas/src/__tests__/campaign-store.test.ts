@@ -1,9 +1,11 @@
 /**
  * Unit tests for campaign store navigation logic.
  * Tests state transitions, sidebar toggles, and fetch actions.
+ * Also covers getAssetDimensions and preview render logic (Task 08-03).
  */
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { useCampaignStore } from '../store/campaign';
+import { getAssetDimensions, buildAssetPreview, buildFramePreview } from '../lib/preview-utils';
 import type { Campaign, Asset, Frame, Iteration } from '../lib/campaign-types';
 
 // ---- Mock fetch globally ----
@@ -30,6 +32,7 @@ beforeEach(() => {
     assets: [],
     frames: [],
     iterations: [],
+    latestIterationByAssetId: {},
     loading: false,
     leftSidebarOpen: true,
     rightSidebarOpen: false,
@@ -76,7 +79,10 @@ describe('navigateToDashboard', () => {
 
 describe('navigateToCampaign', () => {
   it('sets currentView to campaign and activeCampaignId', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleAssets));
+    // fetchAssets + fetchLatestIterations (empty frames -> no further calls)
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
+      .mockResolvedValueOnce(makeJsonResponse([])); // frames for ast_1 (empty -> no iteration fetch)
 
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
@@ -88,7 +94,9 @@ describe('navigateToCampaign', () => {
   });
 
   it('fetches assets for the campaign', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleAssets));
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
+      .mockResolvedValueOnce(makeJsonResponse([])); // frames for fetchLatestIterations
 
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
@@ -177,10 +185,13 @@ describe('navigateBack', () => {
 
   it('from asset goes to campaign level', async () => {
     useCampaignStore.setState({ activeCampaignId: 'cmp_1' });
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleAssets));
+    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleFrames));
 
     await useCampaignStore.getState().navigateToAsset('ast_1');
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleAssets)); // navigateBack -> navigateToCampaign -> fetchAssets
+    // navigateBack -> navigateToCampaign -> fetchAssets + fetchLatestIterations (empty frames)
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
+      .mockResolvedValueOnce(makeJsonResponse([]));
 
     await useCampaignStore.getState().navigateBack();
 
@@ -188,7 +199,10 @@ describe('navigateBack', () => {
   });
 
   it('from campaign goes to dashboard', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleAssets)); // navigateToCampaign
+    // navigateToCampaign: fetchAssets + fetchLatestIterations (empty frames)
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
+      .mockResolvedValueOnce(makeJsonResponse([]));
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
     mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleCampaigns)); // navigateBack -> navigateToDashboard -> fetchCampaigns
@@ -259,5 +273,220 @@ describe('fetch error handling', () => {
     mockFetch.mockResolvedValueOnce(makeJsonResponse(null, false));
     await useCampaignStore.getState().fetchAssets('cmp_1');
     expect(useCampaignStore.getState().loading).toBe(false);
+  });
+});
+
+// ============================================================
+// getAssetDimensions (08-03)
+// ============================================================
+
+describe('getAssetDimensions', () => {
+  it('returns 1080x1080 for instagram', () => {
+    expect(getAssetDimensions('instagram')).toEqual({ width: 1080, height: 1080 });
+  });
+
+  it('returns 1200x627 for linkedin', () => {
+    expect(getAssetDimensions('linkedin')).toEqual({ width: 1200, height: 627 });
+  });
+
+  it('returns 816x1056 for one-pager', () => {
+    expect(getAssetDimensions('one-pager')).toEqual({ width: 816, height: 1056 });
+  });
+
+  it('defaults to 1080x1080 for unknown asset type', () => {
+    expect(getAssetDimensions('tiktok')).toEqual({ width: 1080, height: 1080 });
+    expect(getAssetDimensions('')).toEqual({ width: 1080, height: 1080 });
+  });
+});
+
+// ============================================================
+// buildAssetPreview (08-03)
+// ============================================================
+
+const baseAsset: Asset = {
+  id: 'ast_1',
+  campaignId: 'cmp_1',
+  title: 'Hero Post',
+  assetType: 'instagram',
+  frameCount: 1,
+  createdAt: 1000,
+};
+
+const completeIteration: Iteration = {
+  id: 'itr_complete',
+  frameId: 'frm_1',
+  iterationIndex: 0,
+  htmlPath: '/path/to/file.html',
+  slotSchema: null,
+  aiBaseline: null,
+  userState: null,
+  status: 'unmarked',
+  source: 'ai',
+  templateId: null,
+  createdAt: 1000,
+  generationStatus: 'complete',
+};
+
+const pendingIteration: Iteration = {
+  ...completeIteration,
+  id: 'itr_pending',
+  generationStatus: 'pending',
+};
+
+const generatingIteration: Iteration = {
+  ...completeIteration,
+  id: 'itr_generating',
+  generationStatus: 'generating',
+};
+
+describe('buildAssetPreview', () => {
+  it('returns iframe src when iteration is complete', () => {
+    const preview = buildAssetPreview(baseAsset, completeIteration);
+    expect(preview.src).toBe('/api/iterations/itr_complete/html');
+    expect(preview.meta).toBeUndefined();
+  });
+
+  it('uses correct dimensions for instagram asset', () => {
+    const preview = buildAssetPreview(baseAsset, completeIteration);
+    expect(preview.width).toBe(1080);
+    expect(preview.height).toBe(1080);
+  });
+
+  it('uses correct dimensions for linkedin asset', () => {
+    const linkedinAsset = { ...baseAsset, assetType: 'linkedin' };
+    const preview = buildAssetPreview(linkedinAsset, completeIteration);
+    expect(preview.width).toBe(1200);
+    expect(preview.height).toBe(627);
+  });
+
+  it('returns metadata fallback when iteration is pending', () => {
+    const preview = buildAssetPreview(baseAsset, pendingIteration);
+    expect(preview.src).toBeUndefined();
+    expect(preview.meta).toBeDefined();
+    expect(preview.meta?.badges).toContain('pending');
+  });
+
+  it('returns metadata fallback when iteration is generating', () => {
+    const preview = buildAssetPreview(baseAsset, generatingIteration);
+    expect(preview.src).toBeUndefined();
+    expect(preview.meta?.badges).toContain('generating');
+  });
+
+  it('returns metadata fallback with "pending" badge when no iteration', () => {
+    const preview = buildAssetPreview(baseAsset, undefined);
+    expect(preview.src).toBeUndefined();
+    expect(preview.meta?.badges).toContain('pending');
+  });
+});
+
+// ============================================================
+// buildFramePreview (08-03)
+// ============================================================
+
+const baseFrame: Frame = {
+  id: 'frm_1',
+  assetId: 'ast_1',
+  frameIndex: 0,
+  createdAt: 1000,
+};
+
+describe('buildFramePreview', () => {
+  it('returns iframe src for latest complete iteration', () => {
+    const olderComplete: Iteration = { ...completeIteration, id: 'itr_old', iterationIndex: 0 };
+    const newerComplete: Iteration = { ...completeIteration, id: 'itr_new', iterationIndex: 1 };
+    const preview = buildFramePreview(baseFrame, [olderComplete, newerComplete], baseAsset);
+    expect(preview.src).toBe('/api/iterations/itr_new/html');
+    expect(preview.meta).toBeUndefined();
+  });
+
+  it('returns metadata fallback when only pending iterations exist', () => {
+    const preview = buildFramePreview(baseFrame, [pendingIteration], baseAsset);
+    expect(preview.src).toBeUndefined();
+    expect(preview.meta).toBeDefined();
+    expect(preview.meta?.badges).toContain('Slide 1');
+  });
+
+  it('returns metadata fallback with "No iterations" when empty', () => {
+    const preview = buildFramePreview(baseFrame, [], baseAsset);
+    expect(preview.src).toBeUndefined();
+    expect(preview.meta?.detail).toBe('No iterations');
+  });
+
+  it('uses parent asset dimensions for frame preview', () => {
+    const linkedinAsset = { ...baseAsset, assetType: 'linkedin' };
+    const preview = buildFramePreview(baseFrame, [completeIteration], linkedinAsset);
+    expect(preview.width).toBe(1200);
+    expect(preview.height).toBe(627);
+  });
+
+  it('defaults to instagram dimensions when parent asset is undefined', () => {
+    const preview = buildFramePreview(baseFrame, [completeIteration], undefined);
+    expect(preview.width).toBe(1080);
+    expect(preview.height).toBe(1080);
+  });
+});
+
+// ============================================================
+// fetchLatestIterations (08-03)
+// ============================================================
+
+describe('fetchLatestIterations', () => {
+  it('populates latestIterationByAssetId with latest iteration per asset', async () => {
+    useCampaignStore.setState({ assets: sampleAssets });
+
+    const frames: Frame[] = [{ id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 }];
+    const iterations: Iteration[] = [
+      { ...completeIteration, id: 'itr_1', iterationIndex: 0 },
+      { ...completeIteration, id: 'itr_2', iterationIndex: 1 },
+    ];
+
+    // fetchLatestIterations fetches /api/assets/{id}/frames then /api/frames/{frameId}/iterations
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(frames))     // frames for ast_1
+      .mockResolvedValueOnce(makeJsonResponse(iterations)); // iterations for frm_1
+
+    await useCampaignStore.getState().fetchLatestIterations('cmp_1');
+
+    const state = useCampaignStore.getState();
+    expect(state.latestIterationByAssetId['ast_1']).toBeDefined();
+    expect(state.latestIterationByAssetId['ast_1'].id).toBe('itr_2'); // latest by iterationIndex
+  });
+
+  it('handles asset with no frames gracefully', async () => {
+    useCampaignStore.setState({ assets: sampleAssets });
+
+    mockFetch.mockResolvedValueOnce(makeJsonResponse([])); // empty frames
+
+    await useCampaignStore.getState().fetchLatestIterations('cmp_1');
+
+    expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeUndefined();
+  });
+
+  it('handles asset with no iterations gracefully', async () => {
+    useCampaignStore.setState({ assets: sampleAssets });
+
+    const frames: Frame[] = [{ id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 }];
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(frames))  // frames
+      .mockResolvedValueOnce(makeJsonResponse([]));     // empty iterations
+
+    await useCampaignStore.getState().fetchLatestIterations('cmp_1');
+
+    expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeUndefined();
+  });
+
+  it('is called automatically on navigateToCampaign', async () => {
+    const frames: Frame[] = [{ id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 }];
+    const iterations: Iteration[] = [{ ...completeIteration, id: 'itr_1', iterationIndex: 0 }];
+
+    // navigateToCampaign calls: 1) fetchAssets, 2) fetchLatestIterations (frames + iterations per asset)
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))  // fetchAssets
+      .mockResolvedValueOnce(makeJsonResponse(frames))         // fetchLatestIterations -> frames for ast_1
+      .mockResolvedValueOnce(makeJsonResponse(iterations));    // fetchLatestIterations -> iterations for frm_1
+
+    await useCampaignStore.getState().navigateToCampaign('cmp_1');
+
+    expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeDefined();
   });
 });

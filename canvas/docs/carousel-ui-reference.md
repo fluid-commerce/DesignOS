@@ -1,11 +1,11 @@
 # Carousel template UI reference
 
-Reference for the carousel behavior used in **t7-carousel.html** and **t8-quarterly-stats.html** (Jonathan's Codebase).
+Reference for the carousel behavior used in **t7-carousel.html** and **t8-quarterly-stats.html**.
 
 ## Source files
 
-- **Template:** `Reference/Context/Jonathan's Codebase/templates/t7-carousel.html` (and t8-quarterly-stats.html)
-- **Nav/chrome:** `Reference/Context/Jonathan's Codebase/templates/nav.js` (only runs when not in an iframe)
+- **Template:** `templates/social/t7-carousel.html` (and t8-quarterly-stats.html)
+- **Nav/chrome:** `templates/nav.js` (only runs when not in an iframe)
 
 ## Template structure (t7-carousel.html)
 

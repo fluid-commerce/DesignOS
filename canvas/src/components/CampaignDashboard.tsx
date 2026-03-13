@@ -1,7 +1,171 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCampaignStore } from '../store/campaign';
 import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './DrillDownGrid';
 import type { Campaign, Asset } from '../lib/campaign-types';
+
+// ── CampaignMosaic ─────────────────────────────────────────────────────────────
+
+interface PreviewUrl {
+  iterationId: string;
+  htmlPath: string;
+  assetType: string;
+}
+
+interface CampaignMosaicProps {
+  campaignId: string;
+  totalAssets?: number;
+}
+
+/**
+ * Renders a 2x2 grid of scaled iframe previews for a campaign card.
+ * Uses IntersectionObserver to lazy-load — only fetches preview URLs
+ * and renders iframes when the component is scrolled into view.
+ */
+function CampaignMosaic({ campaignId, totalAssets = 0 }: CampaignMosaicProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [previewUrls, setPreviewUrls] = useState<PreviewUrl[] | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  // Lazy-load using IntersectionObserver
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Fetch preview URLs once visible
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
+    fetch(`/api/campaigns/${campaignId}/preview-urls`)
+      .then((res) => {
+        if (!res.ok || cancelled) return;
+        return res.json().then((data: { urls: PreviewUrl[] }) => data.urls ?? []);
+      })
+      .then((urls) => {
+        if (!cancelled && urls) setPreviewUrls(urls.slice(0, 4));
+      })
+      .catch(() => {
+        if (!cancelled) setPreviewUrls([]);
+      });
+    return () => { cancelled = true; };
+  }, [campaignId, visible]);
+
+  const extraCount = totalAssets > 4 ? totalAssets - 4 : 0;
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gridTemplateRows: '1fr 1fr',
+        gap: 2,
+        width: '100%',
+        aspectRatio: '1',
+        overflow: 'hidden',
+        borderRadius: 6,
+        backgroundColor: '#111',
+      }}
+    >
+      {Array.from({ length: 4 }).map((_, i) => {
+        const url = previewUrls?.[i];
+        const isLast = i === 3;
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'relative',
+              overflow: 'hidden',
+              backgroundColor: '#1a1a1e',
+            }}
+          >
+            {url ? (
+              <>
+                <iframe
+                  src={`/api/iterations/${url.iterationId}/html`}
+                  style={{
+                    transform: 'scale(0.2)',
+                    transformOrigin: 'top left',
+                    width: '500%',
+                    height: '500%',
+                    pointerEvents: 'none',
+                    border: 'none',
+                    display: 'block',
+                  }}
+                  sandbox="allow-same-origin"
+                  title={`Preview ${i + 1}`}
+                />
+                {isLast && extraCount > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: 'rgba(0,0,0,0.65)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    fontFamily: "'Inter', sans-serif",
+                  }}>
+                    +{extraCount} more
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#1a1a1e',
+                border: '1px solid #222',
+              }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Builds an html srcDoc for a campaign mosaic preview.
+ * Used when we already have preview URLs available synchronously.
+ */
+function buildMosaicSrcDoc(urls: PreviewUrl[], totalAssets: number): string {
+  const extraCount = totalAssets > 4 ? totalAssets - 4 : 0;
+  const cells = Array.from({ length: 4 }).map((_, i) => {
+    const url = urls[i];
+    const isLast = i === 3;
+    if (url) {
+      const overlay = isLast && extraCount > 0
+        ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;font-family:sans-serif">+${extraCount} more</div>`
+        : '';
+      return `<div style="position:relative;overflow:hidden;background:#1a1a1e">
+        <iframe src="/api/iterations/${url.iterationId}/html"
+          style="transform:scale(0.2);transform-origin:top left;width:500%;height:500%;border:none;display:block;pointer-events:none"></iframe>
+        ${overlay}
+      </div>`;
+    }
+    return `<div style="background:#1a1a1e;border:1px solid #222"></div>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#111;width:100%;height:100%;overflow:hidden}
+    .mosaic{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;width:100%;height:100%;border-radius:6px;overflow:hidden}
+  </style></head><body><div class="mosaic">${cells}</div></body></html>`;
+}
 
 // ---- New Campaign Modal ----
 
@@ -437,10 +601,32 @@ export function CampaignDashboard() {
   const [filterChannel, setFilterChannel] = useState('all');
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
 
+  /** Map of campaignId -> preview URL array (lazy-fetched when campaigns load) */
+  const [mosaicData, setMosaicData] = useState<Record<string, PreviewUrl[]>>({});
+
   // Load campaigns on mount
   useEffect(() => {
     fetchCampaigns();
   }, [fetchCampaigns]);
+
+  // Pre-fetch mosaic preview URLs for each campaign (lazy: only once per campaign id)
+  useEffect(() => {
+    for (const campaign of campaigns) {
+      if (mosaicData[campaign.id] !== undefined) continue; // already fetched or fetching
+      // Mark as fetching with empty array to prevent duplicate fetches
+      setMosaicData((prev) => (prev[campaign.id] !== undefined ? prev : { ...prev, [campaign.id]: [] }));
+      fetch(`/api/campaigns/${campaign.id}/preview-urls`)
+        .then((res) => (res.ok ? res.json() : Promise.resolve({ urls: [] })))
+        .then((data: { urls: PreviewUrl[] } | PreviewUrl[]) => {
+          const urls = Array.isArray(data) ? data : (data.urls ?? []);
+          setMosaicData((prev) => ({ ...prev, [campaign.id]: urls.slice(0, 4) }));
+        })
+        .catch(() => {
+          // Leave as empty array — card falls back to metadata display
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaigns]);
 
   // Collect all channels across campaigns for the filter bar
   const allChannels = campaigns.flatMap((c) => c.channels);
@@ -466,9 +652,19 @@ export function CampaignDashboard() {
 
   /**
    * renderPreview for campaigns:
-   * Shows channel badges and creation date as metadata card.
+   * Uses a pre-built mosaic srcDoc when preview URLs are available (lazy-loaded),
+   * otherwise falls back to channel badges + date metadata card.
    */
-  const renderPreview = (item: DrillDownItem<Campaign>): PreviewDescriptor | null => {
+  const renderPreview = useCallback((item: DrillDownItem<Campaign>): PreviewDescriptor | null => {
+    const urls = mosaicData[item.id];
+    if (urls && urls.length > 0) {
+      return {
+        html: buildMosaicSrcDoc(urls, 0), // totalAssets unknown at this level; omit "+N more"
+        width: 320,
+        height: 320,
+      };
+    }
+    // Metadata fallback while mosaic loads
     const channels = item.data.channels;
     const date = new Date(item.data.createdAt);
     const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -481,7 +677,7 @@ export function CampaignDashboard() {
         detail: `Created ${dateStr}`,
       },
     };
-  };
+  }, [mosaicData]);
 
   const handleSelect = (item: DrillDownItem<Campaign>) => {
     navigateToCampaign(item.id);

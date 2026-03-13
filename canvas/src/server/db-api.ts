@@ -59,6 +59,7 @@ function rowToIteration(row: Record<string, unknown>): Iteration {
     status: row.status as Iteration['status'],
     source: row.source as Iteration['source'],
     templateId: (row.template_id as string | null) ?? null,
+    generationStatus: (row.generation_status as Iteration['generationStatus']) ?? 'complete',
     createdAt: row.created_at as number,
   };
 }
@@ -165,14 +166,16 @@ export function createIteration(input: {
   aiBaseline?: object | null;
   source: 'ai' | 'template';
   templateId?: string | null;
+  generationStatus?: 'pending' | 'generating' | 'complete';
 }): Iteration {
   const db = getDb();
   const id = nanoid();
   const now = Date.now();
+  const generationStatus = input.generationStatus ?? 'complete';
   db.prepare(
     `INSERT INTO iterations
-      (id, frame_id, iteration_index, html_path, slot_schema, ai_baseline, user_state, status, source, template_id, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      (id, frame_id, iteration_index, html_path, slot_schema, ai_baseline, user_state, status, source, template_id, generation_status, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
     input.frameId,
@@ -184,6 +187,7 @@ export function createIteration(input: {
     'unmarked',              // default status
     input.source,
     input.templateId ?? null,
+    generationStatus,
     now
   );
   return {
@@ -197,6 +201,7 @@ export function createIteration(input: {
     status: 'unmarked',
     source: input.source,
     templateId: input.templateId ?? null,
+    generationStatus,
     createdAt: now,
   };
 }
@@ -217,6 +222,31 @@ export function updateIterationStatus(id: string, status: Iteration['status']): 
 export function updateIterationUserState(id: string, userState: object): void {
   const db = getDb();
   db.prepare('UPDATE iterations SET user_state = ? WHERE id = ?').run(JSON.stringify(userState), id);
+}
+
+export function updateIterationGenerationStatus(
+  id: string,
+  status: 'pending' | 'generating' | 'complete'
+): void {
+  const db = getDb();
+  db.prepare('UPDATE iterations SET generation_status = ? WHERE id = ?').run(status, id);
+}
+
+export function getLatestIterationByFrame(frameId: string): Iteration | undefined {
+  const db = getDb();
+  const row = db.prepare(
+    'SELECT * FROM iterations WHERE frame_id = ? ORDER BY iteration_index DESC LIMIT 1'
+  ).get(frameId) as Record<string, unknown> | undefined;
+  return row ? rowToIteration(row) : undefined;
+}
+
+// ─── Asset (additional helpers) ───────────────────────────────────────────────
+
+export function updateAsset(id: string, input: { title?: string }): void {
+  const db = getDb();
+  if (input.title !== undefined) {
+    db.prepare('UPDATE assets SET title = ? WHERE id = ?').run(input.title, id);
+  }
 }
 
 // ─── Annotation ──────────────────────────────────────────────────────────────
@@ -309,4 +339,40 @@ export function createCampaignWithAssets(
 
   transaction();
   return { campaign, assets };
+}
+
+// ─── Preview ─────────────────────────────────────────────────────────────────
+
+/**
+ * Returns up to 4 preview entries for a campaign — one per asset (latest iteration).
+ * Joins assets -> frames -> iterations using a subquery to get max iteration_index per frame.
+ */
+export function getCampaignPreviewUrls(
+  campaignId: string
+): Array<{ iterationId: string; htmlPath: string; assetType: string }> {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT
+      i.id          AS iteration_id,
+      i.html_path   AS html_path,
+      a.asset_type  AS asset_type
+    FROM assets a
+    JOIN frames f ON f.asset_id = a.id
+    JOIN iterations i ON i.frame_id = f.id
+    INNER JOIN (
+      SELECT frame_id, MAX(iteration_index) AS max_idx
+      FROM iterations
+      GROUP BY frame_id
+    ) latest ON latest.frame_id = i.frame_id AND i.iteration_index = latest.max_idx
+    WHERE a.campaign_id = ?
+    GROUP BY a.id
+    ORDER BY a.created_at ASC
+    LIMIT 4
+  `).all(campaignId) as Array<{ iteration_id: string; html_path: string; asset_type: string }>;
+
+  return rows.map((row) => ({
+    iterationId: row.iteration_id,
+    htmlPath: row.html_path,
+    assetType: row.asset_type,
+  }));
 }

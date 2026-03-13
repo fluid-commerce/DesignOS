@@ -3,8 +3,10 @@ import { watch } from 'chokidar';
 import { spawn, type ChildProcess } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import { createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline';
+import { nanoid } from 'nanoid';
 import type { TemplateInfo } from '../lib/templates';
 import {
   createCampaign,
@@ -18,10 +20,71 @@ import {
   getIterations,
   updateIterationStatus,
   updateIterationUserState,
+  updateIterationGenerationStatus,
+  updateAsset,
   createAnnotation,
   getAnnotations,
   createCampaignWithAssets,
+  getCampaignPreviewUrls,
 } from './db-api';
+
+// ─── Asset dimensions by type ───────────────────────────────────────────────
+const ASSET_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  instagram: { width: 1080, height: 1080 },
+  linkedin: { width: 1200, height: 627 },
+  'one-pager': { width: 816, height: 1056 },
+};
+
+// Default channel distribution for a full campaign spread
+const DEFAULT_CHANNEL_COUNTS: Record<string, number> = {
+  instagram: 3,
+  linkedin: 3,
+  'one-pager': 1,
+};
+
+/**
+ * Parses channel hints from a prompt string.
+ * Detects keywords like "just linkedin", "instagram only", etc.
+ * Returns channels array and per-channel counts.
+ */
+function parseChannelHints(
+  prompt: string
+): { channels: string[]; assetCounts: Record<string, number> } {
+  const lower = prompt.toLowerCase();
+
+  // Check for single-channel hints
+  if (/just linkedin|linkedin only|only linkedin/i.test(lower)) {
+    return { channels: ['linkedin'], assetCounts: { linkedin: 3 } };
+  }
+  if (/just instagram|instagram only|only instagram/i.test(lower)) {
+    return { channels: ['instagram'], assetCounts: { instagram: 3 } };
+  }
+  if (/one-pager only|just (?:a )?one-pager/i.test(lower)) {
+    return { channels: ['one-pager'], assetCounts: { 'one-pager': 1 } };
+  }
+
+  // No hint — return full default spread
+  return {
+    channels: Object.keys(DEFAULT_CHANNEL_COUNTS),
+    assetCounts: { ...DEFAULT_CHANNEL_COUNTS },
+  };
+}
+
+/**
+ * Builds an asset list from a channel count map.
+ * e.g. { instagram: 3, linkedin: 3, 'one-pager': 1 } => 7 asset specs
+ */
+function buildAssetList(
+  assetCounts: Record<string, number>
+): Array<{ title: string; assetType: string; frameCount: number }> {
+  const assets: Array<{ title: string; assetType: string; frameCount: number }> = [];
+  for (const [type, count] of Object.entries(assetCounts)) {
+    for (let i = 1; i <= count; i++) {
+      assets.push({ title: `${type} ${i}`, assetType: type, frameCount: 1 });
+    }
+  }
+  return assets;
+}
 
 /**
  * Vite plugin that watches .fluid/working/ and pushes HMR custom events
@@ -30,7 +93,11 @@ import {
 export function fluidWatcherPlugin(workingDir: string): Plugin {
   let server: ViteDevServer | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  // Legacy single-child lock kept for iterate (single-asset) mode
   let activeChild: ChildProcess | null = null;
+  // Multi-asset parallel generation tracking
+  const activeChildren: Map<string, ChildProcess> = new Map(); // keyed by assetId
+  let activeCampaignGeneration: string | null = null; // campaign-level lock
 
   return {
     name: 'fluid-watcher',
@@ -87,7 +154,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       });
 
       const projectRoot = path.resolve(srv.config.root, '..');
-      const jonathanLibraryDir = path.resolve(projectRoot, "Reference/Context/Jonathan's Codebase");
+      const templatesDir = path.resolve(projectRoot, 'templates');
 
       // Home page: serve Template Library at / and its static assets (run first)
       srv.middlewares.use(async (req, res, next) => {
@@ -101,8 +168,6 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           pathname.startsWith('/src') ||
           pathname.startsWith('/node_modules') ||
           pathname.startsWith('/fluid-assets') ||
-          pathname.startsWith('/template-assets') ||
-          pathname.startsWith('/template-fonts') ||
           pathname.startsWith('/templates/') ||
           pathname.startsWith('/preview/')
         ) {
@@ -110,20 +175,21 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
         try {
           if (pathname === '/') {
-            const html = await fs.readFile(path.join(jonathanLibraryDir, 'index.html'), 'utf-8');
+            const html = await fs.readFile(path.join(templatesDir, 'index.html'), 'utf-8');
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(html);
             return;
           }
           if (pathname === '/editor' || pathname.startsWith('/editor?')) {
-            const html = await fs.readFile(path.join(jonathanLibraryDir, 'editor.html'), 'utf-8');
+            const html = await fs.readFile(path.join(templatesDir, 'editor.html'), 'utf-8');
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(html);
             return;
           }
+          // Serve static files from templates/ (JS libs, etc.)
           const relative = pathname.slice(1) || '';
-          const fullPath = path.resolve(jonathanLibraryDir, relative);
-          if (!fullPath.startsWith(jonathanLibraryDir + path.sep) && fullPath !== jonathanLibraryDir) return next();
+          const fullPath = path.resolve(templatesDir, relative);
+          if (!fullPath.startsWith(templatesDir + path.sep) && fullPath !== templatesDir) return next();
           const stat = await fs.stat(fullPath);
           if (!stat.isFile()) return next();
           const data = await fs.readFile(fullPath);
@@ -156,47 +222,15 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
       });
 
-      // Serve template assets and fonts from Jonathan's codebase
-      const jonathanTemplateDir = path.resolve(srv.config.root, '..', "Reference/Context/Jonathan's Codebase/templates");
-      srv.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/template-assets/')) return next();
-        const assetFile = req.url.replace('/template-assets/', '').split('?')[0];
-        const assetPath = path.join(jonathanTemplateDir, 'assets', assetFile);
-        try {
-          const data = await fs.readFile(assetPath);
-          const { contentType } = serveFluidAsset(assetFile);
-          res.writeHead(200, { 'Content-Type': contentType });
-          res.end(data);
-        } catch {
-          res.writeHead(404); res.end('Not found');
-        }
-      });
-      srv.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/template-fonts/')) return next();
-        const fontFile = req.url.replace('/template-fonts/', '');
-        const fontPath = path.resolve(jonathanTemplateDir, '..', 'fonts', fontFile);
-        try {
-          const data = await fs.readFile(fontPath);
-          const ext = path.extname(fontFile).toLowerCase();
-          const ct = ext === '.ttf' ? 'font/ttf' : ext === '.woff2' ? 'font/woff2' : ext === '.woff' ? 'font/woff' : 'application/octet-stream';
-          res.writeHead(200, { 'Content-Type': ct });
-          res.end(data);
-        } catch {
-          res.writeHead(404); res.end('Not found');
-        }
-      });
-
-      // Serve Jonathan's template HTML files at /templates/:id.html with asset path rewriting
+      // Serve template HTML files at /templates/:id.html with asset path rewriting
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/templates/') || !req.url.endsWith('.html')) return next();
         const fileName = req.url.replace('/templates/', '');
-        const templatePath = path.resolve(srv.config.root, '..', 'Reference/Context/Jonathan\'s Codebase/templates', fileName);
+        const templatePath = path.resolve(projectRoot, 'templates', 'social', fileName);
         try {
           let html = await fs.readFile(templatePath, 'utf-8');
-          // Rewrite asset paths for serving
+          // Rewrite relative asset paths for serving via /fluid-assets/
           html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
-          html = html.replace(/(?<!\/fluid-)assets\//g, '/template-assets/');
-          html = html.replace(/\.\.\/fonts\//g, '/template-fonts/');
           // Remove nav.js script (not needed in preview)
           html = html.replace(/<script src="nav\.js"><\/script>/g, '');
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -348,9 +382,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
     <div class="preview-bg-accent two"></div>
   </div>
   <div class="preview-logos">
-    <img class="flag" src="/template-assets/flag-icon.svg" alt="" />
+    <img class="flag" src="/fluid-assets/logos/flag-icon.svg" alt="" />
     <span class="wc">WE-COMMERCE</span>
-    <img class="fluid" src="/template-assets/fluid-logo.svg" alt="fluid" />
+    <img class="fluid" src="/fluid-assets/logos/fluid-logo.svg" alt="fluid" />
   </div>
   <div class="preview-wrap" data-carousel-total="${meta.carouselTotal || 0}">
     <div class="preview-stage" data-native-w="${meta.w}" data-native-h="${meta.h}">
@@ -489,6 +523,35 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
+          // GET /api/campaigns/:id/preview-urls — returns up to 4 preview entries
+          const campaignPreviewMatch = url.match(/^\/api\/campaigns\/([^/]+)\/preview-urls$/);
+          if (campaignPreviewMatch && method === 'GET') {
+            const urls = getCampaignPreviewUrls(campaignPreviewMatch[1]);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ urls }));
+            return;
+          }
+
+          // PATCH /api/assets/:id — agent-driven asset rename
+          const assetPatchMatch = url.match(/^\/api\/assets\/([^/]+)$/);
+          if (assetPatchMatch && method === 'PATCH') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.title) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'title is required' }));
+              return;
+            }
+            try {
+              updateAsset(assetPatchMatch[1], { title: body.title });
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ ok: true }));
+            } catch {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Asset not found' }));
+            }
+            return;
+          }
+
           // ── Assets ──────────────────────────────────────────────────────
 
           // GET /api/campaigns/:id/assets
@@ -624,28 +687,63 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           // GET /api/iterations/:id/html — serves HTML with path rewrites, saved state, and postMessage listener
           const iterHtmlMatch = url.match(/^\/api\/iterations\/([^/]+)\/html$/);
           if (iterHtmlMatch && method === 'GET') {
+            const iterationId = iterHtmlMatch[1];
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterHtmlMatch[1]) as { html_path: string; user_state: string | null } | undefined;
+            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterationId) as { html_path: string; user_state: string | null } | undefined;
             if (!row?.html_path) {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('Not found');
               return;
             }
             const projectRoot = path.resolve(srv.config.root, '..');
-            const jonathanTemplatesDir = path.resolve(projectRoot, "Reference/Context/Jonathan's Codebase/templates");
-            let templatePath = path.resolve(projectRoot, row.html_path);
-            try {
-              await fs.access(templatePath);
-            } catch {
-              templatePath = path.join(jonathanTemplatesDir, path.basename(row.html_path));
+            const socialTemplatesDir = path.resolve(projectRoot, 'templates/social');
+            const fluidDir = path.resolve(projectRoot, '.fluid');
+
+            // Try multiple path resolution strategies to find the HTML file
+            let templatePath = '';
+            let found = false;
+
+            // Strategy 1: stored html_path resolved against project root
+            const storedPath = path.resolve(projectRoot, row.html_path);
+            try { await fs.access(storedPath); templatePath = storedPath; found = true; } catch { /* noop */ }
+
+            // Strategy 2: stored html_path resolved against .fluid/ directory
+            if (!found) {
+              const fluidPath = path.resolve(fluidDir, row.html_path);
+              try { await fs.access(fluidPath); templatePath = fluidPath; found = true; } catch { /* noop */ }
+            }
+
+            // Strategy 3: canonical path .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html
+            if (!found) {
+              const hierarchy = db.prepare(`
+                SELECT a.campaign_id, f.asset_id, i.frame_id
+                FROM iterations i
+                JOIN frames f ON f.id = i.frame_id
+                JOIN assets a ON a.id = f.asset_id
+                WHERE i.id = ?
+              `).get(iterationId) as { campaign_id: string; asset_id: string; frame_id: string } | undefined;
+              if (hierarchy) {
+                const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.asset_id, hierarchy.frame_id, `${iterationId}.html`);
+                try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
+              }
+            }
+
+            // Strategy 4: fallback to templates/social/ by basename
+            if (!found) {
+              const fallbackPath = path.join(socialTemplatesDir, path.basename(row.html_path));
+              try { await fs.access(fallbackPath); templatePath = fallbackPath; found = true; } catch { /* noop */ }
+            }
+
+            if (!found) {
+              res.writeHead(404, { 'Content-Type': 'text/plain' });
+              res.end(`HTML file not found on disk (tried: stored="${row.html_path}", canonical=.fluid/campaigns/.../${iterationId}.html)`);
+              return;
             }
             try {
               let html = await fs.readFile(templatePath, 'utf-8');
-              // Same path rewrites as /templates/ so assets and fonts load
+              // Rewrite relative asset paths for serving via /fluid-assets/
               html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
-              html = html.replace(/(?<!\/fluid-)assets\//g, '/template-assets/');
-              html = html.replace(/\.\.\/fonts\//g, '/template-fonts/');
               html = html.replace(/<script src="nav\.js"><\/script>/g, '');
               // Ensure iframe resolves relative URLs from app origin (fixes missing assets when editing)
               if (!/<base\s/i.test(html)) {
@@ -656,7 +754,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
               const userState: Record<string, string> = row.user_state ? JSON.parse(row.user_state) : {};
               const isDownload = req.url?.includes('download=1');
-              const templateAssetsDir = path.join(jonathanTemplatesDir, 'assets');
+              const assetsDir = path.join(projectRoot, 'assets');
 
               async function toDataUrl(assetPath: string): Promise<string> {
                 try {
@@ -670,12 +768,12 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
 
               if (isDownload) {
-                const imgSrcRegex = /src="(\/template-assets\/[^"]+)"/g;
+                const imgSrcRegex = /src="(\/fluid-assets\/[^"]+)"/g;
                 let match;
                 const replacements: { from: string; to: string }[] = [];
                 while ((match = imgSrcRegex.exec(html)) !== null) {
-                  const assetFile = match[1].replace(/^\/template-assets\//, '').replace(/\?.*$/, '');
-                  const dataUrl = await toDataUrl(path.join(templateAssetsDir, assetFile));
+                  const assetFile = match[1].replace(/^\/fluid-assets\//, '').replace(/\?.*$/, '');
+                  const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
                   if (dataUrl) replacements.push({ from: match[0], to: `src="${dataUrl}"` });
                 }
                 for (const { from, to } of replacements) {
@@ -683,9 +781,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 }
                 for (const sel of Object.keys(userState)) {
                   const v = userState[sel];
-                  if (typeof v === 'string' && (v.startsWith('/template-assets/') || v.startsWith('http') && v.includes('/template-assets/'))) {
-                    const assetFile = v.replace(/^.*\/template-assets\//, '').replace(/\?.*$/, '');
-                    const dataUrl = await toDataUrl(path.join(templateAssetsDir, assetFile));
+                  if (typeof v === 'string' && (v.startsWith('/fluid-assets/') || v.startsWith('http') && v.includes('/fluid-assets/'))) {
+                    const assetFile = v.replace(/^.*\/fluid-assets\//, '').replace(/\?.*$/, '');
+                    const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
                     if (dataUrl) userState[sel] = dataUrl;
                   }
                 }
@@ -704,10 +802,10 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 'var src=null;' +
                 'if(v.indexOf("blob:")===0){src=null;}' +
                 'else if(v.indexOf("data:")===0){src=v;}' +
-                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&u.pathname.indexOf("/template-assets/")===0)src=u.pathname;else src=v;}catch(e){src=v;}}' +
+                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&u.pathname.indexOf("/fluid-assets/")===0)src=u.pathname;else src=v;}catch(e){src=v;}}' +
                 'else if(v.indexOf("/")===0){src=v;}' +
-                'else if(v.indexOf("template-assets/")===0){src=location.origin+"/"+v;}' +
-                'else if(v.indexOf("assets/")===0){src=location.origin+"/template-assets/"+v.substring(6);}' +
+                'else if(v.indexOf("fluid-assets/")===0){src=location.origin+"/"+v;}' +
+                'else if(v.indexOf("assets/")===0){src=location.origin+"/fluid-assets/"+v.substring(7);}' +
                 'if(src)el.src=src;}' +
                 'else if(v.indexOf("\\n")>=0){var x=document.createElement("div");x.textContent=v;el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");}' +
                 'else{el.textContent=v;}' +
@@ -834,6 +932,18 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
           // POST /api/generate/cancel -- force-clear stuck generation lock
           if (req.url === '/api/generate/cancel' && req.method === 'POST') {
+            // Kill all active campaign children
+            if (activeChildren.size > 0) {
+              for (const [, child] of activeChildren) {
+                try { child.kill('SIGKILL'); } catch { /* already dead */ }
+              }
+              activeChildren.clear();
+              activeCampaignGeneration = null;
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ ok: true, message: 'Campaign generation cancelled' }));
+              return;
+            }
+            // Also check legacy single-child lock
             if (activeChild) {
               try { activeChild.kill('SIGKILL'); } catch { /* already dead */ }
               activeChild = null;
@@ -848,158 +958,44 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
           // POST /api/generate -- spawn claude CLI and stream SSE
           if (req.url === '/api/generate' && req.method === 'POST') {
-            // Concurrent generation lock -- with stale process detection
-            if (activeChild) {
-              // Check if the child is actually still running
-              try {
-                // kill(0) tests if process exists without killing it
-                process.kill(activeChild.pid!, 0);
-              } catch {
-                // Process is dead but lock wasn't cleared -- release it
-                activeChild = null;
-              }
-            }
-            if (activeChild) {
-              res.writeHead(409, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Generation already in progress' }));
-              return;
-            }
-
             const body = JSON.parse(await readBody(req));
             const { prompt, template, customization, skillType } = body;
 
-            // Generate session ID: YYYYMMDD-HHMMSS
-            const now = new Date();
-            const pad = (n: number) => String(n).padStart(2, '0');
-            const sessionId = [
-              now.getFullYear(),
-              pad(now.getMonth() + 1),
-              pad(now.getDate()),
-              '-',
-              pad(now.getHours()),
-              pad(now.getMinutes()),
-              pad(now.getSeconds()),
-            ].join('');
-
-            // Detect iteration mode
+            // Detect iteration mode (single-asset iterate flow)
             const { sessionId: reqSessionId, iterationContext } = body;
             const isIteration = !!(reqSessionId && iterationContext);
 
-            // For iteration: reuse existing session dir; for new: create fresh
-            let actualSessionId: string;
-            let actualSessionDir: string;
-            let roundNumber: number;
-
+            // ── ITERATE MODE: Legacy single-asset flow ─────────────────────
             if (isIteration) {
-              actualSessionId = reqSessionId;
-              actualSessionDir = path.join(absDir, actualSessionId);
-              roundNumber = (iterationContext.currentRound || 0) + 1;
-            } else {
-              actualSessionId = sessionId;
-              actualSessionDir = path.join(absDir, sessionId);
-              roundNumber = 1;
-              await fs.mkdir(actualSessionDir, { recursive: true });
-            }
-
-            // ── Auto-create Campaign > Asset > Frame in SQLite ──────────────
-            // This bridges the gap between AI sidebar generation and the
-            // campaign dashboard. Without this, generated assets only exist
-            // on disk in .fluid/working/ and never appear in the campaign view.
-            let campaignId: string | null = null;
-            let assetId: string | null = null;
-            let frameId: string | null = null;
-
-            if (!isIteration) {
-              try {
-                const titleWords = (prompt || 'Marketing Asset').split(/\s+/).slice(0, 6).join(' ');
-                const campaignTitle = titleWords.length > 40 ? titleWords.slice(0, 40) + '...' : titleWords;
-                const platform = body.skillType || 'social';
-
-                const campaign = createCampaign({
-                  title: campaignTitle,
-                  channels: [platform],
-                });
-                campaignId = campaign.id;
-
-                const asset = createAsset({
-                  campaignId: campaign.id,
-                  title: campaignTitle,
-                  assetType: platform,
-                  frameCount: 1,
-                });
-                assetId = asset.id;
-
-                const frame = createFrame({
-                  assetId: asset.id,
-                  frameIndex: 0,
-                });
-                frameId = frame.id;
-              } catch (err) {
-                console.error('[watcher] Failed to auto-create campaign hierarchy:', err);
-                // Non-fatal: generation still proceeds, just won't appear in dashboard
+              // Concurrent generation lock for iterate mode -- with stale process detection
+              if (activeChild) {
+                try {
+                  process.kill(activeChild.pid!, 0);
+                } catch {
+                  activeChild = null;
+                }
               }
-            }
+              if (activeChild) {
+                res.writeHead(409, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Generation already in progress' }));
+                return;
+              }
 
-            // Each round gets its own subdirectory for file isolation.
-            // This prevents iteration N from overwriting iteration N-1's files.
-            const roundDir = path.join(actualSessionDir, `round-${roundNumber}`);
-            await fs.mkdir(roundDir, { recursive: true });
+              const actualSessionId = reqSessionId as string;
+              const actualSessionDir = path.join(absDir, actualSessionId);
+              const roundNumber = (iterationContext.currentRound || 0) + 1;
+              const roundDir = path.join(actualSessionDir, `round-${roundNumber}`);
+              await fs.mkdir(roundDir, { recursive: true });
 
-            // Generate a human-readable title from the prompt
-            const titleWords = (prompt || 'Marketing Asset').split(/\s+/).slice(0, 6).join(' ');
-            const title = titleWords.length > 40 ? titleWords.slice(0, 40) + '...' : titleWords;
+              const parts: string[] = [];
+              if (template) parts.push(`Template: ${template}`);
+              if (customization) parts.push(`Customization: ${JSON.stringify(customization)}`);
+              parts.push(prompt || 'Generate a marketing asset');
+              parts.push(`\nWrite all generated HTML output files to: ${roundDir}/`);
+              parts.push(`IMPORTANT: Do NOT create, read, or modify any file named lineage.json. The system manages that file automatically.`);
 
-            // Write lineage.json immediately so session is discoverable.
-            // Server OWNS lineage.json — the LLM never touches it.
-            if (!isIteration) {
-              const platform = body.skillType || 'general';
-              const lineage = {
-                sessionId: actualSessionId,
-                created: now.toISOString(),
-                platform,
-                product: null,
-                template: template || null,
-                title,
-                rounds: [{
-                  roundNumber: 1,
-                  prompt: prompt || 'Generate a marketing asset',
-                  variations: [],
-                  winnerId: null,
-                  timestamp: now.toISOString(),
-                }],
-              };
-              await fs.writeFile(
-                path.join(actualSessionDir, 'lineage.json'),
-                JSON.stringify(lineage, null, 2),
-                'utf-8'
-              );
-            }
-
-            // Build the prompt with output path instructions.
-            // Output goes into the round subdirectory — NOT the session root.
-            // The LLM is NOT told about lineage.json at all.
-            const parts: string[] = [];
-            if (template) parts.push(`Template: ${template}`);
-            if (customization) parts.push(`Customization: ${JSON.stringify(customization)}`);
-            parts.push(prompt || 'Generate a marketing asset');
-            parts.push(`\nWrite all generated HTML output files to: ${roundDir}/`);
-            parts.push(`IMPORTANT: Do NOT create, read, or modify any file named lineage.json. The system manages that file automatically.`);
-
-            // Tell agent about campaign hierarchy so it can use push_asset MCP tool
-            if (campaignId && assetId && frameId) {
-              parts.push(`\n--- CAMPAIGN CONTEXT ---`);
-              parts.push(`A campaign has been created for this generation. After generating each HTML variation, push it to the campaign using the push_asset MCP tool with these IDs:`);
-              parts.push(`  campaignId: ${campaignId}`);
-              parts.push(`  assetId: ${assetId}`);
-              parts.push(`  frameId: ${frameId}`);
-              parts.push(`Call push_asset once for each variation you generate, passing the full HTML as the "html" parameter.`);
-            }
-
-            if (isIteration) {
-              // Iteration mode: write winner HTML to a temp file to avoid E2BIG
               const winnerPath = path.join(actualSessionDir, '.iteration-winner.html');
               await fs.writeFile(winnerPath, iterationContext.winnerHtml || '', 'utf-8');
-
               parts.push(`\n--- ITERATION CONTEXT ---`);
               parts.push(`This is Round ${roundNumber} of an iterative design session.`);
               parts.push(`Previous winner HTML is saved at: ${winnerPath}`);
@@ -1012,46 +1008,173 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
               parts.push(`\nGenerate an improved version addressing the feedback above.`);
               parts.push(`Write output HTML files to: ${roundDir}/`);
-            }
-            const fullPrompt = parts.join('\n');
 
-            // Build spawn args — include MCP tools so agent can read annotations/statuses
-            const projectRoot = path.resolve(srv.config.root, '..');
-            const mcpConfigPath = path.join(projectRoot, '.mcp.json');
-            const args = [
-              '-p', fullPrompt,
-              '--output-format', 'stream-json',
-              '--verbose',
-              '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,Agent,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__read_history,mcp__fluid-canvas__push_asset',
-            ];
-
-            // Add MCP config if it exists
-            try {
-              await fs.access(mcpConfigPath);
-              args.push('--mcp-config', mcpConfigPath);
-            } catch { /* no MCP config, skip */ }
-
-            // Add skill system prompt if available
-            if (skillType) {
-              const skillPath = path.resolve(
-                srv.config.root,
-                `skills/${skillType}/SKILL.md`,
-              );
+              const fullPrompt = parts.join('\n');
+              const iterProjectRoot = path.resolve(srv.config.root, '..');
+              const iterMcpConfigPath = path.join(iterProjectRoot, '.mcp.json');
+              const iterArgs = [
+                '-p', fullPrompt,
+                '--output-format', 'stream-json',
+                '--verbose',
+                '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,Agent,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__read_history,mcp__fluid-canvas__push_asset',
+              ];
               try {
-                await fs.access(skillPath);
-                args.push('--append-system-prompt-file', skillPath);
-              } catch { /* skill file not found, skip */ }
+                await fs.access(iterMcpConfigPath);
+                iterArgs.push('--mcp-config', iterMcpConfigPath);
+              } catch { /* no MCP config, skip */ }
+              if (skillType) {
+                const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
+                try {
+                  await fs.access(skillPath);
+                  iterArgs.push('--append-system-prompt-file', skillPath);
+                } catch { /* skill file not found, skip */ }
+              }
+
+              const child = spawn('claude', iterArgs, {
+                cwd: iterProjectRoot,
+                stdio: ['ignore', 'pipe', 'pipe'],
+                env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
+              });
+              activeChild = child;
+
+              res.writeHead(200, {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+              });
+              (res as any).flushHeaders?.();
+
+              res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId: null, assetId: null, frameId: null })}\n\n`);
+
+              if (child.stdout) {
+                const rl = createInterface({ input: child.stdout });
+                rl.on('line', (line: string) => {
+                  if (line.trim()) res.write(`data: ${line}\n\n`);
+                });
+              }
+              if (child.stderr) {
+                const stderrRl = createInterface({ input: child.stderr });
+                stderrRl.on('line', (line: string) => {
+                  if (line.trim()) res.write(`event: stderr\ndata: ${JSON.stringify({ text: line })}\n\n`);
+                });
+              }
+
+              child.on('error', (err: Error) => {
+                activeChild = null;
+                try {
+                  res.write(`event: stderr\ndata: ${JSON.stringify({ text: `Spawn error: ${err.message}` })}\n\n`);
+                  res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId: actualSessionId, error: err.message })}\n\n`);
+                  res.end();
+                } catch { /* response may already be closed */ }
+              });
+
+              child.on('close', async (code: number | null) => {
+                activeChild = null;
+                try {
+                  await updateLineageAfterGeneration(actualSessionDir, roundDir, roundNumber, prompt || '', true);
+                } catch (err) {
+                  console.error('[watcher] Failed to update lineage:', err);
+                }
+                try {
+                  res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId, campaignId: null })}\n\n`);
+                  res.end();
+                } catch { /* response may already be closed */ }
+              });
+
+              const iterSafetyTimeout = setTimeout(() => {
+                if (activeChild === child) {
+                  try { child.kill('SIGTERM'); setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000); } catch { /* */ }
+                }
+              }, 5 * 60 * 1000);
+              child.on('close', () => clearTimeout(iterSafetyTimeout));
+              child.on('error', () => clearTimeout(iterSafetyTimeout));
+              req.on('close', () => {
+                clearTimeout(iterSafetyTimeout);
+                if (activeChild === child) { child.kill('SIGTERM'); activeChild = null; }
+              });
+              return;
             }
 
-            // Use 'ignore' for stdin: claude -p reads the prompt from
-            // args, not stdin. 'inherit' hangs in Vite server context
-            // because there's no interactive TTY.
-            const child = spawn('claude', args, {
-              cwd: projectRoot,
-              stdio: ['ignore', 'pipe', 'pipe'],
-              env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
-            });
-            activeChild = child;
+            // ── NEW CAMPAIGN MODE: Multi-asset parallel generation ──────────
+            // Campaign-level lock: one full campaign generation at a time
+            if (activeCampaignGeneration !== null) {
+              res.writeHead(409, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Campaign generation already in progress', campaignId: activeCampaignGeneration }));
+              return;
+            }
+
+            // Parse channels from prompt
+            const { channels, assetCounts } = parseChannelHints(prompt || '');
+            const assetList = buildAssetList(assetCounts);
+
+            // Title from first 30 chars of prompt
+            const rawTitle = (prompt || 'Marketing Campaign').trim();
+            const campaignTitle = rawTitle.length > 30 ? rawTitle.slice(0, 30) : rawTitle;
+
+            // existingCampaignId: skip campaign creation if adding to existing
+            const existingCampaignId: string | undefined = body.existingCampaignId;
+
+            // Pre-create all Campaign/Asset/Frame/Iteration records BEFORE spawning
+            const projectRoot = path.resolve(srv.config.root, '..');
+            const fluidDir = path.join(projectRoot, '.fluid');
+
+            let campaignId: string;
+            const assetFrameIterMap: Array<{
+              asset: { id: string; title: string; assetType: string };
+              frameId: string;
+              iterationId: string;
+              htmlPath: string;
+              absHtmlPath: string;
+            }> = [];
+
+            try {
+              if (existingCampaignId) {
+                campaignId = existingCampaignId;
+              } else {
+                const { campaign } = createCampaignWithAssets(
+                  { title: campaignTitle, channels },
+                  assetList
+                );
+                campaignId = campaign.id;
+              }
+
+              // Create frames and iterations for each asset
+              const savedAssets = getAssets(campaignId);
+              // Use only the newly-created assets (all if new campaign, or just the new ones)
+              const targetAssets = existingCampaignId
+                ? savedAssets.slice(-assetList.length)
+                : savedAssets;
+
+              for (const asset of targetAssets) {
+                const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+                const iterationId = nanoid();
+                const htmlRelPath = `.fluid/campaigns/${campaignId}/${asset.id}/${frame.id}/${iterationId}.html`;
+                const absHtmlPath = path.join(projectRoot, htmlRelPath);
+                fsSync.mkdirSync(path.dirname(absHtmlPath), { recursive: true });
+                createIteration({
+                  frameId: frame.id,
+                  iterationIndex: 0,
+                  htmlPath: htmlRelPath,
+                  source: 'ai',
+                  generationStatus: 'pending',
+                });
+                assetFrameIterMap.push({
+                  asset: { id: asset.id, title: asset.title, assetType: asset.assetType },
+                  frameId: frame.id,
+                  iterationId,
+                  htmlPath: htmlRelPath,
+                  absHtmlPath,
+                });
+              }
+            } catch (err) {
+              console.error('[watcher] Failed to pre-create campaign structure:', err);
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Failed to create campaign structure' }));
+              return;
+            }
+
+            // Set campaign-level lock
+            activeCampaignGeneration = campaignId;
 
             // Set SSE headers
             res.writeHead(200, {
@@ -1061,102 +1184,146 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             });
             (res as any).flushHeaders?.();
 
-            // Send session ID + campaign IDs immediately
-            res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId, assetId, frameId })}\n\n`);
+            // Stream campaignId to client IMMEDIATELY after DB creation
+            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, assetCount: assetFrameIterMap.length })}\n\n`);
 
-            // Stream stdout line by line as SSE data events
-            if (child.stdout) {
-              const rl = createInterface({ input: child.stdout });
-              rl.on('line', (line: string) => {
-                if (line.trim()) {
-                  res.write(`data: ${line}\n\n`);
-                }
-              });
-            }
+            const mcpConfigPath = path.join(projectRoot, '.mcp.json');
+            let mcpConfigExists = false;
+            try { await fs.access(mcpConfigPath); mcpConfigExists = true; } catch { /* no MCP config */ }
 
-            // Forward stderr as event: stderr
-            if (child.stderr) {
-              const stderrRl = createInterface({ input: child.stderr });
-              stderrRl.on('line', (line: string) => {
-                if (line.trim()) {
-                  res.write(`event: stderr\ndata: ${JSON.stringify({ text: line })}\n\n`);
-                }
-              });
-            }
+            // Track completion for all children
+            let completedCount = 0;
+            const totalCount = assetFrameIterMap.length;
 
-            // Handle spawn errors (e.g. binary not found).
-            // Without this, activeChild stays locked forever.
-            child.on('error', (err: Error) => {
-              activeChild = null;
-              try {
-                res.write(`event: stderr\ndata: ${JSON.stringify({ text: `Spawn error: ${err.message}` })}\n\n`);
-                res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId: actualSessionId, error: err.message })}\n\n`);
-                res.end();
-              } catch {
-                // Response may already be closed
-              }
-            });
-
-            // On close: server updates lineage.json, ingests orphan HTML files, then sends done event
-            child.on('close', async (code: number | null) => {
-              activeChild = null;
-              try {
-                // Server-managed lineage update: discover files the LLM wrote
-                // into the round directory and update lineage.json atomically.
-                await updateLineageAfterGeneration(
-                  actualSessionDir, roundDir, roundNumber, prompt || '', isIteration
-                );
-              } catch (err) {
-                console.error('[watcher] Failed to update lineage:', err);
-              }
-
-              // Auto-ingest: if the agent wrote HTML files to disk but didn't
-              // call push_asset, create iteration records so they show up in
-              // the campaign dashboard.
-              if (frameId) {
-                try {
-                  await autoIngestHtmlToIterations(
-                    roundDir, frameId, campaignId!, assetId!,
-                    path.resolve(srv.config.root, '..')
-                  );
-                } catch (err) {
-                  console.error('[watcher] Failed to auto-ingest HTML to iterations:', err);
-                }
-              }
-
-              try {
-                res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId, campaignId })}\n\n`);
-                res.end();
-              } catch {
-                // Response may already be closed (e.g. client disconnected)
-              }
-            });
-
-            // Safety timeout: kill child after 5 minutes to prevent stuck locks
-            const safetyTimeout = setTimeout(() => {
-              if (activeChild === child) {
-                try {
-                  child.kill('SIGTERM');
-                  // Force kill after 5 seconds if SIGTERM doesn't work
-                  setTimeout(() => {
-                    try { child.kill('SIGKILL'); } catch { /* already dead */ }
-                  }, 5000);
-                } catch { /* already dead */ }
-              }
-            }, 5 * 60 * 1000);
-
-            // Clear safety timeout when child exits normally
-            child.on('close', () => clearTimeout(safetyTimeout));
-            child.on('error', () => clearTimeout(safetyTimeout));
-
-            // Kill child if client disconnects
+            // Cleanup all children on client disconnect
             req.on('close', () => {
-              clearTimeout(safetyTimeout);
-              if (activeChild === child) {
-                child.kill('SIGTERM');
-                activeChild = null;
+              for (const [assetId, child] of activeChildren) {
+                try { child.kill('SIGTERM'); } catch { /* */ }
+                activeChildren.delete(assetId);
               }
+              activeCampaignGeneration = null;
             });
+
+            // Spawn N parallel subagents — one per asset
+            for (const entry of assetFrameIterMap) {
+              const { asset, iterationId, absHtmlPath } = entry;
+              const dims = ASSET_DIMENSIONS[asset.assetType] || { width: 1080, height: 1080 };
+
+              const assetPromptParts = [
+                `Generate a ${asset.assetType} marketing asset for the following brief:`,
+                ``,
+                prompt || 'Generate a marketing asset',
+                ``,
+                `--- ASSET SPECIFICATIONS ---`,
+                `Asset type: ${asset.assetType}`,
+                `Dimensions: ${dims.width}x${dims.height}px`,
+                ``,
+                `--- OUTPUT INSTRUCTIONS ---`,
+                `Write the complete HTML file to EXACTLY this path:`,
+                absHtmlPath,
+                ``,
+                `The file must be a standalone HTML file with all CSS inline.`,
+                `After generating, call PATCH /api/assets/${asset.id} with body { "title": "<descriptive title>" } to set a descriptive title.`,
+                `IMPORTANT: Do NOT create any other files. Write only to the exact path above.`,
+              ];
+
+              const assetArgs = [
+                '-p', assetPromptParts.join('\n'),
+                '--output-format', 'stream-json',
+                '--verbose',
+                '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__push_asset',
+              ];
+
+              if (mcpConfigExists) {
+                assetArgs.push('--mcp-config', mcpConfigPath);
+              }
+
+              if (skillType) {
+                const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
+                try {
+                  await fs.access(skillPath);
+                  assetArgs.push('--append-system-prompt-file', skillPath);
+                } catch { /* skill file not found, skip */ }
+              }
+
+              const child = spawn('claude', assetArgs, {
+                cwd: projectRoot,
+                stdio: ['ignore', 'pipe', 'pipe'],
+                env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
+              });
+
+              activeChildren.set(asset.id, child);
+
+              // Multiplex stdout onto the SSE connection with assetId field
+              if (child.stdout) {
+                const rl = createInterface({ input: child.stdout });
+                rl.on('line', (line: string) => {
+                  if (line.trim()) {
+                    try {
+                      res.write(`data: ${JSON.stringify({ assetId: asset.id, line })}\n\n`);
+                    } catch { /* client disconnected */ }
+                  }
+                });
+              }
+
+              // Multiplex stderr
+              if (child.stderr) {
+                const stderrRl = createInterface({ input: child.stderr });
+                stderrRl.on('line', (line: string) => {
+                  if (line.trim()) {
+                    try {
+                      res.write(`event: stderr\ndata: ${JSON.stringify({ assetId: asset.id, text: line })}\n\n`);
+                    } catch { /* client disconnected */ }
+                  }
+                });
+              }
+
+              child.on('error', (err: Error) => {
+                activeChildren.delete(asset.id);
+                completedCount++;
+                try {
+                  res.write(`event: stderr\ndata: ${JSON.stringify({ assetId: asset.id, text: `Spawn error: ${err.message}` })}\n\n`);
+                } catch { /* */ }
+                if (completedCount >= totalCount) {
+                  activeCampaignGeneration = null;
+                  try {
+                    res.write(`event: done\ndata: ${JSON.stringify({ code: 1, campaignId })}\n\n`);
+                    res.end();
+                  } catch { /* */ }
+                }
+              });
+
+              child.on('close', async (code: number | null) => {
+                activeChildren.delete(asset.id);
+                // Mark iteration as complete
+                try {
+                  updateIterationGenerationStatus(iterationId, 'complete');
+                } catch { /* non-fatal */ }
+                completedCount++;
+
+                // Only send 'done' event after ALL children have closed
+                // This prevents the auto-navigate race condition
+                if (completedCount >= totalCount) {
+                  activeCampaignGeneration = null;
+                  try {
+                    res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 0, campaignId })}\n\n`);
+                    res.end();
+                  } catch { /* client may have disconnected */ }
+                }
+              });
+
+              // Safety timeout per child: kill after 5 minutes
+              const safetyTimeout = setTimeout(() => {
+                if (activeChildren.has(asset.id)) {
+                  try {
+                    child.kill('SIGTERM');
+                    setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000);
+                  } catch { /* already dead */ }
+                }
+              }, 5 * 60 * 1000);
+              child.on('close', () => clearTimeout(safetyTimeout));
+              child.on('error', () => clearTimeout(safetyTimeout));
+            }
 
             return;
           }

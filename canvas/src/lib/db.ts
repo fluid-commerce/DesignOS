@@ -81,6 +81,7 @@ function initSchema(db: Database.Database): void {
       status TEXT NOT NULL DEFAULT 'unmarked',
       source TEXT NOT NULL DEFAULT 'ai',
       template_id TEXT,
+      generation_status TEXT NOT NULL DEFAULT 'complete',
       created_at INTEGER NOT NULL,
       FOREIGN KEY (frame_id) REFERENCES frames(id)
     );
@@ -97,4 +98,12 @@ function initSchema(db: Database.Database): void {
       FOREIGN KEY (iteration_id) REFERENCES iterations(id)
     );
   `);
+
+  // Migration: add generation_status to existing databases that predate this column.
+  // ALTER TABLE is idempotent-guarded by try-catch; SQLite throws if column already exists.
+  try {
+    db.exec(`ALTER TABLE iterations ADD COLUMN generation_status TEXT NOT NULL DEFAULT 'complete'`);
+  } catch {
+    // Column already exists — ignore
+  }
 }

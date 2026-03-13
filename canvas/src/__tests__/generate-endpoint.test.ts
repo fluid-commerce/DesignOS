@@ -35,13 +35,13 @@ describe('Generate endpoint spawn behavior', () => {
     vi.clearAllMocks();
   });
 
-  it('spawn should use stdio inherit for stdin (not pipe)', async () => {
+  it('spawn should use stdio ignore for stdin (not inherit)', async () => {
     const { spawn } = await import('child_process');
 
-    // Simulate what the endpoint does
+    // Simulate what the endpoint does — new campaign mode uses ignore not inherit
     const child = spawn('claude', ['-p', 'test prompt', '--output-format', 'stream-json'], {
       cwd: '/tmp',
-      stdio: ['inherit', 'pipe', 'pipe'],
+      stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },
     });
 
@@ -49,7 +49,7 @@ describe('Generate endpoint spawn behavior', () => {
       'claude',
       expect.arrayContaining(['-p', 'test prompt', '--output-format', 'stream-json']),
       expect.objectContaining({
-        stdio: ['inherit', 'pipe', 'pipe'],
+        stdio: ['ignore', 'pipe', 'pipe'],
       }),
     );
   });
@@ -64,7 +64,7 @@ describe('SSE format', () => {
   });
 
   it('formats done events with event type', () => {
-    const data = { code: 0, sessionId: '20260311-120000' };
+    const data = { code: 0, campaignId: 'camp-abc123' };
     const sseFrame = `event: done\ndata: ${JSON.stringify(data)}\n\n`;
     expect(sseFrame).toContain('event: done\n');
     expect(sseFrame).toContain(`data: ${JSON.stringify(data)}`);
@@ -75,24 +75,117 @@ describe('SSE format', () => {
     const sseFrame = `event: stderr\ndata: ${JSON.stringify(data)}\n\n`;
     expect(sseFrame).toContain('event: stderr\n');
   });
+
+  it('session event includes campaignId immediately', () => {
+    const data = { type: 'session', campaignId: 'camp-abc', assetCount: 7 };
+    const sseFrame = `data: ${JSON.stringify(data)}\n\n`;
+    expect(sseFrame).toContain('"type":"session"');
+    expect(sseFrame).toContain('"campaignId"');
+    expect(sseFrame).toContain('"assetCount":7');
+  });
 });
 
-describe('Concurrent generation lock', () => {
-  it('second request while active should be rejected with 409', () => {
-    // Simulate the lock mechanism
+describe('Campaign-level lock', () => {
+  it('campaign lock blocks concurrent full campaign generation', () => {
+    let activeCampaignGeneration: string | null = null;
+
+    function canStartCampaign(): boolean {
+      return activeCampaignGeneration === null;
+    }
+
+    // First campaign starts
+    activeCampaignGeneration = 'camp-abc';
+    expect(canStartCampaign()).toBe(false); // locked
+
+    // Campaign completes
+    activeCampaignGeneration = null;
+    expect(canStartCampaign()).toBe(true); // unlocked
+  });
+
+  it('iterate mode is NOT blocked by campaign lock', () => {
+    // Iterate mode uses activeChild, not activeCampaignGeneration
+    const activeCampaignGeneration: string | null = 'camp-abc';
     let activeChild: any = null;
 
-    function canGenerate(): boolean {
+    // Iterate requests check activeChild, not activeCampaignGeneration
+    function canIterate(): boolean {
       return activeChild === null;
     }
 
-    // First request - should succeed
-    activeChild = { pid: 123 };
-    expect(canGenerate()).toBe(false); // locked
+    expect(canIterate()).toBe(true); // iterate not blocked by campaign lock
+  });
+});
 
-    // Clear
-    activeChild = null;
-    expect(canGenerate()).toBe(true); // unlocked
+describe('Multi-asset campaign generation', () => {
+  it('default campaign creates 7 assets (3 IG + 3 LI + 1 one-pager)', () => {
+    // Simulate buildAssetList with default counts
+    const DEFAULT_CHANNEL_COUNTS: Record<string, number> = {
+      instagram: 3,
+      linkedin: 3,
+      'one-pager': 1,
+    };
+
+    const assets: Array<{ title: string; assetType: string; frameCount: number }> = [];
+    for (const [type, count] of Object.entries(DEFAULT_CHANNEL_COUNTS)) {
+      for (let i = 1; i <= count; i++) {
+        assets.push({ title: `${type} ${i}`, assetType: type, frameCount: 1 });
+      }
+    }
+
+    expect(assets.length).toBe(7);
+    const igAssets = assets.filter((a) => a.assetType === 'instagram');
+    const liAssets = assets.filter((a) => a.assetType === 'linkedin');
+    const opAssets = assets.filter((a) => a.assetType === 'one-pager');
+    expect(igAssets.length).toBe(3);
+    expect(liAssets.length).toBe(3);
+    expect(opAssets.length).toBe(1);
+  });
+
+  it('parallel subagents use activeChildren Map keyed by assetId', () => {
+    const activeChildren: Map<string, any> = new Map();
+
+    // Add children for 7 assets
+    for (let i = 0; i < 7; i++) {
+      activeChildren.set(`asset-${i}`, { pid: 1000 + i });
+    }
+    expect(activeChildren.size).toBe(7);
+
+    // Simulate child close — delete from map
+    activeChildren.delete('asset-0');
+    expect(activeChildren.size).toBe(6);
+  });
+
+  it('done event fires only after all N children close', () => {
+    let completedCount = 0;
+    const totalCount = 7;
+    let doneEventFired = false;
+
+    function onChildClose() {
+      completedCount++;
+      if (completedCount >= totalCount) {
+        doneEventFired = true;
+      }
+    }
+
+    // Simulate 6 children closing — done should NOT fire yet
+    for (let i = 0; i < 6; i++) onChildClose();
+    expect(doneEventFired).toBe(false);
+
+    // 7th child closes — done should fire
+    onChildClose();
+    expect(doneEventFired).toBe(true);
+  });
+
+  it('canonical HTML paths use .fluid/campaigns/ format', () => {
+    const campaignId = 'camp-abc';
+    const assetId = 'asset-xyz';
+    const frameId = 'frame-123';
+    const iterationId = 'iter-456';
+    const htmlPath = `.fluid/campaigns/${campaignId}/${assetId}/${frameId}/${iterationId}.html`;
+
+    expect(htmlPath).toContain('.fluid/campaigns/');
+    expect(htmlPath).not.toContain('.fluid/working/');
+    expect(htmlPath).toMatch(/\.fluid\/campaigns\/[^/]+\/[^/]+\/[^/]+\/[^/]+\.html$/);
   });
 });
 

@@ -1,0 +1,3204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Template Library</title>
+  <script src="jszip.min.js"></script>
+  <script src="html2canvas.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff;
+      padding: 48px 40px;
+    }
+
+    /* ── Header ── */
+    .header {
+      margin-bottom: 32px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid #1c1c1c;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #44B2FF;
+      margin-bottom: 8px;
+    }
+    .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .header p  { font-size: 12px; color: #3a3a3a; }
+
+    /* ── Design System bar ── */
+    .ds-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid #1a1a1a;
+      margin-bottom: 52px;
+    }
+    .ds-block {
+      padding: 18px 20px;
+      border-right: 1px solid #1a1a1a;
+    }
+    .ds-block:last-child { border-right: none; }
+    .ds-block h4 {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 12px;
+    }
+    .color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+    .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #222; flex-shrink: 0; }
+    .color-hex { font-size: 11px; font-weight: 600; color: #ccc; }
+    .color-role { font-size: 10px; color: #3a3a3a; }
+    .font-item { margin-bottom: 7px; }
+    .font-item .fn { font-size: 11px; font-weight: 600; color: #bbb; }
+    .font-item .fu { font-size: 10px; color: #3a3a3a; }
+    .stat { font-size: 11px; color: #444; margin-bottom: 5px; }
+    .stat b { color: #aaa; }
+    .rule { font-size: 11px; color: #3a3a3a; margin-bottom: 5px; padding-left: 8px; border-left: 2px solid #1e1e1e; }
+    .rule b { color: #666; }
+
+    /* ── Section heading ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #2d2d2d;
+      margin-bottom: 32px;
+    }
+
+    /* ── Template row ── */
+    .template-row {
+      display: grid;
+      grid-template-columns: 480px 1fr;
+      gap: 48px;
+      align-items: start;
+      margin-bottom: 72px;
+    }
+
+    .template-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .t-num  { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; color: #44B2FF; text-transform: uppercase; }
+    .t-name { font-size: 15px; font-weight: 700; }
+    .t-node { font-size: 10px; color: #2a2a2a; font-family: monospace; }
+
+    /* ── Live canvas frame (1080×1080 square) ── */
+    .canvas-outer {
+      width: 480px;
+      height: 480px;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+      flex-shrink: 0;
+    }
+    .canvas-outer iframe {
+      width: 1080px;
+      height: 1080px;
+      border: none;
+      transform: scale(0.4444);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+
+    /* ── Live canvas frame (1340×630 landscape) ── */
+    .canvas-outer-landscape {
+      width: 480px;
+      height: 226px;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+      flex-shrink: 0;
+    }
+    .canvas-outer-landscape iframe {
+      width: 1340px;
+      height: 630px;
+      border: none;
+      transform: scale(0.3582);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+
+    /* ── Spec panel ── */
+    .spec { }
+    .spec .desc { font-size: 12px; color: #444; line-height: 1.65; margin-bottom: 20px; }
+
+    .spec-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #282828;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    th {
+      text-align: left;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #222;
+      padding: 5px 8px;
+      border-bottom: 1px solid #161616;
+    }
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #121212;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    td:first-child { color: #44B2FF; font-family: monospace; white-space: nowrap; }
+    td:nth-child(2){ color: #555; }
+    td:nth-child(3){ color: #444; }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .chip-w { background: #1e1e1e; color: #888; }
+    .chip-b { background: #0c2233; color: #44B2FF; }
+    .chip-o { background: #2b1100; color: #FF6614; }
+
+    hr { border: none; border-top: 1px solid #141414; margin: 56px 0; }
+
+    /* ── Full-size overlay ── */
+    .canvas-outer,
+    .canvas-outer-landscape { cursor: pointer; }
+
+    .canvas-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(0,0,0,0);
+      transition: background 0.18s;
+    }
+    .canvas-outer:hover .canvas-overlay,
+    .canvas-outer-landscape:hover .canvas-overlay {
+      background: rgba(0,0,0,0.55);
+    }
+    .canvas-overlay-btn {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #44B2FF;
+      padding: 8px 16px;
+      border-radius: 2px;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s, transform 0.18s;
+      pointer-events: auto;
+    }
+    .canvas-overlay-edit {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #44B2FF;
+      background: transparent;
+      border: 1px solid #44B2FF;
+      padding: 7px 16px;
+      border-radius: 2px;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s, transform 0.18s;
+      pointer-events: auto;
+    }
+    .canvas-outer:hover .canvas-overlay-btn,
+    .canvas-outer-landscape:hover .canvas-overlay-btn,
+    .canvas-outer:hover .canvas-overlay-edit,
+    .canvas-outer-landscape:hover .canvas-overlay-edit {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 48px;
+      border-bottom: 1px solid #1a1a1a;
+      padding-bottom: 0;
+    }
+    .tab {
+      position: relative;
+      padding: 10px 20px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #333;
+      transition: color 0.15s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      user-select: none;
+    }
+    .tab:hover:not(.tab--disabled) { color: #666; }
+    .tab--active {
+      color: #fff;
+      border-bottom-color: #44B2FF;
+    }
+    .tab--disabled {
+      cursor: default;
+      color: #222;
+    }
+    .tab--disabled .tab-soon {
+      display: inline-block;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1e1e1e;
+      background: #141414;
+      padding: 2px 5px;
+      border-radius: 2px;
+      margin-left: 7px;
+      vertical-align: middle;
+      position: relative;
+      top: -1px;
+    }
+
+    /* ── Tab panels ── */
+    .tab-panel { display: none; }
+    .tab-panel--active { display: block; }
+
+    /* ── Create button ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    .section-header .section-label { margin-bottom: 0; }
+    .btn-create {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border: 1px solid #1e1e1e;
+      border-radius: 3px;
+      background: transparent;
+      color: #44B2FF;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-create:hover {
+      background: #0c2233;
+      border-color: #1a3a50;
+    }
+    .btn-create svg { width: 14px; height: 14px; }
+
+    /* ── Creation Modal ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(0,0,0,0);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: background 0.25s, backdrop-filter 0.25s, -webkit-backdrop-filter 0.25s;
+    }
+    .modal-backdrop.open {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      pointer-events: all;
+    }
+    .modal {
+      width: 960px;
+      max-height: 88vh;
+      overflow: hidden;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(16px) scale(0.98);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .modal-backdrop.open .modal {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 36px 0 36px;
+      margin-bottom: 24px;
+      flex-shrink: 0;
+    }
+
+    /* Two-column body */
+    .modal-body {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .modal-form {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 36px 36px 36px;
+    }
+    .modal-form::-webkit-scrollbar { width: 4px; }
+    .modal-form::-webkit-scrollbar-track { background: transparent; }
+    .modal-form::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+    /* Preview column */
+    .modal-preview {
+      width: 320px;
+      flex-shrink: 0;
+      border-left: 1px solid #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0a;
+    }
+    .modal-preview-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid #141414;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-preview-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #333;
+    }
+    .modal-preview-dims {
+      font-size: 9px;
+      font-weight: 600;
+      color: #222;
+      font-family: monospace;
+    }
+    .modal-preview-frame {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Square template preview (1080×1080) */
+    .preview-canvas {
+      width: 280px;
+      height: 280px;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      border-radius: 3px;
+      transition: height 0.3s;
+    }
+    .preview-canvas iframe {
+      width: 1080px;
+      height: 1080px;
+      border: none;
+      transform: scale(0.2593);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+    /* Landscape template preview (1340×630) */
+    .preview-canvas.landscape {
+      height: 132px;
+    }
+    .preview-canvas.landscape iframe {
+      width: 1340px;
+      height: 630px;
+      transform: scale(0.2090);
+      transform-origin: top left;
+    }
+    /* From scratch empty state */
+    .preview-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 280px;
+      height: 280px;
+      border: 1px dashed #1a1a1a;
+      border-radius: 3px;
+    }
+    .preview-empty-icon {
+      font-size: 28px;
+      color: #1a1a1a;
+    }
+    .preview-empty-text {
+      font-size: 10px;
+      font-weight: 600;
+      color: #222;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: #444;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: color 0.15s, background 0.15s;
+      font-size: 18px;
+    }
+    .modal-close:hover { color: #aaa; background: #1a1a1a; }
+
+    /* ── Form fields ── */
+    .form-group { margin-bottom: 24px; }
+    .form-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 10px;
+    }
+    .form-sublabel {
+      font-size: 11px;
+      color: #2a2a2a;
+      margin-bottom: 12px;
+    }
+
+    /* Skill picker cards */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .skill-card {
+      padding: 14px 12px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      text-align: left;
+    }
+    .skill-card:hover { border-color: #2a2a2a; background: #0e0e0e; }
+    .skill-card.selected {
+      border-color: #44B2FF;
+      background: #0c1a28;
+    }
+    .skill-card-icon {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+    .skill-card-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ccc;
+      margin-bottom: 3px;
+    }
+    .skill-card.selected .skill-card-name { color: #fff; }
+    .skill-card-desc {
+      font-size: 10px;
+      color: #3a3a3a;
+      line-height: 1.4;
+    }
+    .skill-card.selected .skill-card-desc { color: #4a6a80; }
+
+    /* Template base picker */
+    .base-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .base-card {
+      padding: 10px 12px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .base-card:hover { border-color: #2a2a2a; background: #0e0e0e; }
+    .base-card.selected { border-color: #44B2FF; background: #0c1a28; }
+    .base-card-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: #44B2FF;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      width: 20px;
+    }
+    .base-card-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+    }
+    .base-card.selected .base-card-name { color: #fff; }
+    .base-card-dim {
+      font-size: 9px;
+      color: #2a2a2a;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* Textarea & inputs */
+    .form-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px 14px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      background: #0a0a0a;
+      color: #ccc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: border-color 0.15s;
+    }
+    .form-textarea:focus {
+      outline: none;
+      border-color: #44B2FF;
+    }
+    .form-textarea::placeholder { color: #2a2a2a; }
+
+    .ref-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .form-input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      background: #0a0a0a;
+      color: #ccc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 12px;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus { outline: none; border-color: #44B2FF; }
+    .form-input::placeholder { color: #2a2a2a; }
+
+    .btn-add-ref {
+      padding: 6px 12px;
+      border: 1px dashed #1a1a1a;
+      border-radius: 4px;
+      background: transparent;
+      color: #333;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-add-ref:hover { border-color: #333; color: #666; }
+
+    .btn-remove-ref {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      background: transparent;
+      color: #333;
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-remove-ref:hover { border-color: #333; color: #888; }
+
+    /* Submit area */
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #1a1a1a;
+    }
+    .modal-footer-hint {
+      font-size: 10px;
+      color: #2a2a2a;
+      line-height: 1.5;
+    }
+    .btn-generate {
+      padding: 11px 24px;
+      border: none;
+      border-radius: 3px;
+      background: #44B2FF;
+      color: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-generate:hover { background: #5cc0ff; }
+    .btn-generate:disabled { background: #1a1a1a; color: #333; cursor: default; }
+
+    /* ── Modal mode tabs ── */
+    .modal-mode-tabs {
+      display: flex;
+      gap: 3px;
+      flex: 1;
+    }
+    .modal-mode-tab {
+      padding: 7px 20px;
+      border: 1px solid #1e1e1e;
+      border-radius: 4px;
+      background: transparent;
+      color: #333;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .modal-mode-tab:hover:not(.modal-mode-tab--active) {
+      color: #555;
+      border-color: #2a2a2a;
+    }
+    .modal-mode-tab--active {
+      color: #fff;
+      background: #171717;
+      border-color: #2a2a2a;
+    }
+    .modal-mode-tab--active .modal-mode-tab-dot {
+      background: #44B2FF;
+    }
+    .modal-mode-tab-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    /* ── Campaign form ── */
+    .campaign-form {
+      padding: 0 48px 40px 48px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .campaign-form::-webkit-scrollbar { width: 4px; }
+    .campaign-form::-webkit-scrollbar-track { background: transparent; }
+    .campaign-form::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+    .modal-body-campaign {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .modal-body-campaign.active { display: flex; }
+
+    .resource-block {
+      border: 1px solid #161616;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .resource-block-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #161616;
+    }
+    .resource-block-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .resource-block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #444;
+      flex: 1;
+    }
+    .resource-block-body {
+      padding: 14px 16px;
+      background: #0a0a0a;
+    }
+    .resource-block-body .ref-row:last-child { margin-bottom: 0; }
+    .resource-block-body .btn-add-ref { margin-top: 8px; }
+
+    .dam-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-dam-connect {
+      padding: 9px 18px;
+      border: 1px solid #1a3a58;
+      border-radius: 4px;
+      background: transparent;
+      color: #44B2FF;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-dam-connect:hover { background: #08182a; border-color: #2a5878; }
+
+    /* DAM picker states */
+    .dam-no-token-hint {
+      font-size: 10px; color: #2a2a2a; margin-bottom: 10px; line-height: 1.5;
+    }
+    .dam-docs-link {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; color: #333; text-decoration: none;
+      transition: color 0.15s;
+    }
+    .dam-docs-link:hover { color: #44B2FF; }
+    .dam-connected-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .dam-connected-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      color: #3db35d; flex: 1;
+    }
+    .dam-change-token-btn {
+      background: none; border: none; cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      color: #2a2a2a; padding: 0; transition: color 0.15s;
+    }
+    .dam-change-token-btn:hover { color: #666; }
+    .btn-dam-browse {
+      width: 100%; padding: 10px;
+      border: 1px solid #1a3a58; border-radius: 4px;
+      background: #08182a; color: #44B2FF;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-dam-browse:hover { background: #0c2040; border-color: #2a5878; }
+    .dam-asset-grid {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+    }
+    .dam-asset-chip {
+      display: flex; align-items: center; gap: 7px;
+      padding: 4px 8px 4px 4px;
+      border: 1px solid #1a3a58; border-radius: 3px;
+      background: #08182a; max-width: 200px;
+    }
+    .dam-asset-chip-thumb {
+      width: 28px; height: 28px; border-radius: 2px;
+      object-fit: cover; background: #0c2040; flex-shrink: 0;
+    }
+    .dam-asset-chip-thumb-icon {
+      width: 28px; height: 28px; border-radius: 2px;
+      background: #0c2040; display: flex; align-items: center;
+      justify-content: center; font-size: 13px; flex-shrink: 0;
+    }
+    .dam-asset-chip-name {
+      font-size: 10px; color: #44B2FF;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    }
+    .dam-asset-chip-remove {
+      background: none; border: none; color: #1a3a58;
+      cursor: pointer; font-size: 14px; line-height: 1;
+      padding: 0; flex-shrink: 0; transition: color 0.12s;
+    }
+    .dam-asset-chip-remove:hover { color: #44B2FF; }
+
+    .btn-attach-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px dashed #1e1e1e;
+      border-radius: 4px;
+      background: transparent;
+      color: #3a3a3a;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-attach-label:hover { border-color: #2e2e2e; color: #666; }
+    .btn-attach-label input[type="file"] { display: none; }
+
+    .campaign-file-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .campaign-file-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px 5px 10px;
+      border: 1px solid #1e1e1e;
+      border-radius: 3px;
+      background: #0e0e0e;
+      font-size: 10px;
+      color: #555;
+      max-width: 200px;
+    }
+    .campaign-file-chip-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .campaign-file-chip-remove {
+      background: none;
+      border: none;
+      color: #2a2a2a;
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.12s;
+    }
+    .campaign-file-chip-remove:hover { color: #888; }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 10px 20px;
+      border-radius: 4px;
+      background: #44B2FF;
+      color: #000;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── My Campaigns ── */
+    .campaigns-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 80px 20px;
+      text-align: center;
+    }
+    .campaigns-empty-icon { font-size: 30px; margin-bottom: 4px; opacity: 0.4; }
+    .campaigns-empty-title { font-size: 14px; font-weight: 700; color: #2a2a2a; }
+    .campaigns-empty-sub { font-size: 12px; color: #1e1e1e; line-height: 1.8; }
+
+    /* Campaign list cards */
+    .campaign-list { display: flex; flex-direction: column; gap: 8px; }
+    .campaign-list-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 20px;
+      border: 1px solid #161616;
+      border-radius: 5px;
+      background: #0d0d0d;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .campaign-list-card:hover { border-color: #252525; background: #101010; }
+    .campaign-list-card-icon {
+      width: 38px; height: 38px;
+      border-radius: 7px;
+      background: #111; border: 1px solid #1e1e1e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .campaign-list-card-info { flex: 1; min-width: 0; }
+    .campaign-list-card-name {
+      font-size: 13px; font-weight: 700; color: #ccc;
+      margin-bottom: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .campaign-list-card-brief {
+      font-size: 11px; color: #2e2e2e; line-height: 1.5;
+      overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    }
+    .campaign-list-card-meta {
+      display: flex; align-items: center; gap: 8px; margin-top: 7px;
+    }
+    .campaign-list-card-date { font-size: 9px; font-weight: 600; color: #1e1e1e; letter-spacing: 0.05em; }
+    .campaign-progress-chips { display: flex; gap: 4px; }
+    .campaign-progress-chip {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 2px;
+      border: 1px solid #1a1a1a; color: #252525;
+    }
+    .campaign-progress-chip--has { color: #44B2FF; border-color: #0f2a40; }
+    .campaign-open-btn {
+      padding: 7px 16px;
+      border: 1px solid #1e1e1e; border-radius: 4px;
+      background: transparent; color: #333;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      cursor: pointer; flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .campaign-open-btn:hover { color: #bbb; border-color: #333; }
+
+    /* Campaign folder view */
+    .campaign-folder-topbar {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .campaign-back-btn {
+      background: none; border: none;
+      color: #2a2a2a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      cursor: pointer; padding: 6px 0;
+      display: flex; align-items: center; gap: 5px;
+      flex-shrink: 0; transition: color 0.15s;
+    }
+    .campaign-back-btn:hover { color: #666; }
+    .campaign-folder-name {
+      font-size: 18px; font-weight: 800; color: #ddd;
+      flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .campaign-folder-date { font-size: 10px; color: #222; flex-shrink: 0; }
+    .campaign-folder-brief-block {
+      padding: 14px 18px;
+      background: #0a0a0a; border: 1px solid #161616; border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .campaign-folder-brief-label {
+      font-size: 8px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
+      color: #222; margin-bottom: 7px;
+    }
+    .campaign-folder-brief-text { font-size: 12px; color: #444; line-height: 1.7; }
+    .campaign-folder-res-row {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px;
+    }
+    .campaign-res-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px;
+      border: 1px solid #1a1a1a; border-radius: 3px;
+      background: #0e0e0e;
+      font-size: 10px; color: #333; max-width: 220px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .campaign-res-chip a { color: #44B2FF; text-decoration: none; }
+    .campaign-res-chip a:hover { text-decoration: underline; }
+
+    /* Category sections */
+    .campaign-category { margin-bottom: 32px; }
+    .campaign-category-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px; padding-bottom: 11px;
+      border-bottom: 1px solid #111;
+    }
+    .campaign-category-icon { font-size: 15px; }
+    .campaign-category-name {
+      font-size: 11px; font-weight: 800; color: #666;
+      letter-spacing: 0.08em; text-transform: uppercase; flex: 1;
+    }
+    .campaign-category-count { font-size: 10px; color: #222; font-weight: 600; }
+    .campaign-slots {
+      display: flex; gap: 8px;
+      overflow-x: auto; padding-bottom: 6px;
+    }
+    .campaign-slots::-webkit-scrollbar { height: 3px; }
+    .campaign-slots::-webkit-scrollbar-track { background: transparent; }
+    .campaign-slots::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 2px; }
+
+    /* Option slot cards */
+    .campaign-slot {
+      width: 168px; min-width: 168px;
+      border: 1px solid #161616; border-radius: 5px;
+      background: #0a0a0a;
+      display: flex; flex-direction: column;
+      overflow: hidden; flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+    .campaign-slot:hover { border-color: #202020; }
+    .campaign-slot--filled { border-color: #132213; }
+    .campaign-slot--filled:hover { border-color: #1e3a1e; }
+    .campaign-slot-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 11px; border-bottom: 1px solid #111;
+      background: #0c0c0c;
+    }
+    .campaign-slot-num {
+      font-size: 8px; font-weight: 800; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #222;
+    }
+    .campaign-slot--filled .campaign-slot-num { color: #3db35d; }
+    .campaign-slot-status-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #1a1a1a;
+    }
+    .campaign-slot--filled .campaign-slot-status-dot { background: #3db35d; }
+    .campaign-slot-thumb {
+      height: 88px; background: #080808;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .campaign-slot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .campaign-slot-thumb-icon { font-size: 22px; opacity: 0.12; }
+    .campaign-slot-fields { padding: 9px 11px; flex: 1; display: flex; flex-direction: column; gap: 7px; }
+    .campaign-slot-field-label {
+      font-size: 7px; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #1e1e1e; margin-bottom: 2px;
+    }
+    .campaign-slot-field-val { font-size: 10px; color: #2a2a2a; line-height: 1.4; }
+    .campaign-slot-field-bar {
+      height: 8px; background: #111; border-radius: 2px;
+    }
+    .campaign-slot-footer { padding: 9px 11px; border-top: 1px solid #0e0e0e; }
+    .campaign-slot-generate-btn {
+      width: 100%; padding: 7px;
+      border: 1px dashed #1e1e1e; border-radius: 3px;
+      background: transparent; color: #2a2a2a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.15s, color 0.15s, border-style 0.15s;
+    }
+    .campaign-slot-generate-btn:hover { border-color: #333; color: #666; border-style: solid; }
+    .campaign-slot-view-btn {
+      width: 100%; padding: 7px;
+      border: 1px solid #1a3a1a; border-radius: 3px;
+      background: transparent; color: #3db35d;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .campaign-slot-view-btn:hover { background: #081a08; }
+
+    /* ── Sub-tabs ── */
+    .sub-tabs-bar {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #1a1a1a;
+      margin-bottom: 36px;
+    }
+    .sub-tabs {
+      display: flex;
+      flex: 1;
+    }
+    .sub-tab {
+      padding: 9px 20px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #333;
+      transition: color 0.15s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      user-select: none;
+    }
+    .sub-tab:hover { color: #666; }
+    .sub-tab--active { color: #fff; border-bottom-color: #44B2FF; }
+    .sub-panel { display: none; }
+    .sub-panel--active { display: block; }
+
+    /* ── My Creations ── */
+    .creations-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 80px 40px;
+      text-align: center;
+    }
+    .creations-empty-icon { font-size: 36px; color: #1e1e1e; }
+    .creations-empty-title { font-size: 14px; font-weight: 700; color: #333; }
+    .creations-empty-sub { font-size: 12px; color: #2a2a2a; line-height: 1.6; }
+    .creations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+    .creation-card {
+      background: #0e0e0e;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .creation-card:hover { border-color: #2a2a2a; }
+    .creation-card-info { padding: 14px 16px; }
+    .creation-card-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #bbb;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .creation-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .creation-card-chip {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 2px;
+      background: #1a1a1a;
+      color: #555;
+    }
+    .creation-card-date { margin-left: auto; font-size: 10px; color: #2a2a2a; }
+    .creation-card-chip--blue { background: #0c1a28; color: #44B2FF; }
+    /* ── Creation card thumbnail ── */
+    .creation-card-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #080808;
+      border-bottom: 1px solid #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .creation-card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .creation-card-thumb-empty {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1e1e1e;
+    }
+    /* ── Creation card download row ── */
+    .creation-card-dl {
+      display: flex;
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .creation-card-dl-btn {
+      flex: 1;
+      padding: 5px 0;
+      border: 1px solid #1a1a1a;
+      border-radius: 2px;
+      background: transparent;
+      color: #2a2a2a;
+      font-family: inherit;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .creation-card-dl-btn:hover { color: #888; border-color: #333; }
+    /* ── Creation card edit link ── */
+    .creation-card-edit-btn {
+      display: block;
+      margin-top: 6px;
+      padding: 6px 0;
+      border: 1px solid #1a1a1a;
+      border-radius: 2px;
+      background: transparent;
+      color: #2a2a2a;
+      font-family: inherit;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      text-decoration: none;
+      transition: color 0.12s, border-color 0.12s;
+      cursor: pointer;
+    }
+    .creation-card-edit-btn:hover { color: #44B2FF; border-color: #44B2FF44; }
+    /* ── Creation card delete button ── */
+    .creation-card-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50%;
+      background: rgba(0,0,0,0.72);
+      color: #444;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+      z-index: 5;
+      padding: 0;
+      font-family: inherit;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .creation-card:hover .creation-card-delete { opacity: 1; }
+    .creation-card-delete:hover {
+      color: #FF6614;
+      border-color: rgba(255,102,20,0.35);
+      background: rgba(255,102,20,0.12);
+    }
+
+    /* ── Download ZIP button ── */
+    .canvas-overlay-dl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #666;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 5px 14px;
+      border-radius: 2px;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s, transform 0.18s, color 0.15s, border-color 0.15s;
+      pointer-events: auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .canvas-overlay-dl:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+    .canvas-overlay-dl:disabled { cursor: default; }
+    .canvas-outer:hover .canvas-overlay-dl,
+    .canvas-outer-landscape:hover .canvas-overlay-dl {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Overlay template dropdown ── */
+    .overlay-menu-wrap {
+      position: relative;
+      pointer-events: auto;
+    }
+    .overlay-menu {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 204px;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 4px;
+      overflow: hidden;
+      display: none;
+      z-index: 20;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .overlay-menu-wrap.open .overlay-menu { display: block; }
+    .overlay-menu-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 11px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #666;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+    .overlay-menu-item:hover { background: #1a1a1a; color: #fff; }
+    .overlay-menu-item + .overlay-menu-item { border-top: 1px solid #1a1a1a; }
+    /* Keep overlay visible while dropdown is open */
+    .canvas-outer:has(.overlay-menu-wrap.open) .canvas-overlay,
+    .canvas-outer-landscape:has(.overlay-menu-wrap.open) .canvas-overlay {
+      background: rgba(0,0,0,0.55);
+    }
+    .canvas-outer:has(.overlay-menu-wrap.open) .canvas-overlay-btn,
+    .canvas-outer:has(.overlay-menu-wrap.open) .canvas-overlay-edit,
+    .canvas-outer:has(.overlay-menu-wrap.open) .canvas-overlay-dl,
+    .canvas-outer-landscape:has(.overlay-menu-wrap.open) .canvas-overlay-btn,
+    .canvas-outer-landscape:has(.overlay-menu-wrap.open) .canvas-overlay-edit,
+    .canvas-outer-landscape:has(.overlay-menu-wrap.open) .canvas-overlay-dl {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="eyebrow">@NEumi · Design System</div>
+  <h1>Template Library</h1>
+  <p>Live HTML/CSS templates · pixel-perfect · flfontbold + Inter (Neue Haas proxy)</p>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab tab--active" data-tab="social">Social</button>
+  <button class="tab tab--disabled">Presentations <span class="tab-soon">Soon</span></button>
+  <button class="tab tab--disabled">One Pagers <span class="tab-soon">Soon</span></button>
+  <button class="tab tab--disabled">Website <span class="tab-soon">Soon</span></button>
+</div>
+
+<!-- Social Tab Panel -->
+<div id="tab-social" class="tab-panel tab-panel--active">
+
+<!-- Design System -->
+<div class="ds-bar">
+  <div class="ds-block">
+    <h4>Colors</h4>
+    <div class="color-row"><div class="swatch" style="background:#000;border-color:#2a2a2a"></div><div><div class="color-hex">#000000</div><div class="color-role">Background</div></div></div>
+    <div class="color-row"><div class="swatch" style="background:#fff"></div><div><div class="color-hex">#FFFFFF</div><div class="color-role">Primary Text</div></div></div>
+    <div class="color-row"><div class="swatch" style="background:#44B2FF"></div><div><div class="color-hex">#44B2FF</div><div class="color-role">Accent Blue</div></div></div>
+    <div class="color-row"><div class="swatch" style="background:#FF6614"></div><div><div class="color-hex">#FF6614</div><div class="color-role">Accent Orange</div></div></div>
+  </div>
+  <div class="ds-block">
+    <h4>Typography</h4>
+    <div class="font-item"><div class="fn">Neue Haas Grotesk Display Pro</div><div class="fu">Weight 700 · Headlines, names, quotes</div></div>
+    <div class="font-item"><div class="fn">flfontbold</div><div class="fu">Weight 700 · Titles, handles, accent labels</div></div>
+  </div>
+  <div class="ds-block">
+    <h4>Canvas</h4>
+    <div class="stat">Square: <b>1080 × 1080px</b></div>
+    <div class="stat">Landscape: <b>1340 × 630px</b></div>
+    <div class="stat">Export: <b>PNG @2x</b></div>
+    <div class="stat">Background: <b>#000000</b></div>
+    <div class="stat">Accent: <b>One per post</b></div>
+  </div>
+  <div class="ds-block">
+    <h4>Principles</h4>
+    <div class="rule"><b>Oversized type</b> — push sizes big</div>
+    <div class="rule"><b>Photo bleeds</b> — editorial, not boxed</div>
+    <div class="rule"><b>One accent</b> — blue OR orange</div>
+    <div class="rule"><b>Rotated label</b> — right edge, 90°</div>
+    <div class="rule"><b>Hanging quotes</b> — all quote posts</div>
+  </div>
+</div>
+
+<!-- Sub-tabs bar -->
+<div class="sub-tabs-bar">
+  <div class="sub-tabs">
+    <button class="sub-tab sub-tab--active" data-subtab="templates" onclick="switchSubTab(this)">Templates</button>
+    <button class="sub-tab" data-subtab="my-creations" onclick="switchSubTab(this)">My Creations</button>
+    <button class="sub-tab" data-subtab="my-campaigns" onclick="switchSubTab(this)">My Campaigns</button>
+  </div>
+  <button class="btn-create" onclick="openCreateModal()">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+    Create
+  </button>
+</div>
+
+<!-- Templates sub-panel -->
+<div class="sub-panel sub-panel--active" id="subtab-templates">
+
+<!-- ── TEMPLATE 1 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">01</span>
+      <span class="t-name">Client Testimonial / Quote</span>
+      <span class="t-node">236:447</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="social/t1-quote.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t1-quote.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t1-quote">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t1-quote')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t1-quote', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Portrait photo top-left. Large white name overlapping right. flfontbold title + handle in accent blue. Full-width quote in the lower half. Rotated label on far right edge.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Spec</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>{{PHOTO}}</td><td>Portrait · 353×439px · left:35 top:46</td><td>—</td></tr>
+        <tr><td>{{NAME}}</td><td>NeueHaas 900 · 109px · lh 80%</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{TITLE}}</td><td>flfontbold · 68px · lh 100%</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>{{HANDLE}}</td><td>flfontbold · 36px</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>{{CATEGORY}}</td><td>NeueHaas 700 · 24px · rotate 90°</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{QUOTE}}</td><td>NeueHaas 900 · 56px · width 921px · hanging quotes</td><td><span class="chip chip-w">White</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>social/t1-quote.html</code></td></tr>
+        <tr><td>2.</td><td>Swap .photo background or add &lt;img&gt; with new portrait</td></tr>
+        <tr><td>3.</td><td>Edit text in .name, .title, .handle, .quote divs</td></tr>
+        <tr><td>4.</td><td>Change <code>--accent</code> to <code>#FF6614</code> for orange variant</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ── TEMPLATE 2 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">02</span>
+      <span class="t-name">App Feature / Product Highlight</span>
+      <span class="t-node">236:528</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="social/t2-app-highlight.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t2-app-highlight.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t2-app-highlight">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t2-app-highlight')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t2-app-highlight', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Massive bold headline top half. Product/app mockup bleeds into lower half. flfontbold accent label overlaps at −29°. Brand logos bottom bar. Slide counter + rotated label on right edge.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Spec</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>{{HEADLINE}}</td><td>NeueHaas 900 · 169px · lh 75% · centered · uppercase</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{MOCKUP}}</td><td>Product image · left:-1 top:450 · bleeds full width</td><td>—</td></tr>
+        <tr><td>{{ACCENT_LABEL}}</td><td>flfontbold · 72px · rotate −29° · overlaps mockup</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>{{SLIDE_NUM}}</td><td>NeueHaas 700 · 24px · top-right e.g. "01/12"</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{CATEGORY}}</td><td>NeueHaas 700 · 24px · rotate 90° · right edge</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{BRAND_LOGO}}</td><td>Partner logo · bottom-left · ~303×54px</td><td><span class="chip chip-w">White</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>social/t2-app-highlight.html</code></td></tr>
+        <tr><td>2.</td><td>Edit .headline text</td></tr>
+        <tr><td>3.</td><td>Add &lt;img&gt; inside .mockup with new screenshot</td></tr>
+        <tr><td>4.</td><td>Edit .accent-label text</td></tr>
+        <tr><td>5.</td><td>Update .slide-num and .category text</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ── TEMPLATE 3 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">03</span>
+      <span class="t-name">Partner Alert / App Highlight (Landscape)</span>
+      <span class="t-node">236:544</span>
+    </div>
+    <div class="canvas-outer-landscape">
+      <iframe src="social/t3-partner-alert.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t3-partner-alert.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t3-partner-alert">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t3-partner-alert')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t3-partner-alert', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Landscape 1340×630 banner. Massive headline bleeds off both sides. Phone mockup fills the canvas height on the left. Blue circle brush stroke and flfontbold accent on the right. Three brand logos (flag, WeCommerce, Fluid) along the bottom.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Spec</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>{{HEADLINE}}</td><td>NeueHaas 900 · 175px · lh 80% · centered · bleeds</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{PHONE_MOCKUP}}</td><td>App screenshot · left:127 top:0 · 945×630px · full height</td><td>—</td></tr>
+        <tr><td>{{CIRCLE_BRUSH}}</td><td>Decorative brush stroke · right side · rotate −59°</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>{{ACCENT_LABEL}}</td><td>flfontbold · 68px · rotate −29° · lower-right area</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>{{BG_TEXTURE}}</td><td>Paint brush stroke · top-left area · rotate 90°</td><td><span class="chip chip-w">White</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>social/t3-partner-alert.html</code></td></tr>
+        <tr><td>2.</td><td>Edit .headline text</td></tr>
+        <tr><td>3.</td><td>Swap .phone img src with new app screenshot</td></tr>
+        <tr><td>4.</td><td>Edit .accent-label text</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ── TEMPLATE 4 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">04</span>
+      <span class="t-name">Fluid Capabilities — Instagram Ad</span>
+      <span class="t-node">ad-creative</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="social/t4-fluid-ad.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t4-fluid-ad.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t4-fluid-ad">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t4-fluid-ad')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t4-fluid-ad', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Instagram feed ad (1080×1080). Oversized "BUILT FOR REPS." headline left. Blue circle brush stroke + phone mockup right. flfontbold feature list with sub-labels. Fluid logo + handle bottom bar. Rotated "Instagram Ad" label on right edge.</p>
+
+    <div class="spec-label">Ad Copy — Instagram</div>
+    <table>
+      <thead><tr><th>Element</th><th>Copy</th><th>Chars</th></tr></thead>
+      <tbody>
+        <tr><td>Primary Text</td><td>One app. Every tool your rep business needs. Share referral links, track analytics, manage commissions — all in Fluid.</td><td>119</td></tr>
+        <tr><td>Headline</td><td>Built for Reps. Made to Win.</td><td>28</td></tr>
+        <tr><td>Description</td><td>Download the Fluid app</td><td>22</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Spec</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>.headline</td><td>NeueHaas 900 · 196px · lh 82% · 3 lines</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>.tagline</td><td>flfontbold · 28px · below divider</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>.feature-name</td><td>NeueHaas 900 · 42px · 4 items</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>.feature-label</td><td>flfontbold · 18px · inline sub-label</td><td><span class="chip chip-b">Blue</span></td></tr>
+        <tr><td>.phone img</td><td>App screenshot · right:−60 top:260 · 520×700px</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>social/t4-fluid-ad.html</code></td></tr>
+        <tr><td>2.</td><td>Edit .headline text (3 lines)</td></tr>
+        <tr><td>3.</td><td>Edit .tagline text</td></tr>
+        <tr><td>4.</td><td>Update .feature-name + .feature-label for each feature</td></tr>
+        <tr><td>5.</td><td>Swap .phone img src with new app screenshot</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<hr>
+
+<!-- ── TEMPLATE 5 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">05</span>
+      <span class="t-name">Partner Announcement (Landscape)</span>
+      <span class="t-node">236:554</span>
+    </div>
+    <div class="canvas-outer-landscape">
+      <iframe src="social/t5-partner-announcement.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t5-partner-announcement.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t5-partner-announcement">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t5-partner-announcement')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t5-partner-announcement', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Landscape 1340×630 announcement banner. Bold headline fills the left half. Portrait photo + person name &amp; title on the right. Partnership logo row (brand × partner) below the headline. Flag, WeCommerce, and Fluid logos along the bottom.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Spec</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>{{HEADLINE}}</td><td>NeueHaas 900 · 70px · lh 85% · left:115 top:102 · width:729px</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{PARTNER_LOGO}}</td><td>Brand logo · 87×30px · partner row left</td><td>—</td></tr>
+        <tr><td>{{PARTNER_NAME}}</td><td>NeueHaas 500 · 27px · partner row right of ×</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{PERSON_PHOTO}}</td><td>Portrait · left:876 top:102 · 263×327px · overflow clipped</td><td>—</td></tr>
+        <tr><td>{{PERSON_NAME}}</td><td>NeueHaas 900 · 45px · lh 80% · centered right half</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{PERSON_TITLE}}</td><td>flfontbold · 34px · blue · below name</td><td><span class="chip chip-b">Blue</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>social/t5-partner-announcement.html</code></td></tr>
+        <tr><td>2.</td><td>Edit .headline text</td></tr>
+        <tr><td>3.</td><td>Swap .fluid-logo-sm src + update .partner-name text</td></tr>
+        <tr><td>4.</td><td>Swap .person-photo img src with new portrait</td></tr>
+        <tr><td>5.</td><td>Update .person-name and .person-title text</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<hr>
+
+<!-- ── TEMPLATE 6 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">06</span>
+      <span class="t-name">Employee Spotlight</span>
+      <span class="t-node">236:462</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="social/t6-employee-spotlight.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t6-employee-spotlight.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t6-employee-spotlight">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t6-employee-spotlight')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t6-employee-spotlight', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">Square 1080×1080 employee / new hire spotlight. Giant bold headline fills the top. Centered portrait photo in the middle. Employee name and title below the photo. Flag, WeCommerce, and Fluid logos at the bottom.</p>
+
+    <div class="spec-label">Content Slots</div>
+    <table>
+      <thead><tr><th>Slot</th><th>Spec</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>{{HEADLINE}}</td><td>NeueHaas 900 · 168px · lh 75% · centered · width 936px</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{EMPLOYEE_PHOTO}}</td><td>Portrait · left:408 top:494 · 263×327px · overflow clipped</td><td>—</td></tr>
+        <tr><td>{{EMPLOYEE_NAME}}</td><td>NeueHaas 900 · 89px · lh 80% · centered</td><td><span class="chip chip-w">White</span></td></tr>
+        <tr><td>{{EMPLOYEE_TITLE}}</td><td>flfontbold · 68px · centered · orange</td><td><span class="chip chip-o">Orange</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">To Create a New Version</div>
+    <table>
+      <tbody>
+        <tr><td>1.</td><td>Duplicate <code>social/t6-employee-spotlight.html</code></td></tr>
+        <tr><td>2.</td><td>Edit .headline text</td></tr>
+        <tr><td>3.</td><td>Swap .employee-photo img src with new portrait</td></tr>
+        <tr><td>4.</td><td>Update .employee-name and .employee-title text</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<hr>
+
+<!-- ── TEMPLATE 7 ── -->
+<div class="template-row">
+  <div>
+    <div class="template-meta">
+      <span class="t-num">07</span>
+      <span class="t-name">Carousel — Insights</span>
+      <span class="t-node">261:935–967</span>
+    </div>
+    <div class="canvas-outer">
+      <iframe src="social/t7-carousel.html" scrolling="no"></iframe>
+      <div class="canvas-overlay">
+        <a class="canvas-overlay-btn" href="/preview/social/t7-carousel.html" target="_blank">↗ Full Size</a>
+        <div class="overlay-menu-wrap">
+          <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+          <div class="overlay-menu">
+            <a class="overlay-menu-item" href="editor?t=t7-carousel">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="openCreateModalWithBase('t7-carousel')">✦ &nbsp;Create with AI</button>
+          </div>
+        </div>
+        <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t7-carousel', this)">⬇ Download ZIP</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec">
+    <p class="desc">4-slide Instagram/LinkedIn carousel. Slide 1: bold cover with employee portrait. Slide 2: large intro text + blue arrow. Slide 3: tool feature with name, description, screenshot + difficulty badge. Slide 4: app feature with two body paragraphs. Counter 01/04 in each slide's top-right corner.</p>
+
+    <div class="spec-label">Carousel Slides</div>
+    <table>
+      <thead><tr><th>Slide</th><th>Layout</th></tr></thead>
+      <tbody>
+        <tr><td>01 — Cover</td><td>Big headline · portrait photo · name (NeueHaas 900 89px) · title (flfontbold orange) · logos</td></tr>
+        <tr><td>02 — Intro</td><td>Body copy (NeueHaas 400 · 75px) + blue arrow decoration</td></tr>
+        <tr><td>03 — Tool</td><td>Tool name (124px) · description (47px) · screenshot image · Difficulty badge (flfontbold orange)</td></tr>
+        <tr><td>04 — Feature</td><td>Feature name (124px) · two body paragraphs (47px)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="spec-label">Carousel Navigation</div>
+    <table>
+      <tbody>
+        <tr><td>Full Size</td><td>← Slide / Slide → buttons top-right · Arrow keys navigate slides</td></tr>
+        <tr><td>Editor</td><td>Slide 01–04 switcher in sidebar · downloads capture active slide</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+</div><!-- /subtab-templates -->
+
+<!-- My Creations sub-panel -->
+<div class="sub-panel" id="subtab-my-creations">
+
+  <div class="creations-empty" id="creationsEmpty">
+    <div class="creations-empty-icon">✦</div>
+    <div class="creations-empty-title">No creations yet</div>
+    <div class="creations-empty-sub">Click <strong style="color:#666">+ Create</strong> or use <strong style="color:#666">New from Template</strong> on any template<br/>to generate your first asset. It will appear here instantly.</div>
+  </div>
+  <div class="creations-grid" id="creationsGrid" style="display:none"></div>
+
+</div><!-- /subtab-my-creations -->
+
+<!-- My Campaigns sub-panel -->
+<div class="sub-panel" id="subtab-my-campaigns">
+
+  <!-- List view: all campaigns -->
+  <div id="campaignListView">
+    <div class="campaigns-empty" id="campaignsEmpty">
+      <div class="campaigns-empty-icon">📁</div>
+      <div class="campaigns-empty-title">No campaigns yet</div>
+      <div class="campaigns-empty-sub">Click <strong style="color:#555">+ Create</strong> and choose <strong style="color:#555">New Campaign</strong><br/>to plan your first campaign.</div>
+    </div>
+    <div class="campaign-list" id="campaignsList" style="display:none"></div>
+  </div>
+
+  <!-- Folder view: single campaign open -->
+  <div id="campaignFolderView" style="display:none">
+    <!-- Topbar -->
+    <div class="campaign-folder-topbar">
+      <button class="campaign-back-btn" onclick="closeCampaignFolder()">← Campaigns</button>
+      <div class="campaign-folder-name" id="folderName"></div>
+      <div class="campaign-folder-date" id="folderDate"></div>
+    </div>
+    <!-- Brief -->
+    <div class="campaign-folder-brief-block">
+      <div class="campaign-folder-brief-label">Brief</div>
+      <div class="campaign-folder-brief-text" id="folderBrief"></div>
+    </div>
+    <!-- Resources -->
+    <div class="campaign-folder-res-row" id="folderResources"></div>
+    <!-- Category sections (rendered by JS) -->
+    <div id="folderSections"></div>
+  </div>
+
+</div><!-- /subtab-my-campaigns -->
+
+</div><!-- /tab-social -->
+
+<!-- ── Creation Modal ── -->
+<div class="modal-backdrop" id="createModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-mode-tabs">
+        <button class="modal-mode-tab modal-mode-tab--active" id="modeTabAsset" onclick="selectModalMode('asset')">
+          <span class="modal-mode-tab-dot"></span>New Asset
+        </button>
+        <button class="modal-mode-tab" id="modeTabCampaign" onclick="selectModalMode('campaign')">
+          <span class="modal-mode-tab-dot"></span>New Campaign
+        </button>
+      </div>
+      <button class="modal-close" onclick="closeCreateModal()">×</button>
+    </div>
+
+    <div class="modal-body" id="modalBodyAsset">
+      <!-- Left: Form -->
+      <div class="modal-form">
+        <!-- Step 1: Skill -->
+        <div class="form-group">
+          <label class="form-label">Skill</label>
+          <div class="form-sublabel">Choose what type of asset to create</div>
+          <div class="skill-grid">
+            <button class="skill-card selected" data-skill="ad-creative" onclick="selectSkill(this)">
+              <div class="skill-card-icon">📣</div>
+              <div class="skill-card-name">Ad Creative</div>
+              <div class="skill-card-desc">Paid ad visuals — Instagram, Facebook, LinkedIn</div>
+            </button>
+            <button class="skill-card" data-skill="social-content" onclick="selectSkill(this)">
+              <div class="skill-card-icon">📱</div>
+              <div class="skill-card-name">Social Content</div>
+              <div class="skill-card-desc">Organic posts — quotes, highlights, announcements</div>
+            </button>
+            <button class="skill-card" data-skill="copywriting" onclick="selectSkill(this)">
+              <div class="skill-card-icon">✍️</div>
+              <div class="skill-card-name">Copywriting</div>
+              <div class="skill-card-desc">Marketing copy — headlines, CTAs, taglines</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Base Template -->
+        <div class="form-group">
+          <label class="form-label">Base Template</label>
+          <div class="form-sublabel">Start from an existing layout or from scratch</div>
+          <div class="base-grid">
+            <button class="base-card selected" data-base="scratch" onclick="selectBase(this)">
+              <span class="base-card-num">✦</span>
+              <span class="base-card-name">From Scratch</span>
+              <span class="base-card-dim">AI picks</span>
+            </button>
+            <button class="base-card" data-base="t1-quote" onclick="selectBase(this)">
+              <span class="base-card-num">01</span>
+              <span class="base-card-name">Client Testimonial</span>
+              <span class="base-card-dim">1080²</span>
+            </button>
+            <button class="base-card" data-base="t2-app-highlight" onclick="selectBase(this)">
+              <span class="base-card-num">02</span>
+              <span class="base-card-name">App Highlight</span>
+              <span class="base-card-dim">1080²</span>
+            </button>
+            <button class="base-card" data-base="t3-partner-alert" onclick="selectBase(this)">
+              <span class="base-card-num">03</span>
+              <span class="base-card-name">Partner Alert</span>
+              <span class="base-card-dim">1340×630</span>
+            </button>
+            <button class="base-card" data-base="t4-fluid-ad" onclick="selectBase(this)">
+              <span class="base-card-num">04</span>
+              <span class="base-card-name">Instagram Ad</span>
+              <span class="base-card-dim">1080²</span>
+            </button>
+            <button class="base-card" data-base="t5-partner-announcement" onclick="selectBase(this)">
+              <span class="base-card-num">05</span>
+              <span class="base-card-name">Partner Announce</span>
+              <span class="base-card-dim">1340×630</span>
+            </button>
+            <button class="base-card" data-base="t6-employee-spotlight" onclick="selectBase(this)">
+              <span class="base-card-num">06</span>
+              <span class="base-card-name">Employee Spotlight</span>
+              <span class="base-card-dim">1080²</span>
+            </button>
+            <button class="base-card" data-base="t7-carousel" onclick="selectBase(this)">
+              <span class="base-card-num">07</span>
+              <span class="base-card-name">Carousel</span>
+              <span class="base-card-dim">4 slides</span>
+            </button>
+            <button class="base-card" data-base="t8-quarterly-stats" onclick="selectBase(this)">
+              <span class="base-card-num">08</span>
+              <span class="base-card-name">Quarterly Stats</span>
+              <span class="base-card-dim">4 slides</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Description -->
+        <div class="form-group">
+          <label class="form-label">Brief</label>
+          <div class="form-sublabel">Describe the goal, audience, and what the asset should communicate</div>
+          <textarea class="form-textarea" id="createBrief" placeholder="e.g. Create an Instagram ad promoting Fluid's new analytics dashboard. Target: independent sales reps. Goal: drive app downloads. Tone: bold, modern. Highlight the real-time commission tracking feature."></textarea>
+        </div>
+
+        <!-- Step 4: References -->
+        <div class="form-group">
+          <label class="form-label">References <span style="color:#2a2a2a;font-weight:500;letter-spacing:0">(optional)</span></label>
+          <div class="form-sublabel">Add URLs, Figma links, or file paths for visual or copy reference</div>
+          <div id="refList">
+            <div class="ref-row">
+              <input class="form-input" type="text" placeholder="https://figma.com/… or /path/to/file.png" />
+              <button class="btn-remove-ref" onclick="removeRef(this)" title="Remove">×</button>
+            </div>
+          </div>
+          <button class="btn-add-ref" onclick="addRef()">+ Add Reference</button>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <div class="modal-footer-hint">Generates a formatted prompt for Claude.<br/>Copies to clipboard — paste into Claude Code to create.</div>
+          <button class="btn-generate" id="btnGenerate" onclick="generatePrompt()">Generate Prompt</button>
+        </div>
+      </div>
+
+      <!-- Right: Preview -->
+      <div class="modal-preview">
+        <div class="modal-preview-header">
+          <span class="modal-preview-label">Preview</span>
+          <span class="modal-preview-dims" id="previewDims">—</span>
+        </div>
+        <div class="modal-preview-frame">
+          <!-- Empty state (default for "From Scratch") -->
+          <div class="preview-empty" id="previewEmpty">
+            <div class="preview-empty-icon">✦</div>
+            <div class="preview-empty-text">From Scratch<br/>AI will choose the best layout</div>
+          </div>
+          <!-- Live canvas (hidden initially) -->
+          <div class="preview-canvas" id="previewCanvas" style="display:none">
+            <iframe id="previewIframe" scrolling="no"></iframe>
+          </div>
+        </div>
+      </div>
+    </div><!-- /#modalBodyAsset -->
+
+    <!-- Campaign mode body -->
+    <div class="modal-body-campaign" id="modalBodyCampaign">
+      <div class="campaign-form">
+
+        <!-- Campaign name -->
+        <div class="form-group">
+          <label class="form-label">Campaign Name</label>
+          <input class="form-input" type="text" id="campaignName" placeholder="e.g. Q2 Product Launch · Spring 2026" style="width:100%;box-sizing:border-box;" />
+        </div>
+
+        <!-- Brief -->
+        <div class="form-group">
+          <label class="form-label">Brief</label>
+          <div class="form-sublabel">Describe the campaign goals, audience, messaging strategy, and key deliverables</div>
+          <textarea class="form-textarea" id="campaignBrief" rows="7"
+            placeholder="e.g. Q2 product launch campaign targeting independent sales reps on LinkedIn and Instagram. Goal: 15% increase in app downloads. Key message: real-time commission visibility. Tone: bold, confident, data-forward. Deliverables: 3 social posts, 1 carousel, 1 landscape banner."></textarea>
+        </div>
+
+        <!-- Resources -->
+        <div class="form-group">
+          <label class="form-label">Resources</label>
+
+          <!-- Links -->
+          <div class="resource-block">
+            <div class="resource-block-header">
+              <span class="resource-block-icon">🔗</span>
+              <span class="resource-block-label">Reference Links</span>
+            </div>
+            <div class="resource-block-body">
+              <div id="campaignLinkList">
+                <div class="ref-row">
+                  <input class="form-input" type="url" placeholder="https://figma.com/… or https://docs.google.com/…" />
+                  <button class="btn-remove-ref" onclick="removeCampaignLink(this)" title="Remove">×</button>
+                </div>
+              </div>
+              <button class="btn-add-ref" onclick="addCampaignLink()">+ Add Link</button>
+            </div>
+          </div>
+
+          <!-- Attach Files -->
+          <div class="resource-block">
+            <div class="resource-block-header">
+              <span class="resource-block-icon">📎</span>
+              <span class="resource-block-label">Attach Files</span>
+            </div>
+            <div class="resource-block-body">
+              <label class="btn-attach-label">
+                <input type="file" id="campaignFileInput" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.txt,.md" onchange="onCampaignFilesAdded(this)" />
+                ↑ &nbsp;Choose Files
+              </label>
+              <div class="campaign-file-list" id="campaignFileList"></div>
+            </div>
+          </div>
+
+          <!-- Connect to DAM -->
+          <div class="resource-block">
+            <div class="resource-block-header">
+              <span class="resource-block-icon">☁️</span>
+              <span class="resource-block-label">Fluid DAM</span>
+            </div>
+            <div class="resource-block-body" id="damBlockBody">
+              <!-- Rendered by renderDamBlock() -->
+              <div class="dam-no-token-hint">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <div class="modal-footer-hint">Saves the campaign brief and resources<br/>so you can reference them while building assets.</div>
+          <button class="btn-generate" onclick="saveCampaign()">Save Campaign</button>
+        </div>
+
+      </div><!-- /.campaign-form -->
+    </div><!-- /#modalBodyCampaign -->
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Sub-tabs ── */
+  function switchSubTab(btn) {
+    document.querySelectorAll('.sub-tab').forEach(function(t) { t.classList.remove('sub-tab--active'); });
+    document.querySelectorAll('.sub-panel').forEach(function(p) { p.classList.remove('sub-panel--active'); });
+    btn.classList.add('sub-tab--active');
+    var target = document.getElementById('subtab-' + btn.dataset.subtab);
+    if (target) {
+      target.classList.add('sub-panel--active');
+      if (btn.dataset.subtab === 'my-creations') renderCreations();
+      if (btn.dataset.subtab === 'my-campaigns') {
+        // If no campaign folder is open, ensure list view is showing
+        if (!openCampaignId) {
+          var lv = document.getElementById('campaignListView');
+          var fv = document.getElementById('campaignFolderView');
+          if (lv) lv.style.display = '';
+          if (fv) fv.style.display = 'none';
+        }
+        renderCampaigns();
+      }
+    }
+  }
+
+  /* ── My Creations: localStorage ── */
+  function getCreations() {
+    try { return JSON.parse(localStorage.getItem('neumi_creations') || '[]'); }
+    catch(e) { return []; }
+  }
+
+  var skillLabels = {
+    'ad-creative':   'Ad Creative',
+    'social-content': 'Social Content',
+    'copywriting':   'Copywriting',
+    'edited':        'Edited'
+  };
+  var baseLabels = {
+    'scratch':                 'Scratch',
+    't1-quote':                'T1 · Quote',
+    't2-app-highlight':        'T2 · App',
+    't3-partner-alert':        'T3 · Alert',
+    't4-fluid-ad':             'T4 · IG Ad',
+    't5-partner-announcement': 'T5 · Partner',
+    't6-employee-spotlight':   'T6 · Spotlight',
+    't7-carousel':             'T7 · Carousel',
+    't8-quarterly-stats':      'T8 · Quarterly Stats'
+  };
+
+  function renderCreations() {
+    var list    = getCreations();
+    var emptyEl = document.getElementById('creationsEmpty');
+    var gridEl  = document.getElementById('creationsGrid');
+    if (!emptyEl || !gridEl) return;
+
+    if (!list.length) {
+      emptyEl.style.display = '';
+      gridEl.style.display  = 'none';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    gridEl.style.display  = '';
+
+    gridEl.innerHTML = list.map(function(c) {
+      var date    = new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var name    = (c.brief || '').length > 60 ? c.brief.slice(0, 60) + '…' : (c.brief || 'Untitled');
+      var skill   = skillLabels[c.skill]  || c.skill  || '—';
+      var base    = baseLabels[c.base]    || c.base   || 'Scratch';
+      var thumbHtml = c.thumbnail
+        ? '<img src="' + c.thumbnail + '" alt="">'
+        : '<div class="creation-card-thumb-empty">No preview</div>';
+      return '<div class="creation-card">' +
+               '<button class="creation-card-delete" onclick="deleteCreation(' + c.id + ')" title="Delete">×</button>' +
+               '<div class="creation-card-thumb">' + thumbHtml + '</div>' +
+               '<div class="creation-card-info">' +
+                 '<div class="creation-card-name">' + escHtml(name) + '</div>' +
+                 '<div class="creation-card-meta">' +
+                   '<span class="creation-card-chip creation-card-chip--blue">' + escHtml(skill) + '</span>' +
+                   '<span class="creation-card-chip">' + escHtml(base) + '</span>' +
+                   '<span class="creation-card-date">' + date + '</span>' +
+                 '</div>' +
+                 '<div class="creation-card-dl">' +
+                   '<button class="creation-card-dl-btn" onclick="dlCreation(' + c.id + ',\'code\')">Code</button>' +
+                   '<button class="creation-card-dl-btn" onclick="dlCreation(' + c.id + ',\'jpeg\')">JPG</button>' +
+                   '<button class="creation-card-dl-btn" onclick="dlCreation(' + c.id + ',\'webp\')">WebP</button>' +
+                 '</div>' +
+                 '<a class="creation-card-edit-btn" href="editor?t=' + escHtml(c.base) + '&c=' + c.id + '">✎ &nbsp;Edit</a>' +
+               '</div>' +
+             '</div>';
+    }).join('');
+  }
+
+  function saveCreation(record) {
+    var list = getCreations();
+    list.unshift(record);
+    localStorage.setItem('neumi_creations', JSON.stringify(list));
+    // Live update: if My Creations tab is visible, re-render instantly
+    var panel = document.getElementById('subtab-my-creations');
+    if (panel && panel.classList.contains('sub-panel--active')) {
+      renderCreations();
+    }
+  }
+
+  function deleteCreation(id) {
+    var list = getCreations().filter(function(c) { return c.id !== id; });
+    localStorage.setItem('neumi_creations', JSON.stringify(list));
+    renderCreations();
+    showToast('Creation deleted');
+  }
+
+  /* ── My Campaigns ─────────────────────────────────────────────────────── */
+
+  var campaignCategories = [
+    { key: 'instagram', label: 'Instagram Posts', icon: '📸', skill: 'social-content', thumbIcon: '🖼️',
+      fields: [{ label: 'Image' }, { label: 'Caption' }, { label: 'Tags' }] },
+    { key: 'linkedin',  label: 'LinkedIn Posts',  icon: '💼', skill: 'social-content', thumbIcon: '🖼️',
+      fields: [{ label: 'Image' }, { label: 'Caption' }, { label: 'Tags' }] },
+    { key: 'blog',      label: 'Blog Post',       icon: '📝', skill: 'copywriting',    thumbIcon: '📝',
+      fields: [{ label: 'Hero Image' }, { label: 'Supporting Images' }, { label: 'Copy' }] },
+    { key: 'onepager',  label: 'One Pager',       icon: '📄', skill: 'copywriting',    thumbIcon: '📄',
+      fields: [{ label: 'Copy' }, { label: 'Layout' }] }
+  ];
+
+  var openCampaignId   = null;   // which campaign folder is open
+  var activeSlotCtx    = null;   // { campaignId, categoryKey, slotIdx } while generate modal is open
+
+  /* Ensure a campaign record has an initialised slots object */
+  function ensureCampaignSlots(campaign) {
+    campaign.slots = campaign.slots || {};
+    campaignCategories.forEach(function(cat) {
+      if (!Array.isArray(campaign.slots[cat.key])) {
+        campaign.slots[cat.key] = [null, null, null, null, null];
+      }
+    });
+    return campaign;
+  }
+
+  function getCampaigns() {
+    try { return JSON.parse(localStorage.getItem('neumi_campaigns') || '[]'); } catch(e) { return []; }
+  }
+  function saveCampaignRecord(record) {
+    var list = getCampaigns();
+    var found = false;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === record.id) { list[i] = record; found = true; break; }
+    }
+    if (!found) list.unshift(record);
+    localStorage.setItem('neumi_campaigns', JSON.stringify(list));
+  }
+
+  function countSlotsFilled(campaign) {
+    var n = 0;
+    if (!campaign.slots) return 0;
+    campaignCategories.forEach(function(cat) {
+      (campaign.slots[cat.key] || []).forEach(function(s) { if (s) n++; });
+    });
+    return n;
+  }
+
+  /* Render the campaign list view */
+  function renderCampaigns() {
+    var list     = getCampaigns();
+    var emptyEl  = document.getElementById('campaignsEmpty');
+    var listEl   = document.getElementById('campaignsList');
+    if (!emptyEl || !listEl) return;
+
+    if (!list.length) {
+      emptyEl.style.display = '';
+      listEl.style.display  = 'none';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    listEl.style.display  = '';
+
+    listEl.innerHTML = list.map(function(c) {
+      ensureCampaignSlots(c);
+      var filled  = countSlotsFilled(c);
+      var total   = campaignCategories.length * 5;
+      var date    = new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var brief   = (c.brief || '').length > 90 ? c.brief.slice(0, 90) + '…' : (c.brief || '');
+      var chips   = campaignCategories.map(function(cat) {
+        var n = (c.slots[cat.key] || []).filter(Boolean).length;
+        var cls = n > 0 ? 'campaign-progress-chip campaign-progress-chip--has' : 'campaign-progress-chip';
+        return '<span class="' + cls + '">' + escHtml(cat.icon) + ' ' + n + '/5</span>';
+      }).join('');
+
+      return '<div class="campaign-list-card" onclick="openCampaignFolder(' + c.id + ')">' +
+               '<div class="campaign-list-card-icon">📁</div>' +
+               '<div class="campaign-list-card-info">' +
+                 '<div class="campaign-list-card-name">' + escHtml(c.name || 'Untitled Campaign') + '</div>' +
+                 '<div class="campaign-list-card-brief">' + escHtml(brief) + '</div>' +
+                 '<div class="campaign-list-card-meta">' +
+                   '<span class="campaign-list-card-date">' + date + '</span>' +
+                   '<div class="campaign-progress-chips">' + chips + '</div>' +
+                 '</div>' +
+               '</div>' +
+               '<button class="campaign-open-btn" onclick="event.stopPropagation();openCampaignFolder(' + c.id + ')">Open →</button>' +
+             '</div>';
+    }).join('');
+  }
+
+  /* Open the folder view for a campaign */
+  function openCampaignFolder(campaignId) {
+    var list = getCampaigns();
+    var campaign;
+    for (var i = 0; i < list.length; i++) { if (list[i].id === campaignId) { campaign = list[i]; break; } }
+    if (!campaign) return;
+
+    ensureCampaignSlots(campaign);
+    openCampaignId = campaignId;
+
+    document.getElementById('campaignListView').style.display   = 'none';
+    document.getElementById('campaignFolderView').style.display = '';
+
+    // Header
+    document.getElementById('folderName').textContent  = campaign.name || 'Untitled Campaign';
+    document.getElementById('folderDate').textContent  =
+      new Date(campaign.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    document.getElementById('folderBrief').textContent = campaign.brief || '—';
+
+    // Resources chips
+    var resRow = document.getElementById('folderResources');
+    var chips  = [];
+    (campaign.links || []).forEach(function(url) {
+      chips.push('<span class="campaign-res-chip">🔗 <a href="' + escHtml(url) + '" target="_blank" rel="noopener">' + escHtml(url) + '</a></span>');
+    });
+    (campaign.files || []).forEach(function(f) {
+      chips.push('<span class="campaign-res-chip">📎 ' + escHtml(f.name) + '</span>');
+    });
+    // DAM assets
+    (campaign.damAssets || []).forEach(function(a) {
+      var thumb = a.mimeType && a.mimeType.startsWith('image/')
+        ? '<img style="width:18px;height:18px;object-fit:cover;border-radius:2px;vertical-align:middle;margin-right:4px;" src="' + escHtml(a.url) + '" />'
+        : '☁️ ';
+      chips.push('<a class="campaign-res-chip" href="' + escHtml(a.url) + '" target="_blank" rel="noopener" style="text-decoration:none;color:#44B2FF">' +
+        thumb + escHtml(a.name) + '</a>');
+    });
+    resRow.innerHTML = chips.length ? chips.join('') : '<span style="font-size:11px;color:#222">No resources added</span>';
+
+    // Category sections
+    renderFolderSections(campaign);
+  }
+
+  function closeCampaignFolder() {
+    openCampaignId = null;
+    document.getElementById('campaignFolderView').style.display = 'none';
+    document.getElementById('campaignListView').style.display   = '';
+    renderCampaigns();
+  }
+
+  /* Build the 4 category sections with 5 option slots each */
+  function renderFolderSections(campaign) {
+    var html = '';
+    campaignCategories.forEach(function(cat) {
+      var slots = campaign.slots[cat.key] || [null,null,null,null,null];
+      var filled = slots.filter(Boolean).length;
+      html += '<div class="campaign-category">';
+      html += '<div class="campaign-category-header">';
+      html += '<span class="campaign-category-icon">' + cat.icon + '</span>';
+      html += '<span class="campaign-category-name">' + escHtml(cat.label) + '</span>';
+      html += '<span class="campaign-category-count">' + filled + ' / 5 generated</span>';
+      html += '</div>';
+      html += '<div class="campaign-slots">';
+      for (var i = 0; i < 5; i++) {
+        html += renderSlotCard(campaign, cat, i, slots[i]);
+      }
+      html += '</div></div>';
+    });
+    document.getElementById('folderSections').innerHTML = html;
+  }
+
+  /* Render one option slot card */
+  function renderSlotCard(campaign, cat, idx, slotData) {
+    var isFilled = !!slotData;
+    var cls      = 'campaign-slot' + (isFilled ? ' campaign-slot--filled' : '');
+
+    /* Look up creation record if slot has a creation id */
+    var creation = null;
+    if (isFilled && slotData.creationId) {
+      var all = getCreations();
+      for (var x = 0; x < all.length; x++) {
+        if (all[x].id === slotData.creationId) { creation = all[x]; break; }
+      }
+    }
+
+    var thumb = '';
+    if (creation && creation.thumbnail) {
+      thumb = '<img src="' + escHtml(creation.thumbnail) + '" alt="">';
+    } else if (isFilled) {
+      thumb = '<span class="campaign-slot-thumb-icon">✓</span>';
+    } else {
+      thumb = '<span class="campaign-slot-thumb-icon">' + cat.thumbIcon + '</span>';
+    }
+
+    /* Field rows */
+    var fieldsHtml = '';
+    cat.fields.forEach(function(f, fi) {
+      var val = '';
+      if (isFilled && creation) {
+        if (fi === 0) val = creation.brief ? creation.brief.slice(0, 40) + '…' : '';
+        else val = creation.base ? baseLabels[creation.base] || creation.base : '';
+      }
+      fieldsHtml += '<div>' +
+        '<div class="campaign-slot-field-label">' + escHtml(f.label) + '</div>' +
+        (val
+          ? '<div class="campaign-slot-field-val">' + escHtml(val) + '</div>'
+          : '<div class="campaign-slot-field-bar"></div>') +
+        '</div>';
+    });
+
+    /* Footer button */
+    var footerBtn = isFilled
+      ? '<button class="campaign-slot-view-btn" onclick="viewSlotCreation(' + (creation ? creation.id : 0) + ',\'' + escHtml(cat.key) + '\',' + idx + ')">✓ View</button>'
+      : '<button class="campaign-slot-generate-btn" onclick="generateSlotPrompt(' + campaign.id + ',\'' + escHtml(cat.key) + '\',' + idx + ')">+ Generate</button>';
+
+    return '<div class="' + cls + '">' +
+      '<div class="campaign-slot-header">' +
+        '<span class="campaign-slot-num">Option ' + (idx + 1) + '</span>' +
+        '<span class="campaign-slot-status-dot"></span>' +
+      '</div>' +
+      '<div class="campaign-slot-thumb">' + thumb + '</div>' +
+      '<div class="campaign-slot-fields">' + fieldsHtml + '</div>' +
+      '<div class="campaign-slot-footer">' + footerBtn + '</div>' +
+    '</div>';
+  }
+
+  /* View the creation linked to a slot */
+  function viewSlotCreation(creationId, catKey, slotIdx) {
+    if (!creationId) return;
+    // Switch to My Creations tab and scroll to this creation
+    var tab = document.querySelector('.sub-tab[data-subtab="my-creations"]');
+    if (tab) switchSubTab(tab);
+  }
+
+  /* ── Download from My Creations ────────────────────────────────────────── */
+  function dlCreation(id, fmt) {
+    var list = getCreations();
+    var record;
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { record = list[i]; break; } }
+    if (!record) return;
+
+    if (fmt === 'code') {
+      if (!record.html) { alert('Code was not captured for this creation.\nRe-save from the editor to enable code download.'); return; }
+      var blob = new Blob([record.html], { type: 'text/html;charset=utf-8' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href = url; a.download = 'creation-' + id + '.html';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    /* JPG / WebP */
+    if (record.html) {
+      renderAndDownloadCreation(record, fmt);
+    } else if (record.thumbnail) {
+      downloadUpscaled(record.thumbnail, id, fmt);
+    } else {
+      alert('No content available for this creation.');
+    }
+  }
+
+  /* Render stored HTML in a hidden iframe, capture via html2canvas, download */
+  function renderAndDownloadCreation(record, fmt) {
+    var blob    = new Blob([record.html], { type: 'text/html;charset=utf-8' });
+    var blobUrl = URL.createObjectURL(blob);
+    var frame   = document.createElement('iframe');
+    frame.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1080px;height:1080px;border:none;visibility:hidden;';
+    var capId   = 'dlcap_' + Date.now();
+
+    function onCapMsg(e) {
+      if (!e.data || e.data.type !== 'captured' || e.data.id !== capId) return;
+      window.removeEventListener('message', onCapMsg);
+      document.body.removeChild(frame);
+      URL.revokeObjectURL(blobUrl);
+      if (e.data.error) { alert('Render failed: ' + e.data.error); return; }
+      var ext = fmt === 'webp' ? 'webp' : 'jpg';
+      var a   = document.createElement('a');
+      a.href = e.data.dataUrl; a.download = 'creation-' + record.id + '.' + ext;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    window.addEventListener('message', onCapMsg);
+
+    frame.onload = function() {
+      var iDoc = frame.contentDocument;
+      var s    = iDoc.createElement('script');
+      s.src    = window.location.origin + '/html2canvas.min.js';
+      s.onload = function() {
+        var cs = iDoc.createElement('script');
+        cs.textContent =
+          '(function(){' +
+          '  var cv=document.querySelector(".canvas");' +
+          '  if(!cv){window.parent.postMessage({type:"captured",id:"' + capId + '",error:"no-canvas"},"*");return;}' +
+          '  html2canvas(cv,{scale:1,useCORS:true,allowTaint:true,logging:false}).then(function(can){' +
+          '    var mime="' + (fmt === 'webp' ? 'image/webp' : 'image/jpeg') + '";' +
+          '    window.parent.postMessage({type:"captured",id:"' + capId + '",dataUrl:can.toDataURL(mime,0.92)},"*");' +
+          '  })["catch"](function(err){' +
+          '    window.parent.postMessage({type:"captured",id:"' + capId + '",error:String(err)},"*");' +
+          '  });' +
+          '})();';
+        iDoc.body.appendChild(cs);
+      };
+      iDoc.head.appendChild(s);
+    };
+    frame.src = blobUrl;
+    document.body.appendChild(frame);
+  }
+
+  /* Fallback: upscale the stored thumbnail to 1080×1080 and download */
+  function downloadUpscaled(dataUrl, id, fmt) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 1080; canvas.height = 1080;
+    var ctx = canvas.getContext('2d');
+    var img = new Image();
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, 1080, 1080);
+      var mime = fmt === 'webp' ? 'image/webp' : 'image/jpeg';
+      canvas.toBlob(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a   = document.createElement('a');
+        a.href = url; a.download = 'creation-' + id + '.' + (fmt === 'webp' ? 'webp' : 'jpg');
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, mime, 0.92);
+    };
+    img.src = dataUrl;
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  // Render on load if My Creations is pre-selected
+  (function() {
+    var panel = document.getElementById('subtab-my-creations');
+    if (panel && panel.classList.contains('sub-panel--active')) renderCreations();
+  })();
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.tab:not(.tab--disabled)').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab--active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
+      tab.classList.add('tab--active');
+      const target = document.getElementById('tab-' + tab.dataset.tab);
+      if (target) target.classList.add('tab-panel--active');
+    });
+  });
+
+  /* ── Modal controls ── */
+  var selectedSkill   = 'ad-creative';
+  var selectedBase    = 'scratch';
+  var modalMode       = 'asset';      // 'asset' | 'campaign'
+  var campaignFileArr = [];           // { name, size, dataUrl }
+
+  function selectModalMode(mode) {
+    modalMode = mode;
+    document.getElementById('modeTabAsset').classList.toggle('modal-mode-tab--active', mode === 'asset');
+    document.getElementById('modeTabCampaign').classList.toggle('modal-mode-tab--active', mode === 'campaign');
+    var assetBody    = document.getElementById('modalBodyAsset');
+    var campaignBody = document.getElementById('modalBodyCampaign');
+    if (mode === 'asset') {
+      assetBody.style.display    = '';
+      campaignBody.classList.remove('active');
+    } else {
+      assetBody.style.display    = 'none';
+      campaignBody.classList.add('active');
+    }
+    // resize modal for campaign (no fixed preview column → can be a bit taller)
+    document.querySelector('.modal').style.maxHeight = mode === 'campaign' ? '82vh' : '88vh';
+    if (mode === 'campaign') renderDamBlock();
+  }
+
+  function openCreateModal() {
+    selectModalMode('asset');         // always open on Asset tab
+    document.getElementById('createModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCreateModal() {
+    document.getElementById('createModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // Close on backdrop click
+  document.getElementById('createModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCreateModal();
+  });
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('createModal').classList.contains('open')) {
+      closeCreateModal();
+    }
+  });
+
+  /* ── Skill selection ── */
+  function selectSkill(el) {
+    document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedSkill = el.dataset.skill;
+  }
+
+  /* ── Base template selection ── */
+  function selectBase(el) {
+    document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedBase = el.dataset.base;
+    updatePreview();
+  }
+
+  /* ── Preview update ── */
+  var previewFiles = {
+    'scratch':               null,
+    't1-quote':              { src: 'social/t1-quote.html',              landscape: false, dims: '1080 × 1080' },
+    't2-app-highlight':      { src: 'social/t2-app-highlight.html',      landscape: false, dims: '1080 × 1080' },
+    't3-partner-alert':      { src: 'social/t3-partner-alert.html',      landscape: true,  dims: '1340 × 630' },
+    't4-fluid-ad':           { src: 'social/t4-fluid-ad.html',           landscape: false, dims: '1080 × 1080' },
+    't5-partner-announcement': { src: 'social/t5-partner-announcement.html', landscape: true,  dims: '1340 × 630' },
+    't6-employee-spotlight':   { src: 'social/t6-employee-spotlight.html',   landscape: false, dims: '1080 × 1080' },
+    't7-carousel':             { src: 'social/t7-carousel.html',             landscape: false, dims: '1080 × 1080 · 4 slides' },
+    't8-quarterly-stats':      { src: 'social/t8-quarterly-stats.html',      landscape: false, dims: '1080 × 1080 · 4 slides' }
+  };
+
+  function updatePreview() {
+    var emptyEl  = document.getElementById('previewEmpty');
+    var canvasEl = document.getElementById('previewCanvas');
+    var iframeEl = document.getElementById('previewIframe');
+    var dimsEl   = document.getElementById('previewDims');
+    var info = previewFiles[selectedBase];
+
+    if (!info) {
+      // From scratch
+      emptyEl.style.display = '';
+      canvasEl.style.display = 'none';
+      iframeEl.src = '';
+      dimsEl.textContent = '—';
+    } else {
+      emptyEl.style.display = 'none';
+      canvasEl.style.display = '';
+      canvasEl.classList.toggle('landscape', info.landscape);
+      iframeEl.src = info.src;
+      dimsEl.textContent = info.dims;
+    }
+  }
+
+  /* ── Reference rows ── */
+  function addRef() {
+    var row = document.createElement('div');
+    row.className = 'ref-row';
+    row.innerHTML = '<input class="form-input" type="text" placeholder="https://figma.com/… or /path/to/file.png" />' +
+                    '<button class="btn-remove-ref" onclick="removeRef(this)" title="Remove">×</button>';
+    document.getElementById('refList').appendChild(row);
+  }
+  function removeRef(btn) {
+    var rows = document.querySelectorAll('#refList .ref-row');
+    if (rows.length > 1) {
+      btn.parentElement.remove();
+    } else {
+      btn.parentElement.querySelector('input').value = '';
+    }
+  }
+
+  /* ── Prompt generation ── */
+  var skillMeta = {
+    'ad-creative':   { name: 'Ad Creative',    cmd: '/ad-creative',   desc: 'Generate a paid advertising visual asset' },
+    'social-content': { name: 'Social Content', cmd: '/social-content', desc: 'Generate an organic social media post asset' },
+    'copywriting':    { name: 'Copywriting',    cmd: '/copywriting',   desc: 'Generate marketing copy for an asset' }
+  };
+
+  var baseMeta = {
+    'scratch':               { name: 'From Scratch',            file: null,                             dims: 'AI determines' },
+    't1-quote':              { name: 'Client Testimonial',      file: 'social/t1-quote.html',        dims: '1080×1080' },
+    't2-app-highlight':      { name: 'App Highlight',           file: 'social/t2-app-highlight.html', dims: '1080×1080' },
+    't3-partner-alert':      { name: 'Partner Alert',           file: 'social/t3-partner-alert.html', dims: '1340×630' },
+    't4-fluid-ad':           { name: 'Instagram Ad',            file: 'social/t4-fluid-ad.html',     dims: '1080×1080' },
+    't5-partner-announcement': { name: 'Partner Announcement',  file: 'social/t5-partner-announcement.html', dims: '1340×630' },
+    't6-employee-spotlight':   { name: 'Employee Spotlight',    file: 'social/t6-employee-spotlight.html',   dims: '1080×1080' },
+    't7-carousel':             { name: 'Carousel \u2014 Insights',       file: 'social/t7-carousel.html',          dims: '1080×1080 · 4 slides' },
+    't8-quarterly-stats':      { name: 'Quarterly Stats \u2014 Carousel', file: 'social/t8-quarterly-stats.html',   dims: '1080×1080 · 4 slides' }
+  };
+
+  function generatePrompt() {
+    var brief = document.getElementById('createBrief').value.trim();
+    if (!brief) {
+      document.getElementById('createBrief').focus();
+      document.getElementById('createBrief').style.borderColor = '#FF6614';
+      setTimeout(function() { document.getElementById('createBrief').style.borderColor = ''; }, 2000);
+      return;
+    }
+
+    var skill = skillMeta[selectedSkill];
+    var base  = baseMeta[selectedBase];
+
+    // Collect references
+    var refs = [];
+    document.querySelectorAll('#refList .form-input').forEach(function(input) {
+      var v = input.value.trim();
+      if (v) refs.push(v);
+    });
+
+    // Build prompt
+    var prompt = '';
+    prompt += skill.cmd + '\n\n';
+    prompt += '## Brief\n\n';
+    prompt += brief + '\n\n';
+
+    prompt += '## Asset Details\n\n';
+    prompt += '- **Skill:** ' + skill.name + '\n';
+    prompt += '- **Base Template:** ' + base.name + (base.file ? ' (`' + base.file + '`)' : '') + '\n';
+    prompt += '- **Canvas:** ' + base.dims + '\n';
+
+    prompt += '\n## Design System\n\n';
+    prompt += '- **Background:** #000000\n';
+    prompt += '- **Primary Text:** #FFFFFF (NeueHaas / Inter, weight 900)\n';
+    prompt += '- **Accent Blue:** #44B2FF (flfontbold for titles/labels)\n';
+    prompt += '- **Accent Orange:** #FF6614 (alternate accent)\n';
+    prompt += '- **Principles:** Oversized type, photo bleeds, one accent color per post, rotated label on right edge, hanging quotes\n';
+
+    if (base.file) {
+      prompt += '\n## Instructions\n\n';
+      prompt += 'Use `' + base.file + '` as the structural base. Duplicate it as a new template file (e.g., `social/t6-[name].html`). ';
+      prompt += 'Swap out the content to match the brief above while keeping the same layout structure, CSS patterns, and `.canvas` wrapper div approach.\n';
+    } else {
+      prompt += '\n## Instructions\n\n';
+      prompt += 'Create a brand new HTML/CSS template file in `templates/` following the existing template patterns. ';
+      prompt += 'Use the `.canvas` wrapper div approach (body as flex centering container, `.canvas` div with fixed dimensions + `overflow: hidden`). ';
+      prompt += 'Include `<scr' + 'ipt src="nav.js"><\/scr' + 'ipt>` before `<\/body>`. ';
+      prompt += 'Add the new template to `nav.js` template array and to `index.html` library page.\n';
+    }
+
+    if (refs.length > 0) {
+      prompt += '\n## References\n\n';
+      refs.forEach(function(r) {
+        prompt += '- ' + r + '\n';
+      });
+    }
+
+    prompt += '\n## Output\n\n';
+    prompt += 'Generate the complete HTML/CSS file. Ensure all elements are pixel-perfect, properly clipped within the canvas, and match the @NEumi design system.\n';
+
+    // Reset form helper
+    function resetForm() {
+      document.getElementById('createBrief').value = '';
+      document.querySelectorAll('#refList .form-input').forEach(function(input) { input.value = ''; });
+    }
+
+    // Save creation record
+    var creation = {
+      id:        Date.now(),
+      skill:     selectedSkill,
+      base:      selectedBase,
+      brief:     brief,
+      createdAt: Date.now()
+    };
+
+    function afterSave(creationRecord) {
+      saveCreation(creationRecord);
+      // If this was triggered from a campaign slot, link the creation to it
+      if (activeSlotCtx) {
+        var campaigns = getCampaigns();
+        for (var ci = 0; ci < campaigns.length; ci++) {
+          if (campaigns[ci].id === activeSlotCtx.campaignId) {
+            ensureCampaignSlots(campaigns[ci]);
+            campaigns[ci].slots[activeSlotCtx.categoryKey][activeSlotCtx.slotIdx] = { creationId: creationRecord.id };
+            localStorage.setItem('neumi_campaigns', JSON.stringify(campaigns));
+            break;
+          }
+        }
+        activeSlotCtx = null;
+        showToast('Prompt copied — back to campaign to see your slot ✦');
+        closeCreateModal();
+        resetForm();
+        // Return to the campaign folder
+        var campTab = document.querySelector('.sub-tab[data-subtab="my-campaigns"]');
+        if (campTab) {
+          switchSubTab(campTab);
+          if (openCampaignId) {
+            var fresh = getCampaigns();
+            for (var fi = 0; fi < fresh.length; fi++) {
+              if (fresh[fi].id === openCampaignId) { openCampaignFolder(fresh[fi].id); break; }
+            }
+          }
+        }
+        return;
+      }
+      showToast('Prompt copied — paste into Claude Code ✦');
+      closeCreateModal();
+      resetForm();
+      var mcTab = document.querySelector('.sub-tab[data-subtab="my-creations"]');
+      if (mcTab) switchSubTab(mcTab);
+    }
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(prompt).then(function() {
+      afterSave(creation);
+    }).catch(function() {
+      // Fallback: select + copy
+      var ta = document.createElement('textarea');
+      ta.value = prompt;
+      ta.style.position = 'fixed';
+      ta.style.left = '-999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      afterSave(creation);
+    });
+  }
+
+  /* ── Campaign slot: generate prompt ── */
+  function generateSlotPrompt(campaignId, categoryKey, slotIdx) {
+    var campaigns = getCampaigns();
+    var campaign;
+    for (var i = 0; i < campaigns.length; i++) { if (campaigns[i].id === campaignId) { campaign = campaigns[i]; break; } }
+    if (!campaign) return;
+
+    var cat = null;
+    for (var j = 0; j < campaignCategories.length; j++) { if (campaignCategories[j].key === categoryKey) { cat = campaignCategories[j]; break; } }
+    if (!cat) return;
+
+    // Record active slot context so generatePrompt() can link the creation
+    activeSlotCtx = { campaignId: campaignId, categoryKey: categoryKey, slotIdx: slotIdx };
+
+    // Open modal in asset mode
+    selectModalMode('asset');
+    document.getElementById('createModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Pre-select the right skill
+    document.querySelectorAll('.skill-card').forEach(function(c) {
+      c.classList.toggle('selected', c.dataset.skill === cat.skill);
+    });
+    selectedSkill = cat.skill;
+
+    // Pre-fill brief with campaign context
+    var briefPrefix = '[' + cat.label + ' — Option ' + (slotIdx + 1) + ' for campaign: ' + campaign.name + ']\n\n';
+    var briefEl = document.getElementById('createBrief');
+    briefEl.value = briefPrefix + (campaign.brief || '');
+    briefEl.setSelectionRange(0, 0);
+    briefEl.scrollTop = 0;
+  }
+
+  /* ── Campaign: link rows ── */
+  function addCampaignLink() {
+    var row = document.createElement('div');
+    row.className = 'ref-row';
+    row.innerHTML = '<input class="form-input" type="url" placeholder="https://figma.com/… or https://docs.google.com/…" />' +
+                    '<button class="btn-remove-ref" onclick="removeCampaignLink(this)" title="Remove">×</button>';
+    document.getElementById('campaignLinkList').appendChild(row);
+    row.querySelector('input').focus();
+  }
+  function removeCampaignLink(btn) {
+    var rows = document.querySelectorAll('#campaignLinkList .ref-row');
+    if (rows.length > 1) {
+      btn.parentElement.remove();
+    } else {
+      btn.parentElement.querySelector('input').value = '';
+    }
+  }
+
+  /* ── Campaign: file attachments ── */
+  function onCampaignFilesAdded(input) {
+    Array.from(input.files).forEach(function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        campaignFileArr.push({ name: file.name, size: file.size, dataUrl: e.target.result });
+        renderCampaignFileList();
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = '';   // reset so same file can be re-added
+  }
+  function removeCampaignFile(idx) {
+    campaignFileArr.splice(idx, 1);
+    renderCampaignFileList();
+  }
+  function renderCampaignFileList() {
+    var container = document.getElementById('campaignFileList');
+    if (!campaignFileArr.length) { container.innerHTML = ''; return; }
+    container.innerHTML = campaignFileArr.map(function(f, i) {
+      var kb = (f.size / 1024).toFixed(0);
+      return '<div class="campaign-file-chip">' +
+               '<span class="campaign-file-chip-name" title="' + escHtml(f.name) + '">' + escHtml(f.name) + '</span>' +
+               '<span style="color:#2a2a2a;font-size:9px;white-space:nowrap;flex-shrink:0">' + kb + ' KB</span>' +
+               '<button class="campaign-file-chip-remove" onclick="removeCampaignFile(' + i + ')" title="Remove">×</button>' +
+             '</div>';
+    }).join('');
+  }
+
+  /* ── Fluid DAM Picker integration ─────────────────────────────────────── */
+  var _damPickerInst  = null;   // current DamPicker instance
+  var campaignDamAssets = [];   // { url, name, assetCode, mimeType }
+
+  function getDamToken()  { return localStorage.getItem('fluid_dam_token') || ''; }
+  function clearDamToken() {
+    localStorage.removeItem('fluid_dam_token');
+    campaignDamAssets = [];
+    renderDamBlock();
+  }
+  function saveDamToken() {
+    var inp = document.getElementById('damTokenInput');
+    var tok = inp ? inp.value.trim() : '';
+    if (!tok) { if (inp) { inp.style.borderColor = '#FF6614'; setTimeout(function(){ inp.style.borderColor=''; }, 1500); } return; }
+    localStorage.setItem('fluid_dam_token', tok);
+    renderDamBlock();
+    showToast('Fluid API token saved ✦');
+  }
+
+  function removeDamAsset(idx) {
+    campaignDamAssets.splice(idx, 1);
+    renderDamBlock();
+  }
+
+  function renderDamBlock() {
+    var container = document.getElementById('damBlockBody');
+    if (!container) return;
+    var token = getDamToken();
+
+    if (!token) {
+      container.innerHTML =
+        '<p class="dam-no-token-hint">Enter your Fluid API token to browse and attach assets from your DAM library.</p>' +
+        '<div class="dam-row">' +
+          '<input class="form-input" type="password" id="damTokenInput" placeholder="Fluid API Token" ' +
+            'onkeydown="if(event.key===\'Enter\')saveDamToken()" />' +
+          '<button class="btn-dam-connect" onclick="saveDamToken()">Save</button>' +
+        '</div>' +
+        '<a class="dam-docs-link" href="https://docs.fluid.app/docs/guides/dam-picker-sdk-guide" target="_blank" rel="noopener">' +
+          'How to get your API token →' +
+        '</a>';
+      return;
+    }
+
+    var assetsHtml = '';
+    if (campaignDamAssets.length) {
+      assetsHtml = '<div class="dam-asset-grid">' +
+        campaignDamAssets.map(function(a, i) {
+          var thumb = a.mimeType && a.mimeType.startsWith('image/')
+            ? '<img class="dam-asset-chip-thumb" src="' + escHtml(a.url) + '" alt="" />'
+            : '<div class="dam-asset-chip-thumb-icon">📄</div>';
+          return '<div class="dam-asset-chip">' +
+            thumb +
+            '<span class="dam-asset-chip-name" title="' + escHtml(a.name) + '">' + escHtml(a.name) + '</span>' +
+            '<button class="dam-asset-chip-remove" onclick="removeDamAsset(' + i + ')" title="Remove">×</button>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+
+    container.innerHTML =
+      '<div class="dam-connected-row">' +
+        '<span class="dam-connected-badge">✦ Fluid DAM connected</span>' +
+        '<button class="dam-change-token-btn" onclick="clearDamToken()">Change token</button>' +
+      '</div>' +
+      '<button class="btn-dam-browse" onclick="openDamPicker()">' +
+        '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+          '<rect x="1" y="3" width="12" height="9" rx="1"/>' +
+          '<path d="M4 3V2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/>' +
+          '<circle cx="7" cy="7.5" r="1.5"/>' +
+        '</svg>' +
+        ' Browse Assets' +
+      '</button>' +
+      assetsHtml;
+  }
+
+  function openDamPicker() {
+    var token = getDamToken();
+    if (!token) { renderDamBlock(); return; }
+
+    if (!window._DamPicker) {
+      showToast('DAM picker is still loading — try again in a moment');
+      return;
+    }
+
+    // Destroy previous instance to avoid DOM leaks
+    if (_damPickerInst) {
+      try { _damPickerInst.destroy(); } catch(e) {}
+      _damPickerInst = null;
+    }
+
+    _damPickerInst = new window._DamPicker({
+      token:        token,
+      maxSelectable: 20,
+      onSelect: function(assets) {
+        assets.forEach(function(a) {
+          // Avoid duplicates by assetCode
+          var exists = campaignDamAssets.some(function(x) { return x.assetCode === a.assetCode; });
+          if (!exists) {
+            campaignDamAssets.push({ url: a.url, name: a.name, assetCode: a.assetCode, mimeType: a.mimeType });
+          }
+        });
+        renderDamBlock();
+        showToast(assets.length + ' asset' + (assets.length !== 1 ? 's' : '') + ' added from DAM ✦');
+      },
+      onCancel: function() {},
+      onError: function(err) {
+        if (err.code === 'AUTHENTICATION_ERROR') {
+          localStorage.removeItem('fluid_dam_token');
+          renderDamBlock();
+          showToast('Invalid Fluid API token — please re-enter');
+        } else {
+          showToast('DAM error: ' + err.message);
+        }
+      }
+    });
+
+    _damPickerInst.open();
+  }
+
+  /* ── Campaign: save ── */
+  function getCampaigns() {
+    try { return JSON.parse(localStorage.getItem('neumi_campaigns') || '[]'); } catch(e) { return []; }
+  }
+  function saveCampaign() {
+    var brief = document.getElementById('campaignBrief').value.trim();
+    if (!brief) {
+      document.getElementById('campaignBrief').focus();
+      document.getElementById('campaignBrief').style.borderColor = '#FF6614';
+      setTimeout(function() { document.getElementById('campaignBrief').style.borderColor = ''; }, 2000);
+      return;
+    }
+    var links = [];
+    document.querySelectorAll('#campaignLinkList .form-input').forEach(function(inp) {
+      var v = inp.value.trim();
+      if (v) links.push(v);
+    });
+    var record = {
+      id:          Date.now(),
+      name:        document.getElementById('campaignName').value.trim() || 'Untitled Campaign',
+      brief:       brief,
+      links:       links,
+      files:       campaignFileArr.map(function(f) { return { name: f.name, size: f.size }; }),
+      damAssets:   campaignDamAssets.slice(),   // selected assets from Fluid DAM
+      createdAt:   Date.now()
+    };
+    // Initialise empty slots for each category
+    record.slots = {};
+    campaignCategories.forEach(function(cat) {
+      record.slots[cat.key] = [null, null, null, null, null];
+    });
+    var list = getCampaigns();
+    list.unshift(record);
+    localStorage.setItem('neumi_campaigns', JSON.stringify(list));
+    showToast('Campaign saved ✦');
+    closeCreateModal();
+    // Switch to My Campaigns tab
+    var campTab = document.querySelector('.sub-tab[data-subtab="my-campaigns"]');
+    if (campTab) switchSubTab(campTab);
+    // reset
+    document.getElementById('campaignName').value    = '';
+    document.getElementById('campaignBrief').value   = '';
+    document.getElementById('campaignFileList').innerHTML = '';
+    campaignFileArr    = [];
+    campaignDamAssets  = [];
+    renderDamBlock();
+    var linkList = document.getElementById('campaignLinkList');
+    linkList.innerHTML = '<div class="ref-row"><input class="form-input" type="url" placeholder="https://figma.com/… or https://docs.google.com/…" /><button class="btn-remove-ref" onclick="removeCampaignLink(this)" title="Remove">×</button></div>';
+  }
+
+  /* ── Overlay dropdown ── */
+  function toggleOverlayMenu(e, btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    var wrap = btn.parentElement;
+    var isOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.overlay-menu-wrap.open').forEach(function(w) { w.classList.remove('open'); });
+    if (!isOpen) wrap.classList.add('open');
+  }
+
+  function openCreateModalWithBase(base) {
+    document.querySelectorAll('.overlay-menu-wrap.open').forEach(function(w) { w.classList.remove('open'); });
+    openCreateModal();
+    var card = document.querySelector('.base-card[data-base="' + base + '"]');
+    if (card) selectBase(card);
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.overlay-menu-wrap')) {
+      document.querySelectorAll('.overlay-menu-wrap.open').forEach(function(w) { w.classList.remove('open'); });
+    }
+  });
+
+  /* ── Download ZIP ── */
+  async function downloadTemplateZip(templateId, btn) {
+    var orig = btn.textContent;
+    btn.textContent = '⏳ Packaging…';
+    btn.disabled = true;
+    try {
+      // 1. Fetch template HTML
+      var htmlRes = await fetch('social/' + templateId + '.html');
+      if (!htmlRes.ok) throw new Error('Could not fetch template');
+      var html = await htmlRes.text();
+
+      // 2. Patch font paths: ../fonts/ → fonts/  (makes zip self-contained)
+      html = html.replace(/url\('\.\.\/fonts\//g, "url('fonts/");
+      html = html.replace(/url\("\.\.\/fonts\//g, 'url("fonts/');
+
+      // 3. Remove nav.js (library-only script)
+      html = html.replace(/<script src="nav\.js"><\/script>\s*/g, '');
+
+      // 4. Parse referenced asset paths (src="assets/...")
+      var assetMatches = html.match(/src="(assets\/[^"]+)"/g) || [];
+      var assetPaths = Array.from(new Set(assetMatches.map(function(m) {
+        return m.slice(5, -1); // strip src=" and "
+      })));
+
+      // 5. Build zip
+      var zip = new JSZip();
+      var folder = zip.folder(templateId);
+      folder.file(templateId + '.html', html);
+
+      // Fetch both fonts
+      var fontsFolder = folder.folder('fonts');
+      var fontFiles = ['flfontbold.ttf', 'Inter-VariableFont_opsz,wght.ttf'];
+      await Promise.all(fontFiles.map(async function(f) {
+        var res = await fetch('fonts/' + f);
+        if (!res.ok) throw new Error('Font not found: ' + f);
+        fontsFolder.file(f, await res.arrayBuffer());
+      }));
+
+      // Fetch only the assets this template references
+      var assetsFolder = folder.folder('assets');
+      await Promise.all(assetPaths.map(async function(p) {
+        var res = await fetch('social/' + p);
+        if (!res.ok) throw new Error('Asset not found: ' + p);
+        assetsFolder.file(p.replace('assets/', ''), await res.arrayBuffer());
+      }));
+
+      // 6. Generate blob and trigger download
+      var blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = templateId + '.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      btn.textContent = '✓ Downloaded';
+      setTimeout(function() { btn.textContent = orig; btn.disabled = false; }, 2200);
+    } catch(err) {
+      console.error('ZIP download error:', err);
+      btn.textContent = '✗ Failed';
+      btn.disabled = false;
+      setTimeout(function() { btn.textContent = orig; }, 2000);
+    }
+  }
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3500);
+  }
+</script>
+
+<!-- Fluid DAM Picker SDK — loaded as ES module, exposed on window for vanilla JS access -->
+<script type="module">
+  import { DamPicker } from '/node_modules/@fluid-commerce/dam-picker/dist/index.js';
+  window._DamPicker = DamPicker;
+  // If the campaign modal is already open on the DAM tab, re-render the block now that the SDK is ready
+  if (typeof renderDamBlock === 'function') renderDamBlock();
+</script>
+
+</body>
+</html>

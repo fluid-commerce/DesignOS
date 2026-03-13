@@ -12,6 +12,9 @@ import { useEditorStore } from './store/editor';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import type { Asset, Frame, Iteration } from './lib/campaign-types';
 import { TEMPLATE_METADATA, type TemplateMetadata } from './lib/template-configs';
+import { buildAssetPreview, buildFramePreview } from './lib/preview-utils';
+// Note: iteration previews always try the API — the server handles path resolution with multiple fallback strategies
+import { StatusBadge } from './components/StatusBadge';
 
 type CreationFlow = null | 'gallery' | 'customizer';
 
@@ -24,6 +27,7 @@ export function App() {
   const assets = useCampaignStore((s) => s.assets);
   const frames = useCampaignStore((s) => s.frames);
   const iterations = useCampaignStore((s) => s.iterations);
+  const latestIterationByAssetId = useCampaignStore((s) => s.latestIterationByAssetId);
   const loading = useCampaignStore((s) => s.loading);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
   const navigateToAsset = useCampaignStore((s) => s.navigateToAsset);
@@ -122,26 +126,16 @@ export function App() {
     : null;
 
   // ── DrillDownGrid renderPreview helpers ─────────────────────────────────
-  // For assets: show asset type and frame count as metadata
-  const renderAssetPreview = (item: DrillDownItem<Asset>): PreviewDescriptor | null => ({
-    width: 320,
-    height: 180,
-    meta: {
-      icon: 'asset',
-      badges: [item.data.assetType],
-      detail: `${item.data.frameCount} frame${item.data.frameCount !== 1 ? 's' : ''}`,
-    },
-  });
+  // For assets: show iframe preview when a complete iteration exists, else metadata fallback
+  const renderAssetPreview = (item: DrillDownItem<Asset>): PreviewDescriptor | null =>
+    buildAssetPreview(item.data, latestIterationByAssetId[item.id]) as PreviewDescriptor;
 
-  // For frames: show frame index
-  const renderFramePreview = (item: DrillDownItem<Frame>): PreviewDescriptor | null => ({
-    width: 320,
-    height: 180,
-    meta: {
-      icon: 'frame',
-      detail: `Frame ${item.data.frameIndex + 1}`,
-    },
-  });
+  // For frames: show iframe preview for latest complete iteration, else metadata fallback
+  const renderFramePreview = (item: DrillDownItem<Frame>): PreviewDescriptor | null => {
+    const frameIterations = iterations.filter((i) => i.frameId === item.id);
+    const parentAsset = assets.find((a) => a.id === item.data.assetId);
+    return buildFramePreview(item.data, frameIterations, parentAsset) as PreviewDescriptor;
+  };
 
   // For iterations: serve the actual HTML via the API endpoint
   const renderIterationPreview = (item: DrillDownItem<Iteration>): PreviewDescriptor | null => {
@@ -158,12 +152,21 @@ export function App() {
   };
 
   // ── Map store data to DrillDownItem arrays ───────────────────────────────
-  const assetItems: DrillDownItem<Asset>[] = assets.map((a) => ({
-    id: a.id,
-    title: a.title,
-    subtitle: a.assetType,
-    data: a,
-  }));
+  const assetItems: DrillDownItem<Asset>[] = assets.map((a) => {
+    const latestIter = latestIterationByAssetId[a.id];
+    const genStatus = latestIter?.generationStatus;
+    return {
+      id: a.id,
+      title: a.title,
+      subtitle: genStatus ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+          <span>{a.assetType}</span>
+          <StatusBadge status={genStatus} />
+        </span>
+      ) : a.assetType,
+      data: a,
+    };
+  });
 
   const frameItems: DrillDownItem<Frame>[] = frames.map((f) => ({
     id: f.id,
@@ -435,6 +438,8 @@ interface NewAssetTabProps {
 }
 
 function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onAssetCreated }: NewAssetTabProps) {
+  // Local template selection for preview — only calls parent onSelectTemplate on "Generate"
+  const [localTemplate, setLocalTemplate] = useState<TemplateMetadata | null>(selectedTemplate);
   const [selectedSkill, setSelectedSkill] = useState('ad-creative');
   const [brief, setBrief] = useState('');
   const [referenceUrl, setReferenceUrl] = useState('');
@@ -450,18 +455,18 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
   };
 
   const handleGeneratePrompt = async () => {
-    if (!selectedTemplate || !activeCampaignId) return;
+    if (!localTemplate || !activeCampaignId) return;
     setGenerating(true);
     try {
-      onSelectTemplate(selectedTemplate);
+      onSelectTemplate(localTemplate);
     } finally {
       setGenerating(false);
     }
   };
 
-  // Preview URL for selected template
-  const previewUrl = selectedTemplate && selectedTemplate.templateId !== 'scratch'
-    ? `/templates/${selectedTemplate.templateId}.html`
+  // Preview URL for locally selected template
+  const previewUrl = localTemplate && localTemplate.templateId !== 'scratch'
+    ? `/templates/${localTemplate.templateId}.html`
     : null;
 
   return (
@@ -540,9 +545,9 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
             overflow: 'hidden',
           }}>
             <TemplateGallery
-              onSelectTemplate={onSelectTemplate}
+              onSelectTemplate={setLocalTemplate}
               mode="modal"
-              selectedTemplateId={selectedTemplate?.templateId ?? null}
+              selectedTemplateId={localTemplate?.templateId ?? null}
             />
           </div>
         </section>
@@ -613,10 +618,10 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
         {/* GENERATE PROMPT button */}
         <button
           onClick={handleGeneratePrompt}
-          disabled={generating || !selectedTemplate}
+          disabled={generating || !localTemplate}
           style={{
-            backgroundColor: generating || !selectedTemplate ? '#1e2020' : BLUE,
-            color: generating || !selectedTemplate ? '#444' : '#000',
+            backgroundColor: generating || !localTemplate ? '#1e2020' : BLUE,
+            color: generating || !localTemplate ? '#444' : '#000',
             border: 'none',
             borderRadius: 6,
             padding: '0.65rem 1.5rem',
@@ -658,14 +663,14 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
           flexShrink: 0,
         }}>
           <span style={{ ...LABEL_STYLE, marginBottom: 0 }}>Preview</span>
-          {selectedTemplate && (
+          {localTemplate && (
             <span style={{
               marginLeft: 'auto',
               fontSize: '0.7rem',
               color: '#555',
               fontStyle: 'italic',
             }}>
-              {selectedTemplate.name}
+              {localTemplate.name}
             </span>
           )}
         </div>
@@ -690,8 +695,8 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
             }}>
               <PreviewFrame
                 src={previewUrl}
-                width={selectedTemplate!.dimensions.width}
-                height={selectedTemplate!.dimensions.height}
+                width={localTemplate!.dimensions.width}
+                height={localTemplate!.dimensions.height}
               />
             </div>
           ) : (

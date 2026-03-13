@@ -26,7 +26,7 @@ export interface PreviewDescriptor {
 export interface DrillDownItem<T> {
   id: string;
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   data: T;
 }
 

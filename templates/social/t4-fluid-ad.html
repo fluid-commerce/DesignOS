@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @font-face {
+    font-family: 'flfontbold';
+    src: url('../../assets/fonts/flfontbold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'NeueHaas';
+    src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { min-height: 100vh; background: #111; }
+  body { display: flex; justify-content: center; align-items: center; }
+
+  .canvas {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ── Blue circle brush (decorative) — right side ── */
+  .circle-brush {
+    position: absolute;
+    left: 540px;
+    top: -80px;
+    width: 700px;
+    height: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+  .circle-brush-inner {
+    flex-shrink: 0;
+    transform: rotate(-42deg);
+    width: 680px;
+    height: 570px;
+    position: relative;
+    opacity: 0.6;
+  }
+  .circle-brush-inner img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  /* ── Phone mockup — right side, bleeding off ── */
+  .phone {
+    position: absolute;
+    right: -80px;
+    top: 140px;
+    width: 680px;
+    height: 920px;
+    overflow: hidden;
+  }
+  .phone img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: top center;
+    pointer-events: none;
+  }
+
+  /* ── Main headline ── */
+  .headline {
+    position: absolute;
+    left: 52px;
+    top: 64px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 196px;
+    line-height: 0.82;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: -4px;
+  }
+
+  /* ── Blue accent divider line ── */
+  .divider {
+    position: absolute;
+    left: 52px;
+    top: 566px;
+    width: 460px;
+    height: 3px;
+    background: #44b2ff;
+  }
+
+  /* ── Tagline ── */
+  .tagline {
+    position: absolute;
+    left: 52px;
+    top: 584px;
+    font-family: 'flfontbold', sans-serif;
+    font-size: 28px;
+    color: #44b2ff;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── Feature list ── */
+  .features {
+    position: absolute;
+    left: 52px;
+    top: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #44b2ff;
+    flex-shrink: 0;
+  }
+  .feature-name {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 42px;
+    color: #fff;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+  }
+  .feature-label {
+    font-family: 'flfontbold', sans-serif;
+    font-size: 18px;
+    color: #44b2ff;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-left: 4px;
+  }
+
+  /* ── Bottom bar ── */
+  .bottom-bar {
+    position: absolute;
+    left: 52px;
+    right: 52px;
+    bottom: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .fluid-logo {
+    height: 26px;
+    width: auto;
+  }
+  .handle {
+    font-family: 'flfontbold', sans-serif;
+    font-size: 22px;
+    color: #44b2ff;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Rotated category label — right edge ── */
+  .category {
+    position: absolute;
+    right: 18px;
+    top: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .category .label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .category .slash {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #44b2ff;
+  }
+  .category .sub {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-family: 'flfontbold', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #44b2ff;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- Blue circle brush (background decoration) -->
+  <div class="circle-brush">
+    <div class="circle-brush-inner">
+      <img src="../../assets/circles/circle-sketch-blue.png" alt="">
+    </div>
+  </div>
+
+  <!-- Phone mockup -->
+  <div class="phone">
+    <img src="../../assets/photos/phone-mockup.png" alt="">
+  </div>
+
+  <!-- Headline -->
+  <p class="headline">Built<br>for<br>Reps.</p>
+
+  <!-- Blue divider -->
+  <div class="divider"></div>
+
+  <!-- Tagline -->
+  <p class="tagline">One app. Every tool you need.</p>
+
+  <!-- Feature list -->
+  <div class="features">
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <span class="feature-name">FriendShare</span>
+      <span class="feature-label">Referral links & QR</span>
+    </div>
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <span class="feature-name">Analytics</span>
+      <span class="feature-label">Track performance</span>
+    </div>
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <span class="feature-name">Catch Up</span>
+      <span class="feature-label">Stay connected</span>
+    </div>
+    <div class="feature-item">
+      <div class="feature-dot"></div>
+      <span class="feature-name">Social Selling</span>
+      <span class="feature-label">Built for your network</span>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <img class="fluid-logo" src="../../assets/logos/fluid-logo.png" alt="fluid">
+    <span class="handle">@ Fluid</span>
+  </div>
+
+  <!-- Rotated category label -->
+  <div class="category">
+    <span class="label">Instagram Ad</span>
+    <span class="slash">|</span>
+    <span class="sub">Fluid</span>
+  </div>
+
+</div><!-- /.canvas -->
+<script src="nav.js"></script>
+</body>
+</html>

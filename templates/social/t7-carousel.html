@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @font-face {
+    font-family: 'flfontbold';
+    src: url('../../assets/fonts/flfontbold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'NeueHaas';
+    src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype');
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100vh; background: #111; }
+  body { display: flex; justify-content: center; align-items: center; }
+
+  /* ── Outer canvas: nav.js sees and scales this ── */
+  .canvas {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ── Slides: stacked, one visible at a time ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+  }
+  .slide.active { display: block; }
+
+  /* ─────────────────────────────────────────────
+     SHARED: counter + rotated category label
+  ───────────────────────────────────────────── */
+  .slide-counter {
+    position: absolute;
+    right: 16px;
+    top: 45px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #fff;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .slide-label {
+    position: absolute;
+    right: 35px;
+    top: 88px;
+  }
+  .slide-label span {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.8;
+    color: #fff;
+    white-space: nowrap;
+    writing-mode: vertical-lr;
+    display: block;
+  }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 1 — Cover / Employee spotlight
+  ───────────────────────────────────────────── */
+  .s1-headline {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 45px;
+    width: 936px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 168.68px;
+    line-height: 0.75;
+    color: #fff;
+    text-align: center;
+  }
+  .s1-photo {
+    position: absolute;
+    left: 408px;
+    top: 494px;
+    width: 263px;
+    height: 327px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+  .s1-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    pointer-events: none;
+  }
+  .s1-name {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 835px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 900;
+    font-size: 89.684px;
+    line-height: 0.8;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .s1-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 910px;
+    font-family: 'flfontbold', sans-serif;
+    font-size: 68px;
+    line-height: 1;
+    color: #FF6715;
+    white-space: nowrap;
+  }
+  /* Bottom-left: flag + divider + WeCommerce */
+  .s1-logos {
+    position: absolute;
+    left: 35px;
+    top: 982px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+  }
+  .s1-logos .flag-img { width: 53px; height: 48px; flex-shrink: 0; }
+  .s1-logos .logo-divider { width: 1px; height: 34px; background: #2a2a2a; flex-shrink: 0; }
+  .s1-logos .wc-img { height: 30px; width: 118px; object-fit: contain; object-position: left center; flex-shrink: 0; }
+  /* Bottom-right: Fluid */
+  .s1-fluid {
+    position: absolute;
+    right: 35px;
+    top: 994px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+  }
+  .s1-fluid img { height: 22px; width: auto; pointer-events: none; }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 2 — Intro text + blue arrow
+  ───────────────────────────────────────────── */
+  .s2-body {
+    position: absolute;
+    left: 45px;
+    top: 74px;
+    width: 936px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 75px;
+    line-height: 1;
+    color: #fff;
+    white-space: pre-wrap;
+  }
+  .s2-arrow {
+    position: absolute;
+    left: 436px;
+    top: 640px;
+    width: 497px;
+    height: 94px;
+    transform: rotate(7.76deg);
+    transform-origin: left center;
+  }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 3 — Tool feature (Claude)
+  ───────────────────────────────────────────── */
+  .s3-tool-name {
+    position: absolute;
+    left: 45px;
+    top: 132px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 124px;
+    line-height: 0.75;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .s3-body {
+    position: absolute;
+    left: 45px;
+    top: 237px;
+    width: 780px; /* narrower to avoid overlap with difficulty badge */
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 47px;
+    line-height: 1.16;
+    color: #fff;
+  }
+  .s3-screenshot {
+    position: absolute;
+    left: 119px;
+    top: 681px;
+    width: 852px;
+    height: 399px; /* clipped to canvas at 1080 */
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+  .s3-screenshot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    pointer-events: none;
+  }
+  .s3-difficulty {
+    position: absolute;
+    left: 821px;
+    top: 627px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .s3-difficulty-label {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 0.75;
+    color: #fff;
+    white-space: nowrap;
+    margin-bottom: 6px;
+  }
+  .s3-difficulty-value {
+    font-family: 'flfontbold', sans-serif;
+    font-size: 68px;
+    line-height: 1;
+    color: #FF6715;
+    white-space: nowrap;
+  }
+
+  /* ─────────────────────────────────────────────
+     SLIDE 4 — App feature (Share)
+  ───────────────────────────────────────────── */
+  .s4-feature-name {
+    position: absolute;
+    left: 45px;
+    top: 132px;
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 700;
+    font-size: 124px;
+    line-height: 0.75;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .s4-text-area {
+    position: absolute;
+    left: 45px;
+    top: 237px;
+    width: 936px;
+  }
+  .s4-body-1,
+  .s4-body-2 {
+    font-family: 'NeueHaas', sans-serif;
+    font-weight: 400;
+    font-size: 47px;
+    line-height: 1.16;
+    color: #fff;
+  }
+  .s4-body-2 { margin-top: 109px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 1 — Cover
+  ══════════════════════════════════════════ -->
+  <div class="slide active" data-slide="1">
+    <p class="s1-headline">Every transaction<br>matters</p>
+
+    <div class="slide-label"><span>Insights</span></div>
+    <p class="slide-counter">01/04</p>
+
+    <div class="s1-photo">
+      <img src="../../assets/photos/person-holly.png" alt="">
+    </div>
+
+    <p class="s1-name">Dan England</p>
+    <p class="s1-title">VP Payments + Risk</p>
+
+    <div class="s1-logos">
+      <img class="flag-img" src="../../assets/logos/flag-icon.svg" alt="">
+      <div class="logo-divider"></div>
+      <img class="wc-img" src="../../assets/logos/wecommerce-logo.svg" alt="">
+    </div>
+    <div class="s1-fluid">
+      <img src="../../assets/logos/fluid-logo.png" alt="fluid">
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 2 — Intro text
+  ══════════════════════════════════════════ -->
+  <div class="slide" data-slide="2">
+    <div class="slide-label"><span>Insights</span></div>
+    <p class="slide-counter">02/04</p>
+
+    <p class="s2-body">At Fluid, we used AI to decrease the time we spent on projects by 27%. This both increases the value of the work we do, and drives down our costs.
+
+These are the tools
+we use...</p>
+
+    <!-- Blue curved arrow -->
+    <svg class="s2-arrow" viewBox="0 0 497 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 78 C100 78 260 18 460 18" stroke="#44B2FF" stroke-width="7" stroke-linecap="round"/>
+      <path d="M432 4 L462 18 L434 38" stroke="#44B2FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 3 — Tool feature (Claude)
+  ══════════════════════════════════════════ -->
+  <div class="slide" data-slide="3">
+    <div class="slide-label"><span>Insights</span></div>
+    <p class="slide-counter">03/04</p>
+
+    <p class="s3-tool-name">Claude</p>
+
+    <p class="s3-body">Our go-to LLM. Strategy work? Claude. Legal questions? Claude. Shoulder to cry on? Claude. It doesn't get everything right by a long shot, but we've found if we use AI outputs like clay to then be molded by human expertise, it's very powerful.</p>
+
+    <div class="s3-screenshot">
+      <img src="../../assets/photos/screenshot-claude.png" alt="">
+    </div>
+
+    <div class="s3-difficulty">
+      <p class="s3-difficulty-label">Difficulty Level</p>
+      <p class="s3-difficulty-value">Easy</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 4 — App feature (Share)
+  ══════════════════════════════════════════ -->
+  <div class="slide" data-slide="4">
+    <div class="slide-label"><span>App Highlight | Share</span></div>
+    <p class="slide-counter">04/04</p>
+
+    <p class="s4-feature-name">Share</p>
+
+    <div class="s4-text-area">
+      <p class="s4-body-1">We've optimized the app to help your reps and affiliates find content fast. Stop digging through multiple sites; give your field one central hub for all their media.</p>
+      <p class="s4-body-2">Upload videos, images, PDFs, and presentations in seconds. Content is instantly available for the field to share, with automatic attribution built into every link.</p>
+    </div>
+  </div>
+
+</div><!-- /.canvas -->
+
+<script>
+/* ── Carousel controller ─────────────────────────────────────────────────── */
+(function() {
+  var slides  = document.querySelectorAll('.slide');
+  var total   = slides.length;
+  var current = 0;
+
+  // Expose globals for nav.js
+  window.CAROUSEL_TOTAL   = total;
+  window.CAROUSEL_CURRENT = 1;
+
+  function go(n) {
+    slides[current].classList.remove('active');
+    current = ((n % total) + total) % total;
+    slides[current].classList.add('active');
+    window.CAROUSEL_CURRENT = current + 1;
+    if (window.onCarouselChange) window.onCarouselChange(current + 1, total);
+  }
+
+  window.CAROUSEL_PREV = function() { go(current - 1); };
+  window.CAROUSEL_NEXT = function() { go(current + 1); };
+  window.CAROUSEL_GO   = function(n) { go(n - 1); };  // 1-indexed
+
+  // Listen for postMessage from editor.js slide switcher
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setSlide') {
+      go(e.data.slide - 1);
+    }
+  });
+})();
+</script>
+<script src="nav.js"></script>
+</body>
+</html>

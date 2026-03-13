@@ -14,14 +14,14 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Brand Intelligence + Foundation** - Decomposed brand docs, asset repo, CLI validation tools, repo structure, and distribution scaffolding (completed 2026-03-10)
 - [x] **Phase 2: Orchestrator + Social Posts** - Orchestrator-subagent pattern proven end-to-end with social post generation (completed 2026-03-10)
-- [ ] **Phase 3: Website Sections + One-Pagers** - Extend proven orchestrator to .liquid sections and sales collateral
-- [ ] **Phase 4: Canvas + Iteration** - React app for viewing, annotating, and comparing asset variations with MCP agent bridge
+- [x] **Phase 3: Website Sections + One-Pagers** - Extend proven orchestrator to .liquid sections and sales collateral (completed 2026-03-10)
+- [x] **Phase 4: Canvas + Iteration** - React app for viewing, annotating, and comparing asset variations with MCP agent bridge (completed 2026-03-12, 04-04 superseded by Phase 7 merge)
 - [x] **Phase 5: Learning Loop** - Feedback ingestion that reads iteration trajectories and updates brand rules (completed 2026-03-11)
 - [ ] **Phase 4.2: Asset Linking & Output Refactor** - Replace base64 inlining with URL-linked assets, shared brand folder, Vite static serving
 - [ ] **Phase 4.3: Install Process Safety** - Ensure sync.sh never wipes non-Fluid commands (GSD, plugins, etc.)
-- [ ] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system
+- [x] **Phase 6: Marketing Skills Integration** - Deep integration of 30 marketing domain skills into subagent system (completed 2026-03-11)
 - [x] **Phase 7: Merge Jonathan's Codebase** - Rebuild Jonathan's content creation tool inside Chey's React/Vite/Zustand canvas app (completed 2026-03-12)
-- [ ] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths
+- [x] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths (Jonathan's 2026-03-12 commits partially address: edit-mode iteration view, asset path rewriting, postMessage live edits) (completed 2026-03-13)
 
 ## Phase Details
 
@@ -71,10 +71,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Empirical research of Fluid theme pipeline + Gold Standard doc decomposition
-- [ ] 03-02-PLAN.md — Mode-aware agent upgrades (section + one-pager) + hero section proof-of-concept
-- [ ] 03-03-PLAN.md — 11 remaining section templates + section gallery + /fluid-theme-section orchestrator
-- [ ] 03-04-PLAN.md — 5 one-pager templates + one-pager gallery + /fluid-one-pager orchestrator
+- [x] 03-01-PLAN.md — Empirical research of Fluid theme pipeline + Gold Standard doc decomposition
+- [x] 03-02-PLAN.md — Mode-aware agent upgrades (section + one-pager) + hero section proof-of-concept
+- [x] 03-03-PLAN.md — 11 remaining section templates + section gallery + /fluid-theme-section orchestrator
+- [x] 03-04-PLAN.md — 5 one-pager templates + one-pager gallery + /fluid-one-pager orchestrator
 
 ### Phase 4: Canvas + Iteration
 **Goal**: The team can view, compare, annotate, and document the iteration path from first prompt to final output for any generated asset
@@ -91,7 +91,7 @@ Plans:
 - [x] 04-01-PLAN.md — Canvas app scaffold, shared types, session sidebar, variation grid with iframe rendering
 - [x] 04-02-PLAN.md — MCP stdio server with 5 agent tools (push, read annotations/statuses/history, iterate)
 - [x] 04-03-PLAN.md — Annotation system (spatial pins + sidebar notes) and iteration timeline
-- [ ] 04-04-PLAN.md — Launcher skill (/fluid-design-OS), scripts, and end-to-end verification
+- [x] 04-04-PLAN.md — Launcher skill (/fluid-design-OS), scripts, and end-to-end verification (superseded by Phase 7 merge)
 
 ### Phase 04.1: Canvas Polish & Integration Hardening (INSERTED)
 
@@ -105,13 +105,14 @@ Plans:
   4. Canvas drives generation via headless `claude -p` CLI with streaming output displayed in left sidebar
   5. Template gallery shows live HTML previews; user can customize and generate from templates
   6. All skills route output to .fluid/working/{sessionId}/ when canvas is active, preserving backward-compatible ./output/ copying when canvas is inactive
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [x] 04.1-01-PLAN.md — Winner UX overhaul (star toggle, auto-reject removal, smart iterate unblock)
-- [ ] 04.1-02-PLAN.md — File watcher hardening + skill path audit + canvas-active sentinel
-- [ ] 04.1-03-PLAN.md — Generation engine (CLI spawn + SSE streaming + stream parser + generation store)
-- [ ] 04.1-04-PLAN.md — Canvas control plane UI (template gallery, customizer, prompt sidebar, App layout)
+- [x] 04.1-02-PLAN.md — File watcher hardening + skill path audit + canvas-active sentinel
+- [x] 04.1-03-PLAN.md — Generation engine (CLI spawn + SSE streaming + stream parser + generation store)
+- [x] 04.1-04-PLAN.md — Canvas control plane UI (template gallery, customizer, prompt sidebar, App layout)
+- [x] 04.1-05-PLAN.md — Preview rendering and test data cleanup
 
 ### Phase 04.2: Asset Linking & Output Refactor (INSERTED)
 
@@ -153,8 +154,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Feedback ingestion engine (session discovery, signal extraction, pattern clustering, proposal generation)
-- [ ] 05-02-PLAN.md — Slash command skills (/feedback-ingest approval walkthrough + /fluid-design-os-feedback capture)
+- [x] 05-01-PLAN.md — Feedback ingestion engine (session discovery, signal extraction, pattern clustering, proposal generation)
+- [x] 05-02-PLAN.md — Slash command skills (/feedback-ingest approval walkthrough + /fluid-design-os-feedback capture)
 
 ### Phase 6: Marketing Skills Integration
 **Goal**: 30 marketing domain skills (~/.agents/skills/) become composable intelligence that subagents automatically load based on task type — giving copy, layout, styling, and spec-check agents deep marketing expertise (CRO, SEO, copywriting, psychology, analytics) alongside brand context
@@ -169,8 +170,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Copy 30 marketing skills + interactive skill-map.json curation
-- [ ] 06-02-PLAN.md — Update orchestrator delegation + sync.sh distribution + brand/index.md
+- [x] 06-01-PLAN.md — Copy 30 marketing skills + interactive skill-map.json curation
+- [x] 06-02-PLAN.md — Update orchestrator delegation + sync.sh distribution + brand/index.md
 
 ### Phase 7: Merge Jonathan's Codebase into Fluid DesignOS
 **Goal**: Rebuild Jonathan's content creation tool (template library, content editor, campaign management, carousel support, DAM integration) inside Chey's existing React/Vite/Zustand canvas app, creating a unified creative workspace where AI generation and manual editing share the same interface and data model
@@ -206,12 +207,15 @@ Plans:
   4. Sidebar detects campaign context and offers "Add to existing campaign" mode
   5. Auto-navigate to campaign view on generation completion
   6. Per-asset status badges show pending/generating/complete
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Schema migration (generationStatus), type updates, db-api helpers
-- [ ] 08-02-PLAN.md — /api/generate multi-asset refactor, parallel subagent spawning, canonical paths, new API endpoints
-- [ ] 08-03-PLAN.md — Iframe previews at all levels, campaign mosaic, sidebar campaign integration
+- [x] 08-01-PLAN.md — Schema migration (generationStatus), type updates, db-api helpers
+- [x] 08-02-PLAN.md — /api/generate multi-asset refactor, parallel subagent spawning, canonical paths, new API endpoints
+- [x] 08-03-PLAN.md — Iframe previews at all levels, campaign mosaic, sidebar campaign integration
+- [ ] 08-04-PLAN.md — Gap closure: fix mosaic response unwrap + render StatusBadge on asset cards
+
+**Note:** Jonathan's 2026-03-12 commit (`0ee0688`) added inline edit mode in App.tsx, improved /api/iterations/:id/html with asset path rewriting + user_state injection + postMessage listener, and normalized image URLs in editor.ts. These changes partially fulfill 08-03 preview rendering goals. Review before executing to avoid conflicts.
 
 ## Progress
 
@@ -225,24 +229,24 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7 > 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Brand Intelligence + Foundation | 3/3 | Complete   | 2026-03-10 |
-| 2. Orchestrator + Social Posts | 3/3 | Complete   | 2026-03-10 |
-| 3. Website Sections + One-Pagers | 1/4 | In Progress|  |
-| 4. Canvas + Iteration | 3/4 | In Progress | - |
-| 4.1 Canvas Polish & Integration Hardening | 3/4 | In Progress|  |
-| 4.2 Asset Linking & Output Refactor | 0/2 | Not Started |  |
-| 4.3 Install Process Safety | 0/1 | Not Started |  |
-| 5. Learning Loop | 2/2 | Complete   | 2026-03-11 |
-| 6. Marketing Skills Integration | 1/2 | In Progress|  |
-| 7. Merge Jonathan's Codebase | 7/7 | Complete   | 2026-03-12 |
-| 8. AI Sidebar to Campaign Dashboard E2E | 0/3 | Not Started |  |
+| 1. Brand Intelligence + Foundation | 3/3 | Complete | 2026-03-10 |
+| 2. Orchestrator + Social Posts | 3/3 | Complete | 2026-03-10 |
+| 3. Website Sections + One-Pagers | 4/4 | Complete | 2026-03-10 |
+| 4. Canvas + Iteration | 4/4 | Complete | 2026-03-12 |
+| 4.1 Canvas Polish & Integration Hardening | 5/5 | Complete | 2026-03-11 |
+| 4.2 Asset Linking & Output Refactor | 0/2 | Not Started | |
+| 4.3 Install Process Safety | 0/1 | Not Started | |
+| 5. Learning Loop | 2/2 | Complete | 2026-03-11 |
+| 6. Marketing Skills Integration | 2/2 | Complete | 2026-03-11 |
+| 7. Merge Jonathan's Codebase | 7/7 | Complete | 2026-03-12 |
+| 8. AI Sidebar to Campaign Dashboard E2E | 4/4 | Complete   | 2026-03-13 |
 
 ### Phase 9: Conversational chat UI — bottom input, message bubbles, auto-scroll
 
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 8
-**Plans:** 0 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 9 to break down)

@@ -125,7 +125,7 @@ Print: `[2/4] Layout...      done (type: {type})`
 Delegate to `styling-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
-"Apply Fluid brand styling to the one-pager layout. Mode: one-pager. Type: {type}. Read copy from {working_dir}/copy.md (for accent color and content text). Read layout from {working_dir}/layout.html. Reference patterns/index.html for brand building blocks (brushstrokes, side labels). Embed fonts via @font-face referencing ../../assets/fonts/. Add brushstrokes from ../../assets/brushstrokes/ with mix-blend-mode: screen and opacity 0.10-0.25. Add side label 'Fluid Commerce'. {If template: Match the visual styling of templates/one-pagers/{template}.html.} Write complete self-contained HTML to {working_dir}/styled.html"
+"Apply Fluid brand styling to the one-pager layout. Mode: one-pager. Type: {type}. Read copy from {working_dir}/copy.md (for accent color and content text). Read layout from {working_dir}/layout.html. Reference patterns/index.html for brand building blocks (brushstrokes, side labels). Embed fonts via @font-face referencing ../../assets/fonts/. Add brushstrokes from ../../assets/brushstrokes/ (brush-texture-01.png through brush-texture-10.png, brush-white.png) with mix-blend-mode: screen and opacity 0.10-0.25. Add side label 'Fluid Commerce'. {If template: Match the visual styling of templates/one-pagers/{template}.html.} Write complete self-contained HTML to {working_dir}/styled.html"
 
 Wait for completion.
 
