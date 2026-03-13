@@ -381,38 +381,41 @@ export function IdeasGetStarted({ selectedAssets, onApplyIdea }: IdeasGetStarted
               alignItems: 'stretch',
               textAlign: 'left',
               padding: 0,
-              background: BG_CARD,
-              border: `1px solid ${BORDER}`,
-              borderRadius: 8,
-              overflow: 'hidden',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: 0,
+              overflow: 'visible',
               cursor: 'pointer',
               fontFamily: 'inherit',
-              transition: 'border-color 0.15s, background-color 0.15s',
+              transition: 'opacity 0.15s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = BORDER_HOVER;
-              e.currentTarget.style.backgroundColor = BORDER_HOVER;
+              e.currentTarget.style.opacity = '0.9';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = BORDER;
-              e.currentTarget.style.backgroundColor = BG_CARD;
+              e.currentTarget.style.opacity = '1';
             }}
           >
+            {/* Preview: rounded corners, thin border, faint shadow */}
             <div
               style={{
-                height: 120,
+                height: 140,
+                borderRadius: 8,
+                border: `1px solid ${BORDER}`,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
                 background: BG_PRIMARY,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
+                marginBottom: '0.75rem',
               }}
             >
               {idea.thumbnailUrl && (idea.thumbnailUrl.startsWith('data:image/') || /\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(idea.thumbnailUrl)) ? (
                 <img
                   src={idea.thumbnailUrl}
                   alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 7 }}
                 />
               ) : idea.templateId ? (
                 <svg
@@ -446,7 +449,8 @@ export function IdeasGetStarted({ selectedAssets, onApplyIdea }: IdeasGetStarted
                 </svg>
               )}
             </div>
-            <div style={{ padding: '0.75rem 1rem' }}>
+            {/* Title and subtitle on dark background (no card box) */}
+            <div style={{ padding: 0 }}>
               <span
                 style={{
                   display: 'inline-block',
@@ -465,8 +469,8 @@ export function IdeasGetStarted({ selectedAssets, onApplyIdea }: IdeasGetStarted
               </span>
               <div
                 style={{
-                  fontSize: '0.9375rem',
-                  fontWeight: 600,
+                  fontSize: '1rem',
+                  fontWeight: 700,
                   color: TEXT_PRIMARY,
                   marginBottom: 4,
                   overflow: 'hidden',
