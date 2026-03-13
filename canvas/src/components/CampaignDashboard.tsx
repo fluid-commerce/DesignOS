@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCampaignStore } from '../store/campaign';
 import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './DrillDownGrid';
 import type { Campaign, Asset } from '../lib/campaign-types';
-import { StatusBadge } from './StatusBadge';
 
 // ── CampaignMosaic ─────────────────────────────────────────────────────────────
 
@@ -51,7 +50,7 @@ function CampaignMosaic({ campaignId, totalAssets = 0 }: CampaignMosaicProps) {
     fetch(`/api/campaigns/${campaignId}/preview-urls`)
       .then((res) => {
         if (!res.ok || cancelled) return;
-        return res.json() as Promise<PreviewUrl[]>;
+        return res.json().then((data: { urls: PreviewUrl[] }) => data.urls ?? []);
       })
       .then((urls) => {
         if (!cancelled && urls) setPreviewUrls(urls.slice(0, 4));
@@ -617,8 +616,9 @@ export function CampaignDashboard() {
       // Mark as fetching with empty array to prevent duplicate fetches
       setMosaicData((prev) => (prev[campaign.id] !== undefined ? prev : { ...prev, [campaign.id]: [] }));
       fetch(`/api/campaigns/${campaign.id}/preview-urls`)
-        .then((res) => (res.ok ? res.json() : Promise.resolve([])))
-        .then((urls: PreviewUrl[]) => {
+        .then((res) => (res.ok ? res.json() : Promise.resolve({ urls: [] })))
+        .then((data: { urls: PreviewUrl[] } | PreviewUrl[]) => {
+          const urls = Array.isArray(data) ? data : (data.urls ?? []);
           setMosaicData((prev) => ({ ...prev, [campaign.id]: urls.slice(0, 4) }));
         })
         .catch(() => {

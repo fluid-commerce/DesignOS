@@ -13,6 +13,7 @@ import { useFileWatcher } from './hooks/useFileWatcher';
 import type { Asset, Frame, Iteration } from './lib/campaign-types';
 import { TEMPLATE_METADATA, type TemplateMetadata } from './lib/template-configs';
 import { buildAssetPreview, buildFramePreview } from './lib/preview-utils';
+import { StatusBadge } from './components/StatusBadge';
 
 type CreationFlow = null | 'gallery' | 'customizer';
 
@@ -156,7 +157,12 @@ export function App() {
     return {
       id: a.id,
       title: a.title,
-      subtitle: genStatus ? `${a.assetType} · ${genStatus}` : a.assetType,
+      subtitle: genStatus ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+          <span>{a.assetType}</span>
+          <StatusBadge status={genStatus} />
+        </span>
+      ) : a.assetType,
       data: a,
     };
   });
