@@ -1,22 +1,22 @@
 import { useState, useCallback } from 'react';
-import { ASSET_DIMENSIONS } from '../lib/types';
-import type { Annotation, VariationStatus } from '../lib/types';
+import { CREATION_DIMENSIONS } from '../lib/types';
+import type { Annotation, VersionStatus } from '../lib/types';
 import { AnnotationPin } from './AnnotationPin';
 import { AnnotationThread } from './AnnotationThread';
 
-interface AssetFrameProps {
+interface CreationFrameProps {
   html: string;
   name: string;
   path: string;
   platform: string;
-  status: VariationStatus;
+  status: VersionStatus;
   displayWidth?: number;
   pins: Annotation[];
   activePin: string | null;
   onPinClick: (id: string) => void;
-  onAddPin: (variationPath: string, x: number, y: number, text: string) => void;
+  onAddPin: (versionPath: string, x: number, y: number, text: string) => void;
   onReply: (annotationId: string, text: string) => void;
-  onStatusChange: (variationPath: string, status: VariationStatus) => void;
+  onStatusChange: (versionPath: string, status: VersionStatus) => void;
 }
 
 function StarIcon({ filled }: { filled: boolean }) {
@@ -28,10 +28,10 @@ function StarIcon({ filled }: { filled: boolean }) {
   );
 }
 
-export function AssetFrame({
+export function CreationFrame({
   html,
   name,
-  path: variationPath,
+  path: versionPath,
   platform,
   status,
   displayWidth = 400,
@@ -41,8 +41,8 @@ export function AssetFrame({
   onAddPin,
   onReply,
   onStatusChange,
-}: AssetFrameProps) {
-  const dims = ASSET_DIMENSIONS[platform] ?? { width: 1080, height: 1080 };
+}: CreationFrameProps) {
+  const dims = CREATION_DIMENSIONS[platform] ?? { width: 1080, height: 1080 };
   const scale = displayWidth / dims.width;
   const displayHeight = dims.height * scale;
 
@@ -69,20 +69,20 @@ export function AssetFrame({
   const handlePinSubmit = () => {
     const text = pinText.trim();
     if (!text || !pendingPin) return;
-    onAddPin(variationPath, pendingPin.x, pendingPin.y, text);
+    onAddPin(versionPath, pendingPin.x, pendingPin.y, text);
     setShowPinInput(false);
     setPendingPin(null);
     setPinText('');
   };
 
   const toggleStar = () => {
-    onStatusChange(variationPath, status === 'winner' ? 'unmarked' : 'winner');
+    onStatusChange(versionPath, status === 'winner' ? 'unmarked' : 'winner');
   };
 
   const activePinData = activePin ? pins.find((p) => p.id === activePin) : null;
 
   return (
-    <div data-testid="asset-frame" style={{ position: 'relative' }}>
+    <div data-testid="creation-frame" style={{ position: 'relative' }}>
       <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: '#ccc', fontSize: '0.85rem' }}>{name}</span>
         <button

@@ -1,9 +1,9 @@
 /**
- * Shared preview utilities for asset/frame iframe rendering.
+ * Shared preview utilities for creation/slide iframe rendering.
  * Extracted so they can be imported by both App.tsx and unit tests.
  */
 
-import type { Iteration, Asset, Frame } from './campaign-types';
+import type { Iteration, Creation, Slide } from './campaign-types';
 
 /** Minimal shape needed for preview descriptor (matches DrillDownGrid.PreviewDescriptor). */
 export interface PreviewDescriptorBasic {
@@ -27,66 +27,75 @@ function isValidHtmlPath(htmlPath: string | undefined | null): boolean {
 }
 
 /**
- * Returns the native pixel dimensions for a given asset type.
+ * Returns the native pixel dimensions for a given creation type.
  * Used to correctly scale iframe previews in DrillDownGrid cards.
  */
-export function getAssetDimensions(assetType: string): { width: number; height: number } {
+export function getCreationDimensions(creationType: string): { width: number; height: number } {
   const map: Record<string, { width: number; height: number }> = {
     instagram: { width: 1080, height: 1080 },
     linkedin: { width: 1200, height: 627 },
     'one-pager': { width: 816, height: 1056 },
   };
-  return map[assetType] ?? { width: 1080, height: 1080 };
+  return map[creationType] ?? { width: 1080, height: 1080 };
 }
 
+/** @deprecated Use getCreationDimensions */
+export const getAssetDimensions = getCreationDimensions;
+
 /**
- * Pure function version of renderAssetPreview — testable without React.
+ * Pure function version of renderCreationPreview — testable without React.
  * Returns an iframe src descriptor when latestIter is complete, else metadata fallback.
  */
-export function buildAssetPreview(
-  asset: Asset,
+export function buildCreationPreview(
+  creation: Creation,
   latestIter: Iteration | undefined
 ): PreviewDescriptorBasic {
   if (latestIter && isValidHtmlPath(latestIter.htmlPath) && latestIter.generationStatus === 'complete') {
-    const dims = getAssetDimensions(asset.assetType);
+    const dims = getCreationDimensions(creation.creationType);
     return { src: `/api/iterations/${latestIter.id}/html`, ...dims };
   }
   return {
     width: 1080,
     height: 1080,
     meta: {
-      icon: 'asset',
-      badges: [asset.assetType, latestIter?.generationStatus ?? 'pending'],
-      detail: `${asset.frameCount} frame${asset.frameCount !== 1 ? 's' : ''}`,
+      icon: 'creation',
+      badges: [creation.creationType, latestIter?.generationStatus ?? 'pending'],
+      detail: `${creation.slideCount} slide${creation.slideCount !== 1 ? 's' : ''}`,
     },
   };
 }
 
+/** @deprecated Use buildCreationPreview */
+export const buildAssetPreview = buildCreationPreview;
+
 /**
- * Pure function version of renderFramePreview — testable without React.
+ * Pure function version of renderSlidePreview — testable without React.
  * Returns an iframe src descriptor when the latest iteration is complete, else metadata fallback.
  */
-export function buildFramePreview(
-  frame: Frame,
-  frameIterations: Iteration[],
-  parentAsset: Asset | undefined
+export function buildSlidePreview(
+  slide: Slide,
+  slideIterations: Iteration[],
+  parentCreation: Creation | undefined
 ): PreviewDescriptorBasic {
-  const latest = frameIterations.length > 0
-    ? frameIterations.reduce((best, iter) =>
+  const latest = slideIterations.length > 0
+    ? slideIterations.reduce((best, iter) =>
         iter.iterationIndex > best.iterationIndex ? iter : best
       )
     : null;
   if (latest && isValidHtmlPath(latest.htmlPath) && latest.generationStatus === 'complete') {
-    const dims = getAssetDimensions(parentAsset?.assetType ?? 'instagram');
+    const dims = getCreationDimensions(parentCreation?.creationType ?? 'instagram');
     return { src: `/api/iterations/${latest.id}/html`, ...dims };
   }
   return {
     width: 1080,
     height: 1080,
     meta: {
-      icon: 'frame',
-      badges: [`Slide ${frame.frameIndex + 1}`],
+      icon: 'slide',
+      badges: [`Slide ${slide.slideIndex + 1}`],
       detail: latest ? latest.generationStatus ?? 'pending' : 'No iterations',
     },
   };
 }
+
+/** @deprecated Use buildSlidePreview */
+export const buildFramePreview = buildSlidePreview;

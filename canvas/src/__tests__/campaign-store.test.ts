@@ -1,12 +1,12 @@
 /**
  * Unit tests for campaign store navigation logic.
  * Tests state transitions, sidebar toggles, and fetch actions.
- * Also covers getAssetDimensions and preview render logic (Task 08-03).
+ * Also covers getCreationDimensions and preview render logic (Task 08-03).
  */
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { useCampaignStore } from '../store/campaign';
-import { getAssetDimensions, buildAssetPreview, buildFramePreview } from '../lib/preview-utils';
-import type { Campaign, Asset, Frame, Iteration } from '../lib/campaign-types';
+import { getCreationDimensions, buildCreationPreview, buildSlidePreview } from '../lib/preview-utils';
+import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types';
 
 // ---- Mock fetch globally ----
 const mockFetch = vi.fn();
@@ -25,17 +25,19 @@ beforeEach(() => {
   useCampaignStore.setState({
     currentView: 'dashboard',
     activeCampaignId: null,
-    activeAssetId: null,
-    activeFrameId: null,
+    activeCreationId: null,
+    activeSlideId: null,
     activeIterationId: null,
     campaigns: [],
-    assets: [],
-    frames: [],
+    creations: [],
+    slides: [],
     iterations: [],
-    latestIterationByAssetId: {},
+    latestIterationByCreationId: {},
     loading: false,
     leftSidebarOpen: true,
     rightSidebarOpen: false,
+    activeNavTab: 'create',
+    chatSidebarOpen: true,
     _requestId: 0,
   });
 });
@@ -44,15 +46,15 @@ beforeEach(() => {
 const sampleCampaigns: Campaign[] = [
   { id: 'cmp_1', title: 'Spring Campaign', channels: ['instagram'], createdAt: 1000, updatedAt: 1000 },
 ];
-const sampleAssets: Asset[] = [
-  { id: 'ast_1', campaignId: 'cmp_1', title: 'Hero Post', assetType: 'instagram', frameCount: 1, createdAt: 1000 },
+const sampleCreations: Creation[] = [
+  { id: 'crt_1', campaignId: 'cmp_1', title: 'Hero Post', creationType: 'instagram', slideCount: 1, createdAt: 1000 },
 ];
-const sampleFrames: Frame[] = [
-  { id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 },
+const sampleSlides: Slide[] = [
+  { id: 'sld_1', creationId: 'crt_1', slideIndex: 0, createdAt: 1000 },
 ];
 const sampleIterations: Iteration[] = [
   {
-    id: 'itr_1', frameId: 'frm_1', iterationIndex: 0,
+    id: 'itr_1', slideId: 'sld_1', iterationIndex: 0,
     htmlPath: '/path/to/file.html', slotSchema: null, aiBaseline: null,
     userState: null, status: 'unmarked', source: 'ai', templateId: null, createdAt: 1000,
   },
@@ -71,79 +73,79 @@ describe('navigateToDashboard', () => {
     const state = useCampaignStore.getState();
     expect(state.currentView).toBe('dashboard');
     expect(state.activeCampaignId).toBeNull();
-    expect(state.activeAssetId).toBeNull();
-    expect(state.activeFrameId).toBeNull();
+    expect(state.activeCreationId).toBeNull();
+    expect(state.activeSlideId).toBeNull();
     expect(state.activeIterationId).toBeNull();
   });
 });
 
 describe('navigateToCampaign', () => {
   it('sets currentView to campaign and activeCampaignId', async () => {
-    // fetchAssets + fetchLatestIterations (empty frames -> no further calls)
+    // fetchCreations + fetchLatestIterations (empty slides -> no further calls)
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
-      .mockResolvedValueOnce(makeJsonResponse([])); // frames for ast_1 (empty -> no iteration fetch)
+      .mockResolvedValueOnce(makeJsonResponse(sampleCreations))
+      .mockResolvedValueOnce(makeJsonResponse([])); // slides for crt_1 (empty -> no iteration fetch)
 
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
     const state = useCampaignStore.getState();
     expect(state.currentView).toBe('campaign');
     expect(state.activeCampaignId).toBe('cmp_1');
-    expect(state.activeAssetId).toBeNull();
-    expect(state.activeFrameId).toBeNull();
+    expect(state.activeCreationId).toBeNull();
+    expect(state.activeSlideId).toBeNull();
   });
 
-  it('fetches assets for the campaign', async () => {
+  it('fetches creations for the campaign', async () => {
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
-      .mockResolvedValueOnce(makeJsonResponse([])); // frames for fetchLatestIterations
+      .mockResolvedValueOnce(makeJsonResponse(sampleCreations))
+      .mockResolvedValueOnce(makeJsonResponse([])); // slides for fetchLatestIterations
 
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/campaigns/cmp_1/assets');
-    expect(useCampaignStore.getState().assets).toEqual(sampleAssets);
+    expect(mockFetch).toHaveBeenCalledWith('/api/campaigns/cmp_1/creations');
+    expect(useCampaignStore.getState().creations).toEqual(sampleCreations);
   });
 });
 
-describe('navigateToAsset', () => {
-  it('sets currentView to asset and activeAssetId', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleFrames));
+describe('navigateToCreation', () => {
+  it('sets currentView to creation and activeCreationId', async () => {
+    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides));
 
-    await useCampaignStore.getState().navigateToAsset('ast_1');
+    await useCampaignStore.getState().navigateToCreation('crt_1');
 
     const state = useCampaignStore.getState();
-    expect(state.currentView).toBe('asset');
-    expect(state.activeAssetId).toBe('ast_1');
-    expect(state.activeFrameId).toBeNull();
+    expect(state.currentView).toBe('creation');
+    expect(state.activeCreationId).toBe('crt_1');
+    expect(state.activeSlideId).toBeNull();
   });
 
-  it('fetches frames for the asset', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleFrames));
+  it('fetches slides for the creation', async () => {
+    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides));
 
-    await useCampaignStore.getState().navigateToAsset('ast_1');
+    await useCampaignStore.getState().navigateToCreation('crt_1');
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/assets/ast_1/frames');
-    expect(useCampaignStore.getState().frames).toEqual(sampleFrames);
+    expect(mockFetch).toHaveBeenCalledWith('/api/creations/crt_1/slides');
+    expect(useCampaignStore.getState().slides).toEqual(sampleSlides);
   });
 });
 
-describe('navigateToFrame', () => {
-  it('sets currentView to frame and activeFrameId', async () => {
+describe('navigateToSlide', () => {
+  it('sets currentView to slide and activeSlideId', async () => {
     mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleIterations));
 
-    await useCampaignStore.getState().navigateToFrame('frm_1');
+    await useCampaignStore.getState().navigateToSlide('sld_1');
 
     const state = useCampaignStore.getState();
-    expect(state.currentView).toBe('frame');
-    expect(state.activeFrameId).toBe('frm_1');
+    expect(state.currentView).toBe('slide');
+    expect(state.activeSlideId).toBe('sld_1');
   });
 
-  it('fetches iterations for the frame', async () => {
+  it('fetches iterations for the slide', async () => {
     mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleIterations));
 
-    await useCampaignStore.getState().navigateToFrame('frm_1');
+    await useCampaignStore.getState().navigateToSlide('sld_1');
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/frames/frm_1/iterations');
+    expect(mockFetch).toHaveBeenCalledWith('/api/slides/sld_1/iterations');
     expect(useCampaignStore.getState().iterations).toEqual(sampleIterations);
   });
 });
@@ -170,27 +172,27 @@ describe('selectIteration', () => {
 // ============================================================
 
 describe('navigateBack', () => {
-  it('from frame goes to asset level', async () => {
-    // Setup asset and frame state
-    useCampaignStore.setState({ activeCampaignId: 'cmp_1', activeAssetId: 'ast_1' });
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleFrames)); // frames for asset
+  it('from slide goes to creation level', async () => {
+    // Setup creation and slide state
+    useCampaignStore.setState({ activeCampaignId: 'cmp_1', activeCreationId: 'crt_1' });
+    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleIterations)); // iterations for slide
 
-    await useCampaignStore.getState().navigateToFrame('frm_1');
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleFrames)); // navigateBack -> navigateToAsset -> fetchFrames
+    await useCampaignStore.getState().navigateToSlide('sld_1');
+    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides)); // navigateBack -> navigateToCreation -> fetchSlides
 
     await useCampaignStore.getState().navigateBack();
 
-    expect(useCampaignStore.getState().currentView).toBe('asset');
+    expect(useCampaignStore.getState().currentView).toBe('creation');
   });
 
-  it('from asset goes to campaign level', async () => {
+  it('from creation goes to campaign level', async () => {
     useCampaignStore.setState({ activeCampaignId: 'cmp_1' });
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleFrames));
+    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides));
 
-    await useCampaignStore.getState().navigateToAsset('ast_1');
-    // navigateBack -> navigateToCampaign -> fetchAssets + fetchLatestIterations (empty frames)
+    await useCampaignStore.getState().navigateToCreation('crt_1');
+    // navigateBack -> navigateToCampaign -> fetchCreations + fetchLatestIterations (empty slides)
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
+      .mockResolvedValueOnce(makeJsonResponse(sampleCreations))
       .mockResolvedValueOnce(makeJsonResponse([]));
 
     await useCampaignStore.getState().navigateBack();
@@ -199,9 +201,9 @@ describe('navigateBack', () => {
   });
 
   it('from campaign goes to dashboard', async () => {
-    // navigateToCampaign: fetchAssets + fetchLatestIterations (empty frames)
+    // navigateToCampaign: fetchCreations + fetchLatestIterations (empty slides)
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))
+      .mockResolvedValueOnce(makeJsonResponse(sampleCreations))
       .mockResolvedValueOnce(makeJsonResponse([]));
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
@@ -269,52 +271,52 @@ describe('fetch error handling', () => {
     expect(state.campaigns).toEqual([]);
   });
 
-  it('fetchAssets handles non-ok response gracefully', async () => {
+  it('fetchCreations handles non-ok response gracefully', async () => {
     mockFetch.mockResolvedValueOnce(makeJsonResponse(null, false));
-    await useCampaignStore.getState().fetchAssets('cmp_1');
+    await useCampaignStore.getState().fetchCreations('cmp_1');
     expect(useCampaignStore.getState().loading).toBe(false);
   });
 });
 
 // ============================================================
-// getAssetDimensions (08-03)
+// getCreationDimensions (08-03)
 // ============================================================
 
-describe('getAssetDimensions', () => {
+describe('getCreationDimensions', () => {
   it('returns 1080x1080 for instagram', () => {
-    expect(getAssetDimensions('instagram')).toEqual({ width: 1080, height: 1080 });
+    expect(getCreationDimensions('instagram')).toEqual({ width: 1080, height: 1080 });
   });
 
   it('returns 1200x627 for linkedin', () => {
-    expect(getAssetDimensions('linkedin')).toEqual({ width: 1200, height: 627 });
+    expect(getCreationDimensions('linkedin')).toEqual({ width: 1200, height: 627 });
   });
 
   it('returns 816x1056 for one-pager', () => {
-    expect(getAssetDimensions('one-pager')).toEqual({ width: 816, height: 1056 });
+    expect(getCreationDimensions('one-pager')).toEqual({ width: 816, height: 1056 });
   });
 
-  it('defaults to 1080x1080 for unknown asset type', () => {
-    expect(getAssetDimensions('tiktok')).toEqual({ width: 1080, height: 1080 });
-    expect(getAssetDimensions('')).toEqual({ width: 1080, height: 1080 });
+  it('defaults to 1080x1080 for unknown creation type', () => {
+    expect(getCreationDimensions('tiktok')).toEqual({ width: 1080, height: 1080 });
+    expect(getCreationDimensions('')).toEqual({ width: 1080, height: 1080 });
   });
 });
 
 // ============================================================
-// buildAssetPreview (08-03)
+// buildCreationPreview (08-03)
 // ============================================================
 
-const baseAsset: Asset = {
-  id: 'ast_1',
+const baseCreation: Creation = {
+  id: 'crt_1',
   campaignId: 'cmp_1',
   title: 'Hero Post',
-  assetType: 'instagram',
-  frameCount: 1,
+  creationType: 'instagram',
+  slideCount: 1,
   createdAt: 1000,
 };
 
 const completeIteration: Iteration = {
   id: 'itr_complete',
-  frameId: 'frm_1',
+  slideId: 'sld_1',
   iterationIndex: 0,
   htmlPath: '/path/to/file.html',
   slotSchema: null,
@@ -339,88 +341,88 @@ const generatingIteration: Iteration = {
   generationStatus: 'generating',
 };
 
-describe('buildAssetPreview', () => {
+describe('buildCreationPreview', () => {
   it('returns iframe src when iteration is complete', () => {
-    const preview = buildAssetPreview(baseAsset, completeIteration);
+    const preview = buildCreationPreview(baseCreation, completeIteration);
     expect(preview.src).toBe('/api/iterations/itr_complete/html');
     expect(preview.meta).toBeUndefined();
   });
 
-  it('uses correct dimensions for instagram asset', () => {
-    const preview = buildAssetPreview(baseAsset, completeIteration);
+  it('uses correct dimensions for instagram creation', () => {
+    const preview = buildCreationPreview(baseCreation, completeIteration);
     expect(preview.width).toBe(1080);
     expect(preview.height).toBe(1080);
   });
 
-  it('uses correct dimensions for linkedin asset', () => {
-    const linkedinAsset = { ...baseAsset, assetType: 'linkedin' };
-    const preview = buildAssetPreview(linkedinAsset, completeIteration);
+  it('uses correct dimensions for linkedin creation', () => {
+    const linkedinCreation = { ...baseCreation, creationType: 'linkedin' };
+    const preview = buildCreationPreview(linkedinCreation, completeIteration);
     expect(preview.width).toBe(1200);
     expect(preview.height).toBe(627);
   });
 
   it('returns metadata fallback when iteration is pending', () => {
-    const preview = buildAssetPreview(baseAsset, pendingIteration);
+    const preview = buildCreationPreview(baseCreation, pendingIteration);
     expect(preview.src).toBeUndefined();
     expect(preview.meta).toBeDefined();
     expect(preview.meta?.badges).toContain('pending');
   });
 
   it('returns metadata fallback when iteration is generating', () => {
-    const preview = buildAssetPreview(baseAsset, generatingIteration);
+    const preview = buildCreationPreview(baseCreation, generatingIteration);
     expect(preview.src).toBeUndefined();
     expect(preview.meta?.badges).toContain('generating');
   });
 
   it('returns metadata fallback with "pending" badge when no iteration', () => {
-    const preview = buildAssetPreview(baseAsset, undefined);
+    const preview = buildCreationPreview(baseCreation, undefined);
     expect(preview.src).toBeUndefined();
     expect(preview.meta?.badges).toContain('pending');
   });
 });
 
 // ============================================================
-// buildFramePreview (08-03)
+// buildSlidePreview (08-03)
 // ============================================================
 
-const baseFrame: Frame = {
-  id: 'frm_1',
-  assetId: 'ast_1',
-  frameIndex: 0,
+const baseSlide: Slide = {
+  id: 'sld_1',
+  creationId: 'crt_1',
+  slideIndex: 0,
   createdAt: 1000,
 };
 
-describe('buildFramePreview', () => {
+describe('buildSlidePreview', () => {
   it('returns iframe src for latest complete iteration', () => {
     const olderComplete: Iteration = { ...completeIteration, id: 'itr_old', iterationIndex: 0 };
     const newerComplete: Iteration = { ...completeIteration, id: 'itr_new', iterationIndex: 1 };
-    const preview = buildFramePreview(baseFrame, [olderComplete, newerComplete], baseAsset);
+    const preview = buildSlidePreview(baseSlide, [olderComplete, newerComplete], baseCreation);
     expect(preview.src).toBe('/api/iterations/itr_new/html');
     expect(preview.meta).toBeUndefined();
   });
 
   it('returns metadata fallback when only pending iterations exist', () => {
-    const preview = buildFramePreview(baseFrame, [pendingIteration], baseAsset);
+    const preview = buildSlidePreview(baseSlide, [pendingIteration], baseCreation);
     expect(preview.src).toBeUndefined();
     expect(preview.meta).toBeDefined();
     expect(preview.meta?.badges).toContain('Slide 1');
   });
 
   it('returns metadata fallback with "No iterations" when empty', () => {
-    const preview = buildFramePreview(baseFrame, [], baseAsset);
+    const preview = buildSlidePreview(baseSlide, [], baseCreation);
     expect(preview.src).toBeUndefined();
     expect(preview.meta?.detail).toBe('No iterations');
   });
 
-  it('uses parent asset dimensions for frame preview', () => {
-    const linkedinAsset = { ...baseAsset, assetType: 'linkedin' };
-    const preview = buildFramePreview(baseFrame, [completeIteration], linkedinAsset);
+  it('uses parent creation dimensions for slide preview', () => {
+    const linkedinCreation = { ...baseCreation, creationType: 'linkedin' };
+    const preview = buildSlidePreview(baseSlide, [completeIteration], linkedinCreation);
     expect(preview.width).toBe(1200);
     expect(preview.height).toBe(627);
   });
 
-  it('defaults to instagram dimensions when parent asset is undefined', () => {
-    const preview = buildFramePreview(baseFrame, [completeIteration], undefined);
+  it('defaults to instagram dimensions when parent creation is undefined', () => {
+    const preview = buildSlidePreview(baseSlide, [completeIteration], undefined);
     expect(preview.width).toBe(1080);
     expect(preview.height).toBe(1080);
   });
@@ -431,62 +433,112 @@ describe('buildFramePreview', () => {
 // ============================================================
 
 describe('fetchLatestIterations', () => {
-  it('populates latestIterationByAssetId with latest iteration per asset', async () => {
-    useCampaignStore.setState({ assets: sampleAssets });
+  it('populates latestIterationByCreationId with latest iteration per creation', async () => {
+    useCampaignStore.setState({ creations: sampleCreations });
 
-    const frames: Frame[] = [{ id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 }];
+    const slides: Slide[] = [{ id: 'sld_1', creationId: 'crt_1', slideIndex: 0, createdAt: 1000 }];
     const iterations: Iteration[] = [
       { ...completeIteration, id: 'itr_1', iterationIndex: 0 },
       { ...completeIteration, id: 'itr_2', iterationIndex: 1 },
     ];
 
-    // fetchLatestIterations fetches /api/assets/{id}/frames then /api/frames/{frameId}/iterations
+    // fetchLatestIterations fetches /api/creations/{id}/slides then /api/slides/{slideId}/iterations
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(frames))     // frames for ast_1
-      .mockResolvedValueOnce(makeJsonResponse(iterations)); // iterations for frm_1
+      .mockResolvedValueOnce(makeJsonResponse(slides))     // slides for crt_1
+      .mockResolvedValueOnce(makeJsonResponse(iterations)); // iterations for sld_1
 
     await useCampaignStore.getState().fetchLatestIterations('cmp_1');
 
     const state = useCampaignStore.getState();
-    expect(state.latestIterationByAssetId['ast_1']).toBeDefined();
-    expect(state.latestIterationByAssetId['ast_1'].id).toBe('itr_2'); // latest by iterationIndex
+    expect(state.latestIterationByCreationId['crt_1']).toBeDefined();
+    expect(state.latestIterationByCreationId['crt_1'].id).toBe('itr_2'); // latest by iterationIndex
   });
 
-  it('handles asset with no frames gracefully', async () => {
-    useCampaignStore.setState({ assets: sampleAssets });
+  it('handles creation with no slides gracefully', async () => {
+    useCampaignStore.setState({ creations: sampleCreations });
 
-    mockFetch.mockResolvedValueOnce(makeJsonResponse([])); // empty frames
+    mockFetch.mockResolvedValueOnce(makeJsonResponse([])); // empty slides
 
     await useCampaignStore.getState().fetchLatestIterations('cmp_1');
 
-    expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeUndefined();
+    expect(useCampaignStore.getState().latestIterationByCreationId['crt_1']).toBeUndefined();
   });
 
-  it('handles asset with no iterations gracefully', async () => {
-    useCampaignStore.setState({ assets: sampleAssets });
+  it('handles creation with no iterations gracefully', async () => {
+    useCampaignStore.setState({ creations: sampleCreations });
 
-    const frames: Frame[] = [{ id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 }];
+    const slides: Slide[] = [{ id: 'sld_1', creationId: 'crt_1', slideIndex: 0, createdAt: 1000 }];
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(frames))  // frames
+      .mockResolvedValueOnce(makeJsonResponse(slides))  // slides
       .mockResolvedValueOnce(makeJsonResponse([]));     // empty iterations
 
     await useCampaignStore.getState().fetchLatestIterations('cmp_1');
 
-    expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeUndefined();
+    expect(useCampaignStore.getState().latestIterationByCreationId['crt_1']).toBeUndefined();
   });
 
   it('is called automatically on navigateToCampaign', async () => {
-    const frames: Frame[] = [{ id: 'frm_1', assetId: 'ast_1', frameIndex: 0, createdAt: 1000 }];
+    const slides: Slide[] = [{ id: 'sld_1', creationId: 'crt_1', slideIndex: 0, createdAt: 1000 }];
     const iterations: Iteration[] = [{ ...completeIteration, id: 'itr_1', iterationIndex: 0 }];
 
-    // navigateToCampaign calls: 1) fetchAssets, 2) fetchLatestIterations (frames + iterations per asset)
+    // navigateToCampaign calls: 1) fetchCreations, 2) fetchLatestIterations (slides + iterations per creation)
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleAssets))  // fetchAssets
-      .mockResolvedValueOnce(makeJsonResponse(frames))         // fetchLatestIterations -> frames for ast_1
-      .mockResolvedValueOnce(makeJsonResponse(iterations));    // fetchLatestIterations -> iterations for frm_1
+      .mockResolvedValueOnce(makeJsonResponse(sampleCreations))  // fetchCreations
+      .mockResolvedValueOnce(makeJsonResponse(slides))            // fetchLatestIterations -> slides for crt_1
+      .mockResolvedValueOnce(makeJsonResponse(iterations));       // fetchLatestIterations -> iterations for sld_1
 
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 
-    expect(useCampaignStore.getState().latestIterationByAssetId['ast_1']).toBeDefined();
+    expect(useCampaignStore.getState().latestIterationByCreationId['crt_1']).toBeDefined();
+  });
+});
+
+// ============================================================
+// Phase 10: Top-level navigation tab and chat sidebar state
+// ============================================================
+
+describe('activeNavTab (Phase 10)', () => {
+  it('defaults to create', () => {
+    const state = useCampaignStore.getState();
+    expect(state.activeNavTab).toBe('create');
+  });
+
+  it('setActiveNavTab updates activeNavTab to templates', () => {
+    useCampaignStore.getState().setActiveNavTab('templates');
+    expect(useCampaignStore.getState().activeNavTab).toBe('templates');
+  });
+
+  it('setActiveNavTab updates activeNavTab to patterns', () => {
+    useCampaignStore.getState().setActiveNavTab('patterns');
+    expect(useCampaignStore.getState().activeNavTab).toBe('patterns');
+  });
+
+  it('setActiveNavTab updates activeNavTab to voice-guide', () => {
+    useCampaignStore.getState().setActiveNavTab('voice-guide');
+    expect(useCampaignStore.getState().activeNavTab).toBe('voice-guide');
+  });
+});
+
+describe('chatSidebarOpen (Phase 10)', () => {
+  it('defaults to true', () => {
+    const state = useCampaignStore.getState();
+    expect(state.chatSidebarOpen).toBe(true);
+  });
+
+  it('toggleChatSidebar flips chatSidebarOpen from true to false', () => {
+    useCampaignStore.getState().toggleChatSidebar();
+    expect(useCampaignStore.getState().chatSidebarOpen).toBe(false);
+  });
+
+  it('toggleChatSidebar flips chatSidebarOpen back to true', () => {
+    useCampaignStore.getState().toggleChatSidebar();
+    useCampaignStore.getState().toggleChatSidebar();
+    expect(useCampaignStore.getState().chatSidebarOpen).toBe(true);
+  });
+
+  it('leftSidebarOpen stays in sync with chatSidebarOpen', () => {
+    useCampaignStore.getState().toggleChatSidebar();
+    const state = useCampaignStore.getState();
+    expect(state.leftSidebarOpen).toBe(state.chatSidebarOpen);
   });
 });

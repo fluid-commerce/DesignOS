@@ -1,5 +1,5 @@
 /**
- * Database API layer for the Campaign > Asset > Frame > Iteration hierarchy.
+ * Database API layer for the Campaign > Creation > Slide > Iteration hierarchy.
  * All functions are synchronous (better-sqlite3 sync API).
  * Server-only module — never import from React components.
  *
@@ -9,7 +9,7 @@
 
 import { nanoid } from 'nanoid';
 import { getDb } from '../lib/db';
-import type { Campaign, Asset, Frame, Iteration, CampaignAnnotation } from '../lib/campaign-types';
+import type { Campaign, Creation, Slide, Iteration, CampaignAnnotation } from '../lib/campaign-types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -24,24 +24,24 @@ function rowToCampaign(row: Record<string, unknown>): Campaign {
   };
 }
 
-/** Deserialize an Asset row from SQLite. */
-function rowToAsset(row: Record<string, unknown>): Asset {
+/** Deserialize a Creation row from SQLite. */
+function rowToCreation(row: Record<string, unknown>): Creation {
   return {
     id: row.id as string,
     campaignId: row.campaign_id as string,
     title: row.title as string,
-    assetType: row.asset_type as string,
-    frameCount: row.frame_count as number,
+    creationType: row.creation_type as string,
+    slideCount: row.slide_count as number,
     createdAt: row.created_at as number,
   };
 }
 
-/** Deserialize a Frame row from SQLite. */
-function rowToFrame(row: Record<string, unknown>): Frame {
+/** Deserialize a Slide row from SQLite. */
+function rowToSlide(row: Record<string, unknown>): Slide {
   return {
     id: row.id as string,
-    assetId: row.asset_id as string,
-    frameIndex: row.frame_index as number,
+    creationId: row.creation_id as string,
+    slideIndex: row.slide_index as number,
     createdAt: row.created_at as number,
   };
 }
@@ -50,7 +50,7 @@ function rowToFrame(row: Record<string, unknown>): Frame {
 function rowToIteration(row: Record<string, unknown>): Iteration {
   return {
     id: row.id as string,
-    frameId: row.frame_id as string,
+    slideId: row.slide_id as string,
     iterationIndex: row.iteration_index as number,
     htmlPath: row.html_path as string,
     slotSchema: row.slot_schema ? JSON.parse(row.slot_schema as string) : null,
@@ -104,62 +104,62 @@ export function getCampaign(id: string): Campaign | undefined {
   return row ? rowToCampaign(row) : undefined;
 }
 
-// ─── Asset ───────────────────────────────────────────────────────────────────
+// ─── Creation ───────────────────────────────────────────────────────────────
 
-export function createAsset(input: {
+export function createCreation(input: {
   campaignId: string;
   title: string;
-  assetType: string;
-  frameCount: number;
-}): Asset {
+  creationType: string;
+  slideCount: number;
+}): Creation {
   const db = getDb();
   const id = nanoid();
   const now = Date.now();
   db.prepare(
-    'INSERT INTO assets (id, campaign_id, title, asset_type, frame_count, created_at) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(id, input.campaignId, input.title, input.assetType, input.frameCount, now);
+    'INSERT INTO creations (id, campaign_id, title, creation_type, slide_count, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(id, input.campaignId, input.title, input.creationType, input.slideCount, now);
   return {
     id,
     campaignId: input.campaignId,
     title: input.title,
-    assetType: input.assetType,
-    frameCount: input.frameCount,
+    creationType: input.creationType,
+    slideCount: input.slideCount,
     createdAt: now,
   };
 }
 
-export function getAssets(campaignId: string): Asset[] {
+export function getCreations(campaignId: string): Creation[] {
   const db = getDb();
   const rows = db.prepare(
-    'SELECT * FROM assets WHERE campaign_id = ? ORDER BY created_at ASC'
+    'SELECT * FROM creations WHERE campaign_id = ? ORDER BY created_at ASC'
   ).all(campaignId) as Record<string, unknown>[];
-  return rows.map(rowToAsset);
+  return rows.map(rowToCreation);
 }
 
-// ─── Frame ───────────────────────────────────────────────────────────────────
+// ─── Slide ──────────────────────────────────────────────────────────────────
 
-export function createFrame(input: { assetId: string; frameIndex: number }): Frame {
+export function createSlide(input: { creationId: string; slideIndex: number }): Slide {
   const db = getDb();
   const id = nanoid();
   const now = Date.now();
   db.prepare(
-    'INSERT INTO frames (id, asset_id, frame_index, created_at) VALUES (?, ?, ?, ?)'
-  ).run(id, input.assetId, input.frameIndex, now);
-  return { id, assetId: input.assetId, frameIndex: input.frameIndex, createdAt: now };
+    'INSERT INTO slides (id, creation_id, slide_index, created_at) VALUES (?, ?, ?, ?)'
+  ).run(id, input.creationId, input.slideIndex, now);
+  return { id, creationId: input.creationId, slideIndex: input.slideIndex, createdAt: now };
 }
 
-export function getFrames(assetId: string): Frame[] {
+export function getSlides(creationId: string): Slide[] {
   const db = getDb();
   const rows = db.prepare(
-    'SELECT * FROM frames WHERE asset_id = ? ORDER BY frame_index ASC'
-  ).all(assetId) as Record<string, unknown>[];
-  return rows.map(rowToFrame);
+    'SELECT * FROM slides WHERE creation_id = ? ORDER BY slide_index ASC'
+  ).all(creationId) as Record<string, unknown>[];
+  return rows.map(rowToSlide);
 }
 
 // ─── Iteration ────────────────────────────────────────────────────────────────
 
 export function createIteration(input: {
-  frameId: string;
+  slideId: string;
   iterationIndex: number;
   htmlPath: string;
   slotSchema?: object | null;
@@ -174,11 +174,11 @@ export function createIteration(input: {
   const generationStatus = input.generationStatus ?? 'complete';
   db.prepare(
     `INSERT INTO iterations
-      (id, frame_id, iteration_index, html_path, slot_schema, ai_baseline, user_state, status, source, template_id, generation_status, created_at)
+      (id, slide_id, iteration_index, html_path, slot_schema, ai_baseline, user_state, status, source, template_id, generation_status, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
-    input.frameId,
+    input.slideId,
     input.iterationIndex,
     input.htmlPath,
     input.slotSchema ? JSON.stringify(input.slotSchema) : null,
@@ -192,7 +192,7 @@ export function createIteration(input: {
   );
   return {
     id,
-    frameId: input.frameId,
+    slideId: input.slideId,
     iterationIndex: input.iterationIndex,
     htmlPath: input.htmlPath,
     slotSchema: input.slotSchema ?? null,
@@ -206,11 +206,11 @@ export function createIteration(input: {
   };
 }
 
-export function getIterations(frameId: string): Iteration[] {
+export function getIterations(slideId: string): Iteration[] {
   const db = getDb();
   const rows = db.prepare(
-    'SELECT * FROM iterations WHERE frame_id = ? ORDER BY iteration_index ASC'
-  ).all(frameId) as Record<string, unknown>[];
+    'SELECT * FROM iterations WHERE slide_id = ? ORDER BY iteration_index ASC'
+  ).all(slideId) as Record<string, unknown>[];
   return rows.map(rowToIteration);
 }
 
@@ -232,20 +232,20 @@ export function updateIterationGenerationStatus(
   db.prepare('UPDATE iterations SET generation_status = ? WHERE id = ?').run(status, id);
 }
 
-export function getLatestIterationByFrame(frameId: string): Iteration | undefined {
+export function getLatestIterationBySlide(slideId: string): Iteration | undefined {
   const db = getDb();
   const row = db.prepare(
-    'SELECT * FROM iterations WHERE frame_id = ? ORDER BY iteration_index DESC LIMIT 1'
-  ).get(frameId) as Record<string, unknown> | undefined;
+    'SELECT * FROM iterations WHERE slide_id = ? ORDER BY iteration_index DESC LIMIT 1'
+  ).get(slideId) as Record<string, unknown> | undefined;
   return row ? rowToIteration(row) : undefined;
 }
 
-// ─── Asset (additional helpers) ───────────────────────────────────────────────
+// ─── Creation (additional helpers) ──────────────────────────────────────────
 
-export function updateAsset(id: string, input: { title?: string }): void {
+export function updateCreation(id: string, input: { title?: string }): void {
   const db = getDb();
   if (input.title !== undefined) {
-    db.prepare('UPDATE assets SET title = ? WHERE id = ?').run(input.title, id);
+    db.prepare('UPDATE creations SET title = ? WHERE id = ?').run(input.title, id);
   }
 }
 
@@ -288,13 +288,13 @@ export function getAnnotations(iterationId: string): CampaignAnnotation[] {
 // ─── Transactions ────────────────────────────────────────────────────────────
 
 /**
- * Atomically creates a campaign and its initial assets.
+ * Atomically creates a campaign and its initial creations.
  * Rolls back everything if any insert fails (FK violation, null constraint, etc.).
  */
-export function createCampaignWithAssets(
+export function createCampaignWithCreations(
   campaignInput: { title: string; channels: string[] },
-  assetsInput: Array<{ title: string; assetType: string; frameCount: number }>
-): { campaign: Campaign; assets: Asset[] } {
+  creationsInput: Array<{ title: string; creationType: string; slideCount: number }>
+): { campaign: Campaign; creations: Creation[] } {
   const db = getDb();
 
   const campaignId = nanoid();
@@ -303,8 +303,8 @@ export function createCampaignWithAssets(
   const insertCampaign = db.prepare(
     'INSERT INTO campaigns (id, title, channels, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
   );
-  const insertAsset = db.prepare(
-    'INSERT INTO assets (id, campaign_id, title, asset_type, frame_count, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+  const insertCreation = db.prepare(
+    'INSERT INTO creations (id, campaign_id, title, creation_type, slide_count, created_at) VALUES (?, ?, ?, ?, ?, ?)'
   );
 
   const campaign: Campaign = {
@@ -315,12 +315,12 @@ export function createCampaignWithAssets(
     updatedAt: now,
   };
 
-  const assets: Asset[] = assetsInput.map((a) => ({
+  const creations: Creation[] = creationsInput.map((a) => ({
     id: nanoid(),
     campaignId,
     title: a.title,
-    assetType: a.assetType,
-    frameCount: a.frameCount,
+    creationType: a.creationType,
+    slideCount: a.slideCount,
     createdAt: now,
   }));
 
@@ -332,47 +332,72 @@ export function createCampaignWithAssets(
       now,
       now
     );
-    for (const asset of assets) {
-      insertAsset.run(asset.id, campaignId, asset.title, asset.assetType, asset.frameCount, now);
+    for (const creation of creations) {
+      insertCreation.run(creation.id, campaignId, creation.title, creation.creationType, creation.slideCount, now);
     }
   });
 
   transaction();
-  return { campaign, assets };
+  return { campaign, creations };
 }
+
+// Backward-compat aliases
+/** @deprecated Use createCreation */
+export const createAsset = (input: { campaignId: string; title: string; assetType: string; frameCount: number }) =>
+  createCreation({ campaignId: input.campaignId, title: input.title, creationType: input.assetType, slideCount: input.frameCount });
+/** @deprecated Use getCreations */
+export const getAssets = getCreations;
+/** @deprecated Use createSlide */
+export const createFrame = (input: { assetId: string; frameIndex: number }) =>
+  createSlide({ creationId: input.assetId, slideIndex: input.frameIndex });
+/** @deprecated Use getSlides */
+export const getFrames = getSlides;
+/** @deprecated Use updateCreation */
+export const updateAsset = updateCreation;
+/** @deprecated Use createCampaignWithCreations */
+export const createCampaignWithAssets = (
+  campaignInput: { title: string; channels: string[] },
+  assetsInput: Array<{ title: string; assetType: string; frameCount: number }>
+) => {
+  const result = createCampaignWithCreations(
+    campaignInput,
+    assetsInput.map(a => ({ title: a.title, creationType: a.assetType, slideCount: a.frameCount }))
+  );
+  return { campaign: result.campaign, assets: result.creations };
+};
 
 // ─── Preview ─────────────────────────────────────────────────────────────────
 
 /**
- * Returns up to 4 preview entries for a campaign — one per asset (latest iteration).
- * Joins assets -> frames -> iterations using a subquery to get max iteration_index per frame.
+ * Returns up to 4 preview entries for a campaign — one per creation (latest iteration).
+ * Joins creations -> slides -> iterations using a subquery to get max iteration_index per slide.
  */
 export function getCampaignPreviewUrls(
   campaignId: string
-): Array<{ iterationId: string; htmlPath: string; assetType: string }> {
+): Array<{ iterationId: string; htmlPath: string; creationType: string }> {
   const db = getDb();
   const rows = db.prepare(`
     SELECT
-      i.id          AS iteration_id,
-      i.html_path   AS html_path,
-      a.asset_type  AS asset_type
-    FROM assets a
-    JOIN frames f ON f.asset_id = a.id
-    JOIN iterations i ON i.frame_id = f.id
+      i.id              AS iteration_id,
+      i.html_path       AS html_path,
+      c.creation_type   AS creation_type
+    FROM creations c
+    JOIN slides s ON s.creation_id = c.id
+    JOIN iterations i ON i.slide_id = s.id
     INNER JOIN (
-      SELECT frame_id, MAX(iteration_index) AS max_idx
+      SELECT slide_id, MAX(iteration_index) AS max_idx
       FROM iterations
-      GROUP BY frame_id
-    ) latest ON latest.frame_id = i.frame_id AND i.iteration_index = latest.max_idx
-    WHERE a.campaign_id = ?
-    GROUP BY a.id
-    ORDER BY a.created_at ASC
+      GROUP BY slide_id
+    ) latest ON latest.slide_id = i.slide_id AND i.iteration_index = latest.max_idx
+    WHERE c.campaign_id = ?
+    GROUP BY c.id
+    ORDER BY c.created_at ASC
     LIMIT 4
-  `).all(campaignId) as Array<{ iteration_id: string; html_path: string; asset_type: string }>;
+  `).all(campaignId) as Array<{ iteration_id: string; html_path: string; creation_type: string }>;
 
   return rows.map((row) => ({
     iterationId: row.iteration_id,
     htmlPath: row.html_path,
-    assetType: row.asset_type,
+    creationType: row.creation_type,
   }));
 }

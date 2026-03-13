@@ -32,7 +32,7 @@ export function useFileWatcher() {
 
         // Refresh campaign data for the current view
         const campaignStore = useCampaignStore.getState();
-        const { currentView, activeCampaignId, activeAssetId, activeFrameId } = campaignStore;
+        const { currentView, activeCampaignId, activeCreationId, activeSlideId } = campaignStore;
 
         switch (currentView) {
           case 'dashboard':
@@ -40,17 +40,17 @@ export function useFileWatcher() {
             break;
           case 'campaign':
             if (activeCampaignId) {
-              campaignStore.fetchAssets(activeCampaignId);
+              campaignStore.fetchCreations(activeCampaignId);
             }
             break;
-          case 'asset':
-            if (activeAssetId) {
-              campaignStore.fetchFrames(activeAssetId);
+          case 'creation':
+            if (activeCreationId) {
+              campaignStore.fetchSlides(activeCreationId);
             }
             break;
-          case 'frame':
-            if (activeFrameId) {
-              campaignStore.fetchIterations(activeFrameId);
+          case 'slide':
+            if (activeSlideId) {
+              campaignStore.fetchIterations(activeSlideId);
             }
             break;
         }

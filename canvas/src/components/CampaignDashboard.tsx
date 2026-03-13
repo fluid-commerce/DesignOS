@@ -1,19 +1,19 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useCampaignStore } from '../store/campaign';
 import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './DrillDownGrid';
-import type { Campaign, Asset } from '../lib/campaign-types';
+import type { Campaign, Creation } from '../lib/campaign-types';
 
 // ── CampaignMosaic ─────────────────────────────────────────────────────────────
 
 interface PreviewUrl {
   iterationId: string;
   htmlPath: string;
-  assetType: string;
+  creationType: string;
 }
 
 interface CampaignMosaicProps {
   campaignId: string;
-  totalAssets?: number;
+  totalCreations?: number;
 }
 
 /**
@@ -21,7 +21,7 @@ interface CampaignMosaicProps {
  * Uses IntersectionObserver to lazy-load — only fetches preview URLs
  * and renders iframes when the component is scrolled into view.
  */
-function CampaignMosaic({ campaignId, totalAssets = 0 }: CampaignMosaicProps) {
+function CampaignMosaic({ campaignId, totalCreations = 0 }: CampaignMosaicProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [previewUrls, setPreviewUrls] = useState<PreviewUrl[] | null>(null);
   const [visible, setVisible] = useState(false);
@@ -61,7 +61,7 @@ function CampaignMosaic({ campaignId, totalAssets = 0 }: CampaignMosaicProps) {
     return () => { cancelled = true; };
   }, [campaignId, visible]);
 
-  const extraCount = totalAssets > 4 ? totalAssets - 4 : 0;
+  const extraCount = totalCreations > 4 ? totalCreations - 4 : 0;
 
   return (
     <div
@@ -142,8 +142,8 @@ function CampaignMosaic({ campaignId, totalAssets = 0 }: CampaignMosaicProps) {
  * Builds an html srcDoc for a campaign mosaic preview.
  * Used when we already have preview URLs available synchronously.
  */
-function buildMosaicSrcDoc(urls: PreviewUrl[], totalAssets: number): string {
-  const extraCount = totalAssets > 4 ? totalAssets - 4 : 0;
+function buildMosaicSrcDoc(urls: PreviewUrl[], totalCreations: number): string {
+  const extraCount = totalCreations > 4 ? totalCreations - 4 : 0;
   const cells = Array.from({ length: 4 }).map((_, i) => {
     const url = urls[i];
     const isLast = i === 3;
@@ -659,7 +659,7 @@ export function CampaignDashboard() {
     const urls = mosaicData[item.id];
     if (urls && urls.length > 0) {
       return {
-        html: buildMosaicSrcDoc(urls, 0), // totalAssets unknown at this level; omit "+N more"
+        html: buildMosaicSrcDoc(urls, 0), // totalCreations unknown at this level; omit "+N more"
         width: 320,
         height: 320,
       };
@@ -823,13 +823,13 @@ export function CampaignDashboard() {
 // ─── CampaignChannelSlots ─────────────────────────────────────────────────────
 //
 // Shows a per-channel tab view with 5 fixed option slots per channel.
-// Each slot displays a filled asset preview (iframe) or a dashed empty placeholder.
+// Each slot displays a filled creation preview (iframe) or a dashed empty placeholder.
 // Matches Jonathan's UI design for the campaign output view.
 //
 // Props:
 //   campaignId — the active campaign ID
-//   assets     — the assets already loaded for this campaign (from campaign store)
-//   onSelectAsset — handler to drill into a specific asset
+//   creations     — the creations already loaded for this campaign (from campaign store)
+//   onSelectCreation — handler to drill into a specific asset
 //   onGenerateCampaign — callback to trigger /fluid-campaign invocation
 
 const SLOT_CHANNELS = [
@@ -843,34 +843,34 @@ const SLOTS_PER_CHANNEL = 5;
 
 interface CampaignChannelSlotsProps {
   campaignId: string;
-  assets: Asset[];
-  onSelectAsset: (assetId: string) => void;
+  creations: Creation[];
+  onSelectCreation: (assetId: string) => void;
   onGenerateCampaign?: () => void;
   generatingCampaign?: boolean;
 }
 
 export function CampaignChannelSlots({
   campaignId: _campaignId,
-  assets,
-  onSelectAsset,
+  creations,
+  onSelectCreation,
   onGenerateCampaign,
   generatingCampaign = false,
 }: CampaignChannelSlotsProps) {
   const [activeChannel, setActiveChannel] = useState(SLOT_CHANNELS[0].key);
 
-  // Group assets by channel (assetType)
-  const assetsByChannel = useCallback(
-    (channelKey: string): Asset[] =>
-      assets.filter(
+  // Group creations by channel (creationType)
+  const creationsByChannel = useCallback(
+    (channelKey: string): Creation[] =>
+      creations.filter(
         (a) =>
-          a.assetType === channelKey ||
-          a.assetType === channelKey.replace('-', '_') ||
-          a.assetType.toLowerCase().includes(channelKey.toLowerCase())
+          a.creationType === channelKey ||
+          a.creationType === channelKey.replace('-', '_') ||
+          a.creationType.toLowerCase().includes(channelKey.toLowerCase())
       ),
-    [assets]
+    [creations]
   );
 
-  const channelAssets = assetsByChannel(activeChannel);
+  const channelCreations = creationsByChannel(activeChannel);
 
   return (
     <div style={slotStyles.container}>
@@ -880,7 +880,7 @@ export function CampaignChannelSlots({
         <div style={slotStyles.tabs}>
           {SLOT_CHANNELS.map((ch) => {
             const isActive = activeChannel === ch.key;
-            const count = assetsByChannel(ch.key).length;
+            const count = creationsByChannel(ch.key).length;
             return (
               <button
                 key={ch.key}
@@ -952,22 +952,22 @@ export function CampaignChannelSlots({
       {/* 5-slot grid */}
       <div style={slotStyles.slotGrid}>
         {Array.from({ length: SLOTS_PER_CHANNEL }).map((_, slotIndex) => {
-          const asset = channelAssets[slotIndex] ?? null;
+          const creation = channelCreations[slotIndex] ?? null;
           return (
             <SlotCard
               key={slotIndex}
               slotIndex={slotIndex}
-              asset={asset}
-              onSelect={asset ? () => onSelectAsset(asset.id) : undefined}
+              creation={creation}
+              onSelect={creation ? () => onSelectCreation(creation.id) : undefined}
             />
           );
         })}
       </div>
 
       {/* Empty channel hint */}
-      {channelAssets.length === 0 && (
+      {channelCreations.length === 0 && (
         <div style={slotStyles.emptyHint}>
-          No {SLOT_CHANNELS.find((c) => c.key === activeChannel)?.label ?? activeChannel} assets yet.
+          No {SLOT_CHANNELS.find((c) => c.key === activeChannel)?.label ?? activeChannel} creations yet.
           Click &ldquo;Generate Campaign&rdquo; to create them with /fluid-campaign.
         </div>
       )}
@@ -981,12 +981,12 @@ export function CampaignChannelSlots({
 
 interface SlotCardProps {
   slotIndex: number;
-  asset: Asset | null;
+  creation: Creation | null;
   onSelect?: () => void;
 }
 
-function SlotCard({ slotIndex, asset, onSelect }: SlotCardProps) {
-  const isEmpty = asset === null;
+function SlotCard({ slotIndex, creation, onSelect }: SlotCardProps) {
+  const isEmpty = creation === null;
 
   return (
     <div
@@ -997,7 +997,7 @@ function SlotCard({ slotIndex, asset, onSelect }: SlotCardProps) {
         cursor: isEmpty ? 'default' : 'pointer',
         backgroundColor: isEmpty ? 'transparent' : '#161616',
       }}
-      title={asset ? `${asset.title} — click to open` : `Slot ${slotIndex + 1} — empty`}
+      title={creation ? `${creation.title} — click to open` : `Slot ${slotIndex + 1} — empty`}
       onMouseEnter={(e) => {
         if (!isEmpty) (e.currentTarget as HTMLDivElement).style.borderColor = '#44B2FF';
       }}
@@ -1012,10 +1012,10 @@ function SlotCard({ slotIndex, asset, onSelect }: SlotCardProps) {
           <div style={slotStyles.emptyLabel}>Empty</div>
         </div>
       ) : (
-        // Filled slot: asset type badge + title
+        // Filled slot: creation type badge + title
         <div style={slotStyles.filledSlot}>
-          <div style={slotStyles.assetTypeBadge}>{asset.assetType}</div>
-          <div style={slotStyles.assetTitle}>{asset.title}</div>
+          <div style={slotStyles.creationTypeBadge}>{creation.creationType}</div>
+          <div style={slotStyles.creationTitle}>{creation.title}</div>
           <div style={slotStyles.slotArrow}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                  stroke="#444" strokeWidth="2" strokeLinecap="round">
@@ -1123,14 +1123,14 @@ const slotStyles: Record<string, React.CSSProperties> = {
     gap: '0.35rem',
     position: 'relative' as const,
   },
-  assetTypeBadge: {
+  creationTypeBadge: {
     fontSize: '0.6rem',
     fontWeight: 600,
     color: '#44B2FF',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.1em',
   },
-  assetTitle: {
+  creationTitle: {
     fontSize: '0.75rem',
     color: '#ccc',
     flex: 1,

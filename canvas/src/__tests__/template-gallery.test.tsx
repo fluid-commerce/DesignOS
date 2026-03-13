@@ -7,7 +7,7 @@ import { TEMPLATE_METADATA } from '../lib/template-configs';
 
 /**
  * TemplateGallery now uses static TEMPLATE_METADATA from template-configs.ts
- * (no fetch). TemplateCustomizer now creates asset+frame+iteration via API.
+ * (no fetch). TemplateCustomizer now creates creation+slide+iteration via API.
  */
 
 describe('TemplateGallery', () => {
@@ -70,7 +70,7 @@ describe('TemplateCustomizer', () => {
     expect(screen.getByText(/portrait photo/i)).toBeInTheDocument();
   });
 
-  it('renders the Asset Title input with template name as default', () => {
+  it('renders the Creation Title input with template name as default', () => {
     render(
       <TemplateCustomizer
         template={template}
@@ -80,7 +80,7 @@ describe('TemplateCustomizer', () => {
       />
     );
 
-    const titleInput = screen.getByLabelText(/asset title/i);
+    const titleInput = screen.getByLabelText(/creation title/i);
     expect(titleInput).toBeInTheDocument();
     expect((titleInput as HTMLInputElement).value).toBe('Client Testimonial / Quote');
   });
@@ -100,13 +100,13 @@ describe('TemplateCustomizer', () => {
     expect(onBack).toHaveBeenCalled();
   });
 
-  it('"Create Asset" calls the API and then onCreated', async () => {
+  it('"Create Creation" calls the API and then onCreated', async () => {
     const onCreated = vi.fn();
 
-    // Mock the three POST requests: asset, frame, iteration
+    // Mock the three POST requests: creation, slide, iteration
     mockFetch
-      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'ast_1' }) })
-      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'frm_1' }) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'crt_1' }) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'sld_1' }) })
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'itr_1' }) });
 
     render(
@@ -118,7 +118,7 @@ describe('TemplateCustomizer', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /create asset/i }));
+    fireEvent.click(screen.getByRole('button', { name: /create creation/i }));
 
     await waitFor(() => {
       expect(onCreated).toHaveBeenCalledWith('cmp_test');
@@ -126,9 +126,9 @@ describe('TemplateCustomizer', () => {
 
     // Should have made 3 API calls
     expect(mockFetch).toHaveBeenCalledTimes(3);
-    expect(mockFetch.mock.calls[0][0]).toContain('/api/campaigns/cmp_test/assets');
-    expect(mockFetch.mock.calls[1][0]).toContain('/api/assets/ast_1/frames');
-    expect(mockFetch.mock.calls[2][0]).toContain('/api/frames/frm_1/iterations');
+    expect(mockFetch.mock.calls[0][0]).toContain('/api/campaigns/cmp_test/creations');
+    expect(mockFetch.mock.calls[1][0]).toContain('/api/creations/crt_1/slides');
+    expect(mockFetch.mock.calls[2][0]).toContain('/api/slides/sld_1/iterations');
   });
 
   it('shows error message when API call fails', async () => {
@@ -146,10 +146,10 @@ describe('TemplateCustomizer', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /create asset/i }));
+    fireEvent.click(screen.getByRole('button', { name: /create creation/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/failed to create asset: 500/i)).toBeInTheDocument();
+      expect(screen.getByText(/failed to create creation: 500/i)).toBeInTheDocument();
     });
   });
 });

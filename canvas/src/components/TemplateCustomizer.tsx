@@ -6,7 +6,7 @@ interface TemplateCustomizerProps {
   template: TemplateMetadata;
   campaignId: string;
   onBack: () => void;
-  /** Called with the campaignId after the asset+frame+iteration are created. */
+  /** Called with the campaignId after the creation+slide+iteration are created. */
   onCreated: (campaignId: string) => void;
 }
 
@@ -20,9 +20,9 @@ const ACCENT_COLORS: Array<{ name: string; hex: string }> = [
 /**
  * Template customization form shown after selecting a template from the gallery.
  *
- * In the campaign model, creating a template asset creates:
- *   Asset (title, assetType, frameCount=1)
- *     Frame (frameIndex=0)
+ * In the campaign model, creating a template creation creates:
+ *   Creation (title, creationType, slideCount=1)
+ *     Slide (slideIndex=0)
  *       Iteration (source='template', templateId, slotSchema from template-configs)
  *
  * The HTML content is left empty for now (templateId can be used by the iframe
@@ -42,33 +42,33 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
     setError(null);
 
     try {
-      // 1. Create the asset
-      const assetRes = await fetch(`/api/campaigns/${campaignId}/assets`, {
+      // 1. Create the creation
+      const creationRes = await fetch(`/api/campaigns/${campaignId}/creations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
-          assetType: template.platform,
-          frameCount: template.dimensions.width > template.dimensions.height ? 1 : 1,
+          creationType: template.platform,
+          slideCount: 1,
         }),
       });
-      if (!assetRes.ok) throw new Error(`Failed to create asset: ${assetRes.status}`);
-      const asset = await assetRes.json();
+      if (!creationRes.ok) throw new Error(`Failed to create creation: ${creationRes.status}`);
+      const creation = await creationRes.json();
 
-      // 2. Create frame 0
-      const frameRes = await fetch(`/api/assets/${asset.id}/frames`, {
+      // 2. Create slide 0
+      const slideRes = await fetch(`/api/creations/${creation.id}/slides`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ frameIndex: 0 }),
+        body: JSON.stringify({ slideIndex: 0 }),
       });
-      if (!frameRes.ok) throw new Error(`Failed to create frame: ${frameRes.status}`);
-      const frame = await frameRes.json();
+      if (!slideRes.ok) throw new Error(`Failed to create slide: ${slideRes.status}`);
+      const slide = await slideRes.json();
 
       // 3. Create the iteration with slotSchema from template config
       const slotSchema = getTemplateSchema(template.templateId);
       const htmlPath = `templates/${template.templateId}.html`;
 
-      const iterRes = await fetch(`/api/frames/${frame.id}/iterations`, {
+      const iterRes = await fetch(`/api/slides/${slide.id}/iterations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,10 +82,10 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
       });
       if (!iterRes.ok) throw new Error(`Failed to create iteration: ${iterRes.status}`);
 
-      // 4. Navigate to the campaign (which will reload assets)
+      // 4. Navigate to the campaign (which will reload creations)
       onCreated(campaignId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create asset');
+      setError(err instanceof Error ? err.message : 'Failed to create creation');
       setCreating(false);
     }
   };
@@ -133,15 +133,15 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
             {template.description}
           </p>
 
-          {/* Asset title */}
+          {/* Creation title */}
           <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="tmpl-title" style={labelStyle}>Asset Title</label>
+            <label htmlFor="tmpl-title" style={labelStyle}>Creation Title</label>
             <input
               id="tmpl-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter a title for this asset..."
+              placeholder="Enter a title for this creation..."
               style={inputStyle}
               onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
               onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
@@ -180,7 +180,7 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
               id="tmpl-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes or brief for this asset..."
+              placeholder="Add any notes or brief for this creation..."
               rows={3}
               style={{ ...inputStyle, resize: 'vertical', minHeight: 72 }}
               onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
@@ -230,7 +230,7 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
               }
             }}
           >
-            {creating ? 'Creating...' : 'Create Asset'}
+            {creating ? 'Creating...' : 'Create Creation'}
           </button>
         </div>
       </div>

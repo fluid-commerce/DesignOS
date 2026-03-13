@@ -3,8 +3,8 @@
  *
  * Tests cover:
  * - DB singleton creation with WAL mode, FK constraints
- * - Schema creation (5 tables: campaigns, assets, frames, iterations, annotations)
- * - CRUD for each table in the Campaign > Asset > Frame > Iteration hierarchy
+ * - Schema creation (5 tables: campaigns, creations, slides, iterations, annotations)
+ * - CRUD for each table in the Campaign > Creation > Slide > Iteration hierarchy
  * - FK constraint enforcement (inserting with invalid foreign key throws)
  * - Transaction rollback on error
  * - getIterations ordering (iteration_index ASC)
@@ -23,17 +23,17 @@ import {
   createCampaign,
   getCampaigns,
   getCampaign,
-  createAsset,
-  getAssets,
-  createFrame,
-  getFrames,
+  createCreation,
+  getCreations,
+  createSlide,
+  getSlides,
   createIteration,
   getIterations,
   updateIterationStatus,
   updateIterationUserState,
   createAnnotation,
   getAnnotations,
-  createCampaignWithAssets,
+  createCampaignWithCreations,
 } from '../server/db-api';
 
 // Use a temp database so tests never pollute the production fluid.db
@@ -108,86 +108,86 @@ describe('Campaign CRUD', () => {
   });
 });
 
-describe('Asset CRUD', () => {
-  it('createAsset returns an Asset linked to a campaign', () => {
+describe('Creation CRUD', () => {
+  it('createCreation returns a Creation linked to a campaign', () => {
     const campaign = createCampaign({ title: 'Campaign', channels: ['instagram'] });
-    const asset = createAsset({
+    const creation = createCreation({
       campaignId: campaign.id,
       title: 'Instagram Post',
-      assetType: 'instagram',
-      frameCount: 1,
+      creationType: 'instagram',
+      slideCount: 1,
     });
 
-    expect(asset.id).toBeTruthy();
-    expect(asset.campaignId).toBe(campaign.id);
-    expect(asset.title).toBe('Instagram Post');
-    expect(asset.assetType).toBe('instagram');
-    expect(asset.frameCount).toBe(1);
+    expect(creation.id).toBeTruthy();
+    expect(creation.campaignId).toBe(campaign.id);
+    expect(creation.title).toBe('Instagram Post');
+    expect(creation.creationType).toBe('instagram');
+    expect(creation.slideCount).toBe(1);
   });
 
-  it('getAssets returns assets for a campaign', () => {
-    const campaign = createCampaign({ title: 'Multi-Asset', channels: ['instagram', 'linkedin'] });
-    createAsset({ campaignId: campaign.id, title: 'Asset 1', assetType: 'instagram', frameCount: 1 });
-    createAsset({ campaignId: campaign.id, title: 'Asset 2', assetType: 'linkedin-landscape', frameCount: 1 });
+  it('getCreations returns creations for a campaign', () => {
+    const campaign = createCampaign({ title: 'Multi-Creation', channels: ['instagram', 'linkedin'] });
+    createCreation({ campaignId: campaign.id, title: 'Creation 1', creationType: 'instagram', slideCount: 1 });
+    createCreation({ campaignId: campaign.id, title: 'Creation 2', creationType: 'linkedin-landscape', slideCount: 1 });
 
-    const assets = getAssets(campaign.id);
-    expect(assets).toHaveLength(2);
-    expect(assets.map(a => a.title)).toContain('Asset 1');
-    expect(assets.map(a => a.title)).toContain('Asset 2');
+    const creations = getCreations(campaign.id);
+    expect(creations).toHaveLength(2);
+    expect(creations.map(c => c.title)).toContain('Creation 1');
+    expect(creations.map(c => c.title)).toContain('Creation 2');
   });
 
-  it('FK constraint: inserting asset with nonexistent campaign_id throws', () => {
+  it('FK constraint: inserting creation with nonexistent campaign_id throws', () => {
     expect(() => {
-      createAsset({
+      createCreation({
         campaignId: 'nonexistent_campaign_id_xyz',
-        title: 'Bad Asset',
-        assetType: 'instagram',
-        frameCount: 1,
+        title: 'Bad Creation',
+        creationType: 'instagram',
+        slideCount: 1,
       });
     }).toThrow();
   });
 });
 
-describe('Frame CRUD', () => {
-  it('createFrame returns a Frame linked to an asset', () => {
+describe('Slide CRUD', () => {
+  it('createSlide returns a Slide linked to a creation', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 3 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 3 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
 
-    expect(frame.id).toBeTruthy();
-    expect(frame.assetId).toBe(asset.id);
-    expect(frame.frameIndex).toBe(0);
+    expect(slide.id).toBeTruthy();
+    expect(slide.creationId).toBe(creation.id);
+    expect(slide.slideIndex).toBe(0);
   });
 
-  it('getFrames returns frames for an asset', () => {
+  it('getSlides returns slides for a creation', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'Carousel', assetType: 'instagram', frameCount: 3 });
-    createFrame({ assetId: asset.id, frameIndex: 0 });
-    createFrame({ assetId: asset.id, frameIndex: 1 });
-    createFrame({ assetId: asset.id, frameIndex: 2 });
+    const creation = createCreation({ campaignId: campaign.id, title: 'Carousel', creationType: 'instagram', slideCount: 3 });
+    createSlide({ creationId: creation.id, slideIndex: 0 });
+    createSlide({ creationId: creation.id, slideIndex: 1 });
+    createSlide({ creationId: creation.id, slideIndex: 2 });
 
-    const frames = getFrames(asset.id);
-    expect(frames).toHaveLength(3);
-    expect(frames.map(f => f.frameIndex).sort()).toEqual([0, 1, 2]);
+    const slides = getSlides(creation.id);
+    expect(slides).toHaveLength(3);
+    expect(slides.map(s => s.slideIndex).sort()).toEqual([0, 1, 2]);
   });
 });
 
 describe('Iteration CRUD', () => {
-  it('createIteration returns an Iteration linked to a frame', () => {
+  it('createIteration returns an Iteration linked to a slide', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     const iteration = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
-      htmlPath: '/path/to/variation.html',
+      htmlPath: '/path/to/version.html',
       source: 'ai',
     });
 
     expect(iteration.id).toBeTruthy();
-    expect(iteration.frameId).toBe(frame.id);
+    expect(iteration.slideId).toBe(slide.id);
     expect(iteration.iterationIndex).toBe(0);
-    expect(iteration.htmlPath).toBe('/path/to/variation.html');
+    expect(iteration.htmlPath).toBe('/path/to/version.html');
     expect(iteration.source).toBe('ai');
     expect(iteration.status).toBe('unmarked');
     expect(iteration.slotSchema).toBeNull();
@@ -197,11 +197,11 @@ describe('Iteration CRUD', () => {
 
   it('createIteration accepts optional slotSchema, source=template with templateId', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     const schema = { width: 1080, height: 1080, fields: [] };
     const iteration = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: '/path/to/template.html',
       slotSchema: schema,
@@ -216,14 +216,14 @@ describe('Iteration CRUD', () => {
 
   it('getIterations returns iterations ordered by iteration_index ASC', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     // Insert out of order
-    createIteration({ frameId: frame.id, iterationIndex: 2, htmlPath: '/v3.html', source: 'ai' });
-    createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: '/v1.html', source: 'ai' });
-    createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: '/v2.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 2, htmlPath: '/v3.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v1.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: '/v2.html', source: 'ai' });
 
-    const iterations = getIterations(frame.id);
+    const iterations = getIterations(slide.id);
     expect(iterations).toHaveLength(3);
     expect(iterations[0].iterationIndex).toBe(0);
     expect(iterations[1].iterationIndex).toBe(1);
@@ -232,24 +232,24 @@ describe('Iteration CRUD', () => {
 
   it('updateIterationStatus changes the status field', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-    const iteration = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
 
     updateIterationStatus(iteration.id, 'winner');
-    const updated = getIterations(frame.id);
+    const updated = getIterations(slide.id);
     expect(updated[0].status).toBe('winner');
   });
 
   it('updateIterationUserState updates the user_state field', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-    const iteration = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
 
     const userState = { '.headline': 'Updated Headline', '.subline': 'Updated Subline' };
     updateIterationUserState(iteration.id, userState);
-    const updated = getIterations(frame.id);
+    const updated = getIterations(slide.id);
     expect(updated[0].userState).toEqual(userState);
   });
 });
@@ -257,9 +257,9 @@ describe('Iteration CRUD', () => {
 describe('Annotation CRUD', () => {
   it('createAnnotation returns a CampaignAnnotation linked to an iteration', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-    const iteration = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
 
     const annotation = createAnnotation({
       iterationId: iteration.id,
@@ -281,9 +281,9 @@ describe('Annotation CRUD', () => {
 
   it('getAnnotations returns annotations for an iteration', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-    const iteration = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
 
     createAnnotation({ iterationId: iteration.id, type: 'pin', author: 'human', text: 'Note 1', x: 10, y: 20 });
     createAnnotation({ iterationId: iteration.id, type: 'sidebar', author: 'human', text: 'Note 2' });
@@ -295,30 +295,30 @@ describe('Annotation CRUD', () => {
   });
 });
 
-describe('Transaction: createCampaignWithAssets', () => {
-  it('creates campaign and multiple assets atomically', () => {
-    const result = createCampaignWithAssets(
+describe('Transaction: createCampaignWithCreations', () => {
+  it('creates campaign and multiple creations atomically', () => {
+    const result = createCampaignWithCreations(
       { title: 'Full Campaign', channels: ['instagram', 'linkedin'] },
       [
-        { title: 'IG Post', assetType: 'instagram', frameCount: 1 },
-        { title: 'LN Post', assetType: 'linkedin-landscape', frameCount: 1 },
+        { title: 'IG Post', creationType: 'instagram', slideCount: 1 },
+        { title: 'LN Post', creationType: 'linkedin-landscape', slideCount: 1 },
       ]
     );
 
     expect(result.campaign.id).toBeTruthy();
-    expect(result.assets).toHaveLength(2);
-    expect(result.assets[0].campaignId).toBe(result.campaign.id);
-    expect(result.assets[1].campaignId).toBe(result.campaign.id);
+    expect(result.creations).toHaveLength(2);
+    expect(result.creations[0].campaignId).toBe(result.campaign.id);
+    expect(result.creations[1].campaignId).toBe(result.campaign.id);
   });
 
   it('transaction rolls back if an insert fails', () => {
     const initialCampaigns = getCampaigns();
     expect(() => {
-      // Force a failure by passing an invalid assetType shape that violates NOT NULL
-      createCampaignWithAssets(
+      // Force a failure by passing an invalid creationType shape that violates NOT NULL
+      createCampaignWithCreations(
         { title: 'Should Rollback', channels: ['instagram'] },
         [
-          { title: null as unknown as string, assetType: 'instagram', frameCount: 1 },
+          { title: null as unknown as string, creationType: 'instagram', slideCount: 1 },
         ]
       );
     }).toThrow();

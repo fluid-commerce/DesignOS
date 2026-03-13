@@ -4,10 +4,10 @@
  * Tests cover:
  * - createIteration returns generationStatus defaulting to 'complete'
  * - updateIterationGenerationStatus changes the field
- * - updateAsset changes the asset title
- * - getLatestIterationByFrame returns highest iterationIndex
- * - getLatestIterationByFrame returns undefined for frame with no iterations
- * - getCampaignPreviewUrls returns up to 4 objects per campaign's first 4 assets
+ * - updateCreation changes the creation title
+ * - getLatestIterationBySlide returns highest iterationIndex
+ * - getLatestIterationBySlide returns undefined for slide with no iterations
+ * - getCampaignPreviewUrls returns up to 4 objects per campaign's first 4 creations
  * - getCampaignPreviewUrls returns empty array for campaign with no iterations
  */
 
@@ -20,13 +20,13 @@ import fs from 'node:fs';
 import { closeDb } from '../lib/db';
 import {
   createCampaign,
-  createAsset,
-  getAssets,
-  createFrame,
+  createCreation,
+  getCreations,
+  createSlide,
   createIteration,
   getIterations,
-  updateAsset,
-  getLatestIterationByFrame,
+  updateCreation,
+  getLatestIterationBySlide,
   updateIterationGenerationStatus,
   getCampaignPreviewUrls,
 } from '../server/db-api';
@@ -38,11 +38,11 @@ function resetDb() {
   process.env.FLUID_DB_PATH = dbPath;
 }
 
-function makeFrame() {
+function makeSlide() {
   const campaign = createCampaign({ title: 'C', channels: [] });
-  const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-  const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-  return { campaign, asset, frame };
+  const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+  const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+  return { campaign, creation, slide };
 }
 
 describe('generationStatus field on iterations', () => {
@@ -51,9 +51,9 @@ describe('generationStatus field on iterations', () => {
   });
 
   it('createIteration returns an iteration with generationStatus defaulting to "complete"', () => {
-    const { frame } = makeFrame();
+    const { slide } = makeSlide();
     const iter = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'sessions/abc/round-1/v1.html',
       source: 'ai',
@@ -62,9 +62,9 @@ describe('generationStatus field on iterations', () => {
   });
 
   it('createIteration accepts explicit generationStatus "pending"', () => {
-    const { frame } = makeFrame();
+    const { slide } = makeSlide();
     const iter = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'sessions/abc/round-1/v1.html',
       source: 'ai',
@@ -74,67 +74,67 @@ describe('generationStatus field on iterations', () => {
   });
 
   it('updateIterationGenerationStatus changes the field to "generating"', () => {
-    const { frame } = makeFrame();
+    const { slide } = makeSlide();
     const iter = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'x.html',
       source: 'ai',
       generationStatus: 'pending',
     });
     updateIterationGenerationStatus(iter.id, 'generating');
-    const [updated] = getIterations(frame.id);
+    const [updated] = getIterations(slide.id);
     expect(updated.generationStatus).toBe('generating');
   });
 
   it('updateIterationGenerationStatus changes the field to "complete"', () => {
-    const { frame } = makeFrame();
+    const { slide } = makeSlide();
     const iter = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'x.html',
       source: 'ai',
       generationStatus: 'pending',
     });
     updateIterationGenerationStatus(iter.id, 'complete');
-    const [updated] = getIterations(frame.id);
+    const [updated] = getIterations(slide.id);
     expect(updated.generationStatus).toBe('complete');
   });
 });
 
-describe('updateAsset', () => {
+describe('updateCreation', () => {
   beforeEach(() => {
     resetDb();
   });
 
-  it('updateAsset changes the asset title', () => {
+  it('updateCreation changes the creation title', () => {
     const campaign = createCampaign({ title: 'C', channels: [] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'Old Title', assetType: 'instagram', frameCount: 1 });
-    updateAsset(asset.id, { title: 'New Title' });
-    const assets = getAssets(campaign.id);
-    expect(assets[0].title).toBe('New Title');
+    const creation = createCreation({ campaignId: campaign.id, title: 'Old Title', creationType: 'instagram', slideCount: 1 });
+    updateCreation(creation.id, { title: 'New Title' });
+    const creations = getCreations(campaign.id);
+    expect(creations[0].title).toBe('New Title');
   });
 });
 
-describe('getLatestIterationByFrame', () => {
+describe('getLatestIterationBySlide', () => {
   beforeEach(() => {
     resetDb();
   });
 
-  it('returns the iteration with highest iterationIndex for a frame', () => {
-    const { frame } = makeFrame();
-    createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'v0.html', source: 'ai' });
-    createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: 'v1.html', source: 'ai' });
-    createIteration({ frameId: frame.id, iterationIndex: 2, htmlPath: 'v2.html', source: 'ai' });
-    const latest = getLatestIterationByFrame(frame.id);
+  it('returns the iteration with highest iterationIndex for a slide', () => {
+    const { slide } = makeSlide();
+    createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'v0.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: 'v1.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 2, htmlPath: 'v2.html', source: 'ai' });
+    const latest = getLatestIterationBySlide(slide.id);
     expect(latest).toBeDefined();
     expect(latest!.iterationIndex).toBe(2);
     expect(latest!.htmlPath).toBe('v2.html');
   });
 
-  it('returns undefined for a frame with no iterations', () => {
-    const { frame } = makeFrame();
-    const latest = getLatestIterationByFrame(frame.id);
+  it('returns undefined for a slide with no iterations', () => {
+    const { slide } = makeSlide();
+    const latest = getLatestIterationBySlide(slide.id);
     expect(latest).toBeUndefined();
   });
 });
@@ -144,22 +144,22 @@ describe('getCampaignPreviewUrls', () => {
     resetDb();
   });
 
-  it('returns up to 4 objects with { iterationId, htmlPath, assetType } from the campaign first 4 assets', () => {
+  it('returns up to 4 objects with { iterationId, htmlPath, creationType } from the campaign first 4 creations', () => {
     const campaign = createCampaign({ title: 'Preview Campaign', channels: ['instagram'] });
 
-    // Create 4 assets each with a frame and an iteration
+    // Create 4 creations each with a slide and an iteration
     for (let i = 0; i < 4; i++) {
-      const asset = createAsset({
+      const creation = createCreation({
         campaignId: campaign.id,
-        title: `Asset ${i}`,
-        assetType: i % 2 === 0 ? 'instagram' : 'linkedin',
-        frameCount: 1,
+        title: `Creation ${i}`,
+        creationType: i % 2 === 0 ? 'instagram' : 'linkedin',
+        slideCount: 1,
       });
-      const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+      const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
       createIteration({
-        frameId: frame.id,
+        slideId: slide.id,
         iterationIndex: 0,
-        htmlPath: `sessions/abc/asset-${i}/v0.html`,
+        htmlPath: `sessions/abc/creation-${i}/v0.html`,
         source: 'ai',
       });
     }
@@ -169,28 +169,28 @@ describe('getCampaignPreviewUrls', () => {
     for (const preview of previews) {
       expect(preview).toHaveProperty('iterationId');
       expect(preview).toHaveProperty('htmlPath');
-      expect(preview).toHaveProperty('assetType');
+      expect(preview).toHaveProperty('creationType');
       expect(typeof preview.iterationId).toBe('string');
       expect(typeof preview.htmlPath).toBe('string');
-      expect(typeof preview.assetType).toBe('string');
+      expect(typeof preview.creationType).toBe('string');
     }
   });
 
-  it('limits to 4 even when campaign has more than 4 assets', () => {
+  it('limits to 4 even when campaign has more than 4 creations', () => {
     const campaign = createCampaign({ title: 'Big Campaign', channels: [] });
 
     for (let i = 0; i < 6; i++) {
-      const asset = createAsset({
+      const creation = createCreation({
         campaignId: campaign.id,
-        title: `Asset ${i}`,
-        assetType: 'instagram',
-        frameCount: 1,
+        title: `Creation ${i}`,
+        creationType: 'instagram',
+        slideCount: 1,
       });
-      const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+      const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
       createIteration({
-        frameId: frame.id,
+        slideId: slide.id,
         iterationIndex: 0,
-        htmlPath: `sessions/abc/asset-${i}/v0.html`,
+        htmlPath: `sessions/abc/creation-${i}/v0.html`,
         source: 'ai',
       });
     }
@@ -201,21 +201,21 @@ describe('getCampaignPreviewUrls', () => {
 
   it('returns empty array for campaign with no iterations', () => {
     const campaign = createCampaign({ title: 'Empty', channels: [] });
-    const asset = createAsset({
+    const creation = createCreation({
       campaignId: campaign.id,
-      title: 'Asset',
-      assetType: 'instagram',
-      frameCount: 1,
+      title: 'Creation',
+      creationType: 'instagram',
+      slideCount: 1,
     });
-    createFrame({ assetId: asset.id, frameIndex: 0 });
+    createSlide({ creationId: creation.id, slideIndex: 0 });
     // No iterations created
 
     const previews = getCampaignPreviewUrls(campaign.id);
     expect(previews).toEqual([]);
   });
 
-  it('returns empty array for campaign with no assets', () => {
-    const campaign = createCampaign({ title: 'No Assets', channels: [] });
+  it('returns empty array for campaign with no creations', () => {
+    const campaign = createCampaign({ title: 'No Creations', channels: [] });
     const previews = getCampaignPreviewUrls(campaign.id);
     expect(previews).toEqual([]);
   });

@@ -1,20 +1,20 @@
-import type { Annotation, VariationFile, VariationStatus } from '../lib/types';
-import { AssetFrame } from './AssetFrame';
+import type { Annotation, VersionFile, VersionStatus } from '../lib/types';
+import { CreationFrame } from './CreationFrame';
 
-interface VariationGridProps {
-  variations: VariationFile[];
+interface VersionGridProps {
+  versions: VersionFile[];
   platform: string;
-  statuses: Record<string, VariationStatus>;
+  statuses: Record<string, VersionStatus>;
   annotations: Annotation[];
   activePin: string | null;
   onPinClick: (id: string) => void;
-  onAddPin: (variationPath: string, x: number, y: number, text: string) => void;
+  onAddPin: (versionPath: string, x: number, y: number, text: string) => void;
   onReply: (annotationId: string, text: string) => void;
-  onStatusChange: (variationPath: string, status: VariationStatus) => void;
+  onStatusChange: (versionPath: string, status: VersionStatus) => void;
 }
 
-export function VariationGrid({
-  variations,
+export function VersionGrid({
+  versions,
   platform,
   statuses,
   annotations,
@@ -23,11 +23,11 @@ export function VariationGrid({
   onAddPin,
   onReply,
   onStatusChange,
-}: VariationGridProps) {
-  if (variations.length === 0) {
+}: VersionGridProps) {
+  if (versions.length === 0) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>
-        <div style={{ marginBottom: '0.5rem' }}>No variations yet</div>
+        <div style={{ marginBottom: '0.5rem' }}>No versions yet</div>
         <div style={{ fontSize: '0.75rem', color: '#555' }}>
           Generation may still be in progress — check the sidebar for status.
         </div>
@@ -42,12 +42,12 @@ export function VariationGrid({
       gap: '1.5rem',
       padding: '1.5rem',
     }}>
-      {variations.map((v) => {
+      {versions.map((v) => {
         const pins = annotations.filter(
-          (a) => a.variationPath === v.path && a.type === 'pin'
+          (a) => a.versionPath === v.path && a.type === 'pin'
         );
         return (
-          <AssetFrame
+          <CreationFrame
             key={v.path}
             html={v.html}
             name={v.name}

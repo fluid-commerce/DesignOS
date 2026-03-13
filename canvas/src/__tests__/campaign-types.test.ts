@@ -1,7 +1,7 @@
 /**
  * TDD RED: Tests for campaign-types.ts and slot-schema.ts
  * These tests verify that:
- * 1. campaign-types.ts exports Campaign, Asset, Frame, Iteration, CampaignAnnotation interfaces
+ * 1. campaign-types.ts exports Campaign, Creation, Slide, Iteration, CampaignAnnotation interfaces
  * 2. slot-schema.ts exports SlotSchema, SlotField, TextField, ImageField, DividerField, FieldMode
  * 3. The TypeScript shape of each interface matches the required schema
  */
@@ -11,8 +11,8 @@ import { describe, it, expect } from 'vitest';
 // These imports will FAIL until the files are created (TDD RED phase)
 import type {
   Campaign,
-  Asset,
-  Frame,
+  Creation,
+  Slide,
   Iteration,
   CampaignAnnotation,
 } from '../lib/campaign-types';
@@ -42,37 +42,37 @@ describe('campaign-types', () => {
     expect(typeof campaign.updatedAt).toBe('number');
   });
 
-  it('Asset interface has required fields', () => {
-    const asset: Asset = {
-      id: 'ast_xyz789',
+  it('Creation interface has required fields', () => {
+    const creation: Creation = {
+      id: 'crt_xyz789',
       campaignId: 'cmp_abc123',
       title: 'Instagram Post',
-      assetType: 'instagram',
-      frameCount: 1,
+      creationType: 'instagram',
+      slideCount: 1,
       createdAt: Date.now(),
     };
-    expect(asset.id).toBe('ast_xyz789');
-    expect(asset.campaignId).toBe('cmp_abc123');
-    expect(asset.frameCount).toBe(1);
-    expect(asset.assetType).toBe('instagram');
+    expect(creation.id).toBe('crt_xyz789');
+    expect(creation.campaignId).toBe('cmp_abc123');
+    expect(creation.slideCount).toBe(1);
+    expect(creation.creationType).toBe('instagram');
   });
 
-  it('Frame interface has required fields', () => {
-    const frame: Frame = {
-      id: 'frm_001',
-      assetId: 'ast_xyz789',
-      frameIndex: 0,
+  it('Slide interface has required fields', () => {
+    const slide: Slide = {
+      id: 'sld_001',
+      creationId: 'crt_xyz789',
+      slideIndex: 0,
       createdAt: Date.now(),
     };
-    expect(frame.id).toBe('frm_001');
-    expect(frame.assetId).toBe('ast_xyz789');
-    expect(frame.frameIndex).toBe(0);
+    expect(slide.id).toBe('sld_001');
+    expect(slide.creationId).toBe('crt_xyz789');
+    expect(slide.slideIndex).toBe(0);
   });
 
   it('Iteration interface has required fields', () => {
     const iteration: Iteration = {
       id: 'itr_001',
-      frameId: 'frm_001',
+      slideId: 'sld_001',
       iterationIndex: 0,
       htmlPath: '/path/to/file.html',
       slotSchema: null,
@@ -84,24 +84,24 @@ describe('campaign-types', () => {
       createdAt: Date.now(),
     };
     expect(iteration.id).toBe('itr_001');
-    expect(iteration.frameId).toBe('frm_001');
+    expect(iteration.slideId).toBe('sld_001');
     expect(iteration.source).toBe('ai');
     expect(iteration.status).toBe('unmarked');
   });
 
-  it('Iteration status is a VariationStatus type', () => {
+  it('Iteration status is a VersionStatus type', () => {
     const statuses: Iteration['status'][] = ['winner', 'rejected', 'final', 'unmarked'];
     statuses.forEach(s => expect(['winner', 'rejected', 'final', 'unmarked']).toContain(s));
   });
 
   it('Iteration source can be ai or template', () => {
     const aiIter: Iteration = {
-      id: 'itr_001', frameId: 'frm_001', iterationIndex: 0,
+      id: 'itr_001', slideId: 'sld_001', iterationIndex: 0,
       htmlPath: '/test.html', slotSchema: null, aiBaseline: null,
       userState: null, status: 'unmarked', source: 'ai', templateId: null, createdAt: Date.now(),
     };
     const tplIter: Iteration = {
-      id: 'itr_002', frameId: 'frm_001', iterationIndex: 1,
+      id: 'itr_002', slideId: 'sld_001', iterationIndex: 1,
       htmlPath: '/test2.html', slotSchema: null, aiBaseline: null,
       userState: null, status: 'unmarked', source: 'template', templateId: 'tpl_001', createdAt: Date.now(),
     };

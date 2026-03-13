@@ -26,17 +26,17 @@ export function useAnnotations() {
     }
   }, [activeSessionId, loadAnnotations]);
 
-  // Filtered getter for annotations on a specific variation
-  const annotationsForVariation = useCallback(
-    (variationPath: string) =>
-      annotations.filter((a) => a.variationPath === variationPath),
+  // Filtered getter for annotations on a specific version
+  const annotationsForVersion = useCallback(
+    (versionPath: string) =>
+      annotations.filter((a) => a.versionPath === versionPath),
     [annotations]
   );
 
-  // Pins only for a variation
-  const pinsForVariation = useCallback(
-    (variationPath: string) =>
-      annotations.filter((a) => a.variationPath === variationPath && a.type === 'pin'),
+  // Pins only for a version
+  const pinsForVersion = useCallback(
+    (versionPath: string) =>
+      annotations.filter((a) => a.versionPath === versionPath && a.type === 'pin'),
     [annotations]
   );
 
@@ -48,16 +48,16 @@ export function useAnnotations() {
 
   // Add a pin annotation
   const addPin = useCallback(
-    (variationPath: string, x: number, y: number, text: string) => {
+    (versionPath: string, x: number, y: number, text: string) => {
       const existingPins = annotations.filter(
-        (a) => a.variationPath === variationPath && a.type === 'pin'
+        (a) => a.versionPath === versionPath && a.type === 'pin'
       );
       const annotation: Annotation = {
         id: nanoid(),
         type: 'pin',
         author: 'Reviewer',
         authorType: 'human',
-        variationPath,
+        versionPath,
         text,
         createdAt: new Date().toISOString(),
         x,
@@ -73,13 +73,13 @@ export function useAnnotations() {
 
   // Add a sidebar note
   const addNote = useCallback(
-    (variationPath: string, text: string) => {
+    (versionPath: string, text: string) => {
       const annotation: Annotation = {
         id: nanoid(),
         type: 'sidebar',
         author: 'Reviewer',
         authorType: 'human',
-        variationPath,
+        versionPath,
         text,
         createdAt: new Date().toISOString(),
         replies: [],
@@ -112,8 +112,8 @@ export function useAnnotations() {
     activePin,
     setActivePin,
     setStatus,
-    annotationsForVariation,
-    pinsForVariation,
+    annotationsForVersion,
+    pinsForVersion,
     sidebarNotes,
     addPin,
     addNote,

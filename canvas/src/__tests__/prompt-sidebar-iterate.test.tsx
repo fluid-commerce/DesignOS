@@ -144,9 +144,9 @@ describe('PromptSidebar - Iterate Mode (active session)', () => {
 
   it('annotation count badge shows number of pin annotations', () => {
     mockAnnotations = [
-      { id: 'a1', type: 'pin', variationPath: 'v1.html', text: 'Fix this', author: 'Reviewer', authorType: 'human', createdAt: '2026-03-10' },
-      { id: 'a2', type: 'pin', variationPath: 'v1.html', text: 'And this', author: 'Reviewer', authorType: 'human', createdAt: '2026-03-10' },
-      { id: 'a3', type: 'sidebar', variationPath: 'v1.html', text: 'General note', author: 'Reviewer', authorType: 'human', createdAt: '2026-03-10' },
+      { id: 'a1', type: 'pin', versionPath: 'v1.html', text: 'Fix this', author: 'Reviewer', authorType: 'human', createdAt: '2026-03-10' },
+      { id: 'a2', type: 'pin', versionPath: 'v1.html', text: 'And this', author: 'Reviewer', authorType: 'human', createdAt: '2026-03-10' },
+      { id: 'a3', type: 'sidebar', versionPath: 'v1.html', text: 'General note', author: 'Reviewer', authorType: 'human', createdAt: '2026-03-10' },
     ];
     render(<PromptSidebar />);
     // Should show "2 annotations" (only pins, not sidebar notes)

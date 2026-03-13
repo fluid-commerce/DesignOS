@@ -3,14 +3,14 @@
  *
  * Tests cover:
  * - createCampaign / getCampaigns / getCampaign
- * - createAsset / getAssets (by campaignId)
- * - createFrame / getFrames (by assetId)
- * - createIteration / getIterations (by frameId)
+ * - createCreation / getCreations (by campaignId)
+ * - createSlide / getSlides (by creationId)
+ * - createIteration / getIterations (by slideId)
  * - updateIterationStatus / updateIterationUserState
- * - updateAsset (title rename)
+ * - updateCreation (title rename)
  * - getCampaignPreviewUrls (up to 4 preview entries)
  * - createAnnotation / getAnnotations (by iterationId)
- * - createCampaignWithAssets (atomic transaction)
+ * - createCampaignWithCreations (atomic transaction)
  * - FK constraint enforcement
  */
 
@@ -25,19 +25,19 @@ import {
   createCampaign,
   getCampaigns,
   getCampaign,
-  createAsset,
-  getAssets,
-  createFrame,
-  getFrames,
+  createCreation,
+  getCreations,
+  createSlide,
+  getSlides,
   createIteration,
   getIterations,
   updateIterationStatus,
   updateIterationUserState,
-  updateAsset,
+  updateCreation,
   getCampaignPreviewUrls,
   createAnnotation,
   getAnnotations,
-  createCampaignWithAssets,
+  createCampaignWithCreations,
 } from '../server/db-api';
 
 // Before each test: close the singleton, point to a fresh temp DB, reopen lazily
@@ -89,80 +89,80 @@ describe('Campaign CRUD', () => {
   });
 });
 
-describe('Asset CRUD', () => {
+describe('Creation CRUD', () => {
   beforeEach(() => {
     resetDb();
   });
 
-  it('createAsset returns an Asset with all fields', () => {
+  it('createCreation returns a Creation with all fields', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const asset = createAsset({
+    const creation = createCreation({
       campaignId: campaign.id,
       title: 'IG Post',
-      assetType: 'instagram',
-      frameCount: 1,
+      creationType: 'instagram',
+      slideCount: 1,
     });
-    expect(asset.id).toBeDefined();
-    expect(asset.campaignId).toBe(campaign.id);
-    expect(asset.title).toBe('IG Post');
-    expect(asset.assetType).toBe('instagram');
-    expect(asset.frameCount).toBe(1);
-    expect(asset.createdAt).toBeGreaterThan(0);
+    expect(creation.id).toBeDefined();
+    expect(creation.campaignId).toBe(campaign.id);
+    expect(creation.title).toBe('IG Post');
+    expect(creation.creationType).toBe('instagram');
+    expect(creation.slideCount).toBe(1);
+    expect(creation.createdAt).toBeGreaterThan(0);
   });
 
-  it('getAssets returns assets for a campaign ordered by createdAt ASC', () => {
+  it('getCreations returns creations for a campaign ordered by createdAt ASC', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const a1 = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const a2 = createAsset({ campaignId: campaign.id, title: 'B', assetType: 'linkedin', frameCount: 3 });
-    const assets = getAssets(campaign.id);
-    expect(assets.length).toBe(2);
+    const c1 = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const c2 = createCreation({ campaignId: campaign.id, title: 'B', creationType: 'linkedin', slideCount: 3 });
+    const creations = getCreations(campaign.id);
+    expect(creations.length).toBe(2);
     // Both created at nearly same ms; verify both exist by ID
-    const ids = assets.map((a) => a.id);
-    expect(ids).toContain(a1.id);
-    expect(ids).toContain(a2.id);
+    const ids = creations.map((c) => c.id);
+    expect(ids).toContain(c1.id);
+    expect(ids).toContain(c2.id);
   });
 
-  it('getAssets returns empty array for unknown campaign', () => {
-    expect(getAssets('ghost-id')).toEqual([]);
+  it('getCreations returns empty array for unknown campaign', () => {
+    expect(getCreations('ghost-id')).toEqual([]);
   });
 
-  it('createAsset with invalid campaignId throws FK constraint error', () => {
+  it('createCreation with invalid campaignId throws FK constraint error', () => {
     expect(() =>
-      createAsset({ campaignId: 'bad-id', title: 'X', assetType: 'instagram', frameCount: 1 })
+      createCreation({ campaignId: 'bad-id', title: 'X', creationType: 'instagram', slideCount: 1 })
     ).toThrow();
   });
 });
 
-describe('Frame CRUD', () => {
+describe('Slide CRUD', () => {
   beforeEach(() => {
     resetDb();
   });
 
-  it('createFrame returns a Frame with correct fields', () => {
+  it('createSlide returns a Slide with correct fields', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-    expect(frame.id).toBeDefined();
-    expect(frame.assetId).toBe(asset.id);
-    expect(frame.frameIndex).toBe(0);
-    expect(frame.createdAt).toBeGreaterThan(0);
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    expect(slide.id).toBeDefined();
+    expect(slide.creationId).toBe(creation.id);
+    expect(slide.slideIndex).toBe(0);
+    expect(slide.createdAt).toBeGreaterThan(0);
   });
 
-  it('getFrames returns frames ordered by frameIndex ASC', () => {
+  it('getSlides returns slides ordered by slideIndex ASC', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'carousel', frameCount: 3 });
-    createFrame({ assetId: asset.id, frameIndex: 2 });
-    createFrame({ assetId: asset.id, frameIndex: 0 });
-    createFrame({ assetId: asset.id, frameIndex: 1 });
-    const frames = getFrames(asset.id);
-    expect(frames.length).toBe(3);
-    expect(frames[0].frameIndex).toBe(0);
-    expect(frames[1].frameIndex).toBe(1);
-    expect(frames[2].frameIndex).toBe(2);
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'carousel', slideCount: 3 });
+    createSlide({ creationId: creation.id, slideIndex: 2 });
+    createSlide({ creationId: creation.id, slideIndex: 0 });
+    createSlide({ creationId: creation.id, slideIndex: 1 });
+    const slides = getSlides(creation.id);
+    expect(slides.length).toBe(3);
+    expect(slides[0].slideIndex).toBe(0);
+    expect(slides[1].slideIndex).toBe(1);
+    expect(slides[2].slideIndex).toBe(2);
   });
 
-  it('createFrame with invalid assetId throws FK constraint error', () => {
-    expect(() => createFrame({ assetId: 'bad-id', frameIndex: 0 })).toThrow();
+  it('createSlide with invalid creationId throws FK constraint error', () => {
+    expect(() => createSlide({ creationId: 'bad-id', slideIndex: 0 })).toThrow();
   });
 });
 
@@ -171,22 +171,22 @@ describe('Iteration CRUD', () => {
     resetDb();
   });
 
-  function makeFrame() {
+  function makeSlide() {
     const campaign = createCampaign({ title: 'C', channels: [] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    return createFrame({ assetId: asset.id, frameIndex: 0 });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    return createSlide({ creationId: creation.id, slideIndex: 0 });
   }
 
   it('createIteration returns an Iteration with correct default status', () => {
-    const frame = makeFrame();
+    const slide = makeSlide();
     const iter = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'sessions/abc/round-1/v1.html',
       source: 'ai',
     });
     expect(iter.id).toBeDefined();
-    expect(iter.frameId).toBe(frame.id);
+    expect(iter.slideId).toBe(slide.id);
     expect(iter.iterationIndex).toBe(0);
     expect(iter.htmlPath).toBe('sessions/abc/round-1/v1.html');
     expect(iter.status).toBe('unmarked');
@@ -198,10 +198,10 @@ describe('Iteration CRUD', () => {
   });
 
   it('createIteration persists slotSchema and templateId', () => {
-    const frame = makeFrame();
+    const slide = makeSlide();
     const schema = { fields: [{ name: 'headline', type: 'text' }] };
     const iter = createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'path/to/file.html',
       slotSchema: schema,
@@ -214,11 +214,11 @@ describe('Iteration CRUD', () => {
   });
 
   it('getIterations returns iterations ordered by iterationIndex ASC', () => {
-    const frame = makeFrame();
-    createIteration({ frameId: frame.id, iterationIndex: 2, htmlPath: 'p2.html', source: 'ai' });
-    createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'p0.html', source: 'ai' });
-    createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: 'p1.html', source: 'ai' });
-    const iters = getIterations(frame.id);
+    const slide = makeSlide();
+    createIteration({ slideId: slide.id, iterationIndex: 2, htmlPath: 'p2.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'p0.html', source: 'ai' });
+    createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: 'p1.html', source: 'ai' });
+    const iters = getIterations(slide.id);
     expect(iters.length).toBe(3);
     expect(iters[0].iterationIndex).toBe(0);
     expect(iters[1].iterationIndex).toBe(1);
@@ -226,33 +226,33 @@ describe('Iteration CRUD', () => {
   });
 
   it('updateIterationStatus changes status to winner', () => {
-    const frame = makeFrame();
-    const iter = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const slide = makeSlide();
+    const iter = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
     updateIterationStatus(iter.id, 'winner');
-    const [updated] = getIterations(frame.id);
+    const [updated] = getIterations(slide.id);
     expect(updated.status).toBe('winner');
   });
 
   it('updateIterationStatus changes status to rejected', () => {
-    const frame = makeFrame();
-    const iter = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const slide = makeSlide();
+    const iter = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
     updateIterationStatus(iter.id, 'rejected');
-    const [updated] = getIterations(frame.id);
+    const [updated] = getIterations(slide.id);
     expect(updated.status).toBe('rejected');
   });
 
   it('updateIterationUserState persists the user state object', () => {
-    const frame = makeFrame();
-    const iter = createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const slide = makeSlide();
+    const iter = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
     const userState = { headline: 'New Headline', body: 'Updated copy' };
     updateIterationUserState(iter.id, userState);
-    const [updated] = getIterations(frame.id);
+    const [updated] = getIterations(slide.id);
     expect(updated.userState).toEqual(userState);
   });
 
-  it('createIteration with invalid frameId throws FK constraint error', () => {
+  it('createIteration with invalid slideId throws FK constraint error', () => {
     expect(() =>
-      createIteration({ frameId: 'bad-id', iterationIndex: 0, htmlPath: 'x.html', source: 'ai' })
+      createIteration({ slideId: 'bad-id', iterationIndex: 0, htmlPath: 'x.html', source: 'ai' })
     ).toThrow();
   });
 });
@@ -264,9 +264,9 @@ describe('Annotation CRUD', () => {
 
   function makeIteration() {
     const campaign = createCampaign({ title: 'C', channels: [] });
-    const asset = createAsset({ campaignId: campaign.id, title: 'A', assetType: 'instagram', frameCount: 1 });
-    const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
-    return createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    return createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
   }
 
   it('createAnnotation returns a pin annotation with coordinates', () => {
@@ -321,85 +321,85 @@ describe('Annotation CRUD', () => {
   });
 });
 
-describe('createCampaignWithAssets — atomic transaction', () => {
+describe('createCampaignWithCreations — atomic transaction', () => {
   beforeEach(() => {
     resetDb();
   });
 
-  it('creates campaign and multiple assets atomically', () => {
-    const { campaign, assets } = createCampaignWithAssets(
+  it('creates campaign and multiple creations atomically', () => {
+    const { campaign, creations } = createCampaignWithCreations(
       { title: 'Big Campaign', channels: ['instagram', 'linkedin', 'email'] },
       [
-        { title: 'IG Story', assetType: 'instagram-story', frameCount: 1 },
-        { title: 'LI Banner', assetType: 'linkedin-landscape', frameCount: 1 },
-        { title: 'One-Pager', assetType: 'one-pager', frameCount: 1 },
+        { title: 'IG Story', creationType: 'instagram-story', slideCount: 1 },
+        { title: 'LI Banner', creationType: 'linkedin-landscape', slideCount: 1 },
+        { title: 'One-Pager', creationType: 'one-pager', slideCount: 1 },
       ]
     );
     expect(campaign.id).toBeDefined();
     expect(campaign.title).toBe('Big Campaign');
     expect(campaign.channels).toEqual(['instagram', 'linkedin', 'email']);
-    expect(assets.length).toBe(3);
+    expect(creations.length).toBe(3);
 
     const allCampaigns = getCampaigns();
     expect(allCampaigns.length).toBe(1);
 
-    const savedAssets = getAssets(campaign.id);
-    expect(savedAssets.length).toBe(3);
+    const savedCreations = getCreations(campaign.id);
+    expect(savedCreations.length).toBe(3);
   });
 
-  it('returns correct asset structures from the transaction', () => {
-    const { campaign, assets } = createCampaignWithAssets(
+  it('returns correct creation structures from the transaction', () => {
+    const { campaign, creations } = createCampaignWithCreations(
       { title: 'Cam', channels: [] },
-      [{ title: 'Post', assetType: 'instagram', frameCount: 2 }]
+      [{ title: 'Post', creationType: 'instagram', slideCount: 2 }]
     );
-    expect(assets[0].campaignId).toBe(campaign.id);
-    expect(assets[0].assetType).toBe('instagram');
-    expect(assets[0].frameCount).toBe(2);
+    expect(creations[0].campaignId).toBe(campaign.id);
+    expect(creations[0].creationType).toBe('instagram');
+    expect(creations[0].slideCount).toBe(2);
   });
 
-  it('createCampaignWithAssets with zero assets creates only the campaign', () => {
-    const { campaign, assets } = createCampaignWithAssets(
+  it('createCampaignWithCreations with zero creations creates only the campaign', () => {
+    const { campaign, creations } = createCampaignWithCreations(
       { title: 'Empty Campaign', channels: [] },
       []
     );
     expect(getCampaigns().length).toBe(1);
-    expect(assets.length).toBe(0);
-    expect(getAssets(campaign.id).length).toBe(0);
+    expect(creations.length).toBe(0);
+    expect(getCreations(campaign.id).length).toBe(0);
   });
 });
 
-describe('updateAsset — PATCH /api/assets/:id', () => {
+describe('updateCreation — PATCH /api/creations/:id', () => {
   beforeEach(() => {
     resetDb();
   });
 
-  function makeAsset() {
+  function makeCreation() {
     const campaign = createCampaign({ title: 'Cam', channels: ['instagram'] });
-    return createAsset({ campaignId: campaign.id, title: 'instagram 1', assetType: 'instagram', frameCount: 1 });
+    return createCreation({ campaignId: campaign.id, title: 'instagram 1', creationType: 'instagram', slideCount: 1 });
   }
 
-  it('updateAsset changes the title in the database', () => {
-    const asset = makeAsset();
-    const originalTitle = asset.title;
+  it('updateCreation changes the title in the database', () => {
+    const creation = makeCreation();
+    const originalTitle = creation.title;
     expect(originalTitle).toBe('instagram 1');
 
-    updateAsset(asset.id, { title: 'Bold Product Launch — IG Square' });
+    updateCreation(creation.id, { title: 'Bold Product Launch — IG Square' });
 
-    // Verify via getAssets
-    const assets = getAssets(asset.campaignId);
-    expect(assets[0].title).toBe('Bold Product Launch — IG Square');
+    // Verify via getCreations
+    const creations = getCreations(creation.campaignId);
+    expect(creations[0].title).toBe('Bold Product Launch — IG Square');
   });
 
-  it('updateAsset with undefined title does not change anything', () => {
-    const asset = makeAsset();
-    updateAsset(asset.id, {}); // no title provided
-    const assets = getAssets(asset.campaignId);
-    expect(assets[0].title).toBe('instagram 1'); // unchanged
+  it('updateCreation with undefined title does not change anything', () => {
+    const creation = makeCreation();
+    updateCreation(creation.id, {}); // no title provided
+    const creations = getCreations(creation.campaignId);
+    expect(creations[0].title).toBe('instagram 1'); // unchanged
   });
 
-  it('updateAsset on nonexistent id does not throw', () => {
-    // updateAsset is a fire-and-forget UPDATE — no FK constraint on id
-    expect(() => updateAsset('nonexistent-id', { title: 'Ghost' })).not.toThrow();
+  it('updateCreation on nonexistent id does not throw', () => {
+    // updateCreation is a fire-and-forget UPDATE — no FK constraint on id
+    expect(() => updateCreation('nonexistent-id', { title: 'Ghost' })).not.toThrow();
   });
 });
 
@@ -408,26 +408,26 @@ describe('getCampaignPreviewUrls — GET /api/campaigns/:id/preview-urls', () =>
     resetDb();
   });
 
-  function makeFullCampaign(assetCount = 4) {
-    const { campaign, assets } = createCampaignWithAssets(
+  function makeFullCampaign(creationCount = 4) {
+    const { campaign, creations } = createCampaignWithCreations(
       { title: 'Preview Cam', channels: ['instagram', 'linkedin'] },
-      Array.from({ length: assetCount }, (_, i) => ({
-        title: `asset ${i + 1}`,
-        assetType: i % 2 === 0 ? 'instagram' : 'linkedin',
-        frameCount: 1,
+      Array.from({ length: creationCount }, (_, i) => ({
+        title: `creation ${i + 1}`,
+        creationType: i % 2 === 0 ? 'instagram' : 'linkedin',
+        slideCount: 1,
       }))
     );
-    const entries: Array<{ iterationId: string; assetType: string }> = [];
-    for (const asset of assets) {
-      const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+    const entries: Array<{ iterationId: string; creationType: string }> = [];
+    for (const creation of creations) {
+      const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
       const iter = createIteration({
-        frameId: frame.id,
+        slideId: slide.id,
         iterationIndex: 0,
-        htmlPath: `.fluid/campaigns/${campaign.id}/${asset.id}/${frame.id}/iter.html`,
+        htmlPath: `.fluid/campaigns/${campaign.id}/${creation.id}/${slide.id}/iter.html`,
         source: 'ai',
         generationStatus: 'complete',
       });
-      entries.push({ iterationId: iter.id, assetType: asset.assetType });
+      entries.push({ iterationId: iter.id, creationType: creation.creationType });
     }
     return { campaign, entries };
   }
@@ -440,11 +440,11 @@ describe('getCampaignPreviewUrls — GET /api/campaigns/:id/preview-urls', () =>
     for (const url of urls) {
       expect(url.iterationId).toBeDefined();
       expect(url.htmlPath).toContain('.fluid/campaigns/');
-      expect(['instagram', 'linkedin']).toContain(url.assetType);
+      expect(['instagram', 'linkedin']).toContain(url.creationType);
     }
   });
 
-  it('caps results at 4 even if campaign has more assets', () => {
+  it('caps results at 4 even if campaign has more creations', () => {
     const { campaign } = makeFullCampaign(7);
     const urls = getCampaignPreviewUrls(campaign.id);
     expect(urls.length).toBeLessThanOrEqual(4);
@@ -459,7 +459,7 @@ describe('getCampaignPreviewUrls — GET /api/campaigns/:id/preview-urls', () =>
     }
   });
 
-  it('returns empty array for campaign with no frames/iterations', () => {
+  it('returns empty array for campaign with no slides/iterations', () => {
     const campaign = createCampaign({ title: 'Empty', channels: [] });
     const urls = getCampaignPreviewUrls(campaign.id);
     expect(urls).toEqual([]);

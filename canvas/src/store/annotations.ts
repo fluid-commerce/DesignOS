@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { Annotation, AnnotationReply, AnnotationFile, VariationStatus } from '../lib/types';
+import type { Annotation, AnnotationReply, AnnotationFile, VersionStatus } from '../lib/types';
 
 interface AnnotationStore {
   annotations: Annotation[];
-  statuses: Record<string, VariationStatus>;
+  statuses: Record<string, VersionStatus>;
   activePin: string | null;
   _saveTimer: ReturnType<typeof setTimeout> | null;
   _sessionId: string | null;
@@ -11,7 +11,7 @@ interface AnnotationStore {
   loadAnnotations: (sessionId: string) => Promise<void>;
   addAnnotation: (annotation: Annotation) => void;
   addReply: (annotationId: string, reply: AnnotationReply) => void;
-  setStatus: (variationPath: string, status: VariationStatus) => void;
+  setStatus: (versionPath: string, status: VersionStatus) => void;
   saveAnnotations: (sessionId: string) => Promise<void>;
   setActivePin: (id: string | null) => void;
   _debouncedSave: () => void;
@@ -61,9 +61,9 @@ export const useAnnotationStore = create<AnnotationStore>((set, get) => ({
     get()._debouncedSave();
   },
 
-  setStatus: (variationPath: string, status: VariationStatus) => {
+  setStatus: (versionPath: string, status: VersionStatus) => {
     set((state) => ({
-      statuses: { ...state.statuses, [variationPath]: status },
+      statuses: { ...state.statuses, [versionPath]: status },
     }));
     get()._debouncedSave();
   },

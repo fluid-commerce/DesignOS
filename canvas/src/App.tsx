@@ -4,15 +4,16 @@ import { PromptSidebar } from './components/PromptSidebar';
 import { ContentEditor } from './components/ContentEditor';
 import { CampaignDashboard } from './components/CampaignDashboard';
 import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './components/DrillDownGrid';
-import { TemplateGallery } from './components/TemplateGallery';
+// TemplateGallery no longer used — template cards are rendered inline in the modal
+// import { TemplateGallery } from './components/TemplateGallery';
 import { TemplateCustomizer } from './components/TemplateCustomizer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useCampaignStore } from './store/campaign';
 import { useEditorStore } from './store/editor';
 import { useFileWatcher } from './hooks/useFileWatcher';
-import type { Asset, Frame, Iteration } from './lib/campaign-types';
+import type { Creation, Slide, Iteration } from './lib/campaign-types';
 import { TEMPLATE_METADATA, type TemplateMetadata } from './lib/template-configs';
-import { buildAssetPreview, buildFramePreview } from './lib/preview-utils';
+import { buildCreationPreview, buildSlidePreview } from './lib/preview-utils';
 // Note: iteration previews always try the API — the server handles path resolution with multiple fallback strategies
 import { StatusBadge } from './components/StatusBadge';
 
@@ -21,17 +22,17 @@ type CreationFlow = null | 'gallery' | 'customizer';
 export function App() {
   const currentView = useCampaignStore((s) => s.currentView);
   const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
-  const activeAssetId = useCampaignStore((s) => s.activeAssetId);
-  const activeFrameId = useCampaignStore((s) => s.activeFrameId);
+  const activeCreationId = useCampaignStore((s) => s.activeCreationId);
+  const activeSlideId = useCampaignStore((s) => s.activeSlideId);
   const activeIterationId = useCampaignStore((s) => s.activeIterationId);
-  const assets = useCampaignStore((s) => s.assets);
-  const frames = useCampaignStore((s) => s.frames);
+  const creations = useCampaignStore((s) => s.creations);
+  const slides = useCampaignStore((s) => s.slides);
   const iterations = useCampaignStore((s) => s.iterations);
-  const latestIterationByAssetId = useCampaignStore((s) => s.latestIterationByAssetId);
+  const latestIterationByCreationId = useCampaignStore((s) => s.latestIterationByCreationId);
   const loading = useCampaignStore((s) => s.loading);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
-  const navigateToAsset = useCampaignStore((s) => s.navigateToAsset);
-  const navigateToFrame = useCampaignStore((s) => s.navigateToFrame);
+  const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
+  const navigateToSlide = useCampaignStore((s) => s.navigateToSlide);
   const selectIteration = useCampaignStore((s) => s.selectIteration);
   const setRightSidebarOpen = useCampaignStore((s) => s.setRightSidebarOpen);
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
@@ -76,22 +77,22 @@ export function App() {
   );
 
   // ── Navigation handlers ──────────────────────────────────────────────────
-  const handleSelectAsset = useCallback(
-    (item: DrillDownItem<Asset>) => {
-      navigateToAsset(item.id);
+  const handleSelectCreation = useCallback(
+    (item: DrillDownItem<Creation>) => {
+      navigateToCreation(item.id);
     },
-    [navigateToAsset]
+    [navigateToCreation]
   );
 
-  const handleSelectFrame = useCallback(
-    (item: DrillDownItem<Frame>) => {
-      navigateToFrame(item.id);
+  const handleSelectSlide = useCallback(
+    (item: DrillDownItem<Slide>) => {
+      navigateToSlide(item.id);
     },
-    [navigateToFrame]
+    [navigateToSlide]
   );
 
   // ── Template creation flow ───────────────────────────────────────────────
-  const handleNewAsset = useCallback(() => {
+  const handleNewCreation = useCallback(() => {
     setCreationFlow('gallery');
     setSelectedTemplate(null);
   }, []);
@@ -111,8 +112,8 @@ export function App() {
     setCreationFlow('gallery');
   }, []);
 
-  // Called by TemplateCustomizer after successfully creating an asset
-  const handleAssetCreated = useCallback(
+  // Called by TemplateCustomizer after successfully creating a creation
+  const handleCreationCreated = useCallback(
     (campaignId: string) => {
       handleCloseCreationFlow();
       navigateToCampaign(campaignId);
@@ -126,15 +127,15 @@ export function App() {
     : null;
 
   // ── DrillDownGrid renderPreview helpers ─────────────────────────────────
-  // For assets: show iframe preview when a complete iteration exists, else metadata fallback
-  const renderAssetPreview = (item: DrillDownItem<Asset>): PreviewDescriptor | null =>
-    buildAssetPreview(item.data, latestIterationByAssetId[item.id]) as PreviewDescriptor;
+  // For creations: show iframe preview when a complete iteration exists, else metadata fallback
+  const renderCreationPreview = (item: DrillDownItem<Creation>): PreviewDescriptor | null =>
+    buildCreationPreview(item.data, latestIterationByCreationId[item.id]) as PreviewDescriptor;
 
-  // For frames: show iframe preview for latest complete iteration, else metadata fallback
-  const renderFramePreview = (item: DrillDownItem<Frame>): PreviewDescriptor | null => {
-    const frameIterations = iterations.filter((i) => i.frameId === item.id);
-    const parentAsset = assets.find((a) => a.id === item.data.assetId);
-    return buildFramePreview(item.data, frameIterations, parentAsset) as PreviewDescriptor;
+  // For slides: show iframe preview for latest complete iteration, else metadata fallback
+  const renderSlidePreview = (item: DrillDownItem<Slide>): PreviewDescriptor | null => {
+    const slideIterations = iterations.filter((i) => i.slideId === item.id);
+    const parentCreation = creations.find((a) => a.id === item.data.creationId);
+    return buildSlidePreview(item.data, slideIterations, parentCreation) as PreviewDescriptor;
   };
 
   // For iterations: serve the actual HTML via the API endpoint
@@ -152,25 +153,25 @@ export function App() {
   };
 
   // ── Map store data to DrillDownItem arrays ───────────────────────────────
-  const assetItems: DrillDownItem<Asset>[] = assets.map((a) => {
-    const latestIter = latestIterationByAssetId[a.id];
+  const creationItems: DrillDownItem<Creation>[] = creations.map((a) => {
+    const latestIter = latestIterationByCreationId[a.id];
     const genStatus = latestIter?.generationStatus;
     return {
       id: a.id,
       title: a.title,
       subtitle: genStatus ? (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
-          <span>{a.assetType}</span>
+          <span>{a.creationType}</span>
           <StatusBadge status={genStatus} />
         </span>
-      ) : a.assetType,
+      ) : a.creationType,
       data: a,
     };
   });
 
-  const frameItems: DrillDownItem<Frame>[] = frames.map((f) => ({
+  const slideItems: DrillDownItem<Slide>[] = slides.map((f) => ({
     id: f.id,
-    title: `Frame ${f.frameIndex + 1}`,
+    title: `Slide ${f.slideIndex + 1}`,
     data: f,
   }));
 
@@ -212,36 +213,36 @@ export function App() {
       case 'campaign':
         return (
           <DrillDownGrid
-            items={assetItems}
-            renderPreview={renderAssetPreview}
-            onSelect={handleSelectAsset}
-            title="Assets"
+            items={creationItems}
+            renderPreview={renderCreationPreview}
+            onSelect={handleSelectCreation}
+            title="Creations"
             emptyState={
               <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100%', minHeight: 300,
                 gap: '1rem', color: '#444',
               }}>
-                <div style={{ fontSize: '0.9rem' }}>No assets yet</div>
+                <div style={{ fontSize: '0.9rem' }}>No creations yet</div>
                 <div style={{ fontSize: '0.8rem', color: '#333' }}>
-                  Click &quot;New Asset&quot; to create one
+                  Click &quot;New Creation&quot; to create one
                 </div>
               </div>
             }
           />
         );
 
-      case 'asset':
+      case 'creation':
         return (
           <DrillDownGrid
-            items={frameItems}
-            renderPreview={renderFramePreview}
-            onSelect={handleSelectFrame}
-            title="Frames"
+            items={slideItems}
+            renderPreview={renderSlidePreview}
+            onSelect={handleSelectSlide}
+            title="Slides"
           />
         );
 
-      case 'frame':
+      case 'slide':
         if (activeIterationId && activeIteration) {
           const tmpl = activeIteration.templateId
             ? TEMPLATE_METADATA.find((t) => t.templateId === activeIteration.templateId)
@@ -260,7 +261,7 @@ export function App() {
               }}>
                 <button
                   type="button"
-                  onClick={() => navigateToFrame(activeFrameId!)}
+                  onClick={() => navigateToSlide(activeSlideId!)}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -322,10 +323,10 @@ export function App() {
         rightSidebar={
           <ContentEditor
             iteration={activeIteration}
-            iframeEl={currentView === 'frame' && activeIterationId ? editIframeEl : iframeRef.current}
+            iframeEl={currentView === 'slide' && activeIterationId ? editIframeEl : iframeRef.current}
           />
         }
-        onNewAsset={activeCampaignId ? handleNewAsset : undefined}
+        onNewCreation={activeCampaignId ? handleNewCreation : undefined}
       >
         {renderMainContent()}
       </AppShell>
@@ -339,7 +340,7 @@ export function App() {
           onSelectTemplate={handleSelectTemplate}
           onBack={handleBackToGallery}
           onClose={handleCloseCreationFlow}
-          onAssetCreated={handleAssetCreated}
+          onCreationCreated={handleCreationCreated}
         />
       )}
     </ErrorBoundary>
@@ -355,104 +356,87 @@ interface TemplateCreationModalProps {
   onSelectTemplate: (t: TemplateMetadata) => void;
   onBack: () => void;
   onClose: () => void;
-  onAssetCreated: (campaignId: string) => void;
+  onCreationCreated: (campaignId: string) => void;
 }
 
-// ── Shared style constants ───────────────────────────────────────────────────
+// ── Shared style constants (matching Jonathan's original) ─────────────────────
 const BLUE = '#44B2FF';
-const BG_MODAL = '#0d0d0d';
-const BG_PANEL = '#1a1a1e';
-const BORDER = '#2a2a2e';
+const BG_MODAL = '#111';
+const BG_DARK = '#0a0a0a';
+const BORDER = '#1a1a1a';
+const BORDER_LIGHT = '#1e1e1e';
 const LABEL_STYLE: CSSProperties = {
   display: 'block',
-  fontSize: '0.7rem',
-  color: '#888',
-  fontWeight: 600,
-  letterSpacing: '0.08em',
+  fontSize: 9,
+  fontWeight: 700,
+  letterSpacing: '0.13em',
   textTransform: 'uppercase',
-  marginBottom: '0.5rem',
+  color: '#444',
+  marginBottom: 10,
+};
+const SUBLABEL_STYLE: CSSProperties = {
+  fontSize: 11,
+  color: '#2a2a2a',
+  marginBottom: 12,
 };
 const INPUT_STYLE: CSSProperties = {
   width: '100%',
-  backgroundColor: '#141414',
+  backgroundColor: BG_DARK,
   border: `1px solid ${BORDER}`,
-  borderRadius: 6,
-  color: '#e0e0e0',
-  padding: '0.5rem 0.75rem',
-  fontSize: '0.85rem',
+  borderRadius: 4,
+  color: '#ccc',
+  padding: '9px 12px',
+  fontSize: 12,
   outline: 'none',
   boxSizing: 'border-box',
-  fontFamily: 'inherit',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   transition: 'border-color 0.15s',
 };
+const TEXTAREA_STYLE: CSSProperties = {
+  ...INPUT_STYLE,
+  minHeight: 100,
+  padding: '12px 14px',
+  fontSize: 13,
+  lineHeight: 1.6,
+  resize: 'vertical',
+};
 
-// ── Skill card data ──────────────────────────────────────────────────────────
+// ── Skill card data (3-column grid matching Jonathan's design) ──────────────
 const SKILLS = [
   {
     id: 'ad-creative',
     label: 'Ad Creative',
     description: 'Paid ad visuals — Instagram, Facebook, LinkedIn',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 11l18-5v12L3 14v-3z" />
-        <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
-      </svg>
-    ),
+    emoji: '\uD83D\uDCE3',
   },
   {
     id: 'social-content',
     label: 'Social Content',
     description: 'Organic posts — quotes, highlights, announcements',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-        <polyline points="10 9 9 9 8 9" />
-      </svg>
-    ),
+    emoji: '\uD83D\uDCF1',
   },
   {
     id: 'copywriting',
     label: 'Copywriting',
     description: 'Marketing copy — headlines, CTAs, taglines',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-      </svg>
-    ),
+    emoji: '\u270D\uFE0F',
   },
 ];
 
-// ── NEW ASSET tab ─────────────────────────────────────────────────────────────
-interface NewAssetTabProps {
+// ── NEW CREATION tab ─────────────────────────────────────────────────────────────
+interface NewCreationTabProps {
   selectedTemplate: TemplateMetadata | null;
   onSelectTemplate: (t: TemplateMetadata) => void;
   activeCampaignId: string | null;
-  onAssetCreated: (campaignId: string) => void;
+  onCreationCreated: (campaignId: string) => void;
 }
 
-function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onAssetCreated }: NewAssetTabProps) {
-  // Local template selection for preview — only calls parent onSelectTemplate on "Generate"
+function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onCreationCreated }: NewCreationTabProps) {
   const [localTemplate, setLocalTemplate] = useState<TemplateMetadata | null>(selectedTemplate);
   const [selectedSkill, setSelectedSkill] = useState('ad-creative');
   const [brief, setBrief] = useState('');
-  const [referenceUrl, setReferenceUrl] = useState('');
-  const [references, setReferences] = useState<string[]>([]);
+  const [references, setReferences] = useState<string[]>(['']);
   const [generating, setGenerating] = useState(false);
-
-  const handleAddReference = () => {
-    const url = referenceUrl.trim();
-    if (url && !references.includes(url)) {
-      setReferences((prev) => [...prev, url]);
-      setReferenceUrl('');
-    }
-  };
 
   const handleGeneratePrompt = async () => {
     if (!localTemplate || !activeCampaignId) return;
@@ -464,29 +448,48 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
     }
   };
 
+  const addRef = () => setReferences((prev) => [...prev, '']);
+  const removeRef = (idx: number) => setReferences((prev) => prev.filter((_, i) => i !== idx));
+  const updateRef = (idx: number, val: string) =>
+    setReferences((prev) => prev.map((r, i) => (i === idx ? val : r)));
+
   // Preview URL for locally selected template
   const previewUrl = localTemplate && localTemplate.templateId !== 'scratch'
     ? `/templates/${localTemplate.templateId}.html`
     : null;
 
+  // Determine dimension badge for a template
+  const getDimBadge = (t: TemplateMetadata) => {
+    const { width, height } = t.dimensions;
+    if (width === height) return `${width}\u00B2`;
+    return `${width}\u00D7${height}`;
+  };
+
+  // Check for carousel
+  const getCarouselBadge = (t: TemplateMetadata) => {
+    if (t.templateId === 't7-carousel' || t.templateId === 't8-quarterly-stats') return '4 slides';
+    return getDimBadge(t);
+  };
+
+  const isLandscape = localTemplate?.platform === 'linkedin-landscape';
+
   return (
     <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
-      {/* ── Left column ── */}
+      {/* ── Left column: Form ── */}
       <div style={{
-        width: 340,
-        flexShrink: 0,
-        borderRight: `1px solid ${BORDER}`,
+        flex: 1,
         overflowY: 'auto',
-        padding: '1.25rem 1.5rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem',
+        padding: '0 36px 36px 36px',
       }}>
-
-        {/* SKILL section */}
-        <section>
-          <div style={LABEL_STYLE}>Skill</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {/* SKILL section — 3-column grid */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={LABEL_STYLE}>Skill</label>
+          <div style={SUBLABEL_STYLE}>Choose what type of asset to create</div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: 8,
+          }}>
             {SKILLS.map((skill) => {
               const isActive = selectedSkill === skill.id;
               return (
@@ -494,185 +497,364 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
                   key={skill.id}
                   onClick={() => setSelectedSkill(skill.id)}
                   style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.75rem',
-                    padding: '0.625rem 0.875rem',
-                    backgroundColor: isActive ? 'rgba(68,178,255,0.08)' : BG_PANEL,
+                    padding: '14px 12px',
                     border: `1px solid ${isActive ? BLUE : BORDER}`,
-                    borderRadius: 8,
+                    borderRadius: 4,
+                    background: isActive ? '#0c1a28' : 'transparent',
                     cursor: 'pointer',
                     textAlign: 'left',
-                    transition: 'border-color 0.15s, background-color 0.15s',
+                    transition: 'border-color 0.15s, background 0.15s',
                     outline: 'none',
-                    color: isActive ? BLUE : '#aaa',
                   }}
                   onMouseEnter={(e) => {
-                    if (!isActive) e.currentTarget.style.borderColor = '#444';
+                    if (!isActive) {
+                      e.currentTarget.style.borderColor = '#2a2a2a';
+                      e.currentTarget.style.background = '#0e0e0e';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.borderColor = BORDER;
+                    if (!isActive) {
+                      e.currentTarget.style.borderColor = BORDER;
+                      e.currentTarget.style.background = 'transparent';
+                    }
                   }}
                 >
-                  <span style={{ marginTop: 1, flexShrink: 0 }}>{skill.icon}</span>
-                  <div>
-                    <div style={{
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      color: isActive ? BLUE : '#ddd',
-                      marginBottom: '0.2rem',
-                      letterSpacing: '0.02em',
-                    }}>
-                      {skill.label}
-                    </div>
-                    <div style={{ fontSize: '0.7rem', color: '#666', lineHeight: 1.4 }}>
-                      {skill.description}
-                    </div>
+                  <div style={{ fontSize: 18, marginBottom: 6 }}>{skill.emoji}</div>
+                  <div style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: isActive ? '#fff' : '#ccc',
+                    marginBottom: 3,
+                  }}>
+                    {skill.label}
+                  </div>
+                  <div style={{
+                    fontSize: 10,
+                    color: isActive ? '#4a6a80' : '#3a3a3a',
+                    lineHeight: 1.4,
+                  }}>
+                    {skill.description}
                   </div>
                 </button>
               );
             })}
           </div>
-        </section>
+        </div>
 
-        {/* BASE TEMPLATE section */}
-        <section>
-          <div style={LABEL_STYLE}>Base Template</div>
+        {/* BASE TEMPLATE — 2-column grid of compact cards */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={LABEL_STYLE}>Base Template</label>
+          <div style={SUBLABEL_STYLE}>Start from an existing layout or from scratch</div>
           <div style={{
-            backgroundColor: BG_PANEL,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 8,
-            overflow: 'hidden',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 8,
           }}>
-            <TemplateGallery
-              onSelectTemplate={setLocalTemplate}
-              mode="modal"
-              selectedTemplateId={localTemplate?.templateId ?? null}
-            />
-          </div>
-        </section>
+            {/* From Scratch card */}
+            <button
+              onClick={() => setLocalTemplate({
+                templateId: 'scratch',
+                name: 'From Scratch',
+                description: 'Start with a blank canvas',
+                thumbnailPath: '',
+                platform: 'unknown',
+                dimensions: { width: 1080, height: 1080 },
+              })}
+              style={{
+                padding: '10px 12px',
+                border: `1px solid ${localTemplate?.templateId === 'scratch' ? BLUE : BORDER}`,
+                borderRadius: 4,
+                background: localTemplate?.templateId === 'scratch' ? '#0c1a28' : 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                transition: 'border-color 0.15s, background 0.15s',
+                outline: 'none',
+              }}
+              onMouseEnter={(e) => {
+                if (localTemplate?.templateId !== 'scratch') {
+                  e.currentTarget.style.borderColor = '#2a2a2a';
+                  e.currentTarget.style.background = '#0e0e0e';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (localTemplate?.templateId !== 'scratch') {
+                  e.currentTarget.style.borderColor = BORDER;
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <span style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: BLUE,
+                letterSpacing: '0.08em',
+                flexShrink: 0,
+                width: 20,
+              }}>
+                ✦
+              </span>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: localTemplate?.templateId === 'scratch' ? '#fff' : '#888',
+              }}>
+                From Scratch
+              </span>
+              <span style={{
+                fontSize: 9,
+                color: '#2a2a2a',
+                marginLeft: 'auto',
+                flexShrink: 0,
+              }}>
+                AI picks
+              </span>
+            </button>
 
-        {/* BRIEF section */}
-        <section>
-          <label htmlFor="asset-brief" style={LABEL_STYLE}>Brief</label>
+            {/* Template cards */}
+            {TEMPLATE_METADATA.map((template, index) => {
+              const num = String(index + 1).padStart(2, '0');
+              const isSelected = localTemplate?.templateId === template.templateId;
+              return (
+                <button
+                  key={template.templateId}
+                  onClick={() => setLocalTemplate(template)}
+                  style={{
+                    padding: '10px 12px',
+                    border: `1px solid ${isSelected ? BLUE : BORDER}`,
+                    borderRadius: 4,
+                    background: isSelected ? '#0c1a28' : 'transparent',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    transition: 'border-color 0.15s, background 0.15s',
+                    outline: 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = '#2a2a2a';
+                      e.currentTarget.style.background = '#0e0e0e';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = BORDER;
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <span style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: BLUE,
+                    letterSpacing: '0.08em',
+                    flexShrink: 0,
+                    width: 20,
+                  }}>
+                    {num}
+                  </span>
+                  <span style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: isSelected ? '#fff' : '#888',
+                    flex: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    textAlign: 'left',
+                  }}>
+                    {template.name.replace(' / ', ' / ').replace(' (Landscape)', '').replace(' — Instagram Ad', '').replace(' — Insights', '').replace(' — Carousel', '')}
+                  </span>
+                  <span style={{
+                    fontSize: 9,
+                    color: '#2a2a2a',
+                    marginLeft: 'auto',
+                    flexShrink: 0,
+                  }}>
+                    {getCarouselBadge(template)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* BRIEF */}
+        <div style={{ marginBottom: 24 }}>
+          <label htmlFor="creation-brief" style={LABEL_STYLE}>Brief</label>
+          <div style={SUBLABEL_STYLE}>Describe the goal, audience, and what the asset should communicate</div>
           <textarea
-            id="asset-brief"
+            id="creation-brief"
             value={brief}
             onChange={(e) => setBrief(e.target.value)}
-            placeholder="Describe what you want to create..."
-            rows={4}
-            style={{ ...INPUT_STYLE, resize: 'vertical', minHeight: 80 }}
+            placeholder="e.g. Create an Instagram ad promoting Fluid's new analytics dashboard. Target: independent sales reps. Goal: drive app downloads. Tone: bold, modern. Highlight the real-time commission tracking feature."
+            style={TEXTAREA_STYLE}
             onFocus={(e) => (e.target.style.borderColor = BLUE)}
             onBlur={(e) => (e.target.style.borderColor = BORDER)}
           />
-        </section>
+        </div>
 
-        {/* REFERENCES section */}
-        <section>
-          <div style={LABEL_STYLE}>References</div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input
-              type="url"
-              value={referenceUrl}
-              onChange={(e) => setReferenceUrl(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddReference(); }}
-              placeholder="https://..."
-              style={{ ...INPUT_STYLE, flex: 1 }}
-              onFocus={(e) => (e.target.style.borderColor = BLUE)}
-              onBlur={(e) => (e.target.style.borderColor = BORDER)}
-            />
-          </div>
+        {/* REFERENCES */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={LABEL_STYLE}>
+            References <span style={{ color: '#2a2a2a', fontWeight: 500, letterSpacing: 0 }}>(optional)</span>
+          </label>
+          <div style={SUBLABEL_STYLE}>Add URLs, Figma links, or file paths for visual or copy reference</div>
+          {references.map((ref, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              <input
+                type="text"
+                value={ref}
+                onChange={(e) => updateRef(i, e.target.value)}
+                placeholder="https://figma.com/... or /path/to/file.png"
+                style={{ ...INPUT_STYLE, flex: 1 }}
+                onFocus={(e) => (e.target.style.borderColor = BLUE)}
+                onBlur={(e) => (e.target.style.borderColor = BORDER)}
+              />
+              <button
+                onClick={() => removeRef(i)}
+                title="Remove"
+                style={{
+                  width: 32,
+                  height: 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 4,
+                  background: 'transparent',
+                  color: '#333',
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  transition: 'border-color 0.15s, color 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#333';
+                  e.currentTarget.style.color = '#888';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = BORDER;
+                  e.currentTarget.style.color = '#333';
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
           <button
-            onClick={handleAddReference}
+            onClick={addRef}
             style={{
-              background: 'none',
-              border: 'none',
-              color: BLUE,
+              padding: '6px 12px',
+              border: `1px dashed ${BORDER}`,
+              borderRadius: 4,
+              background: 'transparent',
+              color: '#333',
+              fontSize: 11,
+              fontWeight: 600,
               cursor: 'pointer',
-              fontSize: '0.75rem',
-              padding: '0.375rem 0',
+              transition: 'border-color 0.15s, color 0.15s',
               fontFamily: 'inherit',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#333';
+              e.currentTarget.style.color = '#666';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = BORDER;
+              e.currentTarget.style.color = '#333';
             }}
           >
             + Add Reference
           </button>
-          {references.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem' }}>
-              {references.map((ref, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#666', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {ref}
-                  </span>
-                  <button
-                    onClick={() => setReferences((prev) => prev.filter((_, j) => j !== i))}
-                    style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', padding: '0 2px', fontSize: '0.85rem' }}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+        </div>
 
-        {/* GENERATE PROMPT button */}
-        <button
-          onClick={handleGeneratePrompt}
-          disabled={generating || !localTemplate}
-          style={{
-            backgroundColor: generating || !localTemplate ? '#1e2020' : BLUE,
-            color: generating || !localTemplate ? '#444' : '#000',
-            border: 'none',
-            borderRadius: 6,
-            padding: '0.65rem 1.5rem',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            cursor: generating || !selectedTemplate ? 'not-allowed' : 'pointer',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            fontFamily: 'inherit',
-            transition: 'background-color 0.15s',
-            marginTop: 'auto',
-          }}
-          onMouseEnter={(e) => {
-            if (!generating && selectedTemplate) e.currentTarget.style.backgroundColor = '#65C5FF';
-          }}
-          onMouseLeave={(e) => {
-            if (!generating && selectedTemplate) e.currentTarget.style.backgroundColor = BLUE;
-          }}
-        >
-          {generating ? 'Opening...' : 'Generate Prompt'}
-        </button>
+        {/* FOOTER — hint + Generate button */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          marginTop: 32,
+          paddingTop: 24,
+          borderTop: `1px solid ${BORDER}`,
+        }}>
+          <div style={{
+            fontSize: 10,
+            color: '#2a2a2a',
+            lineHeight: 1.5,
+          }}>
+            Generates a formatted prompt for Claude.<br />Copies to clipboard — paste into Claude Code to create.
+          </div>
+          <button
+            onClick={handleGeneratePrompt}
+            disabled={generating || !localTemplate}
+            style={{
+              padding: '11px 24px',
+              border: 'none',
+              borderRadius: 3,
+              background: generating || !localTemplate ? BORDER : BLUE,
+              color: generating || !localTemplate ? '#333' : '#000',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              cursor: generating || !localTemplate ? 'default' : 'pointer',
+              transition: 'background 0.15s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              if (!generating && localTemplate) e.currentTarget.style.background = '#5cc0ff';
+            }}
+            onMouseLeave={(e) => {
+              if (!generating && localTemplate) e.currentTarget.style.background = BLUE;
+            }}
+          >
+            {generating ? 'Opening...' : 'Generate Prompt'}
+          </button>
+        </div>
       </div>
 
       {/* ── Right column: PREVIEW ── */}
       <div style={{
-        flex: 1,
+        width: 320,
+        flexShrink: 0,
+        borderLeft: `1px solid ${BORDER}`,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
-        backgroundColor: '#0d0d0d',
+        backgroundColor: BG_DARK,
       }}>
         {/* Preview header */}
         <div style={{
+          padding: '12px 20px',
+          borderBottom: `1px solid #141414`,
           display: 'flex',
           alignItems: 'center',
-          gap: '0.25rem',
-          padding: '0.75rem 1.25rem',
-          borderBottom: `1px solid ${BORDER}`,
+          justifyContent: 'space-between',
           flexShrink: 0,
         }}>
-          <span style={{ ...LABEL_STYLE, marginBottom: 0 }}>Preview</span>
-          {localTemplate && (
-            <span style={{
-              marginLeft: 'auto',
-              fontSize: '0.7rem',
-              color: '#555',
-              fontStyle: 'italic',
-            }}>
-              {localTemplate.name}
-            </span>
-          )}
+          <span style={{
+            fontSize: 9,
+            fontWeight: 700,
+            letterSpacing: '0.13em',
+            textTransform: 'uppercase',
+            color: '#333',
+          }}>Preview</span>
+          <span style={{
+            fontSize: 9,
+            fontWeight: 600,
+            color: '#222',
+            fontFamily: 'monospace',
+          }}>
+            {localTemplate
+              ? localTemplate.templateId === 'scratch'
+                ? '\u2014'
+                : `${localTemplate.dimensions.width}\u00D7${localTemplate.dimensions.height}`
+              : '\u2014'}
+          </span>
         </div>
 
         {/* Preview content */}
@@ -681,22 +863,33 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          padding: 20,
+          position: 'relative',
           overflow: 'hidden',
-          padding: '1.5rem',
         }}>
           {previewUrl ? (
             <div style={{
-              width: '100%',
-              height: '100%',
+              width: 280,
+              height: isLandscape ? 132 : 280,
+              background: '#000',
               position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              overflow: 'hidden',
+              borderRadius: 3,
+              transition: 'height 0.3s',
             }}>
-              <PreviewFrame
+              <iframe
                 src={previewUrl}
                 width={localTemplate!.dimensions.width}
                 height={localTemplate!.dimensions.height}
+                style={{
+                  border: 'none',
+                  transform: isLandscape
+                    ? 'scale(0.2090)'
+                    : `scale(${280 / localTemplate!.dimensions.width})`,
+                  transformOrigin: 'top left',
+                  pointerEvents: 'none',
+                }}
+                title="Template preview"
               />
             </div>
           ) : (
@@ -704,16 +897,25 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.75rem',
-              color: '#333',
+              justifyContent: 'center',
+              gap: 10,
+              width: 280,
+              height: 280,
+              border: `1px dashed ${BORDER}`,
+              borderRadius: 3,
             }}>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" strokeWidth="1" strokeLinecap="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-              <span style={{ fontSize: '0.8rem' }}>Select a template to preview</span>
+              <div style={{ fontSize: 28, color: BORDER }}>✦</div>
+              <div style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: '#222',
+                textAlign: 'center',
+                lineHeight: 1.5,
+              }}>
+                {localTemplate?.templateId === 'scratch'
+                  ? 'From Scratch\nAI will choose the best layout'
+                  : 'Select a template to preview'}
+              </div>
             </div>
           )}
         </div>
@@ -780,53 +982,7 @@ function IterationEditFrame({
   );
 }
 
-// ── Scaled iframe preview ────────────────────────────────────────────────────
-function PreviewFrame({ src, width, height }: { src: string; width: number; height: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.3);
-
-  useEffect(() => {
-    const update = () => {
-      if (!containerRef.current) return;
-      const cw = containerRef.current.clientWidth;
-      const ch = containerRef.current.clientHeight;
-      const scaleX = cw / width;
-      const scaleY = ch / height;
-      setScale(Math.min(scaleX, scaleY, 1) * 0.95);
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, [width, height]);
-
-  return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        transformOrigin: 'center center',
-        width,
-        height,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 4,
-        overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-        backgroundColor: '#fff',
-      }}>
-        <iframe
-          src={src}
-          width={width}
-          height={height}
-          style={{ border: 'none', display: 'block', pointerEvents: 'none' }}
-          title="Template preview"
-        />
-      </div>
-    </div>
-  );
-}
+// PreviewFrame removed — preview is now rendered inline in the modal
 
 // ── NEW CAMPAIGN tab ──────────────────────────────────────────────────────────
 interface NewCampaignTabProps {
@@ -839,18 +995,14 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
 
   const [campaignName, setCampaignName] = useState('');
   const [brief, setBrief] = useState('');
-  const [referenceUrl, setReferenceUrl] = useState('');
-  const [references, setReferences] = useState<string[]>([]);
+  const [links, setLinks] = useState<string[]>(['']);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAddReference = () => {
-    const url = referenceUrl.trim();
-    if (url && !references.includes(url)) {
-      setReferences((prev) => [...prev, url]);
-      setReferenceUrl('');
-    }
-  };
+  const addLink = () => setLinks((prev) => [...prev, '']);
+  const removeLink = (idx: number) => setLinks((prev) => prev.filter((_, i) => i !== idx));
+  const updateLink = (idx: number, val: string) =>
+    setLinks((prev) => prev.map((l, i) => (i === idx ? val : l)));
 
   const handleSave = async () => {
     if (!campaignName.trim()) return;
@@ -873,197 +1025,288 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
     }
   };
 
+  // Shared resource block styles
+  const resourceBlockStyle: CSSProperties = {
+    border: '1px solid #161616',
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginBottom: 8,
+  };
+  const resourceBlockHeaderStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    padding: '11px 16px',
+    background: '#0d0d0d',
+    borderBottom: '1px solid #161616',
+  };
+  const resourceBlockLabelStyle: CSSProperties = {
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    color: '#444',
+    flex: 1,
+  };
+  const resourceBlockBodyStyle: CSSProperties = {
+    padding: '14px 16px',
+    background: BG_DARK,
+  };
+
   return (
-    <div style={{
-      flex: 1,
-      overflowY: 'auto',
-      padding: '1.75rem 2rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1.5rem',
-      maxWidth: 560,
-    }}>
+    <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: '0 48px 40px 48px',
+      }}>
 
-      {/* CAMPAIGN NAME */}
-      <section>
-        <label htmlFor="campaign-name" style={LABEL_STYLE}>Campaign Name</label>
-        <input
-          id="campaign-name"
-          type="text"
-          value={campaignName}
-          onChange={(e) => setCampaignName(e.target.value)}
-          placeholder="e.g. Q2 Product Launch"
-          style={INPUT_STYLE}
-          onFocus={(e) => (e.target.style.borderColor = BLUE)}
-          onBlur={(e) => (e.target.style.borderColor = BORDER)}
-        />
-      </section>
+        {/* CAMPAIGN NAME */}
+        <div style={{ marginBottom: 24 }}>
+          <label htmlFor="campaign-name" style={LABEL_STYLE}>Campaign Name</label>
+          <input
+            id="campaign-name"
+            type="text"
+            value={campaignName}
+            onChange={(e) => setCampaignName(e.target.value)}
+            placeholder="e.g. Q2 Product Launch · Spring 2026"
+            style={{ ...INPUT_STYLE, width: '100%', boxSizing: 'border-box' }}
+            onFocus={(e) => (e.target.style.borderColor = BLUE)}
+            onBlur={(e) => (e.target.style.borderColor = BORDER)}
+          />
+        </div>
 
-      {/* BRIEF */}
-      <section>
-        <label htmlFor="campaign-brief" style={LABEL_STYLE}>Brief</label>
-        <textarea
-          id="campaign-brief"
-          value={brief}
-          onChange={(e) => setBrief(e.target.value)}
-          placeholder="Describe the campaign goals, audience, and tone..."
-          rows={5}
-          style={{ ...INPUT_STYLE, resize: 'vertical', minHeight: 100 }}
-          onFocus={(e) => (e.target.style.borderColor = BLUE)}
-          onBlur={(e) => (e.target.style.borderColor = BORDER)}
-        />
-      </section>
+        {/* BRIEF */}
+        <div style={{ marginBottom: 24 }}>
+          <label htmlFor="campaign-brief" style={LABEL_STYLE}>Brief</label>
+          <div style={SUBLABEL_STYLE}>Describe the campaign goals, audience, messaging strategy, and key deliverables</div>
+          <textarea
+            id="campaign-brief"
+            value={brief}
+            onChange={(e) => setBrief(e.target.value)}
+            rows={7}
+            placeholder="e.g. Q2 product launch campaign targeting independent sales reps on LinkedIn and Instagram. Goal: 15% increase in app downloads. Key message: real-time commission visibility. Tone: bold, confident, data-forward. Deliverables: 3 social posts, 1 carousel, 1 landscape banner."
+            style={TEXTAREA_STYLE}
+            onFocus={(e) => (e.target.style.borderColor = BLUE)}
+            onBlur={(e) => (e.target.style.borderColor = BORDER)}
+          />
+        </div>
 
-      {/* RESOURCES */}
-      <section>
-        <div style={LABEL_STYLE}>Resources</div>
+        {/* RESOURCES */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={LABEL_STYLE}>Resources</label>
 
-        {/* Reference links */}
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.4rem' }}>Reference Links</div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input
-              type="url"
-              value={referenceUrl}
-              onChange={(e) => setReferenceUrl(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddReference(); }}
-              placeholder="https://..."
-              style={{ ...INPUT_STYLE, flex: 1 }}
-              onFocus={(e) => (e.target.style.borderColor = BLUE)}
-              onBlur={(e) => (e.target.style.borderColor = BORDER)}
-            />
-          </div>
-          <button
-            onClick={handleAddReference}
-            style={{
-              background: 'none', border: 'none', color: BLUE, cursor: 'pointer',
-              fontSize: '0.75rem', padding: '0.35rem 0', fontFamily: 'inherit',
-            }}
-          >
-            + Add Link
-          </button>
-          {references.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              {references.map((ref, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#666', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {ref}
-                  </span>
+          {/* Reference Links block */}
+          <div style={resourceBlockStyle}>
+            <div style={resourceBlockHeaderStyle}>
+              <span style={{ fontSize: 13, flexShrink: 0 }}>🔗</span>
+              <span style={resourceBlockLabelStyle}>Reference Links</span>
+            </div>
+            <div style={resourceBlockBodyStyle}>
+              {links.map((link, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < links.length - 1 ? 8 : 0 }}>
+                  <input
+                    type="url"
+                    value={link}
+                    onChange={(e) => updateLink(i, e.target.value)}
+                    placeholder="https://figma.com/... or https://docs.google.com/..."
+                    style={{ ...INPUT_STYLE, flex: 1 }}
+                    onFocus={(e) => (e.target.style.borderColor = BLUE)}
+                    onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                  />
                   <button
-                    onClick={() => setReferences((prev) => prev.filter((_, j) => j !== i))}
-                    style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', padding: '0 2px', fontSize: '0.85rem' }}
+                    onClick={() => removeLink(i)}
+                    title="Remove"
+                    style={{
+                      width: 32,
+                      height: 32,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: `1px solid ${BORDER}`,
+                      borderRadius: 4,
+                      background: 'transparent',
+                      color: '#333',
+                      fontSize: 14,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      transition: 'border-color 0.15s, color 0.15s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#333';
+                      e.currentTarget.style.color = '#888';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = BORDER;
+                      e.currentTarget.style.color = '#333';
+                    }}
                   >
                     ×
                   </button>
                 </div>
               ))}
+              <button
+                onClick={addLink}
+                style={{
+                  marginTop: 8,
+                  padding: '6px 12px',
+                  border: `1px dashed ${BORDER}`,
+                  borderRadius: 4,
+                  background: 'transparent',
+                  color: '#333',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s, color 0.15s',
+                  fontFamily: 'inherit',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#333';
+                  e.currentTarget.style.color = '#666';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = BORDER;
+                  e.currentTarget.style.color = '#333';
+                }}
+              >
+                + Add Link
+              </button>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Attach files */}
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.4rem' }}>Attach Files</div>
-          <label style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.45rem 1rem',
-            backgroundColor: BG_PANEL,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 6,
-            cursor: 'pointer',
-            fontSize: '0.8rem',
-            color: '#aaa',
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-            </svg>
-            Choose Files
-            <input type="file" multiple style={{ display: 'none' }} />
-          </label>
-        </div>
+          {/* Attach Files block */}
+          <div style={resourceBlockStyle}>
+            <div style={resourceBlockHeaderStyle}>
+              <span style={{ fontSize: 13, flexShrink: 0 }}>📎</span>
+              <span style={resourceBlockLabelStyle}>Attach Files</span>
+            </div>
+            <div style={resourceBlockBodyStyle}>
+              <label style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 14px',
+                border: `1px dashed ${BORDER_LIGHT}`,
+                borderRadius: 4,
+                background: 'transparent',
+                color: '#3a3a3a',
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'border-color 0.15s, color 0.15s',
+              }}>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.txt,.md"
+                  style={{ display: 'none' }}
+                />
+                ↑ &nbsp;Choose Files
+              </label>
+            </div>
+          </div>
 
-        {/* Fluid DAM */}
-        <div>
-          <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.4rem' }}>Fluid DAM</div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            padding: '0.625rem 0.875rem',
-            backgroundColor: BG_PANEL,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 8,
-          }}>
-            <span style={{ fontSize: '0.8rem', color: BLUE, flexShrink: 0 }}>✦</span>
-            <span style={{ fontSize: '0.8rem', color: '#aaa', flex: 1 }}>Fluid DAM connected</span>
-            <button style={{
-              backgroundColor: 'transparent',
-              border: `1px solid ${BORDER}`,
-              borderRadius: 5,
-              color: '#aaa',
-              cursor: 'pointer',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              padding: '0.3rem 0.75rem',
-              fontFamily: 'inherit',
-              transition: 'border-color 0.15s',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
-            onMouseLeave={(e) => (e.currentTarget.style.borderColor = BORDER)}
-            >
-              Browse Assets
-            </button>
+          {/* Fluid DAM block */}
+          <div style={resourceBlockStyle}>
+            <div style={resourceBlockHeaderStyle}>
+              <span style={{ fontSize: 13, flexShrink: 0 }}>☁️</span>
+              <span style={resourceBlockLabelStyle}>Fluid DAM</span>
+            </div>
+            <div style={resourceBlockBodyStyle}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  style={{
+                    padding: '9px 18px',
+                    border: '1px solid #1a3a58',
+                    borderRadius: 4,
+                    background: 'transparent',
+                    color: BLUE,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    transition: 'background 0.15s, border-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#08182a';
+                    e.currentTarget.style.borderColor = '#2a5878';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = '#1a3a58';
+                  }}
+                >
+                  Connect DAM
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Error */}
-      {error && (
+        {/* Error */}
+        {error && (
+          <div style={{
+            marginBottom: 16,
+            padding: '10px 14px',
+            backgroundColor: 'rgba(239,68,68,0.1)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            borderRadius: 4,
+            fontSize: 12,
+            color: '#f87171',
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* FOOTER — hint + Save button */}
         <div style={{
-          padding: '0.625rem 0.875rem',
-          backgroundColor: 'rgba(239,68,68,0.1)',
-          border: '1px solid rgba(239,68,68,0.3)',
-          borderRadius: 6,
-          fontSize: '0.8rem',
-          color: '#f87171',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          marginTop: 32,
+          paddingTop: 24,
+          borderTop: `1px solid ${BORDER}`,
         }}>
-          {error}
+          <div style={{
+            fontSize: 10,
+            color: '#2a2a2a',
+            lineHeight: 1.5,
+          }}>
+            Saves the campaign brief and resources<br />so you can reference them while building assets.
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving || !campaignName.trim()}
+            style={{
+              padding: '11px 24px',
+              border: 'none',
+              borderRadius: 3,
+              background: saving || !campaignName.trim() ? BORDER : BLUE,
+              color: saving || !campaignName.trim() ? '#333' : '#000',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              cursor: saving || !campaignName.trim() ? 'default' : 'pointer',
+              transition: 'background 0.15s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              if (!saving && campaignName.trim()) e.currentTarget.style.background = '#5cc0ff';
+            }}
+            onMouseLeave={(e) => {
+              if (!saving && campaignName.trim()) e.currentTarget.style.background = BLUE;
+            }}
+          >
+            {saving ? 'Saving...' : 'Save Campaign'}
+          </button>
         </div>
-      )}
-
-      {/* Save button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button
-          onClick={handleSave}
-          disabled={saving || !campaignName.trim()}
-          style={{
-            backgroundColor: saving || !campaignName.trim() ? '#1e2020' : BLUE,
-            color: saving || !campaignName.trim() ? '#444' : '#000',
-            border: 'none',
-            borderRadius: 6,
-            padding: '0.65rem 1.75rem',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            cursor: saving || !campaignName.trim() ? 'not-allowed' : 'pointer',
-            fontFamily: 'inherit',
-            transition: 'background-color 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            if (!saving && campaignName.trim()) e.currentTarget.style.backgroundColor = '#65C5FF';
-          }}
-          onMouseLeave={(e) => {
-            if (!saving && campaignName.trim()) e.currentTarget.style.backgroundColor = BLUE;
-          }}
-        >
-          {saving ? 'Saving...' : 'Save Campaign'}
-        </button>
       </div>
     </div>
   );
@@ -1077,27 +1320,10 @@ function TemplateCreationModal({
   onSelectTemplate,
   onBack,
   onClose,
-  onAssetCreated,
+  onCreationCreated,
 }: TemplateCreationModalProps) {
-  // 'asset' = "+ NEW ASSET" tab, 'campaign' = "+ NEW CAMPAIGN" tab
-  const [activeTab, setActiveTab] = useState<'asset' | 'campaign'>('asset');
-
-  const tabStyle = (isActive: boolean): CSSProperties => ({
-    background: 'none',
-    border: 'none',
-    borderBottom: isActive ? `2px solid ${BLUE}` : '2px solid transparent',
-    color: isActive ? '#fff' : '#555',
-    cursor: 'pointer',
-    fontSize: '0.7rem',
-    fontWeight: isActive ? 700 : 500,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-    padding: '0.75rem 0',
-    marginRight: '1.5rem',
-    fontFamily: 'inherit',
-    transition: 'color 0.15s, border-color 0.15s',
-    outline: 'none',
-  });
+  // 'creation' = "+ NEW CREATION" tab, 'campaign' = "+ NEW CAMPAIGN" tab
+  const [activeTab, setActiveTab] = useState<'creation' | 'campaign'>('creation');
 
   return (
     <div
@@ -1105,72 +1331,160 @@ function TemplateCreationModal({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.75)',
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 200,
       }}
     >
-      {/* Dialog panel */}
+      {/* Dialog panel — 960px wide, matching Jonathan's original */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '90vw',
-          maxWidth: 900,
-          height: '85vh',
+          width: 960,
+          maxWidth: '95vw',
+          maxHeight: activeTab === 'campaign' ? '82vh' : '88vh',
           backgroundColor: BG_MODAL,
-          border: `1px solid ${BORDER}`,
-          borderRadius: 12,
+          border: `1px solid ${BORDER_LIGHT}`,
+          borderRadius: 6,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: '0 16px 64px rgba(0,0,0,0.85)',
         }}
       >
-        {/* ── Header: tabs + close ── */}
+        {/* ── Header: pill toggle tabs + close ── */}
         <div style={{
           display: 'flex',
-          alignItems: 'flex-end',
+          alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 1.5rem',
-          borderBottom: `1px solid ${BORDER}`,
+          padding: '28px 36px 0 36px',
+          marginBottom: 24,
           flexShrink: 0,
-          backgroundColor: BG_MODAL,
         }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: 3, flex: 1 }}>
+            {/* New Asset pill tab */}
             <button
-              style={tabStyle(activeTab === 'asset')}
-              onClick={() => setActiveTab('asset')}
-              onMouseEnter={(e) => { if (activeTab !== 'asset') e.currentTarget.style.color = '#aaa'; }}
-              onMouseLeave={(e) => { if (activeTab !== 'asset') e.currentTarget.style.color = '#555'; }}
+              onClick={() => setActiveTab('creation')}
+              style={{
+                padding: '7px 20px',
+                border: `1px solid ${BORDER_LIGHT}`,
+                borderRadius: 4,
+                background: activeTab === 'creation' ? '#171717' : 'transparent',
+                color: activeTab === 'creation' ? '#fff' : '#333',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.09em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                transition: 'color 0.15s, border-color 0.15s, background 0.15s',
+                userSelect: 'none',
+                outline: 'none',
+                borderColor: activeTab === 'creation' ? '#2a2a2a' : BORDER_LIGHT,
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'creation') {
+                  e.currentTarget.style.color = '#555';
+                  e.currentTarget.style.borderColor = '#2a2a2a';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'creation') {
+                  e.currentTarget.style.color = '#333';
+                  e.currentTarget.style.borderColor = BORDER_LIGHT;
+                }
+              }}
             >
-              + New Asset
+              <span style={{
+                width: 5,
+                height: 5,
+                borderRadius: '50%',
+                background: activeTab === 'creation' ? BLUE : '#2a2a2a',
+                transition: 'background 0.15s',
+                flexShrink: 0,
+              }} />
+              New Creation
             </button>
+
+            {/* New Campaign pill tab */}
             <button
-              style={tabStyle(activeTab === 'campaign')}
               onClick={() => setActiveTab('campaign')}
-              onMouseEnter={(e) => { if (activeTab !== 'campaign') e.currentTarget.style.color = '#aaa'; }}
-              onMouseLeave={(e) => { if (activeTab !== 'campaign') e.currentTarget.style.color = '#555'; }}
+              style={{
+                padding: '7px 20px',
+                border: `1px solid ${BORDER_LIGHT}`,
+                borderRadius: 4,
+                background: activeTab === 'campaign' ? '#171717' : 'transparent',
+                color: activeTab === 'campaign' ? '#fff' : '#333',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.09em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                transition: 'color 0.15s, border-color 0.15s, background 0.15s',
+                userSelect: 'none',
+                outline: 'none',
+                borderColor: activeTab === 'campaign' ? '#2a2a2a' : BORDER_LIGHT,
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'campaign') {
+                  e.currentTarget.style.color = '#555';
+                  e.currentTarget.style.borderColor = '#2a2a2a';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'campaign') {
+                  e.currentTarget.style.color = '#333';
+                  e.currentTarget.style.borderColor = BORDER_LIGHT;
+                }
+              }}
             >
-              + New Campaign
+              <span style={{
+                width: 5,
+                height: 5,
+                borderRadius: '50%',
+                background: activeTab === 'campaign' ? BLUE : '#2a2a2a',
+                transition: 'background 0.15s',
+                flexShrink: 0,
+              }} />
+              New Campaign
             </button>
           </div>
 
+          {/* Close button */}
           <button
             onClick={onClose}
             style={{
-              background: 'none',
+              width: 28,
+              height: 28,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               border: 'none',
-              color: '#555',
+              background: 'transparent',
+              color: '#444',
               cursor: 'pointer',
-              fontSize: '1.25rem',
-              lineHeight: 1,
-              padding: '0.75rem 0 0.75rem 4px',
-              marginBottom: '2px',
+              borderRadius: 3,
+              transition: 'color 0.15s, background 0.15s',
+              fontSize: 18,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#aaa')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#555')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#aaa';
+              e.currentTarget.style.background = BORDER;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#444';
+              e.currentTarget.style.background = 'transparent';
+            }}
           >
             ×
           </button>
@@ -1178,15 +1492,15 @@ function TemplateCreationModal({
 
         {/* ── Body ── */}
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-          {activeTab === 'asset' && (
+          {activeTab === 'creation' && (
             <>
               {/* When flow = 'gallery': show new design */}
               {flow === 'gallery' && (
-                <NewAssetTab
+                <NewCreationTab
                   selectedTemplate={selectedTemplate}
                   onSelectTemplate={onSelectTemplate}
                   activeCampaignId={activeCampaignId}
-                  onAssetCreated={onAssetCreated}
+                  onCreationCreated={onCreationCreated}
                 />
               )}
               {/* When flow = 'customizer': show the customizer inline */}
@@ -1196,7 +1510,7 @@ function TemplateCreationModal({
                     template={selectedTemplate}
                     campaignId={activeCampaignId}
                     onBack={onBack}
-                    onCreated={onAssetCreated}
+                    onCreated={onCreationCreated}
                   />
                 </div>
               )}

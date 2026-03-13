@@ -56,25 +56,25 @@ function BreadcrumbSegment({ label, onClick, isLast }: BreadcrumbSegmentProps) {
 export function Breadcrumb() {
   const currentView = useCampaignStore((s) => s.currentView);
   const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
-  const activeAssetId = useCampaignStore((s) => s.activeAssetId);
-  const activeFrameId = useCampaignStore((s) => s.activeFrameId);
+  const activeCreationId = useCampaignStore((s) => s.activeCreationId);
+  const activeSlideId = useCampaignStore((s) => s.activeSlideId);
   const campaigns = useCampaignStore((s) => s.campaigns);
-  const assets = useCampaignStore((s) => s.assets);
-  const frames = useCampaignStore((s) => s.frames);
+  const creations = useCampaignStore((s) => s.creations);
+  const slides = useCampaignStore((s) => s.slides);
   const navigateToDashboard = useCampaignStore((s) => s.navigateToDashboard);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
-  const navigateToAsset = useCampaignStore((s) => s.navigateToAsset);
+  const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
   const navigateBack = useCampaignStore((s) => s.navigateBack);
 
   // Resolve display names from cache
   const campaignTitle = activeCampaignId
     ? (campaigns.find((c) => c.id === activeCampaignId)?.title ?? activeCampaignId)
     : null;
-  const assetTitle = activeAssetId
-    ? (assets.find((a) => a.id === activeAssetId)?.title ?? activeAssetId)
+  const creationTitle = activeCreationId
+    ? (creations.find((a) => a.id === activeCreationId)?.title ?? activeCreationId)
     : null;
-  const frameIndex = activeFrameId
-    ? (frames.find((f) => f.id === activeFrameId)?.frameIndex ?? null)
+  const slideIndex = activeSlideId
+    ? (slides.find((f) => f.id === activeSlideId)?.slideIndex ?? null)
     : null;
 
   // Build segments
@@ -92,18 +92,18 @@ export function Breadcrumb() {
     });
   }
 
-  if ((currentView === 'asset' || currentView === 'frame') && assetTitle) {
+  if ((currentView === 'creation' || currentView === 'slide') && creationTitle) {
     segments.push({
-      label: assetTitle,
+      label: creationTitle,
       onClick:
-        currentView !== 'asset' && activeAssetId
-          ? () => navigateToAsset(activeAssetId)
+        currentView !== 'creation' && activeCreationId
+          ? () => navigateToCreation(activeCreationId)
           : undefined,
     });
   }
 
-  if (currentView === 'frame' && frameIndex !== null) {
-    segments.push({ label: `Frame ${frameIndex + 1}` });
+  if (currentView === 'slide' && slideIndex !== null) {
+    segments.push({ label: `Slide ${slideIndex + 1}` });
   }
 
   const canGoBack = currentView !== 'dashboard';

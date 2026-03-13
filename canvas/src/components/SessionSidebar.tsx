@@ -93,7 +93,7 @@ export function SessionSidebar() {
               }}>
                 <PlatformBadge platform={session.platform} />
                 <span style={{ fontSize: '0.7rem', color: '#666' }}>
-                  {session.variationCount} variation{session.variationCount !== 1 ? 's' : ''}
+                  {session.versionCount} version{session.versionCount !== 1 ? 's' : ''}
                 </span>
                 {session.hasAnnotations && (
                   <span style={{ fontSize: '0.7rem', color: '#eab308' }} title="Has annotations">
