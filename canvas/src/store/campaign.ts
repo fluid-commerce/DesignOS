@@ -101,7 +101,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   activeNavTab: 'create',
   createViewportTab: 'campaigns',
   showNewCampaignModal: false,
-  chatSidebarOpen: true,
+  chatSidebarOpen: false,
 
   // Sidebar initial state
   leftSidebarOpen: true,
@@ -317,7 +317,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   // ---- Nav tab actions ----
 
   setActiveNavTab: (tab: NavTab) => {
-    set({ activeNavTab: tab });
+    set((state) => ({
+      activeNavTab: tab,
+      ...(tab === 'create' ? { chatSidebarOpen: false } : {}),
+    }));
   },
 
   setCreateViewportTab: (tab: CreateViewportTab) => {

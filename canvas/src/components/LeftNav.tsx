@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { useState } from 'react';
 import { useCampaignStore, type NavTab } from '../store/campaign';
 
 interface NavItem {
@@ -84,6 +85,7 @@ export function LeftNav() {
   const chatSidebarOpen = useCampaignStore((s) => s.chatSidebarOpen);
   const setActiveNavTab = useCampaignStore((s) => s.setActiveNavTab);
   const toggleChatSidebar = useCampaignStore((s) => s.toggleChatSidebar);
+  const [tooltip, setTooltip] = useState<{ label: string; top: number } | null>(null);
 
   return (
     <div style={{
@@ -97,6 +99,7 @@ export function LeftNav() {
       backgroundColor: '#111111',
       borderRight: '1px solid #1e1e1e',
       height: '100%',
+      position: 'relative',
     }}>
       {/* Nav tabs at top */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%', alignItems: 'center' }}>
@@ -107,6 +110,15 @@ export function LeftNav() {
               key={tab}
               title={label}
               onClick={() => setActiveNavTab(tab)}
+              onMouseEnter={(e) => {
+                if (!isActive) e.currentTarget.style.color = '#aaa';
+                const rect = e.currentTarget.getBoundingClientRect();
+                setTooltip({ label, top: rect.top + rect.height / 2 });
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.color = '#666';
+                setTooltip(null);
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -122,12 +134,6 @@ export function LeftNav() {
                 transition: 'color 0.15s, background-color 0.15s',
                 marginLeft: 2,
               }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.color = '#aaa';
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.color = '#666';
-              }}
             >
               <Icon />
             </button>
@@ -135,10 +141,40 @@ export function LeftNav() {
         })}
       </div>
 
+      {/* Tooltip: appears to the right of the hovered nav item */}
+      {tooltip && (
+        <div
+          style={{
+            position: 'fixed',
+            left: 52 + 8,
+            top: tooltip.top,
+            transform: 'translateY(-50%)',
+            padding: '6px 10px',
+            backgroundColor: '#1a1a1e',
+            border: '1px solid #2a2a2e',
+            borderRadius: 6,
+            color: '#e0e0e0',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            zIndex: 1000,
+            pointerEvents: 'none',
+          }}
+        >
+          {tooltip.label}
+        </div>
+      )}
+
       {/* Chat toggle at bottom */}
       <div style={{ marginTop: 'auto' }}>
         <button
           title="AI Chat"
+          onMouseEnter={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setTooltip({ label: 'AI Chat', top: rect.top + rect.height / 2 });
+          }}
+          onMouseLeave={() => setTooltip(null)}
           onClick={toggleChatSidebar}
           style={{
             display: 'flex',

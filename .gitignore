@@ -8,3 +8,7 @@ dogfood-output/
 canvas/fluid.db
 canvas/fluid.db-wal
 canvas/fluid.db-shm
+# Environment (tokens, secrets — never commit)
+canvas/.env
+.env
+.env.local

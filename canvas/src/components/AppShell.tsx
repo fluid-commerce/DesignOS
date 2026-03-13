@@ -79,7 +79,6 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
       case 'my-creations':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            <BuildHero />
             <div style={{
               flexShrink: 0,
               display: 'flex',
@@ -158,7 +157,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
-                    New Campaign
+                    Create New
                   </button>
                 ) : onNewCreation ? (
                   <button
@@ -189,7 +188,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
-                    create New
+                    Create New
                   </button>
                 ) : null}
               </div>
