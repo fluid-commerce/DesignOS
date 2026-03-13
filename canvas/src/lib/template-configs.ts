@@ -1,10 +1,10 @@
 /**
- * template-configs.ts — Jonathan's 8 template configurations as TypeScript SlotSchemas.
+ * template-configs.ts — 8 template configurations as TypeScript SlotSchemas.
  *
  * These are developer-curated, locked templates. Users cannot modify the field
- * definitions — they are ported faithfully from Jonathan's editor.js TEMPLATES object.
+ * definitions — they are ported faithfully from templates/editor.js TEMPLATES object.
  *
- * Source: Reference/Context/Jonathan's Codebase/editor.js TEMPLATES variable.
+ * Source: templates/editor.js TEMPLATES variable.
  *
  * Each template exports a SlotSchema (field defs, brush config, dimensions) and a
  * TemplateMetadata record (name, description, thumbnailPath, platform, dimensions)
