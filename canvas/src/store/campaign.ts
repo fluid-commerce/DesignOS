@@ -1,33 +1,39 @@
 import { create } from 'zustand';
-import type { Campaign, Asset, Frame, Iteration } from '../lib/campaign-types';
+import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types';
 
-export type NavigationView = 'dashboard' | 'campaign' | 'asset' | 'frame';
+export type NavigationView = 'dashboard' | 'campaign' | 'creation' | 'slide';
 
 /** Top-level navigation tabs controlling the main viewport */
-export type NavTab = 'campaigns' | 'templates' | 'patterns' | 'voice-guide';
+export type NavTab = 'create' | 'templates' | 'patterns' | 'voice-guide';
+
+/** Sub-tabs within the Create viewport */
+export type CreateViewportTab = 'campaigns' | 'creations';
 
 interface CampaignStore {
   // Navigation state
   currentView: NavigationView;
   activeCampaignId: string | null;
-  activeAssetId: string | null;
-  activeFrameId: string | null;
+  activeCreationId: string | null;
+  activeSlideId: string | null;
   activeIterationId: string | null;
 
   // Data cache
   campaigns: Campaign[];
-  assets: Asset[];
-  frames: Frame[];
+  creations: Creation[];
+  slides: Slide[];
   iterations: Iteration[];
 
-  /** Latest iteration per asset (keyed by assetId). Populated on navigateToCampaign. */
-  latestIterationByAssetId: Record<string, Iteration>;
+  /** Latest iteration per creation (keyed by creationId). Populated on navigateToCampaign. */
+  latestIterationByCreationId: Record<string, Iteration>;
 
   // Loading state
   loading: boolean;
 
   // Top-level navigation tab
   activeNavTab: NavTab;
+
+  // Create viewport sub-tab
+  createViewportTab: CreateViewportTab;
 
   // Chat sidebar state (canonical name; leftSidebarOpen kept for backward compat)
   chatSidebarOpen: boolean;
@@ -42,25 +48,26 @@ interface CampaignStore {
   // Navigation actions
   navigateToDashboard: () => void;
   navigateToCampaign: (id: string) => Promise<void>;
-  navigateToAsset: (id: string) => Promise<void>;
-  navigateToFrame: (id: string) => Promise<void>;
+  navigateToCreation: (id: string) => Promise<void>;
+  navigateToSlide: (id: string) => Promise<void>;
   selectIteration: (id: string) => void;
   navigateBack: () => void;
 
   // Data fetching actions
   fetchCampaigns: () => Promise<void>;
-  fetchAssets: (campaignId: string) => Promise<void>;
-  fetchFrames: (assetId: string) => Promise<void>;
-  fetchIterations: (frameId: string) => Promise<void>;
+  fetchCreations: (campaignId: string) => Promise<void>;
+  fetchSlides: (creationId: string) => Promise<void>;
+  fetchIterations: (slideId: string) => Promise<void>;
   /**
-   * For each asset currently in the store, fetches the first frame and its
+   * For each creation currently in the store, fetches the first slide and its
    * iterations, then picks the latest iteration by iterationIndex.
-   * Result is stored in latestIterationByAssetId.
+   * Result is stored in latestIterationByCreationId.
    */
   fetchLatestIterations: (campaignId: string) => Promise<void>;
 
   // Nav tab actions
   setActiveNavTab: (tab: NavTab) => void;
+  setCreateViewportTab: (tab: CreateViewportTab) => void;
   toggleChatSidebar: () => void;
 
   // Sidebar actions
@@ -73,21 +80,22 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   // Initial navigation state
   currentView: 'dashboard',
   activeCampaignId: null,
-  activeAssetId: null,
-  activeFrameId: null,
+  activeCreationId: null,
+  activeSlideId: null,
   activeIterationId: null,
 
   // Initial data cache
   campaigns: [],
-  assets: [],
-  frames: [],
+  creations: [],
+  slides: [],
   iterations: [],
-  latestIterationByAssetId: {},
+  latestIterationByCreationId: {},
 
   loading: false,
 
   // Top-level nav tab initial state
-  activeNavTab: 'campaigns',
+  activeNavTab: 'create',
+  createViewportTab: 'campaigns',
   chatSidebarOpen: true,
 
   // Sidebar initial state
@@ -102,11 +110,11 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     set({
       currentView: 'dashboard',
       activeCampaignId: null,
-      activeAssetId: null,
-      activeFrameId: null,
+      activeCreationId: null,
+      activeSlideId: null,
       activeIterationId: null,
-      assets: [],
-      frames: [],
+      creations: [],
+      slides: [],
       iterations: [],
     });
     get().fetchCampaigns();
@@ -116,34 +124,34 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     set({
       currentView: 'campaign',
       activeCampaignId: id,
-      activeAssetId: null,
-      activeFrameId: null,
+      activeCreationId: null,
+      activeSlideId: null,
       activeIterationId: null,
-      frames: [],
+      slides: [],
       iterations: [],
-      latestIterationByAssetId: {},
+      latestIterationByCreationId: {},
     });
-    await get().fetchAssets(id);
+    await get().fetchCreations(id);
     await get().fetchLatestIterations(id);
   },
 
-  navigateToAsset: async (id: string) => {
+  navigateToCreation: async (id: string) => {
     set({
-      currentView: 'asset',
-      activeAssetId: id,
-      activeFrameId: null,
+      currentView: 'creation',
+      activeCreationId: id,
+      activeSlideId: null,
       activeIterationId: null,
       iterations: [],
     });
-    await get().fetchFrames(id);
-    // Fetch iterations for all frames so frame preview cards can show content
-    const { frames } = get();
-    if (frames.length > 0) {
+    await get().fetchSlides(id);
+    // Fetch iterations for all slides so slide preview cards can show content
+    const { slides } = get();
+    if (slides.length > 0) {
       const allIterations: Iteration[] = [];
       await Promise.all(
-        frames.map(async (frame) => {
+        slides.map(async (slide) => {
           try {
-            const res = await fetch(`/api/frames/${frame.id}/iterations`);
+            const res = await fetch(`/api/slides/${slide.id}/iterations`);
             if (!res.ok) return;
             const iters: Iteration[] = await res.json();
             allIterations.push(...iters);
@@ -154,10 +162,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     }
   },
 
-  navigateToFrame: async (id: string) => {
+  navigateToSlide: async (id: string) => {
     set({
-      currentView: 'frame',
-      activeFrameId: id,
+      currentView: 'slide',
+      activeSlideId: id,
       activeIterationId: null,
     });
     await get().fetchIterations(id);
@@ -168,16 +176,16 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   },
 
   navigateBack: () => {
-    const { currentView, activeCampaignId, activeAssetId } = get();
+    const { currentView, activeCampaignId, activeCreationId } = get();
     switch (currentView) {
-      case 'frame':
-        if (activeAssetId) {
-          get().navigateToAsset(activeAssetId);
+      case 'slide':
+        if (activeCreationId) {
+          get().navigateToCreation(activeCreationId);
         } else {
           get().navigateToDashboard();
         }
         break;
-      case 'asset':
+      case 'creation':
         if (activeCampaignId) {
           get().navigateToCampaign(activeCampaignId);
         } else {
@@ -213,45 +221,45 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     }
   },
 
-  fetchAssets: async (campaignId: string) => {
+  fetchCreations: async (campaignId: string) => {
     const requestId = get()._requestId + 1;
     set({ loading: true, _requestId: requestId });
     try {
-      const res = await fetch(`/api/campaigns/${campaignId}/assets`);
+      const res = await fetch(`/api/campaigns/${campaignId}/creations`);
       if (get()._requestId !== requestId) return;
       if (!res.ok) { set({ loading: false }); return; }
-      const assets: Asset[] = await res.json();
+      const creations: Creation[] = await res.json();
       if (get()._requestId !== requestId) return;
-      set({ assets, loading: false });
+      set({ creations, loading: false });
     } catch (err) {
       if (get()._requestId !== requestId) return;
-      console.error('[campaign store] Failed to fetch assets:', campaignId, err);
+      console.error('[campaign store] Failed to fetch creations:', campaignId, err);
       set({ loading: false });
     }
   },
 
-  fetchFrames: async (assetId: string) => {
+  fetchSlides: async (creationId: string) => {
     const requestId = get()._requestId + 1;
     set({ loading: true, _requestId: requestId });
     try {
-      const res = await fetch(`/api/assets/${assetId}/frames`);
+      const res = await fetch(`/api/creations/${creationId}/slides`);
       if (get()._requestId !== requestId) return;
       if (!res.ok) { set({ loading: false }); return; }
-      const frames: Frame[] = await res.json();
+      const slides: Slide[] = await res.json();
       if (get()._requestId !== requestId) return;
-      set({ frames, loading: false });
+      set({ slides, loading: false });
     } catch (err) {
       if (get()._requestId !== requestId) return;
-      console.error('[campaign store] Failed to fetch frames:', assetId, err);
+      console.error('[campaign store] Failed to fetch slides:', creationId, err);
       set({ loading: false });
     }
   },
 
-  fetchIterations: async (frameId: string) => {
+  fetchIterations: async (slideId: string) => {
     const requestId = get()._requestId + 1;
     set({ loading: true, _requestId: requestId });
     try {
-      const res = await fetch(`/api/frames/${frameId}/iterations`);
+      const res = await fetch(`/api/slides/${slideId}/iterations`);
       if (get()._requestId !== requestId) return;
       if (!res.ok) { set({ loading: false }); return; }
       const iterations: Iteration[] = await res.json();
@@ -259,29 +267,29 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       set({ iterations, loading: false });
     } catch (err) {
       if (get()._requestId !== requestId) return;
-      console.error('[campaign store] Failed to fetch iterations:', frameId, err);
+      console.error('[campaign store] Failed to fetch iterations:', slideId, err);
       set({ loading: false });
     }
   },
 
   fetchLatestIterations: async (_campaignId: string) => {
-    const { assets } = get();
-    if (assets.length === 0) return;
+    const { creations } = get();
+    if (creations.length === 0) return;
 
     const result: Record<string, Iteration> = {};
 
     await Promise.all(
-      assets.map(async (asset) => {
+      creations.map(async (creation) => {
         try {
-          // Fetch frames for this asset
-          const framesRes = await fetch(`/api/assets/${asset.id}/frames`);
-          if (!framesRes.ok) return;
-          const frames: Frame[] = await framesRes.json();
-          if (frames.length === 0) return;
+          // Fetch slides for this creation
+          const slidesRes = await fetch(`/api/creations/${creation.id}/slides`);
+          if (!slidesRes.ok) return;
+          const slides: Slide[] = await slidesRes.json();
+          if (slides.length === 0) return;
 
-          // Use the first frame
-          const firstFrame = frames[0];
-          const itersRes = await fetch(`/api/frames/${firstFrame.id}/iterations`);
+          // Use the first slide
+          const firstSlide = slides[0];
+          const itersRes = await fetch(`/api/slides/${firstSlide.id}/iterations`);
           if (!itersRes.ok) return;
           const iterations: Iteration[] = await itersRes.json();
           if (iterations.length === 0) return;
@@ -290,20 +298,24 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           const latest = iterations.reduce((best, iter) =>
             iter.iterationIndex > best.iterationIndex ? iter : best
           );
-          result[asset.id] = latest;
+          result[creation.id] = latest;
         } catch (err) {
-          console.error('[campaign store] fetchLatestIterations failed for asset:', asset.id, err);
+          console.error('[campaign store] fetchLatestIterations failed for creation:', creation.id, err);
         }
       })
     );
 
-    set({ latestIterationByAssetId: result });
+    set({ latestIterationByCreationId: result });
   },
 
   // ---- Nav tab actions ----
 
   setActiveNavTab: (tab: NavTab) => {
     set({ activeNavTab: tab });
+  },
+
+  setCreateViewportTab: (tab: CreateViewportTab) => {
+    set({ createViewportTab: tab });
   },
 
   toggleChatSidebar: () => {

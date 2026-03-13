@@ -48,42 +48,42 @@ afterEach(async () => {
 
 function scaffoldCampaignHierarchy() {
   const campaign = dbApi.createCampaign({ title: 'Test Campaign', channels: ['instagram'] });
-  const asset = dbApi.createAsset({
+  const creation = dbApi.createCreation({
     campaignId: campaign.id,
-    title: 'Test Asset',
-    assetType: 'instagram-square',
-    frameCount: 1,
+    title: 'Test Creation',
+    creationType: 'instagram-square',
+    slideCount: 1,
   });
-  const frame = dbApi.createFrame({ assetId: asset.id, frameIndex: 0 });
-  return { campaign, asset, frame };
+  const slide = dbApi.createSlide({ creationId: creation.id, slideIndex: 0 });
+  return { campaign, creation, slide };
 }
 
 // ─── push_asset — creates Iteration in SQLite ─────────────────────────────
 
 describe('push_asset (db-api layer)', () => {
   it('creates an Iteration record in SQLite via createIteration', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
 
     const iteration = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
-      htmlPath: `campaigns/cmp/ast/${frame.id}/itr.html`,
+      htmlPath: `campaigns/cmp/crt/${slide.id}/itr.html`,
       source: 'ai',
     });
 
     expect(iteration.id).toBeTruthy();
-    expect(iteration.frameId).toBe(frame.id);
+    expect(iteration.slideId).toBe(slide.id);
     expect(iteration.iterationIndex).toBe(0);
     expect(iteration.status).toBe('unmarked');
     expect(iteration.source).toBe('ai');
   });
 
   it('stores slotSchema as JSON and returns it parsed', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
 
     const schema = { templateId: 't1-quote', width: 1080, height: 1080, fields: [] };
     const iteration = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'campaigns/c/a/f/i.html',
       slotSchema: schema,
@@ -96,22 +96,22 @@ describe('push_asset (db-api layer)', () => {
   });
 
   it('multiple push_asset calls create separate iteration records', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
 
     dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'path/to/0.html',
       source: 'ai',
     });
     dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 1,
       htmlPath: 'path/to/1.html',
       source: 'ai',
     });
 
-    const iterations = dbApi.getIterations(frame.id);
+    const iterations = dbApi.getIterations(slide.id);
     expect(iterations).toHaveLength(2);
     expect(iterations[0].iterationIndex).toBe(0);
     expect(iterations[1].iterationIndex).toBe(1);
@@ -122,9 +122,9 @@ describe('push_asset (db-api layer)', () => {
 
 describe('read_annotations (db-api layer)', () => {
   it('returns empty array when no annotations exist for an iteration', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
     const iteration = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'p.html',
       source: 'ai',
@@ -135,15 +135,15 @@ describe('read_annotations (db-api layer)', () => {
   });
 
   it('returns annotations linked to the correct iterationId', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
     const iter1 = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'p1.html',
       source: 'ai',
     });
     const iter2 = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 1,
       htmlPath: 'p2.html',
       source: 'ai',
@@ -177,20 +177,20 @@ describe('read_annotations (db-api layer)', () => {
   });
 });
 
-// ─── read_statuses — returns status map for frame's iterations ────────────
+// ─── read_statuses — returns status map for slide's iterations ────────────
 
 describe('read_statuses (db-api layer)', () => {
   it('returns status map keyed by iterationId', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
 
     const iter1 = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 0,
       htmlPath: 'p1.html',
       source: 'ai',
     });
     const iter2 = dbApi.createIteration({
-      frameId: frame.id,
+      slideId: slide.id,
       iterationIndex: 1,
       htmlPath: 'p2.html',
       source: 'ai',
@@ -199,7 +199,7 @@ describe('read_statuses (db-api layer)', () => {
     dbApi.updateIterationStatus(iter1.id, 'winner');
     dbApi.updateIterationStatus(iter2.id, 'rejected');
 
-    const iterations = dbApi.getIterations(frame.id);
+    const iterations = dbApi.getIterations(slide.id);
     const statusMap: Record<string, string> = {};
     for (const iter of iterations) {
       statusMap[iter.id] = iter.status;
@@ -209,9 +209,9 @@ describe('read_statuses (db-api layer)', () => {
     expect(statusMap[iter2.id]).toBe('rejected');
   });
 
-  it('returns empty for a frame with no iterations', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
-    const iterations = dbApi.getIterations(frame.id);
+  it('returns empty for a slide with no iterations', async () => {
+    const { slide } = scaffoldCampaignHierarchy();
+    const iterations = dbApi.getIterations(slide.id);
     expect(iterations).toHaveLength(0);
   });
 });
@@ -219,23 +219,23 @@ describe('read_statuses (db-api layer)', () => {
 // ─── read_history — returns full iteration chain ──────────────────────────
 
 describe('read_history (db-api layer)', () => {
-  it('returns all iterations for a frame in order', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+  it('returns all iterations for a slide in order', async () => {
+    const { slide } = scaffoldCampaignHierarchy();
 
-    dbApi.createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
-    dbApi.createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
-    dbApi.createIteration({ frameId: frame.id, iterationIndex: 2, htmlPath: 'r2.html', source: 'ai' });
+    dbApi.createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
+    dbApi.createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
+    dbApi.createIteration({ slideId: slide.id, iterationIndex: 2, htmlPath: 'r2.html', source: 'ai' });
 
-    const iterations = dbApi.getIterations(frame.id);
+    const iterations = dbApi.getIterations(slide.id);
     expect(iterations).toHaveLength(3);
     expect(iterations.map(i => i.iterationIndex)).toEqual([0, 1, 2]);
   });
 
   it('can retrieve annotations for each iteration in the chain', async () => {
-    const { frame } = scaffoldCampaignHierarchy();
+    const { slide } = scaffoldCampaignHierarchy();
 
-    const iter0 = dbApi.createIteration({ frameId: frame.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
-    const iter1 = dbApi.createIteration({ frameId: frame.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
+    const iter0 = dbApi.createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
+    const iter1 = dbApi.createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
 
     dbApi.createAnnotation({ iterationId: iter0.id, type: 'pin', author: 'human', text: 'Too dark', x: 10, y: 10 });
     dbApi.createAnnotation({ iterationId: iter1.id, type: 'sidebar', author: 'human', text: 'Perfect' });

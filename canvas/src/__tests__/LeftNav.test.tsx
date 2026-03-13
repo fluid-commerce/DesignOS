@@ -6,7 +6,7 @@ import { LeftNav } from '../components/LeftNav';
 describe('LeftNav', () => {
   beforeEach(() => {
     useCampaignStore.setState({
-      activeNavTab: 'campaigns',
+      activeNavTab: 'create',
       chatSidebarOpen: true,
     } as Parameters<typeof useCampaignStore.setState>[0]);
   });

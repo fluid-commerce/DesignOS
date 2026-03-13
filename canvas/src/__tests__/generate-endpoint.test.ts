@@ -77,11 +77,11 @@ describe('SSE format', () => {
   });
 
   it('session event includes campaignId immediately', () => {
-    const data = { type: 'session', campaignId: 'camp-abc', assetCount: 7 };
+    const data = { type: 'session', campaignId: 'camp-abc', creationCount: 7 };
     const sseFrame = `data: ${JSON.stringify(data)}\n\n`;
     expect(sseFrame).toContain('"type":"session"');
     expect(sseFrame).toContain('"campaignId"');
-    expect(sseFrame).toContain('"assetCount":7');
+    expect(sseFrame).toContain('"creationCount":7');
   });
 });
 
@@ -116,42 +116,42 @@ describe('Campaign-level lock', () => {
   });
 });
 
-describe('Multi-asset campaign generation', () => {
-  it('default campaign creates 7 assets (3 IG + 3 LI + 1 one-pager)', () => {
-    // Simulate buildAssetList with default counts
+describe('Multi-creation campaign generation', () => {
+  it('default campaign creates 7 creations (3 IG + 3 LI + 1 one-pager)', () => {
+    // Simulate buildCreationList with default counts
     const DEFAULT_CHANNEL_COUNTS: Record<string, number> = {
       instagram: 3,
       linkedin: 3,
       'one-pager': 1,
     };
 
-    const assets: Array<{ title: string; assetType: string; frameCount: number }> = [];
+    const creations: Array<{ title: string; creationType: string; slideCount: number }> = [];
     for (const [type, count] of Object.entries(DEFAULT_CHANNEL_COUNTS)) {
       for (let i = 1; i <= count; i++) {
-        assets.push({ title: `${type} ${i}`, assetType: type, frameCount: 1 });
+        creations.push({ title: `${type} ${i}`, creationType: type, slideCount: 1 });
       }
     }
 
-    expect(assets.length).toBe(7);
-    const igAssets = assets.filter((a) => a.assetType === 'instagram');
-    const liAssets = assets.filter((a) => a.assetType === 'linkedin');
-    const opAssets = assets.filter((a) => a.assetType === 'one-pager');
-    expect(igAssets.length).toBe(3);
-    expect(liAssets.length).toBe(3);
-    expect(opAssets.length).toBe(1);
+    expect(creations.length).toBe(7);
+    const igCreations = creations.filter((c) => c.creationType === 'instagram');
+    const liCreations = creations.filter((c) => c.creationType === 'linkedin');
+    const opCreations = creations.filter((c) => c.creationType === 'one-pager');
+    expect(igCreations.length).toBe(3);
+    expect(liCreations.length).toBe(3);
+    expect(opCreations.length).toBe(1);
   });
 
-  it('parallel subagents use activeChildren Map keyed by assetId', () => {
+  it('parallel subagents use activeChildren Map keyed by creationId', () => {
     const activeChildren: Map<string, any> = new Map();
 
-    // Add children for 7 assets
+    // Add children for 7 creations
     for (let i = 0; i < 7; i++) {
-      activeChildren.set(`asset-${i}`, { pid: 1000 + i });
+      activeChildren.set(`creation-${i}`, { pid: 1000 + i });
     }
     expect(activeChildren.size).toBe(7);
 
     // Simulate child close — delete from map
-    activeChildren.delete('asset-0');
+    activeChildren.delete('creation-0');
     expect(activeChildren.size).toBe(6);
   });
 
@@ -178,10 +178,10 @@ describe('Multi-asset campaign generation', () => {
 
   it('canonical HTML paths use .fluid/campaigns/ format', () => {
     const campaignId = 'camp-abc';
-    const assetId = 'asset-xyz';
-    const frameId = 'frame-123';
+    const creationId = 'creation-xyz';
+    const slideId = 'slide-123';
     const iterationId = 'iter-456';
-    const htmlPath = `.fluid/campaigns/${campaignId}/${assetId}/${frameId}/${iterationId}.html`;
+    const htmlPath = `.fluid/campaigns/${campaignId}/${creationId}/${slideId}/${iterationId}.html`;
 
     expect(htmlPath).toContain('.fluid/campaigns/');
     expect(htmlPath).not.toContain('.fluid/working/');

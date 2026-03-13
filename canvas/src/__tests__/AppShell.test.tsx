@@ -6,7 +6,7 @@ import { AppShell } from '../components/AppShell';
 describe('AppShell', () => {
   beforeEach(() => {
     useCampaignStore.setState({
-      activeNavTab: 'campaigns',
+      activeNavTab: 'create',
       chatSidebarOpen: true,
       rightSidebarOpen: false,
     } as Parameters<typeof useCampaignStore.setState>[0]);

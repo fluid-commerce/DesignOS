@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { AssetFrame } from '../components/AssetFrame';
-import type { VariationStatus } from '../lib/types';
+import { CreationFrame } from '../components/CreationFrame';
+import type { VersionStatus } from '../lib/types';
 
 const baseProps = {
   html: '<h1>Test</h1>',
@@ -17,11 +17,11 @@ const baseProps = {
   onStatusChange: vi.fn(),
 };
 
-describe('Star toggle in AssetFrame', () => {
+describe('Star toggle in CreationFrame', () => {
   it('clicking star on unmarked variation calls onStatusChange with winner', () => {
     const onStatusChange = vi.fn();
     render(
-      <AssetFrame {...baseProps} status={'unmarked' as VariationStatus} onStatusChange={onStatusChange} />
+      <CreationFrame {...baseProps} status={'unmarked' as VersionStatus} onStatusChange={onStatusChange} />
     );
 
     const starButton = screen.getByTestId('star-toggle');
@@ -33,7 +33,7 @@ describe('Star toggle in AssetFrame', () => {
   it('clicking star on winner variation calls onStatusChange with unmarked', () => {
     const onStatusChange = vi.fn();
     render(
-      <AssetFrame {...baseProps} status={'winner' as VariationStatus} onStatusChange={onStatusChange} />
+      <CreationFrame {...baseProps} status={'winner' as VersionStatus} onStatusChange={onStatusChange} />
     );
 
     const starButton = screen.getByTestId('star-toggle');
@@ -44,7 +44,7 @@ describe('Star toggle in AssetFrame', () => {
 
   it('star renders filled color (#facc15) when status is winner', () => {
     render(
-      <AssetFrame {...baseProps} status={'winner' as VariationStatus} />
+      <CreationFrame {...baseProps} status={'winner' as VersionStatus} />
     );
 
     const svg = screen.getByTestId('star-toggle').querySelector('svg');
@@ -55,7 +55,7 @@ describe('Star toggle in AssetFrame', () => {
 
   it('star renders outline (#666) when status is unmarked', () => {
     render(
-      <AssetFrame {...baseProps} status={'unmarked' as VariationStatus} />
+      <CreationFrame {...baseProps} status={'unmarked' as VersionStatus} />
     );
 
     const svg = screen.getByTestId('star-toggle').querySelector('svg');
@@ -72,13 +72,13 @@ describe('handleStatusChange in App.tsx does NOT auto-reject', () => {
   // Since App.tsx integration testing is complex, we test the
   // simplified handleStatusChange logic by importing App
   // and checking that setStatus is only called once.
-  // For unit test purposes, we verify the AssetFrame star toggle
+  // For unit test purposes, we verify the CreationFrame star toggle
   // only sends the single status change -- the App no longer
   // performs auto-rejection.
   it('star toggle sends only one status change per click', () => {
     const onStatusChange = vi.fn();
     render(
-      <AssetFrame {...baseProps} status={'unmarked' as VariationStatus} onStatusChange={onStatusChange} />
+      <CreationFrame {...baseProps} status={'unmarked' as VersionStatus} onStatusChange={onStatusChange} />
     );
 
     const starButton = screen.getByTestId('star-toggle');
