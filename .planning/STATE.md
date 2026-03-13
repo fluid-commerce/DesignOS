@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Not Started (2 plans ready, 0 executed)
-stopped_at: Phase 8 executed (4/4 plans). Preview path resolution + test DB isolation fixed. Awaiting human verification of live previews.
-last_updated: "2026-03-13T14:50:00.000Z"
-last_activity: 2026-03-13 -- Executed phase 8 gap closure (08-04), fixed preview path resolution (canonical .fluid/ fallback), fixed test DB pollution, cleaned 239 garbage campaigns from fluid.db
+status: Phase 8 complete. Merged to main. Remaining: 4.2, 4.3, 9.
+stopped_at: Phase 8 merged to main via PR #1. README + ARCHITECTURE.md added. chey-work branch cleaned up.
+last_updated: "2026-03-13T15:15:00.000Z"
+last_activity: 2026-03-13 -- Phase 8 complete, PR merged, branch cleanup, docs added
 progress:
   total_phases: 13
   completed_phases: 10
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phases 1-7 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 8 (sidebar-to-dashboard E2E), 9 (chat UI). Jonathan actively pushing changes to main outside GSD tracking — his work overlaps with Phase 8 (iteration view, asset path fixes) and adds new capabilities (texture library, template library UI).
+**Current focus:** Phases 1-8 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 9 (chat UI).
 
 ## Current Position
 
-Phase: 8 (AI Sidebar to Campaign Dashboard E2E) — 4/4 plans executed, awaiting human verification
-Status: Executed. All 4 plans complete (08-01 thru 08-04). Post-execution fixes: server preview path resolution (4-strategy fallback), store iteration loading for frame previews, test DB isolation, production DB cleanup.
-Last activity: 2026-03-13 -- Phase 8 execution + preview path fixes + DB cleanup
+Phase: Between phases. Next unexecuted: 4.2 (Asset Linking & Output Refactor)
+Status: Phase 8 complete and merged to main. README.md + ARCHITECTURE.md added.
+Last activity: 2026-03-13 -- PR #1 merged, chey-work branch cleaned up
 
-Progress: [████████░░] 85% (Overall: 30/36 plans — Phase 8 plans written but not executed)
+Progress: [█████████░] 94% (Overall: 35/36 plans)
 
 ## Performance Metrics
 
