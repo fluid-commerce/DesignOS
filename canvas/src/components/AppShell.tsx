@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useCampaignStore } from '../store/campaign';
+import { useCampaignStore, type CreateViewportTab } from '../store/campaign';
 import { Breadcrumb } from './Breadcrumb';
 import { LeftNav } from './LeftNav';
 import { ChatSidebar } from './ChatSidebar';
@@ -60,6 +60,8 @@ function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
 
 export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }: AppShellProps) {
   const activeNavTab = useCampaignStore((s) => s.activeNavTab);
+  const createViewportTab = useCampaignStore((s) => s.createViewportTab);
+  const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
   const rightSidebarOpen = useCampaignStore((s) => s.rightSidebarOpen);
   const toggleRightSidebar = useCampaignStore((s) => s.toggleRightSidebar);
 
@@ -68,7 +70,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
       case 'create':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            {/* Campaigns viewport header */}
+            {/* Create viewport header */}
             <div style={{
               flexShrink: 0,
               height: 40,
@@ -78,10 +80,45 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
               padding: '0 1rem',
               borderBottom: '1px solid #1e1e1e',
               backgroundColor: '#0d0d0d',
+              gap: '0.75rem',
             }}>
               {/* Breadcrumb */}
               <div style={{ flex: 1, overflow: 'hidden' }}>
                 <Breadcrumb />
+              </div>
+              {/* Campaigns / Creations viewport tabs */}
+              <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+                {(['campaigns', 'creations'] as CreateViewportTab[]).map((tab) => {
+                  const isActive = createViewportTab === tab;
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setCreateViewportTab(tab)}
+                      style={{
+                        padding: '4px 12px',
+                        fontSize: '0.72rem',
+                        fontWeight: isActive ? 600 : 400,
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase',
+                        color: isActive ? '#e0e0e0' : '#666',
+                        backgroundColor: isActive ? '#1a1a1e' : 'transparent',
+                        border: 'none',
+                        borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
+                        cursor: 'pointer',
+                        transition: 'color 0.15s, background-color 0.15s',
+                        fontFamily: 'inherit',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) e.currentTarget.style.color = '#aaa';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) e.currentTarget.style.color = '#666';
+                      }}
+                    >
+                      {tab === 'campaigns' ? 'Campaigns' : 'Creations'}
+                    </button>
+                  );
+                })}
               </div>
               {/* New Creation button */}
               {onNewCreation && (
