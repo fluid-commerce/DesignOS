@@ -154,7 +154,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       });
 
       const projectRoot = path.resolve(srv.config.root, '..');
-      const jonathanLibraryDir = path.resolve(projectRoot, "Reference/Context/Jonathan's Codebase");
+      const templatesDir = path.resolve(projectRoot, 'templates');
 
       // Home page: serve Template Library at / and its static assets (run first)
       srv.middlewares.use(async (req, res, next) => {
@@ -168,8 +168,6 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           pathname.startsWith('/src') ||
           pathname.startsWith('/node_modules') ||
           pathname.startsWith('/fluid-assets') ||
-          pathname.startsWith('/template-assets') ||
-          pathname.startsWith('/template-fonts') ||
           pathname.startsWith('/templates/') ||
           pathname.startsWith('/preview/')
         ) {
@@ -177,20 +175,21 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
         try {
           if (pathname === '/') {
-            const html = await fs.readFile(path.join(jonathanLibraryDir, 'index.html'), 'utf-8');
+            const html = await fs.readFile(path.join(templatesDir, 'index.html'), 'utf-8');
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(html);
             return;
           }
           if (pathname === '/editor' || pathname.startsWith('/editor?')) {
-            const html = await fs.readFile(path.join(jonathanLibraryDir, 'editor.html'), 'utf-8');
+            const html = await fs.readFile(path.join(templatesDir, 'editor.html'), 'utf-8');
             res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
             res.end(html);
             return;
           }
+          // Serve static files from templates/ (JS libs, etc.)
           const relative = pathname.slice(1) || '';
-          const fullPath = path.resolve(jonathanLibraryDir, relative);
-          if (!fullPath.startsWith(jonathanLibraryDir + path.sep) && fullPath !== jonathanLibraryDir) return next();
+          const fullPath = path.resolve(templatesDir, relative);
+          if (!fullPath.startsWith(templatesDir + path.sep) && fullPath !== templatesDir) return next();
           const stat = await fs.stat(fullPath);
           if (!stat.isFile()) return next();
           const data = await fs.readFile(fullPath);
@@ -223,47 +222,15 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
       });
 
-      // Serve template assets and fonts from Jonathan's codebase
-      const jonathanTemplateDir = path.resolve(srv.config.root, '..', "Reference/Context/Jonathan's Codebase/templates");
-      srv.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/template-assets/')) return next();
-        const assetFile = req.url.replace('/template-assets/', '').split('?')[0];
-        const assetPath = path.join(jonathanTemplateDir, 'assets', assetFile);
-        try {
-          const data = await fs.readFile(assetPath);
-          const { contentType } = serveFluidAsset(assetFile);
-          res.writeHead(200, { 'Content-Type': contentType });
-          res.end(data);
-        } catch {
-          res.writeHead(404); res.end('Not found');
-        }
-      });
-      srv.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/template-fonts/')) return next();
-        const fontFile = req.url.replace('/template-fonts/', '');
-        const fontPath = path.resolve(jonathanTemplateDir, '..', 'fonts', fontFile);
-        try {
-          const data = await fs.readFile(fontPath);
-          const ext = path.extname(fontFile).toLowerCase();
-          const ct = ext === '.ttf' ? 'font/ttf' : ext === '.woff2' ? 'font/woff2' : ext === '.woff' ? 'font/woff' : 'application/octet-stream';
-          res.writeHead(200, { 'Content-Type': ct });
-          res.end(data);
-        } catch {
-          res.writeHead(404); res.end('Not found');
-        }
-      });
-
-      // Serve Jonathan's template HTML files at /templates/:id.html with asset path rewriting
+      // Serve template HTML files at /templates/:id.html with asset path rewriting
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/templates/') || !req.url.endsWith('.html')) return next();
         const fileName = req.url.replace('/templates/', '');
-        const templatePath = path.resolve(srv.config.root, '..', 'Reference/Context/Jonathan\'s Codebase/templates', fileName);
+        const templatePath = path.resolve(projectRoot, 'templates', 'social', fileName);
         try {
           let html = await fs.readFile(templatePath, 'utf-8');
-          // Rewrite asset paths for serving
+          // Rewrite relative asset paths for serving via /fluid-assets/
           html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
-          html = html.replace(/(?<!\/fluid-)assets\//g, '/template-assets/');
-          html = html.replace(/\.\.\/fonts\//g, '/template-fonts/');
           // Remove nav.js script (not needed in preview)
           html = html.replace(/<script src="nav\.js"><\/script>/g, '');
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -415,9 +382,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
     <div class="preview-bg-accent two"></div>
   </div>
   <div class="preview-logos">
-    <img class="flag" src="/template-assets/flag-icon.svg" alt="" />
+    <img class="flag" src="/fluid-assets/logos/flag-icon.svg" alt="" />
     <span class="wc">WE-COMMERCE</span>
-    <img class="fluid" src="/template-assets/fluid-logo.svg" alt="fluid" />
+    <img class="fluid" src="/fluid-assets/logos/fluid-logo.svg" alt="fluid" />
   </div>
   <div class="preview-wrap" data-carousel-total="${meta.carouselTotal || 0}">
     <div class="preview-stage" data-native-w="${meta.w}" data-native-h="${meta.h}">
@@ -729,19 +696,17 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               return;
             }
             const projectRoot = path.resolve(srv.config.root, '..');
-            const jonathanTemplatesDir = path.resolve(projectRoot, "Reference/Context/Jonathan's Codebase/templates");
+            const socialTemplatesDir = path.resolve(projectRoot, 'templates/social');
             let templatePath = path.resolve(projectRoot, row.html_path);
             try {
               await fs.access(templatePath);
             } catch {
-              templatePath = path.join(jonathanTemplatesDir, path.basename(row.html_path));
+              templatePath = path.join(socialTemplatesDir, path.basename(row.html_path));
             }
             try {
               let html = await fs.readFile(templatePath, 'utf-8');
-              // Same path rewrites as /templates/ so assets and fonts load
+              // Rewrite relative asset paths for serving via /fluid-assets/
               html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
-              html = html.replace(/(?<!\/fluid-)assets\//g, '/template-assets/');
-              html = html.replace(/\.\.\/fonts\//g, '/template-fonts/');
               html = html.replace(/<script src="nav\.js"><\/script>/g, '');
               // Ensure iframe resolves relative URLs from app origin (fixes missing assets when editing)
               if (!/<base\s/i.test(html)) {
@@ -752,7 +717,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
               const userState: Record<string, string> = row.user_state ? JSON.parse(row.user_state) : {};
               const isDownload = req.url?.includes('download=1');
-              const templateAssetsDir = path.join(jonathanTemplatesDir, 'assets');
+              const assetsDir = path.join(projectRoot, 'assets');
 
               async function toDataUrl(assetPath: string): Promise<string> {
                 try {
@@ -766,12 +731,12 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               }
 
               if (isDownload) {
-                const imgSrcRegex = /src="(\/template-assets\/[^"]+)"/g;
+                const imgSrcRegex = /src="(\/fluid-assets\/[^"]+)"/g;
                 let match;
                 const replacements: { from: string; to: string }[] = [];
                 while ((match = imgSrcRegex.exec(html)) !== null) {
-                  const assetFile = match[1].replace(/^\/template-assets\//, '').replace(/\?.*$/, '');
-                  const dataUrl = await toDataUrl(path.join(templateAssetsDir, assetFile));
+                  const assetFile = match[1].replace(/^\/fluid-assets\//, '').replace(/\?.*$/, '');
+                  const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
                   if (dataUrl) replacements.push({ from: match[0], to: `src="${dataUrl}"` });
                 }
                 for (const { from, to } of replacements) {
@@ -779,9 +744,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 }
                 for (const sel of Object.keys(userState)) {
                   const v = userState[sel];
-                  if (typeof v === 'string' && (v.startsWith('/template-assets/') || v.startsWith('http') && v.includes('/template-assets/'))) {
-                    const assetFile = v.replace(/^.*\/template-assets\//, '').replace(/\?.*$/, '');
-                    const dataUrl = await toDataUrl(path.join(templateAssetsDir, assetFile));
+                  if (typeof v === 'string' && (v.startsWith('/fluid-assets/') || v.startsWith('http') && v.includes('/fluid-assets/'))) {
+                    const assetFile = v.replace(/^.*\/fluid-assets\//, '').replace(/\?.*$/, '');
+                    const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
                     if (dataUrl) userState[sel] = dataUrl;
                   }
                 }
@@ -800,10 +765,10 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 'var src=null;' +
                 'if(v.indexOf("blob:")===0){src=null;}' +
                 'else if(v.indexOf("data:")===0){src=v;}' +
-                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&u.pathname.indexOf("/template-assets/")===0)src=u.pathname;else src=v;}catch(e){src=v;}}' +
+                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&u.pathname.indexOf("/fluid-assets/")===0)src=u.pathname;else src=v;}catch(e){src=v;}}' +
                 'else if(v.indexOf("/")===0){src=v;}' +
-                'else if(v.indexOf("template-assets/")===0){src=location.origin+"/"+v;}' +
-                'else if(v.indexOf("assets/")===0){src=location.origin+"/template-assets/"+v.substring(6);}' +
+                'else if(v.indexOf("fluid-assets/")===0){src=location.origin+"/"+v;}' +
+                'else if(v.indexOf("assets/")===0){src=location.origin+"/fluid-assets/"+v.substring(7);}' +
                 'if(src)el.src=src;}' +
                 'else if(v.indexOf("\\n")>=0){var x=document.createElement("div");x.textContent=v;el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");}' +
                 'else{el.textContent=v;}' +

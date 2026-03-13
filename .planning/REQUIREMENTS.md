@@ -131,13 +131,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### End-to-End (AI Sidebar to Campaign Dashboard)
 
-- [ ] **E2E-01**: Server pre-creates Campaign + Assets + Frames + Iterations in SQLite BEFORE spawning any agent, using canonical path .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html
-- [ ] **E2E-02**: Iteration records have a generationStatus field ('pending'/'generating'/'complete') separate from user review status ('winner'/'rejected'/'final'/'unmarked')
-- [ ] **E2E-03**: Default campaign creates 7 assets (3 Instagram + 3 LinkedIn + 1 one-pager) from a single prompt, overridable by channel hints in the prompt
-- [ ] **E2E-04**: Multiple subagents spawn in parallel (one per asset) without lock collision, with campaign-level lock preventing concurrent full-campaign generations
+- [x] **E2E-01**: Server pre-creates Campaign + Assets + Frames + Iterations in SQLite BEFORE spawning any agent, using canonical path .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html
+- [x] **E2E-02**: Iteration records have a generationStatus field ('pending'/'generating'/'complete') separate from user review status ('winner'/'rejected'/'final'/'unmarked')
+- [x] **E2E-03**: Default campaign creates 7 assets (3 Instagram + 3 LinkedIn + 1 one-pager) from a single prompt, overridable by channel hints in the prompt
+- [x] **E2E-04**: Multiple subagents spawn in parallel (one per asset) without lock collision, with campaign-level lock preventing concurrent full-campaign generations
 - [x] **E2E-05**: Iframe previews at every navigation level — campaign cards show 2x2 mosaic, asset cards show full iframe, frame cards show full iframe
-- [ ] **E2E-06**: Sidebar detects campaign view context and offers "Add to existing campaign" mode, sending existingCampaignId in generate request
-- [ ] **E2E-07**: Auto-navigate to campaign view on generation completion, triggered by SSE done event (not timeout)
+- [x] **E2E-06**: Sidebar detects campaign view context and offers "Add to existing campaign" mode, sending existingCampaignId in generate request
+- [x] **E2E-07**: Auto-navigate to campaign view on generation completion, triggered by SSE done event (not timeout)
 
 ## v2 Requirements
 

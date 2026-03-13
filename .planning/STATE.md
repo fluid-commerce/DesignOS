@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Not Started (2 plans ready, 0 executed)
-stopped_at: "Completed 08-04-PLAN.md (gap closure: mosaic unwrap + StatusBadge)"
-last_updated: "2026-03-13T12:40:32.546Z"
-last_activity: 2026-03-12 -- Retroactive close of phases 3, 4, 4.1, 6 after audit
+stopped_at: Phase 8 plans written (not executed). Jonathan pushing parallel changes to main.
+last_updated: "2026-03-12T23:30:00.000Z"
+last_activity: 2026-03-12 -- Merged Jonathan's 3 commits (template library UI, editor layer ordering, texture library + edit-mode iteration view)
 progress:
-  total_phases: 12
-  completed_phases: 3
-  total_plans: 15
-  completed_plans: 27
+  total_phases: 13
+  completed_phases: 10
+  total_plans: 36
+  completed_plans: 34
   percent: 92
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phases 1-7 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 8 (sidebar-to-dashboard E2E), 9 (chat UI).
+**Current focus:** Phases 1-7 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 8 (sidebar-to-dashboard E2E), 9 (chat UI). Jonathan actively pushing changes to main outside GSD tracking — his work overlaps with Phase 8 (iteration view, asset path fixes) and adds new capabilities (texture library, template library UI).
 
 ## Current Position
 
-Phase: 4.2 (Asset Linking & Output Refactor) — next unexecuted phase
-Status: Not Started (2 plans ready, 0 executed)
-Last activity: 2026-03-12 -- Retroactive close of phases 3, 4, 4.1, 6 after audit
+Phase: 8 (AI Sidebar to Campaign Dashboard E2E) — plans written, not executed
+Status: Plans Ready (3 plans written, 0 executed). Jonathan's latest commit partially addresses Phase 8 goals (edit-mode iteration view, asset path rewriting in /api/iterations/:id/html, postMessage listener for live edits).
+Last activity: 2026-03-12 -- Merged Jonathan's 3 commits into local main
 
-Progress: [█████████░] 92% (Overall: 33/36 plans)
+Progress: [████████░░] 85% (Overall: 30/36 plans — Phase 8 plans written but not executed)
 
 ## Performance Metrics
 
@@ -75,7 +75,6 @@ Progress: [█████████░] 92% (Overall: 33/36 plans)
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P01 | 8min | 1 tasks | 4 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P02 | 9 | 2 tasks | 3 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P03 | 25 | 2 tasks | 8 files |
-| Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P04 | 2min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -181,7 +180,17 @@ Recent decisions affecting current work:
 - [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: buildAssetPreview/buildFramePreview extracted to preview-utils.ts as pure functions for testability; renderPreview closures in App.tsx stay thin
 - [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: Campaign mosaic uses html srcDoc in PreviewDescriptor with nested iframes — avoids DrillDownGrid refactor
 - [Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end]: 500ms auto-navigate delay removed from PromptSidebar — Plan 02 done event is reliable
-- [Phase 08-04]: DrillDownItem.subtitle widened to ReactNode (not a new prop) — backward-compatible, avoids DrillDownGrid API churn
+
+- [Jonathan 2026-03-12]: Template Library serves at `/`, canvas app at `/app` — middleware in watcher.ts reads from Reference/Context/Jonathan's Codebase/ and rewrites asset paths
+- [Jonathan 2026-03-12]: Editor z-index replaced with Order dropdown (DOM-based layer reordering)
+- [Jonathan 2026-03-12]: Full texture library added — 65+ PNGs organized as textures/brush/, textures/circles/, textures/scribbles/, textures/lines/, textures/x/
+- [Jonathan 2026-03-12]: /api/iterations/:id/html now rewrites asset paths, injects saved user_state, and adds postMessage listener for live edits — partially fulfills Phase 8 preview rendering goals
+- [Jonathan 2026-03-12]: Inline edit mode added to App.tsx — iterations open with live iframe + ContentEditor sidebar
+- [Jonathan 2026-03-12]: Image URL normalization in editor.ts — strips blob: and absolute URLs on save/load
+
+### Parallel Development Note
+
+Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD phases but may overlap with or partially fulfill planned work. When executing Phase 8 plans, check what Jonathan has already shipped to avoid duplicating effort or creating conflicts. Key overlap areas: iteration preview rendering, asset path handling, edit mode UI.
 
 ### Pending Todos
 
@@ -205,6 +214,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T12:40:32.544Z
-Stopped at: Completed 08-04-PLAN.md (gap closure: mosaic unwrap + StatusBadge)
-Resume file: None
+Last session: 2026-03-12T23:30:00.000Z
+Stopped at: Phase 8 plans written (not executed). Merged Jonathan's 3 commits. Local and remote in sync.
+Resume file: .planning/phases/08-ai-sidebar-to-campaign-dashboard-end-to-end/08-CONTEXT.md

@@ -210,13 +210,8 @@ base64 -i assets/fonts/flfontbold.ttf
 ## Step 6: Add Brushstroke Textures
 
 Two brushstrokes per post (Weight 80). Select from `assets/brushstrokes/`:
-- `brushstroke-diagonal-sweep.png`
-- `brushstroke-diagonal-upward.png`
-- `brushstroke-compact-burst.png`
-- `brushstroke-vertical-double-block.png`
-- `brushstroke-vertical-edge-sweep.png`
-- `brushstroke-horizontal-wide.png`
-- `brushstroke-bottom-grounding.png`
+- `brush-texture-01.png` through `brush-texture-10.png`
+- `brush-white.png`
 
 Use `Glob` to verify available files: `assets/brushstrokes/*.png`
 
@@ -247,7 +242,7 @@ If the headline has a key word that deserves emphasis, add a circle sketch.
 
 ### Circle Sketch CSS Rules (Weight 85-90)
 
-Use white circle mask PNGs from `assets/circles/masks/` with CSS mask-image:
+Use white circle mask PNGs from `assets/circles/` with CSS mask-image:
 
 ```css
 .fluid-[archetype]-circle-target {
@@ -261,7 +256,7 @@ Use white circle mask PNGs from `assets/circles/masks/` with CSS mask-image:
   width: 320px;
   height: 120px;
   background-color: var(--accent); /* Weight 85: accent via backgroundColor, NOT hue-rotate */
-  mask-image: url('assets/circles/masks/circle-1.png');
+  mask-image: url('assets/circles/circle-1.png');
   mask-size: contain;
   mask-repeat: no-repeat;
   opacity: 0.5-0.7; /* Weight 80 */
@@ -284,7 +279,7 @@ Copy the footer pattern from `patterns/index.html`. The footer is FIXED (Weight 
 ```
 
 Footer assets:
-- Left: `assets/logos/wecommerce-flags.png` + separator + `assets/logos/wecommerce-logos.png`
+- Left: `assets/logos/flag-icon.svg` (or `assets/logos/wc-flag.png`) + separator + `assets/logos/wecommerce-logo.svg`
 - Right: `assets/logos/frame-3-fluid-dots.png`
 
 Footer padding:

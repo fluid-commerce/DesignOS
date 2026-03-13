@@ -56,7 +56,7 @@ An agent using this system produces assets that look and sound like Fluid made t
 - **Chey** — system architecture and skill design lead
 - **Felipe, AJ** — design iteration and feedback
 - **Lane** — .liquid/theme development, Gold Standard workflow
-- **Jonathan** — Figma-to-HTML templates, brand asset curation
+- **Jonathan** — Template library UI, texture/asset curation, editor tooling, serving infrastructure (works in Cursor, pushes directly to main)
 
 ### Existing Systems to Build On
 - **46 marketing skills** at `~/.agents/skills/` — context cascade pattern, trigger-based activation
@@ -65,7 +65,9 @@ An agent using this system produces assets that look and sound like Fluid made t
 - **Fluid Payments Marketing Deck** — 32 Slidev layouts, Three.js, GSAP, film grain, complete design tokens
 - **Remotion video system** — recipe-driven video generation, auto-transcription, face detection, word-level captions
 - **Lane Fluid Sandbox** — 111 .liquid sections, Gold Standard workflow, brand assets
-- **Jonathan's template library** — HTML templates with live preview + spec format
+- **Jonathan's template library** — HTML templates with live preview + spec format, served at `/` via Vite middleware; canvas app at `/app`
+- **Jonathan's texture library** — 65+ PNG textures (circles, brushes, scribbles, lines, x marks) in `Reference/Context/Jonathan's Codebase/templates/assets/textures/`
+- **Jonathan's editor** — standalone HTML/JS editor with layer ordering, brush controls, and live template editing at `/editor`
 - **Social post design guide** — documented brand preferences from iteration sessions
 - **fluid-website-build-prompt.md** — page-by-page copy and visual direction for new brand
 

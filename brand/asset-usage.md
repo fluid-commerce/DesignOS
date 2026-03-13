@@ -2,7 +2,7 @@
 
 > Weight thresholds: 1-20 optional | 21-50 flexible | 51-80 strong preference | 81-100 brand-critical
 
-See [asset-index.md](asset-index.md) for the complete inventory of all 15 assets with file paths and original filenames.
+See [asset-index.md](asset-index.md) for the complete inventory of all assets with file paths.
 
 ## Brushstrokes (Weight: 90)
 
@@ -29,11 +29,7 @@ Slight rotation adds organic feel. Not required but recommended.
 - **Center-bottom** — grounding texture under content (bottom-grounding)
 
 ### Variety rule (Weight: 75)
-Don't use the same brushstroke placement on every post. The brand has 7 brushstroke textures with different shapes and energies. Mix them:
-- **Diagonal sweeps** (diagonal-sweep, diagonal-upward) — dynamic, upward motion
-- **Compact burst** (compact-burst) — tight accent energy
-- **Tall verticals** (vertical-double-block, vertical-edge-sweep) — dramatic edge framing
-- **Wide horizontals** (horizontal-wide, bottom-grounding) — grounding, horizon feel
+Don't use the same brushstroke placement on every post. The brand has 11 brush textures (`brush-texture-01.png` through `brush-texture-10.png`, plus `brush-white.png`) with different shapes and energies. Mix them across posts. Select different textures for each brushstroke slot within a post.
 
 ## Circle Sketches (Weight: 90)
 
@@ -55,6 +51,44 @@ Visible enough to emphasize, not so strong it overpowers the text.
 ### NOT decorative (Weight: 90)
 CSS mask circles look thin and mechanical. The actual hand-drawn circle sketch PNGs from the brand kit have weight, texture, and imperfection that match the social samples. Use the real assets, not CSS approximations.
 
+## Lines (Weight: 60)
+
+### Decorative dividers and separators (Weight: 60)
+Use hand-drawn line PNGs from `assets/lines/` as subtle dividers, separators, or structural accents. They add hand-crafted texture without competing with content.
+
+### Opacity: 0.15-0.35 (Weight: 60)
+Lines should be understated. Use lower opacity (0.15-0.20) when near text, higher (0.25-0.35) when used as standalone dividers.
+
+### Count per post (Weight: 50)
+1-2 lines maximum. Lines are supplementary to brushstrokes, not a replacement.
+
+## Scribbles (Weight: 60)
+
+### Expressive energy accents (Weight: 60)
+Use hand-drawn scribble PNGs from `assets/scribbles/` to add loose, energetic mark-making. Best for manifesto-style posts, high-energy announcements, or brand personality moments.
+
+### Opacity: 0.10-0.30 (Weight: 60)
+Scribbles should feel organic and incidental, not overpowering. Lower opacity for background texture, higher for deliberate accent marks.
+
+### NOT a substitute for brushstrokes (Weight: 70)
+Scribbles complement brushstrokes but do not replace them. Always include the standard 2 brushstrokes per post; scribbles are optional additions.
+
+## Xs (Weight: 60)
+
+### Cross-out and rejection emphasis (Weight: 60)
+Use hand-drawn X mark PNGs from `assets/xs/` for cross-out effects on rejected ideas, bullet-point accents, or visual "no" markers. Particularly effective in problem-first posts crossing out the wrong approach.
+
+### Opacity: 0.30-0.60 (Weight: 60)
+Xs are intentional marks and should be more visible than background textures. Size 80-200px depending on context.
+
+## Photos (Weight: 70)
+
+### Contextual usage only (Weight: 70)
+Photos from `assets/photos/` are used for specific content needs: person headshots for testimonials/team features, phone mockups for mobile UI showcases. Never used as generic background imagery.
+
+### Blend with dark backgrounds (Weight: 70)
+When placing photos over dark backgrounds, consider adding a subtle dark overlay or vignette to maintain the brand's dark aesthetic.
+
 ## Footer Structure (Weight: 95)
 
 Three elements, always the same across all social posts:
@@ -64,7 +98,7 @@ Three elements, always the same across all social posts:
  left                                                          right
 ```
 
-- **Left:** `wecommerce-flags.png` + separator + `wecommerce-logos.png`
+- **Left:** `flag-icon.svg` (or `wc-flag.png`) + separator + `wecommerce-logo.svg`
 - **Right:** `frame-3-fluid-dots.png` (Fluid dots mark)
 - Subtle, never competing with the content
 - See [social-post-specs.md](social-post-specs.md) for platform-specific footer padding
