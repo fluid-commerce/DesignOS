@@ -5,6 +5,8 @@ import { fluidWatcherPlugin } from './src/server/watcher';
 
 export default defineConfig({
   base: '/app/',
+  // Load .env from repo root (parent of canvas/) so VITE_FLUID_DAM_TOKEN is available
+  envDir: path.resolve(__dirname, '..'),
   plugins: [
     react(),
     fluidWatcherPlugin('../.fluid/working'),

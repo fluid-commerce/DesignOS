@@ -4,6 +4,7 @@ import { Breadcrumb } from './Breadcrumb';
 import { LeftNav } from './LeftNav';
 import { ChatSidebar } from './ChatSidebar';
 import { VoiceGuide } from './VoiceGuide';
+import { BuildHero } from './BuildHero';
 
 interface AppShellProps {
   /**
@@ -71,7 +72,13 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
       case 'create':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            {/* Create viewport header: tabs row + breadcrumb row */}
+            <BuildHero />
+          </div>
+        );
+
+      case 'my-creations':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             <div style={{
               flexShrink: 0,
               display: 'flex',
@@ -150,7 +157,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
-                    New Campaign
+                    Create New
                   </button>
                 ) : onNewCreation ? (
                   <button
@@ -181,7 +188,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
-                    create New
+                    Create New
                   </button>
                 ) : null}
               </div>
@@ -190,7 +197,6 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                 <Breadcrumb />
               </div>
             </div>
-            {/* Campaign drill-down content */}
             <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               {children}
             </div>

@@ -4,7 +4,7 @@ import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types
 export type NavigationView = 'dashboard' | 'campaign' | 'creation' | 'slide';
 
 /** Top-level navigation tabs controlling the main viewport */
-export type NavTab = 'create' | 'templates' | 'patterns' | 'voice-guide';
+export type NavTab = 'create' | 'my-creations' | 'templates' | 'patterns' | 'voice-guide';
 
 /** Sub-tabs within the Create viewport */
 export type CreateViewportTab = 'campaigns' | 'creations';
@@ -101,7 +101,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   activeNavTab: 'create',
   createViewportTab: 'campaigns',
   showNewCampaignModal: false,
-  chatSidebarOpen: true,
+  chatSidebarOpen: false,
 
   // Sidebar initial state
   leftSidebarOpen: true,
@@ -317,7 +317,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   // ---- Nav tab actions ----
 
   setActiveNavTab: (tab: NavTab) => {
-    set({ activeNavTab: tab });
+    set((state) => ({
+      activeNavTab: tab,
+      ...(tab === 'create' ? { chatSidebarOpen: false } : {}),
+    }));
   },
 
   setCreateViewportTab: (tab: CreateViewportTab) => {

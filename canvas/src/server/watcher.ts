@@ -174,10 +174,10 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           return next();
         }
         try {
+          // Home/index: redirect to React app at /app/
           if (pathname === '/') {
-            const html = await fs.readFile(path.join(templatesDir, 'index.html'), 'utf-8');
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-            res.end(html);
+            res.writeHead(302, { Location: '/app/' });
+            res.end();
             return;
           }
           if (pathname === '/editor' || pathname.startsWith('/editor?')) {
@@ -423,7 +423,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       <a class="back" href="/">← Back to library</a>
     </div>
     <div class="right">
-      <a href="/app/">Create new asset</a>
+      <a href="/">Create new asset</a>
       <a href="/" id="preview-dl">Download</a>
       <a href="#" id="preview-share">Share link</a>
     </div>

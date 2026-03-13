@@ -1,8 +1,11 @@
 /**
- * DAMPicker — DAM (Digital Asset Management) integration UI component.
+ * DAMPicker — DAM (Digital Asset Management) integration using the Fluid DAM Picker SDK.
+ *
+ * Integration follows the official guide:
+ * https://docs.fluid.app/docs/guides/dam-picker-sdk-guide
  *
  * Provides three ways to select an image for a slot field:
- *   1. Browse Assets via Fluid DAM (requires VITE_FLUID_DAM_TOKEN env var)
+ *   1. Browse Assets via Fluid DAM (requires VITE_FLUID_DAM_TOKEN — your Fluid API token)
  *   2. Upload from local device (FileReader → data URL)
  *   3. Drag-and-drop onto the drop zone
  *
@@ -13,7 +16,8 @@
  * Used by SlotField (ImageField) inside the ContentEditor sidebar.
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface DAMPickerProps {
   /** CSS selector of the target element in the iframe (passed to postMessage). */
@@ -28,9 +32,231 @@ export interface DAMPickerProps {
   dims?: string;
 }
 
-// ---- Fluid DAM token (set via VITE_FLUID_DAM_TOKEN in .env) ----
-// Vite exposes env vars via import.meta.env; the cast handles strict TS settings
+// ---- Fluid DAM token (Fluid API token — see https://docs.fluid.app/docs/guides/dam-picker-sdk-guide) ----
 const DAM_TOKEN: string = (import.meta.env as Record<string, string | undefined>).VITE_FLUID_DAM_TOKEN ?? '';
+
+/** Asset shape passed to onSelect (from SDK SelectedAsset). */
+export interface SelectedDAMAsset {
+  url: string;
+  name?: string;
+}
+
+/** Standalone Fluid DAM modal for use outside DAMPicker (e.g. BuildHero plus button). Uses the imperative DamPicker API so React Strict Mode cannot unmount and destroy the picker. */
+export interface FluidDAMModalProps {
+  isOpen: boolean;
+  onSelect: (asset: SelectedDAMAsset) => void;
+  onCancel: () => void;
+  /** Optional: called on picker error (e.g. AUTHENTICATION_ERROR, NETWORK_ERROR). */
+  onError?: (message: string) => void;
+}
+
+export function FluidDAMModal({ isOpen, onSelect, onCancel, onError }: FluidDAMModalProps) {
+  const pickerRef = useRef<InstanceType<typeof import('@fluid-commerce/dam-picker').DamPicker> | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const onSelectRef = useRef(onSelect);
+  const onCancelRef = useRef(onCancel);
+  const onErrorRef = useRef(onError);
+  onSelectRef.current = onSelect;
+  onCancelRef.current = onCancel;
+  onErrorRef.current = onError;
+
+  // When isOpen goes false, destroy picker if it exists (e.g. parent closed without going through picker)
+  useEffect(() => {
+    if (!isOpen && pickerRef.current) {
+      pickerRef.current.destroy();
+      pickerRef.current = null;
+    }
+  }, [isOpen]);
+
+  // When isOpen becomes true and we have a token, open the picker via the imperative API (avoids React Strict Mode destroying the overlay)
+  useEffect(() => {
+    if (!isOpen || !DAM_TOKEN) return;
+    setLoadError(null);
+    setLoading(true);
+    let cancelled = false;
+    import('@fluid-commerce/dam-picker')
+      .then((mod) => {
+        if (cancelled) return;
+        const picker = new mod.DamPicker({
+          token: DAM_TOKEN,
+          zIndex: 10001,
+          onSelect: (asset: { url: string; name?: string }) => {
+            if (pickerRef.current) {
+              pickerRef.current.destroy();
+              pickerRef.current = null;
+            }
+            setLoading(false);
+            if (asset?.url) onSelectRef.current({ url: asset.url, name: asset.name });
+          },
+          onCancel: () => {
+            if (pickerRef.current) {
+              pickerRef.current.destroy();
+              pickerRef.current = null;
+            }
+            setLoading(false);
+            onCancelRef.current();
+          },
+          onError: (err: { message?: string }) => {
+            if (pickerRef.current) {
+              pickerRef.current.destroy();
+              pickerRef.current = null;
+            }
+            setLoading(false);
+            const msg = err?.message ?? 'Unknown error';
+            setLoadError(msg);
+            onErrorRef.current?.(msg);
+          },
+        });
+        pickerRef.current = picker;
+        picker.open();
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setLoading(false);
+          setLoadError(err?.message ?? 'Failed to load DAM picker');
+        }
+      });
+    return () => {
+      cancelled = true;
+      if (pickerRef.current) {
+        pickerRef.current.destroy();
+        pickerRef.current = null;
+      }
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  if (!DAM_TOKEN) {
+    const noTokenEl = (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={onCancel}
+      >
+        <div
+          style={{
+            background: '#1a1a1e',
+            padding: 24,
+            borderRadius: 8,
+            maxWidth: 360,
+            border: '1px solid #2a2a2e',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p style={{ margin: 0, color: '#e0e0e0', fontSize: 14 }}>
+            Add your Fluid API token as VITE_FLUID_DAM_TOKEN in .env to connect to Fluid DAM. See the{' '}
+            <a
+              href="https://docs.fluid.app/docs/guides/dam-picker-sdk-guide"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#44B2FF' }}
+            >
+              DAM Picker SDK guide
+            </a>
+            .
+          </p>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              marginTop: 16,
+              padding: '8px 16px',
+              background: '#2a2a2e',
+              border: '1px solid #444',
+              borderRadius: 6,
+              color: '#e0e0e0',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+    return typeof document !== 'undefined' ? createPortal(noTokenEl, document.body) : noTokenEl;
+  }
+
+  if (loadError) {
+    const errEl = (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={() => { setLoadError(null); onCancel(); }}
+      >
+        <div
+          style={{
+            background: '#1a1a1e',
+            padding: 24,
+            borderRadius: 8,
+            maxWidth: 360,
+            border: '1px solid #2a2a2e',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p style={{ margin: 0, color: '#e0e0e0', fontSize: 14 }}>{loadError}</p>
+          <button
+            type="button"
+            onClick={() => { setLoadError(null); onCancel(); }}
+            style={{
+              marginTop: 16,
+              padding: '8px 16px',
+              background: '#2a2a2e',
+              border: '1px solid #444',
+              borderRadius: 6,
+              color: '#e0e0e0',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+    return typeof document !== 'undefined' ? createPortal(errEl, document.body) : errEl;
+  }
+
+  if (loading) {
+    const loadingEl = (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#e0e0e0',
+          fontSize: 14,
+        }}
+      >
+        Loading DAM picker…
+      </div>
+    );
+    return typeof document !== 'undefined' ? createPortal(loadingEl, document.body) : loadingEl;
+  }
+
+  return null;
+}
 
 // ---- DAMPicker component ─────────────────────────────────────── */
 export function DAMPicker({ sel: _sel, currentSrc, onSelect, label, dims }: DAMPickerProps) {
@@ -75,8 +301,7 @@ export function DAMPicker({ sel: _sel, currentSrc, onSelect, label, dims }: DAMP
   // ---- Browse Assets via Fluid DAM ----
   const handleBrowseAssets = async () => {
     if (!DAM_TOKEN) {
-      // No token configured — show helpful message, then fall through to local picker
-      setDamMessage('Set VITE_FLUID_DAM_TOKEN in .env to connect Fluid DAM. Using local file picker...');
+      setDamMessage('Add VITE_FLUID_DAM_TOKEN (Fluid API token) in .env to connect Fluid DAM. Using local file picker.');
       setTimeout(() => setDamMessage(null), 3000);
       fileInputRef.current?.click();
       return;
@@ -214,39 +439,129 @@ export function DAMPicker({ sel: _sel, currentSrc, onSelect, label, dims }: DAMP
   );
 }
 
-// ---- DamModalWrapper — lazy-loaded to avoid bundling when DAM is unused ----
+// ---- DamModalWrapper — lazy-loaded @fluid-commerce/dam-picker/react (SDK guide: https://docs.fluid.app/docs/guides/dam-picker-sdk-guide) ----
 
 interface DamModalWrapperProps {
   token: string;
   onSelect: (url: string) => void;
   onCancel: () => void;
+  onError?: (message: string) => void;
 }
 
-function DamModalWrapper({ token, onSelect, onCancel }: DamModalWrapperProps) {
-  // Dynamically imported DamPickerModal rendered in a portal-like overlay
-  // We use React.lazy + Suspense pattern via dynamic import
+function DamModalWrapper({ token, onSelect, onCancel, onError }: DamModalWrapperProps) {
   const [Modal, setModal] = useState<React.ComponentType<{
     isOpen: boolean;
     token: string;
+    zIndex?: number;
     onSelect: (asset: { url: string }) => void;
     onCancel: () => void;
+    onError?: (error: { code: string; message: string }) => void;
   }> | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  useState(() => {
-    import('@fluid-commerce/dam-picker/react').then((mod) => {
-      setModal(() => mod.DamPickerModal);
-    });
-  });
+  useEffect(() => {
+    setLoadError(null);
+    import('@fluid-commerce/dam-picker/react')
+      .then((mod) => {
+        setModal(() => mod.DamPickerModal);
+      })
+      .catch((err) => {
+        setLoadError(err?.message ?? 'Failed to load DAM picker');
+      });
+  }, []);
 
-  if (!Modal) return null;
+  const handleCancel = useCallback(() => onCancel(), [onCancel]);
+
+  const handleSelect = useCallback((url: string) => onSelect(url), [onSelect]);
+
+  if (loadError) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={() => { setLoadError(null); onCancel(); }}
+      >
+        <div
+          style={{
+            background: '#1a1a1e',
+            padding: 24,
+            borderRadius: 8,
+            maxWidth: 360,
+            border: '1px solid #2a2a2e',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p style={{ margin: 0, color: '#e0e0e0', fontSize: 14 }}>{loadError}</p>
+          <button
+            type="button"
+            onClick={() => { setLoadError(null); onCancel(); }}
+            style={{
+              marginTop: 16,
+              padding: '8px 16px',
+              background: '#2a2a2e',
+              border: '1px solid #444',
+              borderRadius: 6,
+              color: '#e0e0e0',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!Modal) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 10000,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#e0e0e0',
+          fontSize: 14,
+        }}
+      >
+        Loading DAM picker…
+      </div>
+    );
+  }
 
   return (
-    <Modal
-      isOpen={true}
-      token={token}
-      onSelect={(asset) => onSelect(asset.url)}
-      onCancel={onCancel}
-    />
+    <>
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          background: 'rgba(0,0,0,0.5)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Modal
+        isOpen={true}
+        token={token}
+        zIndex={10001}
+        onSelect={(asset) => {
+          if (asset?.url) handleSelect(asset.url);
+        }}
+        onCancel={handleCancel}
+        onError={onError ? (err) => onError(err?.message ?? 'Unknown error') : undefined}
+      />
+    </>
   );
 }
 

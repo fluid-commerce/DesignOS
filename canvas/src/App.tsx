@@ -224,12 +224,12 @@ export function App() {
       );
     }
 
-    // Campaigns tab: only show campaigns list (folders). Creations live in the Creations tab.
-    if (createViewportTab === 'campaigns') {
+    // Campaigns tab: show campaign list only at dashboard; when a campaign is selected, show drill-down in same tab.
+    if (createViewportTab === 'campaigns' && currentView === 'dashboard') {
       return <CampaignDashboard />;
     }
 
-    // Creations tab: show creations hierarchy (creations → slides → iterations)
+    // Creations tab at dashboard, or either tab when drilled in: show creations hierarchy (creations → slides → iterations)
     switch (currentView) {
       case 'dashboard':
         return (
