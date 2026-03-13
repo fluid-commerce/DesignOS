@@ -35,6 +35,9 @@ interface CampaignStore {
   // Create viewport sub-tab
   createViewportTab: CreateViewportTab;
 
+  /** When true, CampaignDashboard shows the New Campaign modal (triggered from AppShell header) */
+  showNewCampaignModal: boolean;
+
   // Chat sidebar state (canonical name; leftSidebarOpen kept for backward compat)
   chatSidebarOpen: boolean;
 
@@ -68,6 +71,7 @@ interface CampaignStore {
   // Nav tab actions
   setActiveNavTab: (tab: NavTab) => void;
   setCreateViewportTab: (tab: CreateViewportTab) => void;
+  setShowNewCampaignModal: (show: boolean) => void;
   toggleChatSidebar: () => void;
 
   // Sidebar actions
@@ -96,6 +100,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   // Top-level nav tab initial state
   activeNavTab: 'create',
   createViewportTab: 'campaigns',
+  showNewCampaignModal: false,
   chatSidebarOpen: true,
 
   // Sidebar initial state
@@ -109,6 +114,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   navigateToDashboard: () => {
     set({
       currentView: 'dashboard',
+      createViewportTab: 'campaigns',
       activeCampaignId: null,
       activeCreationId: null,
       activeSlideId: null,
@@ -316,6 +322,9 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
 
   setCreateViewportTab: (tab: CreateViewportTab) => {
     set({ createViewportTab: tab });
+  },
+  setShowNewCampaignModal: (show: boolean) => {
+    set({ showNewCampaignModal: show });
   },
 
   toggleChatSidebar: () => {

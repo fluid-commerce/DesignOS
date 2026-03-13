@@ -64,95 +64,131 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
   const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
   const rightSidebarOpen = useCampaignStore((s) => s.rightSidebarOpen);
   const toggleRightSidebar = useCampaignStore((s) => s.toggleRightSidebar);
+  const setShowNewCampaignModal = useCampaignStore((s) => s.setShowNewCampaignModal);
 
   const renderViewport = () => {
     switch (activeNavTab) {
       case 'create':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            {/* Create viewport header */}
+            {/* Create viewport header: tabs row + breadcrumb row */}
             <div style={{
               flexShrink: 0,
-              height: 40,
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0 1rem',
+              flexDirection: 'column',
               borderBottom: '1px solid #1e1e1e',
               backgroundColor: '#0d0d0d',
-              gap: '0.75rem',
             }}>
-              {/* Breadcrumb */}
-              <div style={{ flex: 1, overflow: 'hidden' }}>
+              {/* Row 1: Campaigns / Creations tabs (left) + New Creation button (right) */}
+              <div style={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 1rem',
+                gap: '0.75rem',
+              }}>
+                <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+                  {(['campaigns', 'creations'] as CreateViewportTab[]).map((tab) => {
+                    const isActive = createViewportTab === tab;
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setCreateViewportTab(tab)}
+                        style={{
+                          padding: '4px 12px',
+                          fontSize: '0.72rem',
+                          fontWeight: isActive ? 600 : 400,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                          color: isActive ? '#e0e0e0' : '#666',
+                          backgroundColor: isActive ? '#1a1a1e' : 'transparent',
+                          border: 'none',
+                          borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
+                          cursor: 'pointer',
+                          transition: 'color 0.15s, background-color 0.15s',
+                          fontFamily: 'inherit',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) e.currentTarget.style.color = '#aaa';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) e.currentTarget.style.color = '#666';
+                        }}
+                      >
+                        {tab === 'campaigns' ? 'Campaigns' : 'Creations'}
+                      </button>
+                    );
+                  })}
+                </div>
+                {createViewportTab === 'campaigns' ? (
+                  <button
+                    onClick={() => setShowNewCampaignModal(true)}
+                    title="New campaign"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      padding: '5px 12px',
+                      backgroundColor: '#44B2FF',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 5,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      transition: 'background-color 0.15s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    New Campaign
+                  </button>
+                ) : onNewCreation ? (
+                  <button
+                    onClick={onNewCreation}
+                    title="New creation"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      padding: '5px 12px',
+                      backgroundColor: '#44B2FF',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 5,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      transition: 'background-color 0.15s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    create New
+                  </button>
+                ) : null}
+              </div>
+              {/* Row 2: Breadcrumb below tabs (hidden) */}
+              <div style={{ display: 'none', padding: '0 1rem 0.5rem', overflow: 'hidden', minHeight: 0 }}>
                 <Breadcrumb />
               </div>
-              {/* Campaigns / Creations viewport tabs */}
-              <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
-                {(['campaigns', 'creations'] as CreateViewportTab[]).map((tab) => {
-                  const isActive = createViewportTab === tab;
-                  return (
-                    <button
-                      key={tab}
-                      onClick={() => setCreateViewportTab(tab)}
-                      style={{
-                        padding: '4px 12px',
-                        fontSize: '0.72rem',
-                        fontWeight: isActive ? 600 : 400,
-                        letterSpacing: '0.04em',
-                        textTransform: 'uppercase',
-                        color: isActive ? '#e0e0e0' : '#666',
-                        backgroundColor: isActive ? '#1a1a1e' : 'transparent',
-                        border: 'none',
-                        borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
-                        cursor: 'pointer',
-                        transition: 'color 0.15s, background-color 0.15s',
-                        fontFamily: 'inherit',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) e.currentTarget.style.color = '#aaa';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) e.currentTarget.style.color = '#666';
-                      }}
-                    >
-                      {tab === 'campaigns' ? 'Campaigns' : 'Creations'}
-                    </button>
-                  );
-                })}
-              </div>
-              {/* New Creation button */}
-              {onNewCreation && (
-                <button
-                  onClick={onNewCreation}
-                  title="New creation"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                    padding: '5px 12px',
-                    backgroundColor: '#44B2FF',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 5,
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.06em',
-                    textTransform: 'uppercase',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    transition: 'background-color 0.15s',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                  New Creation
-                </button>
-              )}
             </div>
             {/* Campaign drill-down content */}
             <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, type CSSProperties } from 're
 import { AppShell } from './components/AppShell';
 import { PromptSidebar } from './components/PromptSidebar';
 import { ContentEditor } from './components/ContentEditor';
-import { CampaignDashboard } from './components/CampaignDashboard';
+import { CampaignDashboard, FilterSortBar, type SortKey } from './components/CampaignDashboard';
 import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './components/DrillDownGrid';
 // TemplateGallery no longer used — template cards are rendered inline in the modal
 // import { TemplateGallery } from './components/TemplateGallery';
@@ -36,12 +36,17 @@ export function App() {
   const selectIteration = useCampaignStore((s) => s.selectIteration);
   const setRightSidebarOpen = useCampaignStore((s) => s.setRightSidebarOpen);
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
+  const createViewportTab = useCampaignStore((s) => s.createViewportTab);
 
   const selectedIterationId = useEditorStore((s) => s.selectedIterationId);
 
   // Template creation flow state
   const [creationFlow, setCreationFlow] = useState<CreationFlow>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateMetadata | null>(null);
+
+  // Creations tab filter/sort (when viewing creations in a campaign)
+  const [filterCreationType, setFilterCreationType] = useState('all');
+  const [sortCreationKey, setSortCreationKey] = useState<SortKey>('updatedAt');
 
   // Ref to the active iteration's iframe element for ContentEditor
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -169,6 +174,18 @@ export function App() {
     };
   });
 
+  // Filter/sort for Creations tab (by type and sort key; Creation has createdAt, no updatedAt)
+  const creationTypes = Array.from(new Set(creations.map((c) => c.creationType)));
+  const filteredCreationItems = filterCreationType === 'all'
+    ? creationItems
+    : creationItems.filter((item) => item.data.creationType === filterCreationType);
+  const sortedCreationItems = [...filteredCreationItems].sort((a, b) => {
+    if (sortCreationKey === 'title') return a.data.title.localeCompare(b.data.title);
+    const aTime = a.data.createdAt;
+    const bTime = b.data.createdAt;
+    return sortCreationKey === 'updatedAt' || sortCreationKey === 'createdAt' ? bTime - aTime : bTime - aTime;
+  });
+
   const slideItems: DrillDownItem<Slide>[] = slides.map((f) => ({
     id: f.id,
     title: `Slide ${f.slideIndex + 1}`,
@@ -182,7 +199,8 @@ export function App() {
     data: it,
   }));
 
-  // ── Main content area (switches based on currentView) ───────────────────
+  // ── Main content area ───────────────────────────────────────────────────
+  // Campaigns tab: only campaign folders (no creations). Creations tab: creations hierarchy.
   const renderMainContent = () => {
     if (loading && currentView !== 'dashboard') {
       return (
@@ -206,26 +224,60 @@ export function App() {
       );
     }
 
+    // Campaigns tab: only show campaigns list (folders). Creations live in the Creations tab.
+    if (createViewportTab === 'campaigns') {
+      return <CampaignDashboard />;
+    }
+
+    // Creations tab: show creations hierarchy (creations → slides → iterations)
     switch (currentView) {
       case 'dashboard':
-        return <CampaignDashboard />;
+        return (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            minHeight: 280,
+            padding: '2rem',
+            color: '#666',
+            fontSize: '0.9rem',
+            fontFamily: "'Inter', sans-serif",
+            textAlign: 'center',
+          }}>
+            <p style={{ margin: 0, maxWidth: 320 }}>
+              Creations are assets (e.g. posts, one-pagers) that live inside campaigns. Select a campaign from the <strong>Campaigns</strong> tab to view and add creations.
+            </p>
+          </div>
+        );
 
       case 'campaign':
         return (
           <DrillDownGrid
-            items={creationItems}
+            items={sortedCreationItems}
             renderPreview={renderCreationPreview}
             onSelect={handleSelectCreation}
             title="Creations"
+            showBreadcrumb
+            headerActions={
+              <FilterSortBar
+                filterChannel={filterCreationType}
+                onFilterChannel={setFilterCreationType}
+                sortKey={sortCreationKey}
+                onSort={setSortCreationKey}
+                channels={creationTypes}
+              />
+            }
             emptyState={
               <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100%', minHeight: 300,
                 gap: '1rem', color: '#444',
               }}>
-                <div style={{ fontSize: '0.9rem' }}>No creations yet</div>
+                <div style={{ fontSize: '0.9rem' }}>No creations in this campaign yet</div>
                 <div style={{ fontSize: '0.8rem', color: '#333' }}>
-                  Click &quot;New Creation&quot; to create one
+                  Add a creation with &quot;create New&quot; above
                 </div>
               </div>
             }
@@ -239,6 +291,7 @@ export function App() {
             renderPreview={renderSlidePreview}
             onSelect={handleSelectSlide}
             title="Slides"
+            showBreadcrumb
           />
         );
 
@@ -296,6 +349,7 @@ export function App() {
             renderPreview={renderIterationPreview}
             onSelect={handleSelectIteration}
             title="Iterations"
+            showBreadcrumb
             emptyState={
               <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',

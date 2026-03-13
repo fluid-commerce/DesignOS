@@ -501,9 +501,9 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
   );
 }
 
-// ---- Filter / Sort bar ----
+// ---- Filter / Sort bar (exported for use on Creations tab) ----
 
-type SortKey = 'updatedAt' | 'createdAt' | 'title';
+export type SortKey = 'updatedAt' | 'createdAt' | 'title';
 
 interface FilterSortBarProps {
   filterChannel: string;
@@ -513,7 +513,7 @@ interface FilterSortBarProps {
   channels: string[];
 }
 
-function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort, channels }: FilterSortBarProps) {
+export function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort, channels }: FilterSortBarProps) {
   const allChannels = ['all', ...Array.from(new Set(channels))];
 
   return (
@@ -597,7 +597,9 @@ export function CampaignDashboard() {
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
 
-  const [showNewModal, setShowNewModal] = useState(false);
+  const showNewCampaignModal = useCampaignStore((s) => s.showNewCampaignModal);
+  const setShowNewCampaignModal = useCampaignStore((s) => s.setShowNewCampaignModal);
+  const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
   const [filterChannel, setFilterChannel] = useState('all');
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
 
@@ -680,6 +682,7 @@ export function CampaignDashboard() {
   }, [mosaicData]);
 
   const handleSelect = (item: DrillDownItem<Campaign>) => {
+    setCreateViewportTab('creations');
     navigateToCampaign(item.id);
   };
 
@@ -695,42 +698,13 @@ export function CampaignDashboard() {
   };
 
   const headerActions = (
-    <>
-      <FilterSortBar
-        filterChannel={filterChannel}
-        onFilterChannel={setFilterChannel}
-        sortKey={sortKey}
-        onSort={setSortKey}
-        channels={allChannels}
-      />
-      <button
-        onClick={() => setShowNewModal(true)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.375rem',
-          padding: '5px 14px',
-          backgroundColor: '#44B2FF',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 6,
-          fontSize: '0.7rem',
-          fontWeight: 600,
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          fontFamily: "'Inter', sans-serif",
-        }}
-      >
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-        New Campaign
-      </button>
-    </>
+    <FilterSortBar
+      filterChannel={filterChannel}
+      onFilterChannel={setFilterChannel}
+      sortKey={sortKey}
+      onSort={setSortKey}
+      channels={allChannels}
+    />
   );
 
   const emptyState = (
@@ -755,7 +729,7 @@ export function CampaignDashboard() {
         Create one to get started
       </div>
       <button
-        onClick={() => setShowNewModal(true)}
+        onClick={() => setShowNewCampaignModal(true)}
         style={{
           marginTop: '0.5rem',
           padding: '7px 18px',
@@ -810,9 +784,9 @@ export function CampaignDashboard() {
         headerActions={headerActions}
       />
 
-      {showNewModal && (
+      {showNewCampaignModal && (
         <NewCampaignModal
-          onClose={() => setShowNewModal(false)}
+          onClose={() => setShowNewCampaignModal(false)}
           onCreated={handleCreated}
         />
       )}
