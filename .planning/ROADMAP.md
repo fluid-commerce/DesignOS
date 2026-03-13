@@ -256,7 +256,7 @@ Plans:
 **Goal:** Replace the current flat layout with a slim icon-based left nav (Campaigns, Templates, Patterns, Voice Guide) that controls the main viewport, reposition the AI chat sidebar between the left nav and viewport as a collapsible panel (toggled via bottom nav icon), and add Voice Guide as a new markdown-rendering viewport with vertical side-tabs for 13 brand knowledge docs
 **Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, NAV-08
 **Depends on:** Phase 8
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 10-01-PLAN.md — Core layout overhaul: store extension, LeftNav, ChatSidebar, AppShell rewrite, viewport switching

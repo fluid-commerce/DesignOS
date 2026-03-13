@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 8 complete. Merged to main. Remaining: 4.2, 4.3, 9.
-stopped_at: Phase 8 merged to main via PR #1. README + ARCHITECTURE.md added. chey-work branch cleaned up.
-last_updated: "2026-03-13T15:15:00.000Z"
-last_activity: 2026-03-13 -- Phase 8 complete, PR merged, branch cleanup, docs added
+status: completed
+stopped_at: Completed 10-01-PLAN.md
+last_updated: "2026-03-13T16:56:45.722Z"
+last_activity: "2026-03-13 -- PR #1 merged, chey-work branch cleaned up"
 progress:
-  total_phases: 13
+  total_phases: 14
   completed_phases: 10
-  total_plans: 36
-  completed_plans: 35
+  total_plans: 39
+  completed_plans: 36
   percent: 94
 ---
 
@@ -75,6 +75,7 @@ Progress: [█████████░] 94% (Overall: 35/36 plans)
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P01 | 8min | 1 tasks | 4 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P02 | 9 | 2 tasks | 3 files |
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P03 | 25 | 2 tasks | 8 files |
+| Phase 10 P01 | 7 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -193,6 +194,9 @@ Recent decisions affecting current work:
 - [2026-03-13]: preview-utils: added isValidHtmlPath filter to skip placeholder/test.html paths from iframe rendering
 - [2026-03-13]: db.test.ts isolation: added FLUID_DB_PATH temp dir setup — was writing test data to production fluid.db on every vitest run
 - [2026-03-13]: DB cleanup: deleted 239 garbage campaigns (and cascaded assets/frames/iterations) created by test pollution. Kept 2 real campaigns.
+- [Phase 10]: Four-zone layout: LeftNav (52px) | ChatSidebar (0/280px) | Viewport | ContentEditor — header removed
+- [Phase 10]: chatSidebarOpen is canonical new name; leftSidebarOpen kept in sync for backward compat
+- [Phase 10]: Patterns /patterns/ middleware added in watcher.ts (Phase 10-01 deviation) — needed for patterns iframe to resolve
 
 ### Parallel Development Note
 
@@ -211,6 +215,7 @@ None yet.
 - Phase 7 added: Merge Jonathan's codebase into Fluid DesignOS — consolidate Jonathan's implementation with existing system, documentation in Reference/Context
 - Phase 8 added: AI sidebar to campaign dashboard end-to-end — fix disconnected data paths (sidebar generates to disk, dashboard reads SQLite), multi-asset campaign creation, preview rendering at all navigation levels, MCP push_asset bridge
 - Phase 9 added: Conversational chat UI — bottom input, message bubbles, auto-scroll
+- Phase 10 added: App Navigation Overhaul — slim icon-based left nav (Campaigns, Templates, Patterns, Voice Guide) controlling main viewport; collapsible AI chat sidebar between left nav and viewport (toggled via bottom nav icon); Voice Guide renders 14 markdown docs with vertical side-tabs
 
 ### Blockers/Concerns
 
@@ -220,6 +225,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T23:30:00.000Z
-Stopped at: Phase 8 plans written (not executed). Merged Jonathan's 3 commits. Local and remote in sync.
-Resume file: .planning/phases/08-ai-sidebar-to-campaign-dashboard-end-to-end/08-CONTEXT.md
+Last session: 2026-03-13T16:56:45.720Z
+Stopped at: Completed 10-01-PLAN.md
+Resume file: None
