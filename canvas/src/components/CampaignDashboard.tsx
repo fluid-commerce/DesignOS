@@ -599,7 +599,6 @@ export function CampaignDashboard() {
 
   const showNewCampaignModal = useCampaignStore((s) => s.showNewCampaignModal);
   const setShowNewCampaignModal = useCampaignStore((s) => s.setShowNewCampaignModal);
-  const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
   const [filterChannel, setFilterChannel] = useState('all');
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
 
@@ -682,7 +681,6 @@ export function CampaignDashboard() {
   }, [mosaicData]);
 
   const handleSelect = (item: DrillDownItem<Campaign>) => {
-    setCreateViewportTab('creations');
     navigateToCampaign(item.id);
   };
 
