@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { TemplateMetadata } from '../lib/template-configs';
 import { getTemplateSchema } from '../lib/template-configs';
 
@@ -115,33 +115,9 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
       </button>
 
       <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        {/* Template preview thumbnail */}
+        {/* Template preview — live iframe scaled to fit */}
         <div style={{ flexShrink: 0 }}>
-          <div style={{
-            width: 280,
-            height: template.platform === 'linkedin-landscape' ? 132 : 200,
-            overflow: 'hidden',
-            borderRadius: 8,
-            border: '1px solid #2a2a2e',
-            backgroundColor: '#0d0d0d',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <img
-              src={`/${template.thumbnailPath}`}
-              alt={template.name}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </div>
+          <TemplatePreviewIframe template={template} />
           <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#666' }}>
             {template.dimensions.width} × {template.dimensions.height}px
           </div>
@@ -257,6 +233,56 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
             {creating ? 'Creating...' : 'Create Asset'}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Scaled iframe preview of a template for the customizer panel. */
+function TemplatePreviewIframe({ template }: { template: TemplateMetadata }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.25);
+  const { width, height } = template.dimensions;
+  const containerWidth = 280;
+  const containerHeight = template.platform === 'linkedin-landscape' ? 132 : 200;
+
+  useEffect(() => {
+    const scaleX = containerWidth / width;
+    const scaleY = containerHeight / height;
+    setScale(Math.min(scaleX, scaleY) * 0.95);
+  }, [width, height, containerWidth, containerHeight]);
+
+  const previewSrc = `/templates/${template.templateId}.html`;
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: containerWidth,
+        height: containerHeight,
+        overflow: 'hidden',
+        borderRadius: 8,
+        border: '1px solid #2a2a2e',
+        backgroundColor: '#0d0d0d',
+        position: 'relative',
+      }}
+    >
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: `translate(-50%, -50%) scale(${scale})`,
+        transformOrigin: 'center center',
+        width,
+        height,
+      }}>
+        <iframe
+          src={previewSrc}
+          width={width}
+          height={height}
+          style={{ border: 'none', display: 'block', pointerEvents: 'none' }}
+          title={`${template.name} preview`}
+        />
       </div>
     </div>
   );

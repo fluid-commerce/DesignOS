@@ -438,6 +438,8 @@ interface NewAssetTabProps {
 }
 
 function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onAssetCreated }: NewAssetTabProps) {
+  // Local template selection for preview — only calls parent onSelectTemplate on "Generate"
+  const [localTemplate, setLocalTemplate] = useState<TemplateMetadata | null>(selectedTemplate);
   const [selectedSkill, setSelectedSkill] = useState('ad-creative');
   const [brief, setBrief] = useState('');
   const [referenceUrl, setReferenceUrl] = useState('');
@@ -453,18 +455,18 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
   };
 
   const handleGeneratePrompt = async () => {
-    if (!selectedTemplate || !activeCampaignId) return;
+    if (!localTemplate || !activeCampaignId) return;
     setGenerating(true);
     try {
-      onSelectTemplate(selectedTemplate);
+      onSelectTemplate(localTemplate);
     } finally {
       setGenerating(false);
     }
   };
 
-  // Preview URL for selected template
-  const previewUrl = selectedTemplate && selectedTemplate.templateId !== 'scratch'
-    ? `/templates/${selectedTemplate.templateId}.html`
+  // Preview URL for locally selected template
+  const previewUrl = localTemplate && localTemplate.templateId !== 'scratch'
+    ? `/templates/${localTemplate.templateId}.html`
     : null;
 
   return (
@@ -543,9 +545,9 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
             overflow: 'hidden',
           }}>
             <TemplateGallery
-              onSelectTemplate={onSelectTemplate}
+              onSelectTemplate={setLocalTemplate}
               mode="modal"
-              selectedTemplateId={selectedTemplate?.templateId ?? null}
+              selectedTemplateId={localTemplate?.templateId ?? null}
             />
           </div>
         </section>
@@ -616,10 +618,10 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
         {/* GENERATE PROMPT button */}
         <button
           onClick={handleGeneratePrompt}
-          disabled={generating || !selectedTemplate}
+          disabled={generating || !localTemplate}
           style={{
-            backgroundColor: generating || !selectedTemplate ? '#1e2020' : BLUE,
-            color: generating || !selectedTemplate ? '#444' : '#000',
+            backgroundColor: generating || !localTemplate ? '#1e2020' : BLUE,
+            color: generating || !localTemplate ? '#444' : '#000',
             border: 'none',
             borderRadius: 6,
             padding: '0.65rem 1.5rem',
@@ -661,14 +663,14 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
           flexShrink: 0,
         }}>
           <span style={{ ...LABEL_STYLE, marginBottom: 0 }}>Preview</span>
-          {selectedTemplate && (
+          {localTemplate && (
             <span style={{
               marginLeft: 'auto',
               fontSize: '0.7rem',
               color: '#555',
               fontStyle: 'italic',
             }}>
-              {selectedTemplate.name}
+              {localTemplate.name}
             </span>
           )}
         </div>
@@ -693,8 +695,8 @@ function NewAssetTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onA
             }}>
               <PreviewFrame
                 src={previewUrl}
-                width={selectedTemplate!.dimensions.width}
-                height={selectedTemplate!.dimensions.height}
+                width={localTemplate!.dimensions.width}
+                height={localTemplate!.dimensions.height}
               />
             </div>
           ) : (
