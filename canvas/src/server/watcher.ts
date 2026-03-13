@@ -12,24 +12,24 @@ import {
   createCampaign,
   getCampaigns,
   getCampaign,
-  createAsset,
-  getAssets,
-  createFrame,
-  getFrames,
+  createCreation,
+  getCreations,
+  createSlide,
+  getSlides,
   createIteration,
   getIterations,
   updateIterationStatus,
   updateIterationUserState,
   updateIterationGenerationStatus,
-  updateAsset,
+  updateCreation,
   createAnnotation,
   getAnnotations,
-  createCampaignWithAssets,
+  createCampaignWithCreations,
   getCampaignPreviewUrls,
 } from './db-api';
 
-// ─── Asset dimensions by type ───────────────────────────────────────────────
-const ASSET_DIMENSIONS: Record<string, { width: number; height: number }> = {
+// ─── Creation dimensions by type ────────────────────────────────────────────
+const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
   instagram: { width: 1080, height: 1080 },
   linkedin: { width: 1200, height: 627 },
   'one-pager': { width: 816, height: 1056 },
@@ -49,41 +49,41 @@ const DEFAULT_CHANNEL_COUNTS: Record<string, number> = {
  */
 function parseChannelHints(
   prompt: string
-): { channels: string[]; assetCounts: Record<string, number> } {
+): { channels: string[]; creationCounts: Record<string, number> } {
   const lower = prompt.toLowerCase();
 
   // Check for single-channel hints
   if (/just linkedin|linkedin only|only linkedin/i.test(lower)) {
-    return { channels: ['linkedin'], assetCounts: { linkedin: 3 } };
+    return { channels: ['linkedin'], creationCounts: { linkedin: 3 } };
   }
   if (/just instagram|instagram only|only instagram/i.test(lower)) {
-    return { channels: ['instagram'], assetCounts: { instagram: 3 } };
+    return { channels: ['instagram'], creationCounts: { instagram: 3 } };
   }
   if (/one-pager only|just (?:a )?one-pager/i.test(lower)) {
-    return { channels: ['one-pager'], assetCounts: { 'one-pager': 1 } };
+    return { channels: ['one-pager'], creationCounts: { 'one-pager': 1 } };
   }
 
   // No hint — return full default spread
   return {
     channels: Object.keys(DEFAULT_CHANNEL_COUNTS),
-    assetCounts: { ...DEFAULT_CHANNEL_COUNTS },
+    creationCounts: { ...DEFAULT_CHANNEL_COUNTS },
   };
 }
 
 /**
- * Builds an asset list from a channel count map.
- * e.g. { instagram: 3, linkedin: 3, 'one-pager': 1 } => 7 asset specs
+ * Builds a creation list from a channel count map.
+ * e.g. { instagram: 3, linkedin: 3, 'one-pager': 1 } => 7 creation specs
  */
-function buildAssetList(
-  assetCounts: Record<string, number>
-): Array<{ title: string; assetType: string; frameCount: number }> {
-  const assets: Array<{ title: string; assetType: string; frameCount: number }> = [];
-  for (const [type, count] of Object.entries(assetCounts)) {
+function buildCreationList(
+  creationCounts: Record<string, number>
+): Array<{ title: string; creationType: string; slideCount: number }> {
+  const creations: Array<{ title: string; creationType: string; slideCount: number }> = [];
+  for (const [type, count] of Object.entries(creationCounts)) {
     for (let i = 1; i <= count; i++) {
-      assets.push({ title: `${type} ${i}`, assetType: type, frameCount: 1 });
+      creations.push({ title: `${type} ${i}`, creationType: type, slideCount: 1 });
     }
   }
-  return assets;
+  return creations;
 }
 
 /**
@@ -93,10 +93,10 @@ function buildAssetList(
 export function fluidWatcherPlugin(workingDir: string): Plugin {
   let server: ViteDevServer | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  // Legacy single-child lock kept for iterate (single-asset) mode
+  // Legacy single-child lock kept for iterate (single-creation) mode
   let activeChild: ChildProcess | null = null;
-  // Multi-asset parallel generation tracking
-  const activeChildren: Map<string, ChildProcess> = new Map(); // keyed by assetId
+  // Multi-creation parallel generation tracking
+  const activeChildren: Map<string, ChildProcess> = new Map(); // keyed by creationId
   let activeCampaignGeneration: string | null = null; // campaign-level lock
 
   return {
@@ -546,11 +546,11 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             }
             body.title = title;
             if (!Array.isArray(body.channels)) body.channels = [];
-            // Atomic creation with assets if assets array provided
-            if (Array.isArray(body.assets)) {
-              const result = createCampaignWithAssets(
+            // Atomic creation with creations if creations array provided
+            if (Array.isArray(body.creations)) {
+              const result = createCampaignWithCreations(
                 { title: body.title, channels: body.channels },
-                body.assets
+                body.creations
               );
               res.writeHead(201, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify(result));
@@ -585,9 +585,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
-          // PATCH /api/assets/:id — agent-driven asset rename
-          const assetPatchMatch = url.match(/^\/api\/assets\/([^/]+)$/);
-          if (assetPatchMatch && method === 'PATCH') {
+          // PATCH /api/creations/:id — agent-driven creation rename
+          const creationPatchMatch = url.match(/^\/api\/creations\/([^/]+)$/);
+          if (creationPatchMatch && method === 'PATCH') {
             const body = JSON.parse(await readBody(req));
             if (!body.title) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -595,84 +595,84 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               return;
             }
             try {
-              updateAsset(assetPatchMatch[1], { title: body.title });
+              updateCreation(creationPatchMatch[1], { title: body.title });
               res.writeHead(200, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify({ ok: true }));
             } catch {
               res.writeHead(404, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Asset not found' }));
+              res.end(JSON.stringify({ error: 'Creation not found' }));
             }
             return;
           }
 
-          // ── Assets ──────────────────────────────────────────────────────
+          // ── Creations ─────────────────────────────────────────────────
 
-          // GET /api/campaigns/:id/assets
-          const campaignAssetsMatch = url.match(/^\/api\/campaigns\/([^/]+)\/assets$/);
-          if (campaignAssetsMatch && method === 'GET') {
-            const assets = getAssets(campaignAssetsMatch[1]);
+          // GET /api/campaigns/:id/creations
+          const campaignCreationsMatch = url.match(/^\/api\/campaigns\/([^/]+)\/creations$/);
+          if (campaignCreationsMatch && method === 'GET') {
+            const creations = getCreations(campaignCreationsMatch[1]);
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(assets));
+            res.end(JSON.stringify(creations));
             return;
           }
 
-          // POST /api/campaigns/:id/assets
-          if (campaignAssetsMatch && method === 'POST') {
+          // POST /api/campaigns/:id/creations
+          if (campaignCreationsMatch && method === 'POST') {
             const body = JSON.parse(await readBody(req));
-            if (!body.title || !body.assetType || body.frameCount == null) {
+            if (!body.title || !body.creationType || body.slideCount == null) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'title, assetType, and frameCount are required' }));
+              res.end(JSON.stringify({ error: 'title, creationType, and slideCount are required' }));
               return;
             }
-            const asset = createAsset({
-              campaignId: campaignAssetsMatch[1],
+            const creation = createCreation({
+              campaignId: campaignCreationsMatch[1],
               title: body.title,
-              assetType: body.assetType,
-              frameCount: body.frameCount,
+              creationType: body.creationType,
+              slideCount: body.slideCount,
             });
             res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(asset));
+            res.end(JSON.stringify(creation));
             return;
           }
 
-          // ── Frames ──────────────────────────────────────────────────────
+          // ── Slides ────────────────────────────────────────────────────
 
-          // GET /api/assets/:id/frames
-          const assetFramesMatch = url.match(/^\/api\/assets\/([^/]+)\/frames$/);
-          if (assetFramesMatch && method === 'GET') {
-            const frames = getFrames(assetFramesMatch[1]);
+          // GET /api/creations/:id/slides
+          const creationSlidesMatch = url.match(/^\/api\/creations\/([^/]+)\/slides$/);
+          if (creationSlidesMatch && method === 'GET') {
+            const slides = getSlides(creationSlidesMatch[1]);
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(frames));
+            res.end(JSON.stringify(slides));
             return;
           }
 
-          // POST /api/assets/:id/frames
-          if (assetFramesMatch && method === 'POST') {
+          // POST /api/creations/:id/slides
+          if (creationSlidesMatch && method === 'POST') {
             const body = JSON.parse(await readBody(req));
-            if (body.frameIndex == null) {
+            if (body.slideIndex == null) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'frameIndex is required' }));
+              res.end(JSON.stringify({ error: 'slideIndex is required' }));
               return;
             }
-            const frame = createFrame({ assetId: assetFramesMatch[1], frameIndex: body.frameIndex });
+            const slide = createSlide({ creationId: creationSlidesMatch[1], slideIndex: body.slideIndex });
             res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(frame));
+            res.end(JSON.stringify(slide));
             return;
           }
 
           // ── Iterations ──────────────────────────────────────────────────
 
-          // GET /api/frames/:id/iterations
-          const frameIterationsMatch = url.match(/^\/api\/frames\/([^/]+)\/iterations$/);
-          if (frameIterationsMatch && method === 'GET') {
-            const iterations = getIterations(frameIterationsMatch[1]);
+          // GET /api/slides/:id/iterations
+          const slideIterationsMatch = url.match(/^\/api\/slides\/([^/]+)\/iterations$/);
+          if (slideIterationsMatch && method === 'GET') {
+            const iterations = getIterations(slideIterationsMatch[1]);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(iterations));
             return;
           }
 
-          // POST /api/frames/:id/iterations
-          if (frameIterationsMatch && method === 'POST') {
+          // POST /api/slides/:id/iterations
+          if (slideIterationsMatch && method === 'POST') {
             const body = JSON.parse(await readBody(req));
             if (body.iterationIndex == null || !body.htmlPath || !body.source) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -680,7 +680,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               return;
             }
             const iteration = createIteration({
-              frameId: frameIterationsMatch[1],
+              slideId: slideIterationsMatch[1],
               iterationIndex: body.iterationIndex,
               htmlPath: body.htmlPath,
               slotSchema: body.slotSchema ?? null,
@@ -697,9 +697,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
           const iterationByIdMatch = url.match(/^\/api\/iterations\/([^/]+)$/);
           if (iterationByIdMatch && method === 'GET') {
             const iterationId = iterationByIdMatch[1];
-            // Find the iteration by scanning all frames is complex; instead we look it
-            // up by querying the frame that holds it. Use a direct DB approach:
-            // getIterations returns by frameId, but we need by iterationId.
+            // Find the iteration by scanning all slides is complex; instead we look it
+            // up by querying the slide that holds it. Use a direct DB approach:
+            // getIterations returns by slideId, but we need by iterationId.
             // Use the db-api's getIterationById helper if available, or implement inline.
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
@@ -711,7 +711,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             }
             const iteration = {
               id: row.id as string,
-              frameId: row.frame_id as string,
+              slideId: row.slide_id as string,
               iterationIndex: row.iteration_index as number,
               htmlPath: row.html_path as string,
               slotSchema: row.slot_schema ? JSON.parse(row.slot_schema as string) : null,
@@ -767,17 +767,17 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               try { await fs.access(fluidPath); templatePath = fluidPath; found = true; } catch { /* noop */ }
             }
 
-            // Strategy 3: canonical path .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html
+            // Strategy 3: canonical path .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
             if (!found) {
               const hierarchy = db.prepare(`
-                SELECT a.campaign_id, f.asset_id, i.frame_id
+                SELECT c.campaign_id, s.creation_id, i.slide_id
                 FROM iterations i
-                JOIN frames f ON f.id = i.frame_id
-                JOIN assets a ON a.id = f.asset_id
+                JOIN slides s ON s.id = i.slide_id
+                JOIN creations c ON c.id = s.creation_id
                 WHERE i.id = ?
-              `).get(iterationId) as { campaign_id: string; asset_id: string; frame_id: string } | undefined;
+              `).get(iterationId) as { campaign_id: string; creation_id: string; slide_id: string } | undefined;
               if (hierarchy) {
-                const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.asset_id, hierarchy.frame_id, `${iterationId}.html`);
+                const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, hierarchy.slide_id, `${iterationId}.html`);
                 try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
               }
             }
@@ -1097,7 +1097,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               });
               (res as any).flushHeaders?.();
 
-              res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId: null, assetId: null, frameId: null })}\n\n`);
+              res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId: null, creationId: null, slideId: null })}\n\n`);
 
               if (child.stdout) {
                 const rl = createInterface({ input: child.stdout });
@@ -1148,7 +1148,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               return;
             }
 
-            // ── NEW CAMPAIGN MODE: Multi-asset parallel generation ──────────
+            // ── NEW CAMPAIGN MODE: Multi-creation parallel generation ────────
             // Campaign-level lock: one full campaign generation at a time
             if (activeCampaignGeneration !== null) {
               res.writeHead(409, { 'Content-Type': 'application/json' });
@@ -1157,8 +1157,8 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             }
 
             // Parse channels from prompt
-            const { channels, assetCounts } = parseChannelHints(prompt || '');
-            const assetList = buildAssetList(assetCounts);
+            const { channels, creationCounts } = parseChannelHints(prompt || '');
+            const creationList = buildCreationList(creationCounts);
 
             // Title from first 30 chars of prompt
             const rawTitle = (prompt || 'Marketing Campaign').trim();
@@ -1167,14 +1167,14 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             // existingCampaignId: skip campaign creation if adding to existing
             const existingCampaignId: string | undefined = body.existingCampaignId;
 
-            // Pre-create all Campaign/Asset/Frame/Iteration records BEFORE spawning
+            // Pre-create all Campaign/Creation/Slide/Iteration records BEFORE spawning
             const projectRoot = path.resolve(srv.config.root, '..');
             const fluidDir = path.join(projectRoot, '.fluid');
 
             let campaignId: string;
-            const assetFrameIterMap: Array<{
-              asset: { id: string; title: string; assetType: string };
-              frameId: string;
+            const creationSlideIterMap: Array<{
+              creation: { id: string; title: string; creationType: string };
+              slideId: string;
               iterationId: string;
               htmlPath: string;
               absHtmlPath: string;
@@ -1184,36 +1184,36 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               if (existingCampaignId) {
                 campaignId = existingCampaignId;
               } else {
-                const { campaign } = createCampaignWithAssets(
+                const { campaign } = createCampaignWithCreations(
                   { title: campaignTitle, channels },
-                  assetList
+                  creationList
                 );
                 campaignId = campaign.id;
               }
 
-              // Create frames and iterations for each asset
-              const savedAssets = getAssets(campaignId);
-              // Use only the newly-created assets (all if new campaign, or just the new ones)
-              const targetAssets = existingCampaignId
-                ? savedAssets.slice(-assetList.length)
-                : savedAssets;
+              // Create slides and iterations for each creation
+              const savedCreations = getCreations(campaignId);
+              // Use only the newly-created creations (all if new campaign, or just the new ones)
+              const targetCreations = existingCampaignId
+                ? savedCreations.slice(-creationList.length)
+                : savedCreations;
 
-              for (const asset of targetAssets) {
-                const frame = createFrame({ assetId: asset.id, frameIndex: 0 });
+              for (const creation of targetCreations) {
+                const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
                 const iterationId = nanoid();
-                const htmlRelPath = `.fluid/campaigns/${campaignId}/${asset.id}/${frame.id}/${iterationId}.html`;
+                const htmlRelPath = `.fluid/campaigns/${campaignId}/${creation.id}/${slide.id}/${iterationId}.html`;
                 const absHtmlPath = path.join(projectRoot, htmlRelPath);
                 fsSync.mkdirSync(path.dirname(absHtmlPath), { recursive: true });
                 createIteration({
-                  frameId: frame.id,
+                  slideId: slide.id,
                   iterationIndex: 0,
                   htmlPath: htmlRelPath,
                   source: 'ai',
                   generationStatus: 'pending',
                 });
-                assetFrameIterMap.push({
-                  asset: { id: asset.id, title: asset.title, assetType: asset.assetType },
-                  frameId: frame.id,
+                creationSlideIterMap.push({
+                  creation: { id: creation.id, title: creation.title, creationType: creation.creationType },
+                  slideId: slide.id,
                   iterationId,
                   htmlPath: htmlRelPath,
                   absHtmlPath,
@@ -1238,7 +1238,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             (res as any).flushHeaders?.();
 
             // Stream campaignId to client IMMEDIATELY after DB creation
-            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, assetCount: assetFrameIterMap.length })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length })}\n\n`);
 
             const mcpConfigPath = path.join(projectRoot, '.mcp.json');
             let mcpConfigExists = false;
@@ -1246,29 +1246,29 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
             // Track completion for all children
             let completedCount = 0;
-            const totalCount = assetFrameIterMap.length;
+            const totalCount = creationSlideIterMap.length;
 
             // Cleanup all children on client disconnect
             req.on('close', () => {
-              for (const [assetId, child] of activeChildren) {
+              for (const [creationId, child] of activeChildren) {
                 try { child.kill('SIGTERM'); } catch { /* */ }
-                activeChildren.delete(assetId);
+                activeChildren.delete(creationId);
               }
               activeCampaignGeneration = null;
             });
 
-            // Spawn N parallel subagents — one per asset
-            for (const entry of assetFrameIterMap) {
-              const { asset, iterationId, absHtmlPath } = entry;
-              const dims = ASSET_DIMENSIONS[asset.assetType] || { width: 1080, height: 1080 };
+            // Spawn N parallel subagents — one per creation
+            for (const entry of creationSlideIterMap) {
+              const { creation, iterationId, absHtmlPath } = entry;
+              const dims = CREATION_DIMENSIONS[creation.creationType] || { width: 1080, height: 1080 };
 
-              const assetPromptParts = [
-                `Generate a ${asset.assetType} marketing asset for the following brief:`,
+              const creationPromptParts = [
+                `Generate a ${creation.creationType} marketing creation for the following brief:`,
                 ``,
-                prompt || 'Generate a marketing asset',
+                prompt || 'Generate a marketing creation',
                 ``,
-                `--- ASSET SPECIFICATIONS ---`,
-                `Asset type: ${asset.assetType}`,
+                `--- CREATION SPECIFICATIONS ---`,
+                `Creation type: ${creation.creationType}`,
                 `Dimensions: ${dims.width}x${dims.height}px`,
                 ``,
                 `--- OUTPUT INSTRUCTIONS ---`,
@@ -1276,44 +1276,44 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 absHtmlPath,
                 ``,
                 `The file must be a standalone HTML file with all CSS inline.`,
-                `After generating, call PATCH /api/assets/${asset.id} with body { "title": "<descriptive title>" } to set a descriptive title.`,
+                `After generating, call PATCH /api/creations/${creation.id} with body { "title": "<descriptive title>" } to set a descriptive title.`,
                 `IMPORTANT: Do NOT create any other files. Write only to the exact path above.`,
               ];
 
-              const assetArgs = [
-                '-p', assetPromptParts.join('\n'),
+              const creationArgs = [
+                '-p', creationPromptParts.join('\n'),
                 '--output-format', 'stream-json',
                 '--verbose',
                 '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__push_asset',
               ];
 
               if (mcpConfigExists) {
-                assetArgs.push('--mcp-config', mcpConfigPath);
+                creationArgs.push('--mcp-config', mcpConfigPath);
               }
 
               if (skillType) {
                 const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
                 try {
                   await fs.access(skillPath);
-                  assetArgs.push('--append-system-prompt-file', skillPath);
+                  creationArgs.push('--append-system-prompt-file', skillPath);
                 } catch { /* skill file not found, skip */ }
               }
 
-              const child = spawn('claude', assetArgs, {
+              const child = spawn('claude', creationArgs, {
                 cwd: projectRoot,
                 stdio: ['ignore', 'pipe', 'pipe'],
                 env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
               });
 
-              activeChildren.set(asset.id, child);
+              activeChildren.set(creation.id, child);
 
-              // Multiplex stdout onto the SSE connection with assetId field
+              // Multiplex stdout onto the SSE connection with creationId field
               if (child.stdout) {
                 const rl = createInterface({ input: child.stdout });
                 rl.on('line', (line: string) => {
                   if (line.trim()) {
                     try {
-                      res.write(`data: ${JSON.stringify({ assetId: asset.id, line })}\n\n`);
+                      res.write(`data: ${JSON.stringify({ creationId: creation.id, line })}\n\n`);
                     } catch { /* client disconnected */ }
                   }
                 });
@@ -1325,17 +1325,17 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 stderrRl.on('line', (line: string) => {
                   if (line.trim()) {
                     try {
-                      res.write(`event: stderr\ndata: ${JSON.stringify({ assetId: asset.id, text: line })}\n\n`);
+                      res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: creation.id, text: line })}\n\n`);
                     } catch { /* client disconnected */ }
                   }
                 });
               }
 
               child.on('error', (err: Error) => {
-                activeChildren.delete(asset.id);
+                activeChildren.delete(creation.id);
                 completedCount++;
                 try {
-                  res.write(`event: stderr\ndata: ${JSON.stringify({ assetId: asset.id, text: `Spawn error: ${err.message}` })}\n\n`);
+                  res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: creation.id, text: `Spawn error: ${err.message}` })}\n\n`);
                 } catch { /* */ }
                 if (completedCount >= totalCount) {
                   activeCampaignGeneration = null;
@@ -1347,7 +1347,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               });
 
               child.on('close', async (code: number | null) => {
-                activeChildren.delete(asset.id);
+                activeChildren.delete(creation.id);
                 // Mark iteration as complete
                 try {
                   updateIterationGenerationStatus(iterationId, 'complete');
@@ -1367,7 +1367,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
               // Safety timeout per child: kill after 5 minutes
               const safetyTimeout = setTimeout(() => {
-                if (activeChildren.has(asset.id)) {
+                if (activeChildren.has(creation.id)) {
                   try {
                     child.kill('SIGTERM');
                     setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000);
@@ -1574,14 +1574,14 @@ async function updateLineageAfterGeneration(
 /**
  * Auto-ingest HTML files from a round directory into the campaign hierarchy.
  * Checks which files already have iteration records (created via push_asset)
- * and creates records for any orphans. This ensures all generated variations
+ * and creates records for any orphans. This ensures all generated versions
  * appear in the campaign dashboard even if the agent wrote them directly to disk.
  */
 async function autoIngestHtmlToIterations(
   roundDir: string,
-  frameId: string,
+  slideId: string,
   campaignId: string,
-  assetId: string,
+  creationId: string,
   projectRoot: string,
 ): Promise<void> {
   let roundFiles: string[];
@@ -1597,13 +1597,13 @@ async function autoIngestHtmlToIterations(
 
   if (htmlFiles.length === 0) return;
 
-  // Check existing iterations for this frame to avoid duplicates
-  const existingIterations = getIterations(frameId);
+  // Check existing iterations for this slide to avoid duplicates
+  const existingIterations = getIterations(slideId);
   const existingPaths = new Set(existingIterations.map((it) => it.htmlPath));
 
   for (let i = 0; i < htmlFiles.length; i++) {
     // Build the relative path that would be stored in the DB.
-    // push_asset stores paths as: campaigns/{campaignId}/{assetId}/{frameId}/{iterationId}.html
+    // push_asset stores paths as: campaigns/{campaignId}/{creationId}/{slideId}/{iterationId}.html
     // For disk-written files, we use the working dir path relative to project root.
     const absPath = path.join(roundDir, htmlFiles[i]);
     const relPath = path.relative(projectRoot, absPath);
@@ -1614,11 +1614,11 @@ async function autoIngestHtmlToIterations(
     // Also check if any iteration htmlPath contains this filename (push_asset uses different paths)
     const alreadyCovered = existingIterations.length > 0;
 
-    // Only create iterations if NONE exist for this frame (meaning agent didn't use push_asset at all)
+    // Only create iterations if NONE exist for this slide (meaning agent didn't use push_asset at all)
     if (alreadyCovered) continue;
 
     createIteration({
-      frameId,
+      slideId,
       iterationIndex: i,
       htmlPath: relPath,
       source: 'ai',
