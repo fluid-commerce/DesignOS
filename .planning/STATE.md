@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 10-02-PLAN.md
-last_updated: "2026-03-13T17:14:47.636Z"
-last_activity: "2026-03-13 -- PR #1 merged, chey-work branch cleaned up"
+stopped_at: Phase 10 complete + nomenclature overhaul + template fix
+last_updated: "2026-03-13T19:30:00.000Z"
+last_activity: "2026-03-13 -- Phase 10 executed, deep rename (Asset→Creation, Frame→Slide, Variation→Version), template iframe fix, DB migrated, PR #2 created on chey-work"
 progress:
   total_phases: 14
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 39
-  completed_plans: 37
-  percent: 94
+  completed_plans: 39
+  percent: 100
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phases 1-8 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 9 (chat UI).
+**Current focus:** Phases 1-10 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 9 (chat UI).
 
 ## Current Position
 
 Phase: Between phases. Next unexecuted: 4.2 (Asset Linking & Output Refactor)
-Status: Phase 8 complete and merged to main. README.md + ARCHITECTURE.md added.
-Last activity: 2026-03-13 -- PR #1 merged, chey-work branch cleaned up
+Status: Phase 10 complete. Deep nomenclature rename shipped (Asset→Creation, Frame→Slide, Variation→Version). Template iframe fix applied. DB migrated.
+Last activity: 2026-03-13 -- Phase 10 + rename + fixes on chey-work branch, PR #2 created
 
 Progress: [█████████░] 94% (Overall: 35/36 plans)
 
@@ -199,6 +199,9 @@ Recent decisions affecting current work:
 - [Phase 10]: chatSidebarOpen is canonical new name; leftSidebarOpen kept in sync for backward compat
 - [Phase 10]: Patterns /patterns/ middleware added in watcher.ts (Phase 10-01 deviation) — needed for patterns iframe to resolve
 - [Phase 10-top-level-tab-navigation-main-viewport-overhaul]: VoiceGuide uses Vite ?raw imports for markdown (zero runtime fetch); wired directly in AppShell not via prop; DOCS ordered company-identity first then product areas
+- [Post-Phase 10 rename]: Deep nomenclature rename — Asset→Creation, Frame→Slide, Variation→Version across DB schema, types, store, API routes, components, tests. NavTab 'campaigns'→'create' with Campaigns/Creations sub-tabs in Create viewport. Rationale: "assets" conflicts with brand assets; "creations" better represents user-generated content. "slides" and "versions" are more intuitive than "frames" and "variations".
+- [Post-Phase 10 rename]: DB migration required for existing data — old tables (assets, frames) coexist with new (creations, slides); iterations.frame_id→slide_id column rename. CREATE TABLE IF NOT EXISTS won't recreate existing tables with new schema.
+- [Post-Phase 10 fix]: Template iframe middleware was double-nesting social/ subdirectory — templates/index.html uses relative src="social/t1-quote.html" which resolves to /templates/social/t1-quote.html, but middleware mapped to templates/social/social/. Fixed by resolving from templates/ root.
 
 ### Parallel Development Note
 
