@@ -45,12 +45,8 @@ export function useFileWatcher() {
             break;
           case 'creation':
             if (activeCreationId) {
-              campaignStore.fetchSlides(activeCreationId);
-            }
-            break;
-          case 'slide':
-            if (activeSlideId) {
-              campaignStore.fetchIterations(activeSlideId);
+              // Re-navigate to refresh slides + iterations for the unified creation view
+              campaignStore.navigateToCreation(activeCreationId);
             }
             break;
         }

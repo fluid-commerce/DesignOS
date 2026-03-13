@@ -7,6 +7,7 @@ import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './com
 // TemplateGallery no longer used — template cards are rendered inline in the modal
 // import { TemplateGallery } from './components/TemplateGallery';
 import { TemplateCustomizer } from './components/TemplateCustomizer';
+import { UnifiedCreationView } from './components/UnifiedCreationView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useCampaignStore } from './store/campaign';
 import { useEditorStore } from './store/editor';
@@ -32,7 +33,6 @@ export function App() {
   const loading = useCampaignStore((s) => s.loading);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
   const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
-  const navigateToSlide = useCampaignStore((s) => s.navigateToSlide);
   const selectIteration = useCampaignStore((s) => s.selectIteration);
   const setRightSidebarOpen = useCampaignStore((s) => s.setRightSidebarOpen);
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
@@ -87,13 +87,6 @@ export function App() {
       navigateToCreation(item.id);
     },
     [navigateToCreation]
-  );
-
-  const handleSelectSlide = useCallback(
-    (item: DrillDownItem<Slide>) => {
-      navigateToSlide(item.id);
-    },
-    [navigateToSlide]
   );
 
   // ── Template creation flow ───────────────────────────────────────────────
@@ -286,82 +279,11 @@ export function App() {
 
       case 'creation':
         return (
-          <DrillDownGrid
-            items={slideItems}
-            renderPreview={renderSlidePreview}
-            onSelect={handleSelectSlide}
-            title="Slides"
-            showBreadcrumb
-          />
-        );
-
-      case 'slide':
-        if (activeIterationId && activeIteration) {
-          const tmpl = activeIteration.templateId
-            ? TEMPLATE_METADATA.find((t) => t.templateId === activeIteration.templateId)
-            : null;
-          const editW = tmpl?.dimensions.width ?? 1080;
-          const editH = tmpl?.dimensions.height ?? 1080;
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-              <div style={{
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                borderBottom: '1px solid #1e1e1e',
-              }}>
-                <button
-                  type="button"
-                  onClick={() => navigateToSlide(activeSlideId!)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#888',
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
-                >
-                  ← Back to list
-                </button>
-              </div>
-              <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-                <IterationEditFrame
-                  iterationId={activeIterationId}
-                  width={editW}
-                  height={editH}
-                  onIframeRef={(el) => {
-                    iframeRef.current = el;
-                    setEditIframeEl(el);
-                  }}
-                />
-              </div>
-            </div>
-          );
-        }
-        return (
-          <DrillDownGrid
-            items={iterationItems}
-            renderPreview={renderIterationPreview}
-            onSelect={handleSelectIteration}
-            title="Iterations"
-            showBreadcrumb
-            emptyState={
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', height: '100%', minHeight: 300,
-                gap: '0.75rem', color: '#444',
-              }}>
-                <div style={{ fontSize: '0.9rem' }}>No iterations yet</div>
-                <div style={{ fontSize: '0.8rem', color: '#333' }}>
-                  Iterations appear here once generated
-                </div>
-              </div>
-            }
+          <UnifiedCreationView
+            onIframeRef={(el) => {
+              iframeRef.current = el;
+              setEditIframeEl(el);
+            }}
           />
         );
 
@@ -377,7 +299,7 @@ export function App() {
         rightSidebar={
           <ContentEditor
             iteration={activeIteration}
-            iframeEl={currentView === 'slide' && activeIterationId ? editIframeEl : iframeRef.current}
+            iframeEl={currentView === 'creation' && activeIterationId ? editIframeEl : iframeRef.current}
           />
         }
         onNewCreation={activeCampaignId ? handleNewCreation : undefined}
