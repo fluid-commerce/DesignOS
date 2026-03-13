@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Breadcrumb } from './Breadcrumb';
 
 /**
  * Preview descriptor returned by the `renderPreview` prop.
@@ -39,6 +40,8 @@ interface DrillDownGridProps<T> {
   onAction?: (item: DrillDownItem<T>, action: string) => void;
   emptyState?: ReactNode;
   title?: string;
+  /** When true, show breadcrumb in the header for navigating back to the index */
+  showBreadcrumb?: boolean;
   /** Optional slot rendered after the title (e.g., "New Campaign" button) */
   headerActions?: ReactNode;
 }
@@ -270,6 +273,7 @@ export function DrillDownGrid<T>({
   onAction,
   emptyState,
   title,
+  showBreadcrumb = false,
   headerActions,
 }: DrillDownGridProps<T>) {
   const defaultEmpty = (
@@ -303,8 +307,8 @@ export function DrillDownGrid<T>({
       overflow: 'hidden',
       fontFamily: "'Inter', sans-serif",
     }}>
-      {/* Section header */}
-      {(title || headerActions) && (
+      {/* Section header: breadcrumb and/or title for navigation */}
+      {(showBreadcrumb || title || headerActions) && (
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -312,18 +316,21 @@ export function DrillDownGrid<T>({
           padding: '1rem 1.5rem 0.75rem',
           flexShrink: 0,
         }}>
-          {title && (
-            <h2 style={{
-              margin: 0,
-              fontSize: '1rem',
-              fontWeight: 600,
-              color: '#fff',
-              letterSpacing: '-0.01em',
-              fontFamily: "'Inter', sans-serif",
-            }}>
-              {title}
-            </h2>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden', minWidth: 0 }}>
+            {showBreadcrumb && <Breadcrumb />}
+            {title && !showBreadcrumb && (
+              <h2 style={{
+                margin: 0,
+                fontSize: '1rem',
+                fontWeight: 600,
+                color: '#fff',
+                letterSpacing: '-0.01em',
+                fontFamily: "'Inter', sans-serif",
+              }}>
+                {title}
+              </h2>
+            )}
+          </div>
           {headerActions && (
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               {headerActions}
