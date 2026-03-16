@@ -248,7 +248,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7 > 8
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 8
-**Plans:** 4/4 plans complete
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 9 to break down)
@@ -276,3 +276,13 @@ Plans:
 Plans:
 - [ ] 11-01-PLAN.md — SDK install, tool schemas, tool executor, skill-to-prompt loader, SSE helpers
 - [ ] 11-02-PLAN.md — Pipeline orchestrator (4-stage + fix loop), engine routing in /api/generate, integration tests
+
+### Phase 12: API Pipeline Hardening — routing, context injection, cost, UX
+
+**Goal:** Fix the API pipeline to be production-usable: route single-asset prompts to single creations (not 7-asset campaigns), fix HTML output paths so previews render, cut token cost ~50% by pre-injecting brand context instead of agent file reads, clean up chat sidebar UX to show stage progress without repetitive tool badges, and ensure the skills/orchestrator system reads brand content from DB (or pre-loaded context) rather than ad-hoc file reads.
+**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 12 to break down)
