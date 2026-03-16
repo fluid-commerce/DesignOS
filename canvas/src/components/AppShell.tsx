@@ -94,16 +94,27 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
               borderBottom: '1px solid #1e1e1e',
               backgroundColor: '#0d0d0d',
             }}>
-              {/* Row 1: Campaigns / Creations tabs (left) + New Creation button (right) */}
+              {/* Row 1: Title + Campaigns/Creations tabs (left) + Create New button (right) */}
               <div style={{
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '14px 1rem',
+                padding: '24px 1.5rem',
                 gap: '0.75rem',
               }}>
-                <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexShrink: 0, minWidth: 0 }}>
+                  <h1 style={{
+                    margin: 0,
+                    fontSize: '26px',
+                    fontWeight: 700,
+                    color: '#e0e0e0',
+                    letterSpacing: '-0.02em',
+                    flexShrink: 0,
+                  }}>
+                    My Creations
+                  </h1>
+                  <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
                   {(['campaigns', 'creations'] as CreateViewportTab[]).map((tab) => {
                     const isActive = createViewportTab === tab;
                     return (
@@ -111,14 +122,17 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                         key={tab}
                         onClick={() => setCreateViewportTab(tab)}
                         style={{
-                          padding: '4px 12px',
-                          fontSize: '0.72rem',
+                          padding: '8px 14px',
+                          minHeight: 36,
+                          boxSizing: 'border-box',
+                          fontSize: '0.75rem',
                           fontWeight: isActive ? 600 : 400,
                           letterSpacing: '0.04em',
                           textTransform: 'uppercase',
                           color: isActive ? '#e0e0e0' : '#666',
                           backgroundColor: isActive ? '#1a1a1e' : 'transparent',
                           border: 'none',
+                          borderRadius: 5,
                           borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
                           cursor: 'pointer',
                           transition: 'color 0.15s, background-color 0.15s',
@@ -135,6 +149,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       </button>
                     );
                   })}
+                  </div>
                 </div>
                 {createViewportTab === 'campaigns' ? (
                   <button
@@ -143,8 +158,11 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                     style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '0.375rem',
-                      padding: '5px 12px',
+                      padding: '8px 14px',
+                      minHeight: 36,
+                      boxSizing: 'border-box',
                       backgroundColor: '#44B2FF',
                       color: '#fff',
                       border: 'none',
@@ -156,6 +174,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       cursor: 'pointer',
                       flexShrink: 0,
                       transition: 'background-color 0.15s',
+                      fontFamily: 'inherit',
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
@@ -174,8 +193,11 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                     style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '0.375rem',
-                      padding: '5px 12px',
+                      padding: '8px 14px',
+                      minHeight: 36,
+                      boxSizing: 'border-box',
                       backgroundColor: '#44B2FF',
                       color: '#fff',
                       border: 'none',
@@ -187,6 +209,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                       cursor: 'pointer',
                       flexShrink: 0,
                       transition: 'background-color 0.15s',
+                      fontFamily: 'inherit',
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
@@ -201,7 +224,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                 ) : null}
               </div>
               {/* Row 2: Breadcrumb below tabs (hidden) */}
-              <div style={{ display: 'none', padding: '0 1rem 0.5rem', overflow: 'hidden', minHeight: 0 }}>
+              <div style={{ display: 'none', padding: '0 1.5rem 0.5rem', overflow: 'hidden', minHeight: 0 }}>
                 <Breadcrumb />
               </div>
             </div>
