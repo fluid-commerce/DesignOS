@@ -11,12 +11,20 @@ import * as os from 'node:os';
 import { execSync } from 'node:child_process';
 import type { ServerResponse } from 'node:http';
 
-// Load .env file (Node 24 native, no dotenv dependency)
-try {
-  // @ts-ignore — process.loadEnvFile is Node 22.9+ / 24+
-  (process as any).loadEnvFile(path.resolve(__dirname, '../../.env'));
-} catch {
-  // .env may not exist in production or CI — SDK reads ANTHROPIC_API_KEY from env
+// Load .env file — try multiple paths since __dirname is unreliable in Vite middleware
+const envPaths = [
+  path.resolve(process.cwd(), '../.env'),  // canvas/ -> repo root
+  path.resolve(process.cwd(), '.env'),     // if cwd is repo root
+  path.resolve(process.cwd(), '../../.env'), // deeper nesting fallback
+];
+for (const envPath of envPaths) {
+  try {
+    // @ts-ignore — process.loadEnvFile is Node 22.9+ / 24+
+    (process as any).loadEnvFile(envPath);
+    break;
+  } catch {
+    // try next path
+  }
 }
 
 // ---------------------------------------------------------------------------
