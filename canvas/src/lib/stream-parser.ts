@@ -95,6 +95,16 @@ export function parseStreamEvent(
     };
   }
 
+  // Stage status from API pipeline (copy starting, layout done, etc.)
+  if (event.type === 'stage_status') {
+    return {
+      id: nextId(),
+      type: 'status',
+      content: `[${event.stage}] ${event.status}`,
+      timestamp: Date.now(),
+    };
+  }
+
   // Generation complete
   if (event.type === 'result') {
     return {

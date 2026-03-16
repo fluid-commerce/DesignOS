@@ -63,6 +63,14 @@ describe('parseStreamEvent', () => {
     expect(msg).toBeNull();
   });
 
+  it('converts stage_status events to status messages', () => {
+    const event = { type: 'stage_status', stage: 'copy', status: 'starting' };
+    const msg = parseStreamEvent(event);
+    expect(msg).not.toBeNull();
+    expect(msg!.type).toBe('status');
+    expect(msg!.content).toBe('[copy] starting');
+  });
+
   it('converts stderr SSE events to status messages', () => {
     const event = { text: 'Loading skill...' };
     const msg = parseStreamEvent(event, 'stderr');
