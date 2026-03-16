@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04.2-asset-linking-output-refactor-01-PLAN.md
-last_updated: "2026-03-16T20:52:45.538Z"
+stopped_at: Completed 04.2-asset-linking-output-refactor-02-PLAN.md
+last_updated: "2026-03-16T20:58:05.116Z"
 last_activity: "2026-03-13 -- Phase 10 + rename + fixes on chey-work branch, PR #2 created"
 progress:
   total_phases: 18
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 41
-  completed_plans: 40
+  completed_plans: 41
   percent: 94
 ---
 
@@ -80,6 +80,7 @@ Progress: [█████████░] 94% (Overall: 35/36 plans)
 | Phase 11-anthropic-api-generation-pipeline P01 | 7min | 2 tasks | 5 files |
 | Phase 11-anthropic-api-generation-pipeline P02 | 8min | 2 tasks | 3 files |
 | Phase 04.2-asset-linking-output-refactor P01 | 12min | 2 tasks | 10 files |
+| Phase 04.2-asset-linking-output-refactor P02 | 3min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -211,6 +212,9 @@ Recent decisions affecting current work:
 - [Phase 11-02]: Engine routing uses body.engine ?? 'api' as default — CLI is explicit opt-in escape hatch. Campaign pre-creation DB code shared above engine check. Cascade fix rule: copy fix re-runs layout+styling. API mode uses parallel fire-and-forget promises with shared counter.
 - [Phase 04.2-01]: Discovery-first asset pattern: agents call GET /api/brand-assets at generation time rather than using hardcoded filenames
 - [Phase 04.2-01]: ZIP export replaces base64 ?download=1: archiver creates index.html + assets/ bundle with /fluid-assets/ rewritten to relative paths for local opening
+- [Phase 04.2-02]: iterationId is optional on VersionFile and CreationFrameProps — backward compat with session-based html flows preserved
+- [Phase 04.2-02]: allow-scripts added to both src and srcDoc sandbox modes for postMessage compatibility
+- [Phase 04.2-02]: ExportActions internal loading state key stays 'html' — only visible label and URL pattern change to ZIP
 
 ### Parallel Development Note
 
@@ -248,6 +252,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-16T20:52:45.536Z
-Stopped at: Completed 04.2-asset-linking-output-refactor-01-PLAN.md
+Last session: 2026-03-16T20:58:05.113Z
+Stopped at: Completed 04.2-asset-linking-output-refactor-02-PLAN.md
 Resume file: None
