@@ -31,8 +31,14 @@ import {
   createSavedAsset,
   deleteSavedAsset,
   getBrandAssets,
+  getVoiceGuideDocs,
+  getVoiceGuideDoc,
+  updateVoiceGuideDoc,
+  getBrandPatterns,
 } from './db-api';
+import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty } from './brand-seeder';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -48,32 +54,94 @@ const DEFAULT_CHANNEL_COUNTS: Record<string, number> = {
   'one-pager': 1,
 };
 
+// Patterns that indicate a single-creation intent (one asset, not a campaign)
+const SINGULAR_PATTERNS = [
+  /\ba\s+(?:social\s+)?post\b/i,
+  /\ban?\s+(?:instagram|ig|insta)\b/i,
+  /\ban?\s+(?:linkedin|li)\s+(?:post|image)\b/i,
+  /\bone\s+(?:linkedin|instagram|post|one-pager|social)\b/i,
+  /^(?:create|make|generate|write|design)\s+(?:a|an|one)\s+/i,
+  /\ba\s+one-pager\b/i,
+  /\ban?\s+image\b/i,
+];
+
+// Patterns that indicate campaign intent (overrides singularity)
+const CAMPAIGN_PATTERNS = [
+  /\bcampaign\b/i,
+  /\bseries\b/i,
+  /\bmultiple\b/i,
+  /\bseveral\b/i,
+  /\bposts\b/i,  // plural "posts" = campaign intent
+];
+
+/** Infer the creation type from a single-creation prompt. */
+function inferCreationType(prompt: string): string {
+  const lower = prompt.toLowerCase();
+  if (/linkedin|li\b/.test(lower)) return 'linkedin';
+  if (/one-pager/.test(lower)) return 'one-pager';
+  return 'instagram'; // default
+}
+
 /**
  * Parses channel hints from a prompt string.
  * Detects keywords like "just linkedin", "instagram only", etc.
- * Returns channels array and per-channel counts.
+ * Also detects singularity — a prompt asking for one creation vs a full campaign.
+ * Returns channels array, per-channel counts, singularity flag, and inferred type.
  */
-function parseChannelHints(
+export function parseChannelHints(
   prompt: string
-): { channels: string[]; creationCounts: Record<string, number> } {
-  const lower = prompt.toLowerCase();
+): {
+  channels: string[];
+  creationCounts: Record<string, number>;
+  isSingleCreation: boolean;
+  inferredType?: string;
+} {
+  // Check for singularity BEFORE channel-only hints
+  // A singular prompt creates exactly 1 creation; campaign patterns override singularity
+  const isSingular = SINGULAR_PATTERNS.some(p => p.test(prompt));
+  const isCampaign = CAMPAIGN_PATTERNS.some(p => p.test(prompt));
+  const isSingleCreation = isSingular && !isCampaign;
 
-  // Check for single-channel hints
-  if (/just linkedin|linkedin only|only linkedin/i.test(lower)) {
-    return { channels: ['linkedin'], creationCounts: { linkedin: 3 } };
+  if (isSingleCreation) {
+    const inferredType = inferCreationType(prompt);
+    return {
+      channels: [inferredType],
+      creationCounts: { [inferredType]: 1 },
+      isSingleCreation: true,
+      inferredType,
+    };
   }
-  if (/just instagram|instagram only|only instagram/i.test(lower)) {
-    return { channels: ['instagram'], creationCounts: { instagram: 3 } };
+
+  // Channel-only hints (existing behavior): these are not singular
+  if (/just linkedin|linkedin only|only linkedin/i.test(prompt)) {
+    return { channels: ['linkedin'], creationCounts: { linkedin: 3 }, isSingleCreation: false };
   }
-  if (/one-pager only|just (?:a )?one-pager/i.test(lower)) {
-    return { channels: ['one-pager'], creationCounts: { 'one-pager': 1 } };
+  if (/just instagram|instagram only|only instagram/i.test(prompt)) {
+    return { channels: ['instagram'], creationCounts: { instagram: 3 }, isSingleCreation: false };
+  }
+  if (/one-pager only|just (?:a )?one-pager/i.test(prompt)) {
+    return { channels: ['one-pager'], creationCounts: { 'one-pager': 1 }, isSingleCreation: false };
   }
 
   // No hint — return full default spread
   return {
     channels: Object.keys(DEFAULT_CHANNEL_COUNTS),
     creationCounts: { ...DEFAULT_CHANNEL_COUNTS },
+    isSingleCreation: false,
   };
+}
+
+/**
+ * Get or create the singleton "__standalone__" sentinel campaign.
+ * Standalone creations (single-asset prompts) are filed under this campaign
+ * to satisfy the NOT NULL FK constraint on creations.campaign_id.
+ */
+function getOrCreateStandaloneCampaign(): string {
+  const db = getDb();
+  const row = db.prepare("SELECT id FROM campaigns WHERE title = '__standalone__'").get() as { id: string } | undefined;
+  if (row) return row.id;
+  const campaign = createCampaign({ title: '__standalone__', channels: ['standalone'] });
+  return campaign.id;
 }
 
 /**
@@ -165,6 +233,14 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       // Auto-scan brand assets into DB on startup (non-blocking)
       scanAndSeedBrandAssets(path.join(projectRoot, 'assets')).catch(err =>
         console.error('[asset-scan] Failed:', err)
+      );
+
+      // Seed voice guide docs and brand patterns from source files (non-blocking)
+      seedVoiceGuideIfEmpty(path.join(projectRoot, 'voice-guide')).catch(err =>
+        console.warn('[watcher] Voice guide seeding failed:', err)
+      );
+      seedBrandPatternsIfEmpty(path.join(projectRoot, 'patterns/index.html')).catch(err =>
+        console.warn('[watcher] Brand patterns seeding failed:', err)
       );
 
       // Home page: serve Template Library at / and its static assets (run first)
@@ -604,6 +680,57 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             const assets = getBrandAssets(category);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(assets));
+            return;
+          }
+
+          // ── Voice Guide ────────────────────────────────────────────────────
+
+          // GET /api/voice-guide — returns all voice guide docs
+          if (url === '/api/voice-guide' && method === 'GET') {
+            const docs = getVoiceGuideDocs();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(docs));
+            return;
+          }
+
+          // PUT /api/voice-guide/:slug — update a voice guide doc's content
+          const voiceGuideSlugMatch = url.match(/^\/api\/voice-guide\/([^/]+)$/);
+          if (voiceGuideSlugMatch && method === 'PUT') {
+            const slug = voiceGuideSlugMatch[1];
+            const body = JSON.parse(await readBody(req));
+            if (typeof body.content !== 'string') {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'content is required' }));
+              return;
+            }
+            updateVoiceGuideDoc(slug, body.content);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // GET /api/voice-guide/:slug — returns a single voice guide doc
+          if (voiceGuideSlugMatch && method === 'GET') {
+            const slug = voiceGuideSlugMatch[1];
+            const doc = getVoiceGuideDoc(slug);
+            if (!doc) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Voice guide doc not found' }));
+              return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(doc));
+            return;
+          }
+
+          // ── Brand Patterns ─────────────────────────────────────────────────
+
+          // GET /api/brand-patterns or GET /api/brand-patterns?category=design-tokens
+          if ((url === '/api/brand-patterns' || url.startsWith('/api/brand-patterns?')) && method === 'GET') {
+            const category = new URL(req.url!, 'http://localhost').searchParams.get('category') ?? undefined;
+            const patterns = getBrandPatterns(category);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(patterns));
             return;
           }
 
@@ -1237,7 +1364,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             const engine = (body.engine as string | undefined) ?? 'api';
 
             // Parse channels from prompt (shared by both API and CLI paths)
-            const { channels, creationCounts } = parseChannelHints(prompt || '');
+            const { channels, creationCounts, isSingleCreation } = parseChannelHints(prompt || '');
             const creationList = buildCreationList(creationCounts);
 
             // Title from first 30 chars of prompt
@@ -1271,6 +1398,18 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             try {
               if (existingCampaignId) {
                 campaignId = existingCampaignId;
+              } else if (isSingleCreation) {
+                // Single-creation prompts: file under sentinel "__standalone__" campaign
+                // and create the creation directly (not via createCampaignWithCreations)
+                campaignId = getOrCreateStandaloneCampaign();
+                for (const spec of creationList) {
+                  createCreation({
+                    campaignId,
+                    title: spec.title,
+                    creationType: spec.creationType,
+                    slideCount: spec.slideCount,
+                  });
+                }
               } else {
                 const { campaign } = createCampaignWithCreations(
                   { title: campaignTitle, channels },
@@ -1284,7 +1423,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               // Use only the newly-created creations (all if new campaign, or just the new ones)
               const targetCreations = existingCampaignId
                 ? savedCreations.slice(-creationList.length)
-                : savedCreations;
+                : isSingleCreation
+                  ? savedCreations.slice(-creationList.length)
+                  : savedCreations;
 
               for (const creation of targetCreations) {
                 const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
@@ -1293,6 +1434,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 const absHtmlPath = path.join(projectRoot, htmlRelPath);
                 fsSync.mkdirSync(path.dirname(absHtmlPath), { recursive: true });
                 createIteration({
+                  id: iterationId,  // Pass pre-generated ID so DB row id matches html_path
                   slideId: slide.id,
                   iterationIndex: 0,
                   htmlPath: htmlRelPath,
@@ -1326,7 +1468,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             (res as any).flushHeaders?.();
 
             // Stream campaignId to client IMMEDIATELY after DB creation
-            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length, isSingleCreation })}\n\n`);
 
             if (engine === 'cli') {
               // ── CLI MODE: spawn claude -p subagents (legacy) ───────────────

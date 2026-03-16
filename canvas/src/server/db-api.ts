@@ -159,6 +159,7 @@ export function getSlides(creationId: string): Slide[] {
 // ─── Iteration ────────────────────────────────────────────────────────────────
 
 export function createIteration(input: {
+  id?: string;
   slideId: string;
   iterationIndex: number;
   htmlPath: string;
@@ -169,7 +170,7 @@ export function createIteration(input: {
   generationStatus?: 'pending' | 'generating' | 'complete';
 }): Iteration {
   const db = getDb();
-  const id = nanoid();
+  const id = input.id ?? nanoid();
   const now = Date.now();
   const generationStatus = input.generationStatus ?? 'complete';
   db.prepare(
@@ -498,4 +499,75 @@ export function deleteSavedAsset(id: string): void {
   const db = getDb();
   const stmt = db.prepare('DELETE FROM saved_assets WHERE id = ?');
   stmt.run(id);
+}
+
+// ─── Voice Guide ─────────────────────────────────────────────────────────────
+
+export interface VoiceGuideDoc {
+  id: string;
+  slug: string;
+  label: string;
+  content: string;
+  sortOrder: number;
+  updatedAt: number;
+}
+
+function rowToVoiceGuideDoc(row: Record<string, unknown>): VoiceGuideDoc {
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    label: row.label as string,
+    content: row.content as string,
+    sortOrder: row.sort_order as number,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+export function getVoiceGuideDocs(): VoiceGuideDoc[] {
+  const db = getDb();
+  const rows = db.prepare('SELECT * FROM voice_guide_docs ORDER BY sort_order').all() as Record<string, unknown>[];
+  return rows.map(rowToVoiceGuideDoc);
+}
+
+export function getVoiceGuideDoc(slug: string): VoiceGuideDoc | undefined {
+  const db = getDb();
+  const row = db.prepare('SELECT * FROM voice_guide_docs WHERE slug = ?').get(slug) as Record<string, unknown> | undefined;
+  return row ? rowToVoiceGuideDoc(row) : undefined;
+}
+
+export function updateVoiceGuideDoc(slug: string, content: string): void {
+  const db = getDb();
+  db.prepare('UPDATE voice_guide_docs SET content = ?, updated_at = ? WHERE slug = ?').run(content, Date.now(), slug);
+}
+
+// ─── Brand Patterns ──────────────────────────────────────────────────────────
+
+export interface BrandPattern {
+  id: string;
+  slug: string;
+  label: string;
+  category: string;
+  content: string;
+  sortOrder: number;
+  updatedAt: number;
+}
+
+function rowToBrandPattern(row: Record<string, unknown>): BrandPattern {
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    label: row.label as string,
+    category: row.category as string,
+    content: row.content as string,
+    sortOrder: row.sort_order as number,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+export function getBrandPatterns(category?: string): BrandPattern[] {
+  const db = getDb();
+  const rows = (category
+    ? db.prepare('SELECT * FROM brand_patterns WHERE category = ? ORDER BY sort_order').all(category)
+    : db.prepare('SELECT * FROM brand_patterns ORDER BY sort_order').all()) as Record<string, unknown>[];
+  return rows.map(rowToBrandPattern);
 }

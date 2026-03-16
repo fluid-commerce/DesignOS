@@ -128,6 +128,25 @@ function initSchema(db: Database.Database): void {
       created_at INTEGER NOT NULL,
       FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
     );
+
+    CREATE TABLE IF NOT EXISTS voice_guide_docs (
+      id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      label TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS brand_patterns (
+      id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      label TEXT NOT NULL,
+      category TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.
