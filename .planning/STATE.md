@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-01-PLAN.md (prompt routing + preview path fix)
-last_updated: "2026-03-16T23:35:25.208Z"
+stopped_at: Completed 11-02-PLAN.md (DB-backed voice guide and brand patterns)
+last_updated: "2026-03-16T23:38:53.452Z"
 last_activity: 2026-03-16 -- Phase 04.2 complete, roadmap synced
 progress:
   total_phases: 19
   completed_phases: 13
   total_plans: 45
-  completed_plans: 42
+  completed_plans: 43
   percent: 80
 ---
 
@@ -82,6 +82,7 @@ Progress: [████████████████░░░░] 80% (12
 | Phase 04.2-asset-linking-output-refactor P01 | 12min | 2 tasks | 10 files |
 | Phase 04.2-asset-linking-output-refactor P02 | 3min | 2 tasks | 6 files |
 | Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P01 | 100min | 1 tasks | 4 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P02 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -218,6 +219,8 @@ Recent decisions affecting current work:
 - [Phase 04.2-02]: ExportActions internal loading state key stays 'html' — only visible label and URL pattern change to ZIP
 - [Phase 11-01]: isSingleCreation routing: SINGULAR_PATTERNS checked first, CAMPAIGN_PATTERNS override — single-asset prompts create standalone Creations under __standalone__ sentinel campaign
 - [Phase 11-01]: createIteration accepts optional id param — when id: iterationId is passed, DB row id matches filesystem html_path iterationId, fixing /api/iterations/:id/html lookup
+- [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: Seeder reads from filesystem at startup only — DB is source of truth after first seed; subsequent restarts skip via COUNT(*) guard
+- [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: brand_patterns category mapping: design-tokens for Color Palette/Typography/Opacity Patterns, layout-archetype for Layout Archetypes, pattern for all others
 
 ### Parallel Development Note
 
@@ -257,6 +260,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-16T23:35:25.206Z
-Stopped at: Completed 11-01-PLAN.md (prompt routing + preview path fix)
+Last session: 2026-03-16T23:38:53.450Z
+Stopped at: Completed 11-02-PLAN.md (DB-backed voice guide and brand patterns)
 Resume file: None
