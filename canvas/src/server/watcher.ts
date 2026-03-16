@@ -222,11 +222,11 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
       });
 
-      // Serve template HTML files at /templates/:id.html with asset path rewriting
+      // Serve template HTML files at /templates/:path.html with asset path rewriting
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/templates/') || !req.url.endsWith('.html')) return next();
-        const fileName = req.url.replace('/templates/', '');
-        const templatePath = path.resolve(projectRoot, 'templates', 'social', fileName);
+        const filePath = req.url.split('?')[0].replace('/templates/', '');
+        const templatePath = path.resolve(projectRoot, 'templates', filePath);
         try {
           let html = await fs.readFile(templatePath, 'utf-8');
           // Rewrite relative asset paths for serving via /fluid-assets/
