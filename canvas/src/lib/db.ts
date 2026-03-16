@@ -106,6 +106,28 @@ function initSchema(db: Database.Database): void {
       source TEXT NOT NULL DEFAULT 'dam',
       created_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS brand_assets (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      file_path TEXT NOT NULL UNIQUE,
+      mime_type TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      tags TEXT NOT NULL DEFAULT '[]',
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS campaign_assets (
+      id TEXT PRIMARY KEY,
+      campaign_id TEXT NOT NULL,
+      file_path TEXT NOT NULL,
+      url_path TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.

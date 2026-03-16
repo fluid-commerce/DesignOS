@@ -30,7 +30,9 @@ import {
   getSavedAssets,
   createSavedAsset,
   deleteSavedAsset,
+  getBrandAssets,
 } from './db-api';
+import { scanAndSeedBrandAssets } from './asset-scanner';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -160,6 +162,11 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       const projectRoot = path.resolve(srv.config.root, '..');
       const templatesDir = path.resolve(projectRoot, 'templates');
 
+      // Auto-scan brand assets into DB on startup (non-blocking)
+      scanAndSeedBrandAssets(path.join(projectRoot, 'assets')).catch(err =>
+        console.error('[asset-scan] Failed:', err)
+      );
+
       // Home page: serve Template Library at / and its static assets (run first)
       srv.middlewares.use(async (req, res, next) => {
         if (req.method !== 'GET' || !req.url) return next();
@@ -214,6 +221,29 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
         const assetPath = req.url.replace('/fluid-assets/', '');
         const fullPath = path.join(projectRoot, 'assets', assetPath);
+
+        try {
+          const data = await fs.readFile(fullPath);
+          const { contentType } = serveFluidAsset(assetPath);
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(data);
+        } catch {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not found');
+        }
+      });
+
+      // Serve campaign-specific assets from .fluid/campaigns/{cId}/assets/
+      const fluidDir = path.join(projectRoot, '.fluid');
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/fluid-campaigns/')) return next();
+
+        const assetPath = req.url.split('?')[0].replace('/fluid-campaigns/', '');
+        const fullPath = path.join(fluidDir, 'campaigns', assetPath);
+
+        // Path traversal guard
+        const campaignsBase = path.join(fluidDir, 'campaigns');
+        if (!fullPath.startsWith(campaignsBase + path.sep)) return next();
 
         try {
           const data = await fs.readFile(fullPath);
@@ -566,6 +596,17 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
+          // ── Brand assets (catalog served via /fluid-assets/) ───────────────
+
+          // GET /api/brand-assets or GET /api/brand-assets?category=brushstrokes
+          if ((url === '/api/brand-assets' || url.startsWith('/api/brand-assets?')) && method === 'GET') {
+            const category = new URL(req.url!, 'http://localhost').searchParams.get('category') ?? undefined;
+            const assets = getBrandAssets(category);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(assets));
+            return;
+          }
+
           // ── Saved assets (user library) ────────────────────────────────────
 
           // GET /api/assets
@@ -848,40 +889,41 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 html = html.replace(/<head[^>]*>/i, (m) => m + '<base href="' + baseHref + '">');
               }
               const userState: Record<string, string> = row.user_state ? JSON.parse(row.user_state) : {};
-              const isDownload = req.url?.includes('download=1');
+              const isZipExport = new URL(req.url!, 'http://localhost').searchParams.get('export') === 'zip';
               const assetsDir = path.join(projectRoot, 'assets');
 
-              async function toDataUrl(assetPath: string): Promise<string> {
-                try {
-                  const data = await fs.readFile(assetPath);
-                  const ext = path.extname(assetPath).toLowerCase();
-                  const mime = ext === '.svg' ? 'image/svg+xml' : ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'application/octet-stream';
-                  return 'data:' + mime + ';base64,' + (data instanceof Buffer ? data.toString('base64') : Buffer.from(data).toString('base64'));
-                } catch {
-                  return '';
-                }
-              }
+              if (isZipExport) {
+                const archiver = (await import('archiver')).default;
+                const archive = archiver('zip', { zlib: { level: 6 } });
 
-              if (isDownload) {
-                const imgSrcRegex = /src="(\/fluid-assets\/[^"]+)"/g;
+                res.writeHead(200, {
+                  'Content-Type': 'application/zip',
+                  'Content-Disposition': `attachment; filename="fluid-asset-${iterationId}.zip"`,
+                });
+
+                archive.pipe(res);
+
+                // Rewrite /fluid-assets/ to relative assets/ paths for local opening
+                let exportHtml = html.replace(/\/fluid-assets\//g, 'assets/');
+                archive.append(exportHtml, { name: 'index.html' });
+
+                // Collect all /fluid-assets/ references from original HTML and add files
+                const assetRegex = /\/fluid-assets\/([^"'\s)]+)/g;
+                const seen = new Set<string>();
                 let match;
-                const replacements: { from: string; to: string }[] = [];
-                while ((match = imgSrcRegex.exec(html)) !== null) {
-                  const assetFile = match[1].replace(/^\/fluid-assets\//, '').replace(/\?.*$/, '');
-                  const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
-                  if (dataUrl) replacements.push({ from: match[0], to: `src="${dataUrl}"` });
+                while ((match = assetRegex.exec(html)) !== null) {
+                  const relPath = match[1];
+                  if (seen.has(relPath)) continue;
+                  seen.add(relPath);
+                  const fullPath = path.join(assetsDir, relPath);
+                  try {
+                    await fs.access(fullPath);
+                    archive.file(fullPath, { name: `assets/${relPath}` });
+                  } catch { /* skip missing files */ }
                 }
-                for (const { from, to } of replacements) {
-                  html = html.replace(from, to);
-                }
-                for (const sel of Object.keys(userState)) {
-                  const v = userState[sel];
-                  if (typeof v === 'string' && (v.startsWith('/fluid-assets/') || v.startsWith('http') && v.includes('/fluid-assets/'))) {
-                    const assetFile = v.replace(/^.*\/fluid-assets\//, '').replace(/\?.*$/, '');
-                    const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
-                    if (dataUrl) userState[sel] = dataUrl;
-                  }
-                }
+
+                await archive.finalize();
+                return;
               }
 
               const initialValuesJson = JSON.stringify(userState).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');

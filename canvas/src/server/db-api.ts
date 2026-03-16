@@ -402,6 +402,38 @@ export function getCampaignPreviewUrls(
   }));
 }
 
+// ─── Brand assets (catalog of shared assets served via /fluid-assets/) ──────
+
+export interface BrandAsset {
+  id: string;
+  name: string;
+  category: string;
+  url: string;       // /fluid-assets/{file_path}
+  mimeType: string;
+  sizeBytes: number;
+  tags: string[];
+}
+
+function rowToBrandAsset(row: Record<string, unknown>): BrandAsset {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    category: row.category as string,
+    url: `/fluid-assets/${row.file_path as string}`,
+    mimeType: row.mime_type as string,
+    sizeBytes: row.size_bytes as number,
+    tags: JSON.parse(row.tags as string),
+  };
+}
+
+export function getBrandAssets(category?: string): BrandAsset[] {
+  const db = getDb();
+  if (category) {
+    return (db.prepare('SELECT * FROM brand_assets WHERE category = ? ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
+  }
+  return (db.prepare('SELECT * FROM brand_assets ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+}
+
 // ─── Saved assets (user library: add/save assets from DAM or upload) ─────────
 
 export interface SavedAsset {
