@@ -235,7 +235,7 @@ Plans:
 **Goal:** Fix the API pipeline to be production-usable: route single-asset prompts to standalone creations (not 7-asset campaigns), fix HTML output paths so previews render, cut token cost ~50% by pre-injecting brand context from DB instead of agent file reads, overhaul chat sidebar to Claude-style conversational layout with stage-by-stage narrated updates, and migrate Voice Guide/Patterns/Templates to DB-backed content so the app's brand pages become the canonical source for pipeline brand intelligence. Absorbs former Phase 9 (chat UI redesign) scope.
 **Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06
 **Depends on:** Phase 10
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 Plans:
 - [ ] 11-01-PLAN.md — Prompt routing (single vs campaign) + preview path fix (iteration ID mismatch)
@@ -274,6 +274,6 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 8. AI Sidebar to Campaign Dashboard E2E | 4/4 | Complete | 2026-03-13 |
 | 9. App Navigation Overhaul | 2/2 | Complete | 2026-03-13 |
 | 10. Anthropic API Generation Pipeline | 2/2 | Complete | 2026-03-16 |
-| 11. API Pipeline Hardening + DB Brand Intelligence | 0/4 | Planned | |
+| 11. API Pipeline Hardening + DB Brand Intelligence | 1/4 | In Progress|  |
 | 12. Pipeline Integration | 0/? | Not Started | |
 | 13. DAM Sync | 0/? | Not Started | |

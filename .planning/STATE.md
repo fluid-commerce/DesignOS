@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 12 context gathered
-last_updated: "2026-03-16T21:22:56.923Z"
-last_activity: "2026-03-13 -- Phase 10 + rename + fixes on chey-work branch, PR #2 created"
+stopped_at: Completed 11-01-PLAN.md (prompt routing + preview path fix)
+last_updated: "2026-03-16T23:35:25.208Z"
+last_activity: 2026-03-16 -- Phase 04.2 complete, roadmap synced
 progress:
-  total_phases: 12
-  completed_phases: 12
-  total_plans: 39
-  completed_plans: 39
-  percent: 94
+  total_phases: 19
+  completed_phases: 13
+  total_plans: 45
+  completed_plans: 42
+  percent: 80
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phases 1-10 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 9 (chat UI).
+**Current focus:** Phases 1-10 + 4.1 + 4.2 complete. Next: Phase 11 (API Pipeline Hardening + DB-Backed Brand Intelligence).
 
 ## Current Position
 
-Phase: Between phases. Next unexecuted: 4.2 (Asset Linking & Output Refactor)
-Status: Phase 10 complete. Deep nomenclature rename shipped (Asset→Creation, Frame→Slide, Variation→Version). Template iframe fix applied. DB migrated.
-Last activity: 2026-03-13 -- Phase 10 + rename + fixes on chey-work branch, PR #2 created
+Phase: 11 — API Pipeline Hardening + DB-Backed Brand Intelligence (context + research gathered, ready for planning)
+Status: All execution phases through 10 complete. Phase 04.2 (asset linking) also complete. Phase 04.3 removed. Former Phase 9 (chat UI) absorbed into Phase 11.
+Last activity: 2026-03-16 -- Phase 04.2 complete, roadmap synced
 
-Progress: [█████████░] 94% (Overall: 35/36 plans)
+Progress: [████████████████░░░░] 80% (12/15 phases, 42/42 existing plans)
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [█████████░] 94% (Overall: 35/36 plans)
 | Phase 11-anthropic-api-generation-pipeline P02 | 8min | 2 tasks | 3 files |
 | Phase 04.2-asset-linking-output-refactor P01 | 12min | 2 tasks | 10 files |
 | Phase 04.2-asset-linking-output-refactor P02 | 3min | 2 tasks | 6 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P01 | 100min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -215,6 +216,8 @@ Recent decisions affecting current work:
 - [Phase 04.2-02]: iterationId is optional on VersionFile and CreationFrameProps — backward compat with session-based html flows preserved
 - [Phase 04.2-02]: allow-scripts added to both src and srcDoc sandbox modes for postMessage compatibility
 - [Phase 04.2-02]: ExportActions internal loading state key stays 'html' — only visible label and URL pattern change to ZIP
+- [Phase 11-01]: isSingleCreation routing: SINGULAR_PATTERNS checked first, CAMPAIGN_PATTERNS override — single-asset prompts create standalone Creations under __standalone__ sentinel campaign
+- [Phase 11-01]: createIteration accepts optional id param — when id: iterationId is passed, DB row id matches filesystem html_path iterationId, fixing /api/iterations/:id/html lookup
 
 ### Parallel Development Note
 
@@ -236,13 +239,15 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 - Phase 04.1 inserted after Phase 4: Canvas Polish & Integration Hardening (URGENT) — addresses permissions, file watcher auto-discovery, MCP→agent triggering, canvas UX overhaul (star/favorite, remove aggressive blocking, infer winner), generation speed optimization, skill path hardening
 - Phase 6 added: Marketing Skills Integration — deep integration of 30 marketing domain skills (~/.agents/skills/) into subagent system for composable marketing intelligence
 - Phase 04.2 inserted after Phase 4.1: Asset Linking & Output Refactor — replace base64-inlined images/fonts with URL-linked assets served via Vite, shared brand assets folder, per-session assets, reducing HTML from 2-3MB to ~50KB
-- Phase 04.3 inserted after Phase 4.2: Install Process Safety — ensure sync.sh never wipes non-Fluid commands (GSD incident where ~/.claude/commands/gsd/ was deleted)
+- Phase 04.3 inserted then removed: Install Process Safety — no longer needed
 - Phase 7 added: Merge Jonathan's codebase into Fluid DesignOS — consolidate Jonathan's implementation with existing system, documentation in Reference/Context
 - Phase 8 added: AI sidebar to campaign dashboard end-to-end — fix disconnected data paths (sidebar generates to disk, dashboard reads SQLite), multi-asset campaign creation, preview rendering at all navigation levels, MCP push_asset bridge
-- Phase 9 added: Conversational chat UI — bottom input, message bubbles, auto-scroll
-- Phase 10 added: App Navigation Overhaul — slim icon-based left nav (Campaigns, Templates, Patterns, Voice Guide) controlling main viewport; collapsible AI chat sidebar between left nav and viewport (toggled via bottom nav icon); Voice Guide renders 14 markdown docs with vertical side-tabs
-- Phase 11 added: Anthropic API Generation Pipeline — replace CLI `claude -p` spawning with direct Anthropic SDK calls from Vite server; full pipeline (copy→layout→styling→spec-check→fix loop) with tool use, per-stage model selection, SSE streaming to sidebar; CLI kept as explicit fallback only
-- Phase 12 added: API Pipeline Hardening — fix prompt routing (single asset vs campaign), HTML output paths for preview rendering, 50% token cost reduction via pre-injected brand context, chat sidebar UX cleanup (stage progress not tool spam), skills/orchestrator reads from DB not ad-hoc file reads
+- Phase 9 (Conversational chat UI) added then absorbed into Phase 11
+- Phase 9 renumbered: App Navigation Overhaul (completed 2026-03-13)
+- Phase 10: Anthropic API Generation Pipeline — replace CLI `claude -p` spawning with direct Anthropic SDK calls (completed 2026-03-16)
+- Phase 11: API Pipeline Hardening + DB-Backed Brand Intelligence — combined scope: prompt routing, preview path fixes, token cost reduction, Claude-style chat UX, Voice Guide/Patterns/Templates DB migration
+- Phase 12: Pipeline Integration — subagents read from DB via MCP, slim skill .md files
+- Phase 13: DAM Sync — Fluid DAM as upstream source of truth
 
 ### Blockers/Concerns
 
@@ -252,6 +257,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-16T21:17:25.602Z
-Stopped at: Phase 12 context gathered
-Resume file: .planning/phases/12-api-pipeline-hardening-routing-context-injection-cost-ux/12-CONTEXT.md
+Last session: 2026-03-16T23:35:25.206Z
+Stopped at: Completed 11-01-PLAN.md (prompt routing + preview path fix)
+Resume file: None
