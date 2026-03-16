@@ -130,20 +130,6 @@ Plans:
 - [ ] 04.2-01-PLAN.md — DB schema (brand_assets/campaign_assets), asset scanner, /api/brand-assets endpoint, /fluid-campaigns/ middleware, ZIP export, agent prompt updates
 - [ ] 04.2-02-PLAN.md — CreationFrame srcDoc-to-src switch, ExportActions ZIP download, VersionGrid/type updates, test updates
 
-### Phase 04.3: Install Process Safety (INSERTED)
-
-**Goal:** Ensure the Fluid skill sync process (`sync.sh`) and any repo install scripts never delete or interfere with non-Fluid commands, agents, or configurations (e.g., GSD slash commands at `~/.claude/commands/gsd/`)
-**Depends on:** Phase 1 (distribution system)
-**Requirements**: SAFE-01, SAFE-02
-**Success Criteria** (what must be TRUE):
-  1. Running `sync.sh` with GSD commands installed at `~/.claude/commands/gsd/` leaves them completely untouched — verified by checksum comparison before and after
-  2. `sync.sh` only writes files it owns (skill .md files matching `~/.agents/skills/*/SKILL.md`) and never deletes files or directories it didn't create
-  3. A manifest or ownership marker system exists so sync.sh can clean stale Fluid skills without risking non-Fluid files
-**Plans**: 1 plan
-
-Plans:
-- [ ] 04.3-01-PLAN.md — Ownership manifest + sync.sh cleanup guard + verification test
-
 ### Phase 5: Learning Loop
 **Goal**: The system improves over time by reading documented iteration trajectories and updating brand rules, templates, and skills accordingly
 **Depends on**: Phase 4 (needs trajectory data from canvas)
