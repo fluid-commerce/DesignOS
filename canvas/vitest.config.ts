@@ -18,6 +18,8 @@ export default defineConfig({
       ['mcp/**/*.test.ts', 'node'],
       ['src/__tests__/api-pipeline.test.ts', 'node'],
       ['src/__tests__/routing.test.ts', 'node'],
+      ['src/__tests__/brand-context.test.ts', 'node'],
+      ['src/__tests__/brand-seeder.test.ts', 'node'],
     ],
   },
 });

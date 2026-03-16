@@ -40,7 +40,18 @@ vi.mock('@anthropic-ai/sdk', () => {
 // Imports after mocks
 // ---------------------------------------------------------------------------
 import { executeTool, PIPELINE_TOOLS, loadStagePrompt, STAGE_MODELS, runStageWithTools, runApiPipeline } from '../server/api-pipeline';
-import type { PipelineContext } from '../server/api-pipeline';
+import type { PipelineContext, BrandContext } from '../server/api-pipeline';
+
+/** Minimal brand context for tests that don't need real DB content */
+function makeBrandCtx(overrides: Partial<BrandContext> = {}): BrandContext {
+  return {
+    voiceRules: '## Voice Rules\nTest voice rules content.',
+    designTokens: '## Design Tokens\nTest design tokens content.',
+    layoutArchetypes: '## Layout Archetypes\nTest layout archetypes content.',
+    patternSnippets: '## Patterns\nTest pattern snippets content.',
+    ...overrides,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -291,7 +302,8 @@ describe('executeTool: unknown tool', () => {
 describe('loadStagePrompt', () => {
   it('reads fluid-social SKILL.md and returns prompt containing copy-stage content for instagram', async () => {
     const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('copy', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('copy', ctx, brandCtx);
     // Should contain reference to copy agent (from skill file OR fallback)
     expect(typeof prompt).toBe('string');
     expect(prompt.length).toBeGreaterThan(50);
@@ -301,7 +313,8 @@ describe('loadStagePrompt', () => {
 
   it('returns prompt containing layout-stage content', async () => {
     const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('layout', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('layout', ctx, brandCtx);
     expect(typeof prompt).toBe('string');
     expect(prompt.length).toBeGreaterThan(50);
     expect(prompt.toLowerCase()).toMatch(/layout/);
@@ -309,7 +322,8 @@ describe('loadStagePrompt', () => {
 
   it('returns prompt containing styling-stage content', async () => {
     const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('styling', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('styling', ctx, brandCtx);
     expect(typeof prompt).toBe('string');
     expect(prompt.length).toBeGreaterThan(50);
     expect(prompt.toLowerCase()).toMatch(/styl/);
@@ -317,7 +331,8 @@ describe('loadStagePrompt', () => {
 
   it('returns prompt referencing run_brand_check for spec-check stage', async () => {
     const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('spec-check', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('spec-check', ctx, brandCtx);
     expect(typeof prompt).toBe('string');
     expect(prompt.length).toBeGreaterThan(50);
     expect(prompt).toMatch(/run_brand_check|spec.?check/i);
@@ -326,34 +341,42 @@ describe('loadStagePrompt', () => {
   it('falls back to hardcoded prompt when skill file is missing', async () => {
     // Use a creationType that maps to a skill file that doesn't exist
     const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('copy', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('copy', ctx, brandCtx);
     // Fallback prompt should still be a valid string
     expect(typeof prompt).toBe('string');
     expect(prompt.length).toBeGreaterThan(20);
   });
 
-  it('fallback prompt for copy stage references voice-rules.md', async () => {
+  it('fallback prompt for copy stage contains brand voice rules inline (no read_file instruction)', async () => {
     const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('copy', ctx);
-    // The fallback references brand/voice-rules.md
-    expect(prompt).toContain('voice-rules.md');
+    const brandCtx = makeBrandCtx({ voiceRules: '## Voice\nTest voice content' });
+    const prompt = await loadStagePrompt('copy', ctx, brandCtx);
+    // The fallback now injects brand content inline, not a file reference
+    expect(prompt).toContain('Brand Voice Rules');
+    expect(prompt).not.toContain('voice-rules.md');
   });
 
-  it('fallback prompt for layout stage references layout-archetypes.md', async () => {
+  it('fallback prompt for layout stage contains layout archetypes inline (no read_file instruction)', async () => {
     const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('layout', ctx);
-    expect(prompt).toContain('layout-archetypes.md');
+    const brandCtx = makeBrandCtx({ layoutArchetypes: '## Layout\nTest archetypes' });
+    const prompt = await loadStagePrompt('layout', ctx, brandCtx);
+    expect(prompt).toContain('Layout Archetypes');
+    expect(prompt).not.toContain('layout-archetypes.md');
   });
 
-  it('fallback prompt for styling stage references design-tokens.md', async () => {
+  it('fallback prompt for styling stage contains design tokens inline (no read_file instruction)', async () => {
     const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('styling', ctx);
-    expect(prompt).toContain('design-tokens.md');
+    const brandCtx = makeBrandCtx({ designTokens: '## Tokens\nTest tokens' });
+    const prompt = await loadStagePrompt('styling', ctx, brandCtx);
+    expect(prompt).toContain('Design Tokens');
+    expect(prompt).not.toContain('design-tokens.md');
   });
 
   it('fallback prompt for spec-check stage references run_brand_check', async () => {
     const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('spec-check', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('spec-check', ctx, brandCtx);
     expect(prompt).toContain('run_brand_check');
   });
 
@@ -363,7 +386,8 @@ describe('loadStagePrompt', () => {
       workingDir: '/test/working/dir',
       htmlOutputPath: '/test/working/dir/output.html',
     });
-    const prompt = await loadStagePrompt('copy', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('copy', ctx, brandCtx);
     // Fallback contains workingDir reference
     expect(prompt).toContain('/test/working/dir');
   });
@@ -373,7 +397,8 @@ describe('loadStagePrompt', () => {
       creationType: 'instagram',
       workingDir: '/unique-working-dir-12345',
     });
-    const prompt = await loadStagePrompt('copy', ctx);
+    const brandCtx = makeBrandCtx();
+    const prompt = await loadStagePrompt('copy', ctx, brandCtx);
     // The composed prompt always injects workingDir in the Context section
     // This applies when skill file loads successfully (from SKILL.md path)
     // OR when using fallback — either way context vars are included

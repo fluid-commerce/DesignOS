@@ -316,15 +316,41 @@ const SKILL_FILES: Record<string, string> = {
   'theme-section': path.join(os.homedir(), '.agents/skills/fluid-theme-section/SKILL.md'),
 };
 
-/** Fallback prompts when skill file cannot be loaded */
-function getFallbackPrompt(stage: PipelineStage, ctx: PipelineContext): string {
+/** Fallback prompts when skill file cannot be loaded — includes brand context inline */
+function getFallbackPrompt(stage: PipelineStage, ctx: PipelineContext, brandCtx: BrandContext): string {
   switch (stage) {
     case 'copy':
-      return `You are a Fluid brand copywriter. Generate marketing copy for a ${ctx.creationType} post. Use read_file to load brand/voice-rules.md and brand/social-post-specs.md. Write copy to ${ctx.workingDir}/copy.md.`;
+      return [
+        `You are a Fluid brand copywriter. Generate marketing copy for a ${ctx.creationType} post.`,
+        ``,
+        `## Brand Voice Rules`,
+        brandCtx.voiceRules,
+        ``,
+        `Write copy to ${ctx.workingDir}/copy.md.`,
+      ].join('\n');
     case 'layout':
-      return `You are a Fluid layout agent. Create HTML layout for a ${ctx.creationType} post. Use read_file to load brand/layout-archetypes.md. Read copy from ${ctx.workingDir}/copy.md. Write layout to ${ctx.workingDir}/layout.html.`;
+      return [
+        `You are a Fluid layout agent. Create HTML layout for a ${ctx.creationType} post.`,
+        `Read copy from ${ctx.workingDir}/copy.md using the read_file tool.`,
+        ``,
+        `## Layout Archetypes`,
+        brandCtx.layoutArchetypes,
+        ``,
+        `Write layout to ${ctx.workingDir}/layout.html.`,
+      ].join('\n');
     case 'styling':
-      return `You are a Fluid styling agent. Apply brand styling. Use read_file to load brand/design-tokens.md, brand/asset-usage.md, patterns/index.html. Read ${ctx.workingDir}/copy.md and ${ctx.workingDir}/layout.html. IMPORTANT: First call GET /api/brand-assets to discover available fonts, brushstrokes, and other assets. Reference all assets via /fluid-assets/ absolute URLs using the filenames returned by the API -- use @font-face with url('/fluid-assets/fonts/{discovered-filename}'), images with src='/fluid-assets/{category}/{discovered-filename}'. NEVER embed base64 data URIs. NEVER hardcode specific asset filenames. Write styled HTML to ${ctx.htmlOutputPath}.`;
+      return [
+        `You are a Fluid styling agent. Apply brand styling.`,
+        `Read ${ctx.workingDir}/copy.md and ${ctx.workingDir}/layout.html using the read_file tool.`,
+        ``,
+        `## Design Tokens`,
+        brandCtx.designTokens,
+        ``,
+        `IMPORTANT: First call GET /api/brand-assets to discover available fonts, brushstrokes, and other assets.`,
+        `Reference all assets via /fluid-assets/ absolute URLs. NEVER embed base64 data URIs. NEVER hardcode specific asset filenames.`,
+        ``,
+        `Write styled HTML to ${ctx.htmlOutputPath}.`,
+      ].join('\n');
     case 'spec-check':
       return `You are a Fluid spec-check agent. Validate ${ctx.htmlOutputPath}. Use run_brand_check tool. Write report to ${ctx.workingDir}/spec-report.json.`;
   }
@@ -380,14 +406,14 @@ function extractStageSection(content: string, stage: PipelineStage): string | nu
 /**
  * Load the system prompt for a pipeline stage.
  * Primary: reads skill .md file from disk and extracts stage-specific section.
- * Fallback: hardcoded minimal prompt if file read or parse fails.
+ * Fallback: hardcoded minimal prompt (with inline brand context) if file read or parse fails.
  */
-export async function loadStagePrompt(stage: PipelineStage, ctx: PipelineContext): Promise<string> {
+export async function loadStagePrompt(stage: PipelineStage, ctx: PipelineContext, brandCtx: BrandContext): Promise<string> {
   const skillPath = SKILL_FILES[ctx.creationType];
 
   if (!skillPath) {
     console.warn(`[api-pipeline] No skill file mapping for creationType "${ctx.creationType}", using fallback`);
-    return getFallbackPrompt(stage, ctx);
+    return getFallbackPrompt(stage, ctx, brandCtx);
   }
 
   let skillContent: string;
@@ -395,13 +421,13 @@ export async function loadStagePrompt(stage: PipelineStage, ctx: PipelineContext
     skillContent = await fs.readFile(skillPath, 'utf-8');
   } catch (err) {
     console.warn(`[api-pipeline] Failed to read skill file "${skillPath}": ${err}. Using fallback.`);
-    return getFallbackPrompt(stage, ctx);
+    return getFallbackPrompt(stage, ctx, brandCtx);
   }
 
   const stageSection = extractStageSection(skillContent, stage);
   if (!stageSection) {
     console.warn(`[api-pipeline] Could not extract "${stage}" section from "${skillPath}". Using fallback.`);
-    return getFallbackPrompt(stage, ctx);
+    return getFallbackPrompt(stage, ctx, brandCtx);
   }
 
   // Compose the final system prompt
@@ -492,33 +518,49 @@ export function emitStageNarrative(
 }
 
 // ---------------------------------------------------------------------------
-// Stage user prompt builders (private helpers)
+// Stage user prompt builders — exported for testing
 // ---------------------------------------------------------------------------
 
-function buildCopyPrompt(ctx: PipelineContext): string {
+export function buildCopyPrompt(ctx: PipelineContext, brandCtx: BrandContext): string {
   return [
     `Generate Fluid brand copy for a ${ctx.creationType} marketing creation.`,
     `Topic: ${ctx.prompt}`,
     ``,
-    `Use read_file to load brand docs (brand/voice-rules.md, brand/social-post-specs.md).`,
+    `## Brand Voice Rules`,
+    brandCtx.voiceRules,
+    ``,
     `Write structured copy (headline, subtext, accent color, archetype selection) to ${ctx.workingDir}/copy.md.`,
   ].join('\n');
 }
 
-function buildLayoutPrompt(ctx: PipelineContext): string {
+export function buildLayoutPrompt(ctx: PipelineContext, brandCtx: BrandContext): string {
   return [
     `Create structural HTML layout for a Fluid ${ctx.creationType} post.`,
-    `Read copy from ${ctx.workingDir}/copy.md.`,
-    `Use read_file to load brand/layout-archetypes.md for archetype guidance.`,
+    `Read copy from ${ctx.workingDir}/copy.md using the read_file tool.`,
+    ``,
+    `## Layout Archetypes`,
+    brandCtx.layoutArchetypes,
+    ``,
     `Write layout HTML to ${ctx.workingDir}/layout.html.`,
   ].join('\n');
 }
 
-function buildStylingPrompt(ctx: PipelineContext): string {
+export function buildStylingPrompt(ctx: PipelineContext, brandCtx: BrandContext): string {
   return [
     `Apply Fluid brand styling to create a complete HTML output.`,
-    `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html.`,
-    `Use read_file to load brand/design-tokens.md, brand/asset-usage.md, patterns/index.html.`,
+    `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
+    ``,
+    `## Design Tokens`,
+    brandCtx.designTokens,
+    ``,
+    `## Pattern Reference (code snippets)`,
+    brandCtx.patternSnippets,
+    ``,
+    `IMPORTANT: Call GET /api/brand-assets to discover available fonts, brushstrokes, and other assets.`,
+    `Reference all assets via /fluid-assets/ absolute URLs using the filenames returned by the API.`,
+    `Use @font-face with url('/fluid-assets/fonts/{discovered-filename}').`,
+    `NEVER embed base64 data URIs. NEVER hardcode specific asset filenames.`,
+    ``,
     `Write complete self-contained HTML (all CSS inline) to ${ctx.htmlOutputPath}.`,
   ].join('\n');
 }
@@ -590,8 +632,11 @@ export async function runStageWithTools(
   userPrompt: string,
   ctx: PipelineContext,
   res: ServerResponse,
+  brandCtx?: BrandContext,
 ): Promise<StageResult> {
-  const systemPrompt = await loadStagePrompt(stage, ctx);
+  // If brandCtx not provided (e.g. from fix loop), load it now
+  const resolvedBrandCtx = brandCtx ?? loadBrandContextFromDb();
+  const systemPrompt = await loadStagePrompt(stage, ctx, resolvedBrandCtx);
   const model = STAGE_MODELS[stage];
   const tools = STAGE_TOOLS[stage];
 
@@ -679,20 +724,23 @@ export async function runApiPipeline(
   // Ensure working directory exists
   await fs.mkdir(ctx.workingDir, { recursive: true });
 
+  // Load brand context from DB ONCE for all stages — eliminates ~48 read_file tool calls per run
+  const brandCtx = loadBrandContextFromDb();
+
   // ── Stage 1: Copy ──────────────────────────────────────────────────────────
-  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx), ctx, res);
+  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx, brandCtx), ctx, res, brandCtx);
   await generateStageNarrative('copy', copyResult.output, ctx, res);
 
   // ── Stage 2: Layout ────────────────────────────────────────────────────────
-  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res);
+  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx, brandCtx), ctx, res, brandCtx);
   await generateStageNarrative('layout', layoutResult.output, ctx, res);
 
   // ── Stage 3: Styling ───────────────────────────────────────────────────────
-  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res);
+  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx, brandCtx), ctx, res, brandCtx);
   await generateStageNarrative('styling', stylingResult.output, ctx, res);
 
   // ── Stage 4: Spec-check ────────────────────────────────────────────────────
-  await runStageWithTools('spec-check', buildSpecCheckPrompt(ctx), ctx, res);
+  await runStageWithTools('spec-check', buildSpecCheckPrompt(ctx), ctx, res, brandCtx);
   await generateStageNarrative('spec-check', '', ctx, res);
 
   // Read spec report
@@ -736,15 +784,15 @@ export async function runApiPipeline(
     // Cascade rule: if copy was fixed, re-run layout and styling too
     if (hasCopyFix) {
       if (!issuesByTarget.has('layout')) {
-        await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res);
+        await runStageWithTools('layout', buildLayoutPrompt(ctx, brandCtx), ctx, res, brandCtx);
       }
       if (!issuesByTarget.has('styling')) {
-        await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res);
+        await runStageWithTools('styling', buildStylingPrompt(ctx, brandCtx), ctx, res, brandCtx);
       }
     }
 
     // Re-run spec-check
-    await runStageWithTools('spec-check', buildSpecCheckPrompt(ctx), ctx, res);
+    await runStageWithTools('spec-check', buildSpecCheckPrompt(ctx), ctx, res, brandCtx);
 
     // Re-read spec report
     try {
