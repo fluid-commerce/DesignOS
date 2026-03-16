@@ -10,6 +10,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { execSync } from 'node:child_process';
 import type { ServerResponse } from 'node:http';
+import { getVoiceGuideDocs, getBrandPatterns } from './db-api';
 
 // Load .env file — try multiple paths since __dirname is unreliable in Vite middleware
 const envPaths = [
@@ -51,6 +52,41 @@ export interface PipelineContext {
   htmlOutputPath: string; // absolute path where final HTML goes
   creationId: string;
   campaignId: string;
+}
+
+// ---------------------------------------------------------------------------
+// Brand context — loaded from DB once per pipeline run
+// ---------------------------------------------------------------------------
+
+export interface BrandContext {
+  voiceRules: string;
+  designTokens: string;
+  layoutArchetypes: string;
+  patternSnippets: string;
+}
+
+/**
+ * Load brand context from DB for injection into stage prompts.
+ * Called once per pipeline run; all stages share the same snapshot.
+ */
+export function loadBrandContextFromDb(): BrandContext {
+  const voiceDocs = getVoiceGuideDocs();
+  const voiceRules = voiceDocs.map(d => `## ${d.label}\n${d.content}`).join('\n\n');
+
+  const tokenRows = getBrandPatterns('design-tokens');
+  const designTokens = tokenRows.map(r => `## ${r.label}\n${r.content}`).join('\n\n');
+
+  const archetypeRows = getBrandPatterns('layout-archetype');
+  const layoutArchetypes = archetypeRows.map(r => `## ${r.label}\n${r.content}`).join('\n\n');
+
+  const patternRows = getBrandPatterns('pattern');
+  // Truncate each pattern snippet to 2000 chars max to avoid blowing context
+  const patternSnippets = patternRows.map(r => {
+    const truncated = r.content.length > 2000 ? r.content.slice(0, 2000) + '\n<!-- truncated -->' : r.content;
+    return `## ${r.label}\n${truncated}`;
+  }).join('\n\n');
+
+  return { voiceRules, designTokens, layoutArchetypes, patternSnippets };
 }
 
 // ---------------------------------------------------------------------------
@@ -446,6 +482,15 @@ export function emitStageStatus(
   });
 }
 
+export function emitStageNarrative(
+  res: ServerResponse,
+  creationId: string,
+  stage: string,
+  text: string,
+): void {
+  writeNDJSON(res, { type: 'stage_narrative', creationId, stage, text });
+}
+
 // ---------------------------------------------------------------------------
 // Stage user prompt builders (private helpers)
 // ---------------------------------------------------------------------------
@@ -496,6 +541,40 @@ function buildFixPrompt(target: FixTarget, issues: Array<{ description: string; 
     `Read the relevant files in ${ctx.workingDir}/ and fix only the issues listed above.`,
     `Rewrite the relevant file with the fixes applied.`,
   ].join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Haiku narrator: generates a 1-sentence conversational summary after each stage
+// ---------------------------------------------------------------------------
+
+const STAGE_LABELS: Record<string, string> = {
+  copy: 'Writing copy',
+  layout: 'Building layout',
+  styling: 'Applying styling',
+  'spec-check': 'Running spec-check',
+};
+
+async function generateStageNarrative(
+  stage: PipelineStage,
+  stageOutput: string,
+  ctx: PipelineContext,
+  res: ServerResponse,
+): Promise<void> {
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 80,
+      messages: [{
+        role: 'user',
+        content: `Summarize in 1 short sentence what happened in the "${STAGE_LABELS[stage] ?? stage}" stage for a ${ctx.creationType} creation. Stage output (first 500 chars): ${stageOutput.slice(0, 500)}\n\nBe conversational and specific. Examples: "Copy ready — headline focuses on checkout friction." or "Layout done — using full-bleed headline archetype." or "Styled with blue accent (trust/authority)."`,
+      }],
+    });
+    const text = response.content[0]?.type === 'text' ? response.content[0].text : `${STAGE_LABELS[stage] ?? stage} complete.`;
+    emitStageNarrative(res, ctx.creationId, stage, text);
+  } catch {
+    // Fallback if Haiku call fails — emit a generic narration
+    emitStageNarrative(res, ctx.creationId, stage, `${STAGE_LABELS[stage] ?? stage} complete.`);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -601,16 +680,20 @@ export async function runApiPipeline(
   await fs.mkdir(ctx.workingDir, { recursive: true });
 
   // ── Stage 1: Copy ──────────────────────────────────────────────────────────
-  await runStageWithTools('copy', buildCopyPrompt(ctx), ctx, res);
+  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx), ctx, res);
+  await generateStageNarrative('copy', copyResult.output, ctx, res);
 
   // ── Stage 2: Layout ────────────────────────────────────────────────────────
-  await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res);
+  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res);
+  await generateStageNarrative('layout', layoutResult.output, ctx, res);
 
   // ── Stage 3: Styling ───────────────────────────────────────────────────────
-  await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res);
+  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res);
+  await generateStageNarrative('styling', stylingResult.output, ctx, res);
 
   // ── Stage 4: Spec-check ────────────────────────────────────────────────────
   await runStageWithTools('spec-check', buildSpecCheckPrompt(ctx), ctx, res);
+  await generateStageNarrative('spec-check', '', ctx, res);
 
   // Read spec report
   const specReportPath = path.join(ctx.workingDir, 'spec-report.json');

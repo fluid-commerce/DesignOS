@@ -22,7 +22,7 @@ describe('parseStreamEvent', () => {
     expect(msg!.id).toMatch(/^msg-\d+$/);
   });
 
-  it('converts tool_use content_block_start to tool-start messages', () => {
+  it('returns null for tool_use content_block_start (filtered — stage badges replace tool noise)', () => {
     const event = {
       type: 'stream_event',
       event: {
@@ -31,10 +31,7 @@ describe('parseStreamEvent', () => {
       },
     };
     const msg = parseStreamEvent(event);
-    expect(msg).not.toBeNull();
-    expect(msg!.type).toBe('tool-start');
-    expect(msg!.toolName).toBe('Write');
-    expect(msg!.content).toContain('Write');
+    expect(msg).toBeNull();
   });
 
   it('converts result event to status message with "Generation complete"', () => {
@@ -63,12 +60,45 @@ describe('parseStreamEvent', () => {
     expect(msg).toBeNull();
   });
 
-  it('converts stage_status events to status messages', () => {
+  it('converts stage_status starting events to stage-running messages', () => {
     const event = { type: 'stage_status', stage: 'copy', status: 'starting' };
     const msg = parseStreamEvent(event);
     expect(msg).not.toBeNull();
+    expect(msg!.type).toBe('stage-running');
+    expect(msg!.content).toBe('copy');
+    expect(msg!.stage).toBe('copy');
+  });
+
+  it('converts stage_status done events to stage-done messages', () => {
+    const event = { type: 'stage_status', stage: 'copy', status: 'done' };
+    const msg = parseStreamEvent(event);
+    expect(msg).not.toBeNull();
+    expect(msg!.type).toBe('stage-done');
+    expect(msg!.content).toBe('copy');
+    expect(msg!.stage).toBe('copy');
+  });
+
+  it('converts stage_narrative events to stage-narrative messages', () => {
+    const event = { type: 'stage_narrative', text: 'Copy ready.', stage: 'copy' };
+    const msg = parseStreamEvent(event);
+    expect(msg).not.toBeNull();
+    expect(msg!.type).toBe('stage-narrative');
+    expect(msg!.content).toBe('Copy ready.');
+    expect(msg!.stage).toBe('copy');
+  });
+
+  it('converts stage_status other statuses to regular status messages', () => {
+    const event = { type: 'stage_status', stage: 'copy', status: 'max-tokens-reached' };
+    const msg = parseStreamEvent(event);
+    expect(msg).not.toBeNull();
     expect(msg!.type).toBe('status');
-    expect(msg!.content).toBe('[copy] starting');
+    expect(msg!.content).toBe('[copy] max-tokens-reached');
+  });
+
+  it('returns null for tool_result events (filtered — stage badges replace tool noise)', () => {
+    const event = { type: 'tool_result', tool_name: 'read_file' };
+    const msg = parseStreamEvent(event);
+    expect(msg).toBeNull();
   });
 
   it('converts stderr SSE events to status messages', () => {
