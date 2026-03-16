@@ -241,6 +241,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 4.3 > 5 > 6 > 7 > 8
 | 7. Merge Jonathan's Codebase | 7/7 | Complete | 2026-03-12 |
 | 8. AI Sidebar to Campaign Dashboard E2E | 4/4 | Complete   | 2026-03-13 |
 | 10. App Navigation Overhaul | 2/2 | Complete | 2026-03-13 |
+| 11. Anthropic API Generation Pipeline | 0/2 | Not Started | |
 
 ### Phase 9: Conversational chat UI — bottom input, message bubbles, auto-scroll
 
@@ -264,3 +265,14 @@ Plans:
 - [x] 10-02-PLAN.md — Voice Guide (markdown renderer + side-tabs), patterns middleware, test updates, visual checkpoint
 
 **Post-phase:** Deep nomenclature rename (Asset→Creation, Frame→Slide, Variation→Version), NavTab campaigns→create with Campaigns/Creations sub-tabs, template iframe path fix, DB migration
+
+### Phase 11: Anthropic API Generation Pipeline
+
+**Goal:** Replace CLI-spawned `claude -p` generation with direct Anthropic API calls from the Vite server, running the full orchestrator pipeline (copy → layout → styling → spec-check → fix loop) with tool use, streaming responses to the chat sidebar via SSE. CLI path preserved as explicit fallback only.
+**Requirements**: API-01, API-02, API-03, API-04, API-05, API-06, API-07
+**Depends on:** Phase 8
+**Plans:** 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — SDK install, tool schemas, tool executor, skill-to-prompt loader, SSE helpers
+- [ ] 11-02-PLAN.md — Pipeline orchestrator (4-stage + fix loop), engine routing in /api/generate, integration tests
