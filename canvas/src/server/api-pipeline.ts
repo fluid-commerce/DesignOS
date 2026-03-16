@@ -57,10 +57,10 @@ export interface PipelineContext {
 // Stage model mapping (haiku for layout, sonnet for creative stages)
 // ---------------------------------------------------------------------------
 export const STAGE_MODELS: Record<PipelineStage, string> = {
-  copy: 'claude-sonnet-4-5-20250514',
-  layout: 'claude-haiku-4-5-20250514',
-  styling: 'claude-sonnet-4-5-20250514',
-  'spec-check': 'claude-sonnet-4-5-20250514',
+  copy: 'claude-sonnet-4-5-20251022',
+  layout: 'claude-haiku-4-5-20251001',
+  styling: 'claude-sonnet-4-5-20251022',
+  'spec-check': 'claude-sonnet-4-5-20251022',
 };
 
 // ---------------------------------------------------------------------------
