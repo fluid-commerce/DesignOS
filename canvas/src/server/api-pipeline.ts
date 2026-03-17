@@ -10,7 +10,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { execSync } from 'node:child_process';
 import type { ServerResponse } from 'node:http';
-import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets } from './db-api';
+import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline } from './db-api';
 
 // Load .env file — try multiple paths since __dirname is unreliable in Vite middleware
 const envPaths = [
@@ -181,7 +181,10 @@ const listBrandAssetsTool: Anthropic.Tool = {
   name: 'list_brand_assets',
   description:
     'List available brand assets (fonts, brushstrokes, textures, logos, etc.) from the asset library. ' +
-    'Returns name, category, and filename for each asset. Use filenames to construct /fluid-assets/ URLs in HTML.',
+    'Returns name, category, url, and ready-to-use CSS values for each asset. ' +
+    'Fonts include a `fontSrc` field — use it directly in @font-face src. ' +
+    'Images include `cssUrl` for background-image and `imgSrc` for img tags. ' +
+    'ALWAYS use these values verbatim. NEVER embed base64.',
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -352,12 +355,28 @@ export async function executeTool(
     case 'list_brand_assets': {
       const category = input.category as string | undefined;
       const assets = getBrandAssets(category);
-      return JSON.stringify(assets.map(a => ({
-        name: a.name,
-        category: a.category,
-        url: a.url,
-        mimeType: a.mimeType,
-      })), null, 2);
+      return JSON.stringify(assets.map(a => {
+        const base: Record<string, string> = {
+          name: a.name,
+          category: a.category,
+          url: a.url,
+          mimeType: a.mimeType,
+        };
+        // Add ready-to-use CSS values so agents use them verbatim
+        if (a.mimeType.startsWith('font/') || a.url.endsWith('.ttf') || a.url.endsWith('.woff2') || a.url.endsWith('.woff') || a.url.endsWith('.otf')) {
+          const format = a.url.endsWith('.ttf') ? 'truetype'
+            : a.url.endsWith('.woff2') ? 'woff2'
+            : a.url.endsWith('.woff') ? 'woff'
+            : a.url.endsWith('.otf') ? 'opentype'
+            : 'truetype';
+          base.fontSrc = `url('${a.url}') format('${format}')`;
+        }
+        if (a.mimeType.startsWith('image/')) {
+          base.cssUrl = `url('${a.url}')`;
+          base.imgSrc = a.url;
+        }
+        return base;
+      }), null, 2);
     }
 
     default:

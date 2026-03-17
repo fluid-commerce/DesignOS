@@ -738,3 +738,37 @@ export function updateDesignRule(id: string, content: string): void {
     'UPDATE template_design_rules SET content = ?, updated_at = ? WHERE id = ?'
   ).run(content, Date.now(), id);
 }
+
+/**
+ * Load all Design DNA relevant to a pipeline generation context.
+ * Returns: global visual style, social general rules, platform-specific rules,
+ * and matched archetype rules — ready to inject into agent system prompts.
+ */
+export function getDesignDnaForPipeline(
+  creationType: string,
+  archetypeSlug?: string
+): { globalStyle: string; socialGeneral: string; platformRules: string; archetypeNotes: string } {
+  // Map creationType to platform
+  const platform = creationType === 'linkedin' ? 'linkedin' : 'instagram';
+
+  // Global visual style from brand_patterns
+  const visualStyle = getBrandPatternBySlug('visual-compositor-contract');
+  const globalStyle = visualStyle ? visualStyle.content : '';
+
+  // Social general rules
+  const generalRules = getDesignRules('global-social');
+  const socialGeneral = generalRules.map(r => r.content).join('\n\n');
+
+  // Platform-specific rules
+  const platformRules = getDesignRules('platform', platform);
+  const platformText = platformRules.map(r => `## ${r.label}\n${r.content}`).join('\n\n');
+
+  // Archetype-specific notes
+  let archetypeNotes = '';
+  if (archetypeSlug) {
+    const archetypeRules = getDesignRulesByArchetype(archetypeSlug);
+    archetypeNotes = archetypeRules.map(r => `## ${r.label}\n${r.content}`).join('\n\n');
+  }
+
+  return { globalStyle, socialGeneral, platformRules: platformText, archetypeNotes };
+}
