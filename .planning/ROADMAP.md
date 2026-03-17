@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Anthropic API Generation Pipeline** - Direct Anthropic API calls replacing CLI-spawned generation, 4-stage pipeline with tool use and SSE streaming (completed 2026-03-16)
 - [x] **Phase 11: API Pipeline Hardening + DB-Backed Brand Intelligence** - Single-asset routing, preview path fixes, token cost reduction via DB brand context, Claude-style chat UX, migrate Voice Guide/Patterns/Templates to DB (completed 2026-03-16)
 - [x] **Phase 12: Post-API Migration Cleanup & Audit** - Audit for CLI-era dead code, slim skill .md files, update CLI tools to read from DB, verify infrastructure coherence (completed 2026-03-17)
-- [ ] **Phase 13: DAM Sync** - Sync layer between Fluid DAM and local DB, DAM as upstream source of truth
+- [x] **Phase 13: DAM Sync** - Sync layer between Fluid DAM and local DB, DAM as upstream source of truth (completed 2026-03-17)
 
 ## Phase Details
 
@@ -265,7 +265,7 @@ Plans:
   3. Incremental sync skips unchanged assets, soft-deletes removed assets
   4. Assets tab shows DAM sync status bar with "Sync now" button
   5. DAM-sourced assets show source badge; removed assets show amber warning badge
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 13-01-PLAN.md — DB migration + DAM client + sync engine + tests
@@ -293,4 +293,4 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 10. Anthropic API Generation Pipeline | 2/2 | Complete | 2026-03-16 |
 | 11. API Pipeline Hardening + DB Brand Intelligence | 4/4 | Complete | 2026-03-16 |
 | 12. Post-API Migration Cleanup & Audit | 4/4 | Complete    | 2026-03-17 |
-| 13. DAM Sync | 1/2 | In Progress|  |
+| 13. DAM Sync | 2/2 | Complete   | 2026-03-17 |
