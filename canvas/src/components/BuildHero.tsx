@@ -2,6 +2,10 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { nanoid } from 'nanoid';
 import { FluidDAMModal } from './DAMPicker';
 import { IdeasGetStarted, type IdeaAction } from './IdeasGetStarted';
+import {
+  BG_PRIMARY, BG_CARD, BG_SECONDARY, BORDER, BORDER_HOVER,
+  ACCENT, TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED,
+} from './tokens';
 
 /** Saved asset from /api/assets (same shape as IdeasGetStarted.SelectedAsset). */
 interface SavedAssetForIdeas {
@@ -9,17 +13,6 @@ interface SavedAssetForIdeas {
   url: string;
   name?: string | null;
 }
-
-// Project design tokens (from index.css)
-const BG_PRIMARY = 'var(--bg-primary, #0d0d0d)';
-const BG_CARD = 'var(--bg-card, #1a1a1e)';
-const BG_SECONDARY = 'var(--bg-secondary, #141414)';
-const BORDER = 'var(--border, #1e1e1e)';
-const BORDER_HOVER = 'var(--border-hover, #2a2a2e)';
-const ACCENT = 'var(--accent, #44B2FF)';
-const TEXT_PRIMARY = 'var(--text-primary, #e0e0e0)';
-const TEXT_SECONDARY = 'var(--text-secondary, #888)';
-const TEXT_MUTED = 'var(--text-muted, #555)';
 
 const CREATION_TYPES = [
   { id: 'campaign', label: 'Campaign' },

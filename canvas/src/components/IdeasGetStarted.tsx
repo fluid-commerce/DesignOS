@@ -1,11 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
-
-const BG_PRIMARY = 'var(--bg-primary, #0d0d0d)';
-const BG_CARD = 'var(--bg-card, #1a1a1e)';
-const BORDER = 'var(--border, #1e1e1e)';
-const BORDER_HOVER = 'var(--border-hover, #2a2a2e)';
-const TEXT_PRIMARY = 'var(--text-primary, #e0e0e0)';
-const TEXT_SECONDARY = 'var(--text-secondary, #888)';
+import { BG_PRIMARY, BG_CARD, BORDER, BORDER_HOVER, TEXT_PRIMARY, TEXT_SECONDARY } from './tokens';
 
 export interface SelectedAsset {
   id: string;
