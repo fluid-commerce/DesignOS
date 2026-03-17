@@ -294,8 +294,8 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 11. API Pipeline Hardening + DB Brand Intelligence | 4/4 | Complete | 2026-03-16 |
 | 12. Post-API Migration Cleanup & Audit | 4/4 | Complete    | 2026-03-17 |
 | 13. DAM Sync | 2/2 | Complete    | 2026-03-17 |
-| 14. Design DNA | 0/3 | Planned | — |
-| 14.1 Brand-Agnostic Pipeline | 0/3 | Planned | — |
+| 14. Design DNA | 2/3 | Complete    | 2026-03-17 |
+| 14.1 Brand-Agnostic Pipeline | 3/3 | Complete    | 2026-03-17 |
 | 15. Brand Data Architecture | 0/4 | Planned | — |
 | 16. Smart Context Pipeline | 0/3 | Planned | — |
 
@@ -310,7 +310,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
   3. Generation pipeline injects matched Design DNA + one full HTML exemplar into styling agent system prompts
   4. list_brand_assets returns ready-to-use CSS values (fontSrc, cssUrl, imgSrc) so agents use asset URLs verbatim instead of embedding base64
   5. Copy agent outputs archetype selection, pipeline reads it to select matching template exemplar
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 14-01-PLAN.md — DB schema (template_design_rules), db-api functions, seeder (global visual style + design rules), API endpoints
@@ -328,7 +328,7 @@ Plans:
   4. brand-intelligence/SKILL.md routes agents to DB tools, not brand/*.md files
   5. CLAUDE.md contains zero brand/*.md file routing
   6. brand/ directory archived to Reference/brand-seed-archive/ — no runtime code reads from it
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 14.1-01-PLAN.md — Brand-agnostic stage prompts in api-pipeline.ts (delete SKILL_FILES/loadStagePrompt, rewrite prompt builders)

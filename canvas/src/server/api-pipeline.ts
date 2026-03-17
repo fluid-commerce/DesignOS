@@ -9,7 +9,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import type { ServerResponse } from 'node:http';
-import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets } from './db-api';
+import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline } from './db-api';
 
 // Load .env file — try multiple paths since __dirname is unreliable in Vite middleware
 const envPaths = [
@@ -181,7 +181,10 @@ const listBrandAssetsTool: Anthropic.Tool = {
   name: 'list_brand_assets',
   description:
     'List available brand assets (fonts, brushstrokes, textures, logos, etc.) from the asset library. ' +
-    'Returns name, category, and filename for each asset. Use filenames to construct /fluid-assets/ URLs in HTML.',
+    'Returns name, category, url, and ready-to-use CSS values for each asset. ' +
+    'Fonts include a `fontSrc` field — use it directly in @font-face src. ' +
+    'Images include `cssUrl` for background-image and `imgSrc` for img tags. ' +
+    'ALWAYS use these values verbatim. NEVER embed base64.',
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -218,6 +221,20 @@ export const STAGE_TOOLS: Record<PipelineStage, Anthropic.Tool[]> = {
 // tools/, patterns/ all live at this level
 // ---------------------------------------------------------------------------
 const PROJECT_ROOT = path.resolve(__dirname, '../../..');
+
+/** Maps archetype slug to template HTML file for exemplar injection */
+const ARCHETYPE_TEMPLATE_FILES: Record<string, string> = {
+  'problem-first': path.join(PROJECT_ROOT, 'templates/social/problem-first.html'),
+  'quote': path.join(PROJECT_ROOT, 'templates/social/quote.html'),
+  'stat-proof': path.join(PROJECT_ROOT, 'templates/social/stat-proof.html'),
+  'app-highlight': path.join(PROJECT_ROOT, 'templates/social/app-highlight.html'),
+  'manifesto': path.join(PROJECT_ROOT, 'templates/social/manifesto.html'),
+  'partner-alert': path.join(PROJECT_ROOT, 'templates/social/partner-alert.html'),
+  'feature-spotlight': path.join(PROJECT_ROOT, 'templates/social/feature-spotlight.html'),
+};
+
+/** Default archetype when copy stage doesn't specify one */
+const DEFAULT_ARCHETYPE = 'problem-first';
 
 // ---------------------------------------------------------------------------
 // Tool executor
@@ -352,12 +369,28 @@ export async function executeTool(
     case 'list_brand_assets': {
       const category = input.category as string | undefined;
       const assets = getBrandAssets(category);
-      return JSON.stringify(assets.map(a => ({
-        name: a.name,
-        category: a.category,
-        url: a.url,
-        mimeType: a.mimeType,
-      })), null, 2);
+      return JSON.stringify(assets.map(a => {
+        const base: Record<string, string> = {
+          name: a.name,
+          category: a.category,
+          url: a.url,
+          mimeType: a.mimeType,
+        };
+        // Add ready-to-use CSS values so agents use them verbatim
+        if (a.mimeType.startsWith('font/') || a.url.endsWith('.ttf') || a.url.endsWith('.woff2') || a.url.endsWith('.woff') || a.url.endsWith('.otf')) {
+          const format = a.url.endsWith('.ttf') ? 'truetype'
+            : a.url.endsWith('.woff2') ? 'woff2'
+            : a.url.endsWith('.woff') ? 'woff'
+            : a.url.endsWith('.otf') ? 'opentype'
+            : 'truetype';
+          base.fontSrc = `url('${a.url}') format('${format}')`;
+        }
+        if (a.mimeType.startsWith('image/')) {
+          base.cssUrl = `url('${a.url}')`;
+          base.imgSrc = a.url;
+        }
+        return base;
+      }), null, 2);
     }
 
     default:
@@ -372,6 +405,63 @@ function matchSimpleGlob(filename: string, pattern: string): boolean {
     .replace(/\*/g, '.*')
     .replace(/\?/g, '.');
   return new RegExp(`^${regexStr}$`).test(filename);
+}
+
+// ---------------------------------------------------------------------------
+// Design DNA loader — assembles DB-backed visual intelligence for prompt injection
+// ---------------------------------------------------------------------------
+
+/**
+ * Load Design DNA context for injection into agent system prompts.
+ * Assembles: global visual style + social general + platform rules + archetype notes + HTML exemplar.
+ * Returns a formatted string block ready to prepend to system prompts.
+ */
+async function loadDesignDna(ctx: PipelineContext, archetypeSlug?: string): Promise<string> {
+  // Only inject for social media types (instagram, linkedin) — not one-pagers or theme-sections
+  if (ctx.creationType !== 'instagram' && ctx.creationType !== 'linkedin') {
+    return '';
+  }
+
+  const slug = archetypeSlug || DEFAULT_ARCHETYPE;
+  const dna = getDesignDnaForPipeline(ctx.creationType, slug);
+
+  const parts: string[] = [
+    '## Design DNA — Visual Style Intelligence',
+    '',
+    '### Global Visual Style Rules',
+    dna.globalStyle,
+    '',
+    '### Social Media General Rules',
+    dna.socialGeneral,
+    '',
+    '### Platform-Specific Rules',
+    dna.platformRules,
+  ];
+
+  if (dna.archetypeNotes) {
+    parts.push('', '### Archetype Design Notes', dna.archetypeNotes);
+  }
+
+  // Load HTML exemplar
+  const templatePath = ARCHETYPE_TEMPLATE_FILES[slug];
+  if (templatePath) {
+    try {
+      const html = await fs.readFile(templatePath, 'utf-8');
+      parts.push(
+        '',
+        '### Reference Exemplar',
+        `This is a hand-designed ${slug} template. Study its structure, positioning, typography scale, and layer composition. Your output should match this quality level.`,
+        '',
+        '<example>',
+        html,
+        '</example>',
+      );
+    } catch {
+      // Template file missing — skip exemplar
+    }
+  }
+
+  return parts.join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -481,21 +571,27 @@ export function buildCopyPrompt(ctx: PipelineContext): string {
     `Then read_brand_section to load the ones relevant to this topic (always include "voice-and-style", plus the product-specific doc if applicable).`,
     ``,
     `Write structured copy (headline, subtext, accent color, archetype selection) to ${ctx.workingDir}/copy.md.`,
+    `Include an "Archetype:" line in your output specifying which visual archetype to use. Options: problem-first, quote, stat-proof, app-highlight, manifesto, partner-alert, feature-spotlight.`,
   ].join('\n');
 }
 
-export function buildLayoutPrompt(ctx: PipelineContext): string {
+export function buildLayoutPrompt(ctx: PipelineContext, designDna?: string): string {
   return [
     `Create structural HTML layout for a ${ctx.creationType} creation.`,
     `Read copy from ${ctx.workingDir}/copy.md using the read_file tool.`,
     ``,
     `Use list_brand_sections(category="layout-archetype") to discover layout types, then read_brand_section to load details.`,
+    ...(designDna ? [
+      '',
+      designDna,
+      '',
+    ] : []),
     ``,
     `Write layout HTML to ${ctx.workingDir}/layout.html.`,
   ].join('\n');
 }
 
-export function buildStylingPrompt(ctx: PipelineContext): string {
+export function buildStylingPrompt(ctx: PipelineContext, designDna?: string): string {
   return [
     `Apply brand styling to create a complete HTML output.`,
     `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
@@ -506,8 +602,14 @@ export function buildStylingPrompt(ctx: PipelineContext): string {
     ``,
     `Use the list_brand_assets tool to discover available fonts, brushstrokes, and other assets.`,
     `Reference all assets via the URLs returned by list_brand_assets (they start with /fluid-assets/).`,
-    `Use @font-face with the font URLs from list_brand_assets(category="fonts").`,
+    `Use @font-face with the fontSrc field from list_brand_assets(category="fonts") — it is already formatted as url('...') format('...'), use it verbatim.`,
+    `For images, use cssUrl for background-image and imgSrc for img src attributes — both returned by list_brand_assets.`,
     `NEVER embed base64 data URIs. NEVER hardcode specific asset filenames — always discover them via the tool.`,
+    ...(designDna ? [
+      '',
+      designDna,
+      '',
+    ] : []),
     ``,
     `CRITICAL: Write the final complete self-contained HTML (all CSS inline) using write_file to EXACTLY this path:`,
     `${ctx.htmlOutputPath}`,
@@ -673,12 +775,27 @@ export async function runApiPipeline(
   const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx), ctx, res);
   await generateStageNarrative('copy', copyResult.output, ctx, res);
 
+  // ── Detect archetype from copy output and load Design DNA ──────────────────
+  let detectedArchetype: string | undefined;
+  try {
+    const copyMd = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8');
+    const archetypeMatch = copyMd.match(/archetype[:\s]+(\S+)/i);
+    if (archetypeMatch) {
+      const slug = archetypeMatch[1].toLowerCase().replace(/[^a-z-]/g, '');
+      if (ARCHETYPE_TEMPLATE_FILES[slug]) {
+        detectedArchetype = slug;
+      }
+    }
+  } catch { /* copy.md not found — use default */ }
+
+  const designDna = await loadDesignDna(ctx, detectedArchetype);
+
   // ── Stage 2: Layout ────────────────────────────────────────────────────────
-  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res);
+  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx, designDna), ctx, res);
   await generateStageNarrative('layout', layoutResult.output, ctx, res);
 
   // ── Stage 3: Styling ───────────────────────────────────────────────────────
-  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res);
+  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx, designDna), ctx, res);
   await generateStageNarrative('styling', stylingResult.output, ctx, res);
 
   // Fallback: if agent wrote to styled.html in workingDir instead of htmlOutputPath, copy it
@@ -754,10 +871,10 @@ export async function runApiPipeline(
       // Cascade rule: if copy was fixed, re-run layout and styling too
       if (hasCopyFix) {
         if (!issuesByTarget.has('layout')) {
-          await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res);
+          await runStageWithTools('layout', buildLayoutPrompt(ctx, designDna), ctx, res);
         }
         if (!issuesByTarget.has('styling')) {
-          await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res);
+          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna), ctx, res);
         }
       }
 

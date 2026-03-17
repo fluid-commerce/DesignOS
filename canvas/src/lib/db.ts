@@ -147,6 +147,17 @@ function initSchema(db: Database.Database): void {
       sort_order INTEGER NOT NULL DEFAULT 0,
       updated_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS template_design_rules (
+      id TEXT PRIMARY KEY,
+      scope TEXT NOT NULL,
+      platform TEXT,
+      archetype_slug TEXT,
+      label TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.
