@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: "Completed 13-02 tasks 1+2, awaiting checkpoint:human-verify (Task 3)"
-last_updated: "2026-03-17T13:50:53.499Z"
+stopped_at: Completed 13-02-PLAN.md (Phase 13 Plan 02 — DAM sync wiring + AssetsScreen UI)
+last_updated: "2026-03-17T15:29:50.140Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 16
@@ -91,6 +91,7 @@ Progress: [████████████████████] 100% (1
 | Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P04 | 8 | 2 tasks | 3 files |
 | Phase 13-dam-sync P01 | 4 | 2 tasks | 6 files |
 | Phase 13-dam-sync P02 | 7 | 2 tasks | 3 files |
+| Phase 13-dam-sync P02 | 7 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -240,6 +241,7 @@ Recent decisions affecting current work:
 - [Phase 13-dam-sync]: code field used as dam_asset_id (stable string identifier); file_path as dam/{filename} for /fluid-assets/ serving; runDamSync never throws; getBrandAssets filter uses (dam_deleted = 0 OR dam_deleted IS NULL)
 - [Phase 13-dam-sync]: Probe-on-mount to detect DAM token: POST /api/dam-sync probe if no dam assets exist; 400=no-token (hide bar), 200/500=token configured (show bar)
 - [Phase 13-dam-sync]: getAllBrandAssets added without dam_deleted filter for UI soft-delete visibility; getBrandAssets still excludes for MCP/pipeline backward compat
+- [Phase 13-dam-sync]: Probe-on-mount to detect DAM token: POST /api/dam-sync probe if no dam assets exist; 400=no-token (hide bar), 200/500=token configured (show bar)
 
 ### Parallel Development Note
 
@@ -272,6 +274,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-17T13:50:53.497Z
-Stopped at: Completed 13-02 tasks 1+2, awaiting checkpoint:human-verify (Task 3)
+Last session: 2026-03-17T15:29:50.137Z
+Stopped at: Completed 13-02-PLAN.md (Phase 13 Plan 02 — DAM sync wiring + AssetsScreen UI)
 Resume file: None

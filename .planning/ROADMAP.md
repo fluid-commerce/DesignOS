@@ -253,7 +253,7 @@ Plans:
 - [ ] 12-01-PLAN.md — CLI dead code removal from watcher.ts (iterate + campaign spawn paths) + stale test cleanup
 - [ ] 12-02-PLAN.md — Validation tools DB migration (brand-compliance.cjs reads SQLite) + orphan directory cleanup + STATE.md update
 - [ ] 12-03-PLAN.md — Pre-existing test failure fixes, skill file slimming (strip brand data), MCP tool audit, stale reference sweep, CLAUDE.md update
-- [ ] 12-04-PLAN.md — Gap closure: rename Phase 13 directory to match roadmap + update STATE.md completion status
+- [x] 12-04-PLAN.md — Gap closure: rename Phase 13 directory to match roadmap + update STATE.md completion status (completed 2026-03-17)
 ### Phase 13: DAM Sync
 
 **Goal:** Sync layer between Fluid DAM and local DB so DAM is the upstream source of truth for brand assets. Local DB caches DAM content for offline/fast access; changes in DAM propagate downstream. Two-way sync scoped to brand assets: DAM to local for browsing/generation, local to DAM for uploads. Startup sync + manual "Sync now" UI.
