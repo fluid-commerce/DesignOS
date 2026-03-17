@@ -337,7 +337,7 @@ export function BuildHero() {
   return (
     <div
       style={{
-        height: 924,
+        height: '100%',
         minHeight: 0,
         background: BG_PRIMARY,
         color: TEXT_PRIMARY,
@@ -345,7 +345,7 @@ export function BuildHero() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingTop: '240px',
+        paddingTop: 'min(240px, 20vh)',
         paddingBottom: '40px',
         paddingLeft: '1.5rem',
         paddingRight: '1.5rem',
