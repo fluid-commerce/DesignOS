@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-03-17T22:44:06.373Z"
+stopped_at: Completed 15-03-PLAN.md
+last_updated: "2026-03-17T22:44:12.996Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 20
@@ -258,6 +258,8 @@ Recent decisions affecting current work:
 - [Phase 14.1-03]: CLAUDE.md Brand Intelligence section replaced with Brand Data section pointing to SQLite DB; brand/ directory deleted
 - [Phase 14.1-03]: feedback-ingest.cjs ASSET_DOC_MAP/TOPIC_BRAND_DOC_MAP updated to use DB section slugs instead of brand/ file paths
 - [Phase 15-brand-data-architecture]: PatternsScreen uses component-level group mapping (design-tokens -> foundations, all others -> rules) — no DB schema change needed
+- [Phase 15-03]: TemplatesTab type and activeTab state removed entirely — unified scrollable page with collapsible sections
+- [Phase 15-03]: Archetype rules shown per-template card filtered by archetypeSlug rather than grouped in a single section
 
 ### Parallel Development Note
 
@@ -291,6 +293,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-17T22:43:54.207Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-03-17T22:44:12.994Z
+Stopped at: Completed 15-03-PLAN.md
 Resume file: None
