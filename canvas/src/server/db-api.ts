@@ -159,6 +159,7 @@ export function getSlides(creationId: string): Slide[] {
 // ─── Iteration ────────────────────────────────────────────────────────────────
 
 export function createIteration(input: {
+  id?: string;
   slideId: string;
   iterationIndex: number;
   htmlPath: string;
@@ -169,7 +170,7 @@ export function createIteration(input: {
   generationStatus?: 'pending' | 'generating' | 'complete';
 }): Iteration {
   const db = getDb();
-  const id = nanoid();
+  const id = input.id ?? nanoid();
   const now = Date.now();
   const generationStatus = input.generationStatus ?? 'complete';
   db.prepare(
@@ -402,6 +403,124 @@ export function getCampaignPreviewUrls(
   }));
 }
 
+// ─── Brand assets (catalog of shared assets served via /fluid-assets/) ──────
+
+export interface BrandAsset {
+  id: string;
+  name: string;
+  category: string;
+  url: string;       // /fluid-assets/{file_path}
+  mimeType: string;
+  sizeBytes: number;
+  tags: string[];
+  source: string;        // 'local' | 'dam'
+  damDeleted: boolean;   // true if soft-deleted from DAM
+}
+
+function rowToBrandAsset(row: Record<string, unknown>): BrandAsset {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    category: row.category as string,
+    url: `/fluid-assets/${row.file_path as string}`,
+    mimeType: row.mime_type as string,
+    sizeBytes: row.size_bytes as number,
+    tags: JSON.parse(row.tags as string),
+    source: (row.source as string) ?? 'local',
+    damDeleted: (row.dam_deleted as number) === 1,
+  };
+}
+
+export function getBrandAssets(category?: string): BrandAsset[] {
+  const db = getDb();
+  if (category) {
+    return (db.prepare('SELECT * FROM brand_assets WHERE category = ? AND (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
+  }
+  return (db.prepare('SELECT * FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+}
+
+/** Returns ALL brand assets including soft-deleted DAM assets. Used by the UI to show "Removed from DAM" state. */
+export function getAllBrandAssets(category?: string): BrandAsset[] {
+  const db = getDb();
+  if (category) {
+    return (db.prepare('SELECT * FROM brand_assets WHERE category = ? ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
+  }
+  return (db.prepare('SELECT * FROM brand_assets ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+}
+
+// ─── DAM asset sync ──────────────────────────────────────────────────────────
+
+export interface DamAssetRow {
+  damId: string;
+  name: string;
+  category: string;
+  filePath: string;
+  mimeType: string;
+  sizeBytes: number;
+  damUrl: string;
+  damModifiedAt: string;
+}
+
+/**
+ * Insert a new DAM asset or update an existing one if it has been modified.
+ *
+ * - If no existing row: INSERT with source='dam'
+ * - If existing row with same dam_modified_at: skip (no change)
+ * - If existing row with older dam_modified_at: UPDATE fields + clear dam_deleted
+ */
+export function upsertDamAsset(row: DamAssetRow): void {
+  const db = getDb();
+  const existing = db.prepare(
+    'SELECT id, dam_modified_at, last_synced_at FROM brand_assets WHERE dam_asset_id = ?'
+  ).get(row.damId) as { id: string; dam_modified_at: string; last_synced_at: number } | undefined;
+
+  if (existing) {
+    // Skip if not newer (ISO datetime string comparison works lexicographically)
+    if (existing.dam_modified_at >= row.damModifiedAt) return;
+    db.prepare(`
+      UPDATE brand_assets SET
+        name = ?, file_path = ?, mime_type = ?, size_bytes = ?,
+        dam_asset_url = ?, dam_modified_at = ?, last_synced_at = ?, dam_deleted = 0
+      WHERE dam_asset_id = ?
+    `).run(
+      row.name, row.filePath, row.mimeType, row.sizeBytes,
+      row.damUrl, row.damModifiedAt, Date.now(), row.damId
+    );
+  } else {
+    db.prepare(`
+      INSERT INTO brand_assets
+        (id, name, category, file_path, mime_type, size_bytes, tags,
+         source, dam_asset_id, dam_asset_url, dam_modified_at, last_synced_at, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'dam', ?, ?, ?, ?, ?)
+    `).run(
+      nanoid(), row.name, row.category, row.filePath, row.mimeType, row.sizeBytes,
+      '[]', row.damId, row.damUrl, row.damModifiedAt, Date.now(), Date.now()
+    );
+  }
+}
+
+/**
+ * Mark DAM assets that are no longer in the DAM folder as soft-deleted.
+ *
+ * Selects all non-deleted DAM assets from the DB and marks any whose dam_asset_id
+ * is NOT in currentDamIds with dam_deleted=1. Returns the count of soft-deleted rows.
+ */
+export function softDeleteRemovedDamAssets(currentDamIds: Set<string>): number {
+  const db = getDb();
+  const rows = db.prepare(
+    "SELECT id, dam_asset_id FROM brand_assets WHERE source = 'dam' AND dam_deleted = 0"
+  ).all() as Array<{ id: string; dam_asset_id: string }>;
+
+  let count = 0;
+  for (const row of rows) {
+    if (!currentDamIds.has(row.dam_asset_id)) {
+      db.prepare('UPDATE brand_assets SET dam_deleted = 1 WHERE id = ?').run(row.id);
+      count++;
+    }
+  }
+  return count;
+}
+
 // ─── Saved assets (user library: add/save assets from DAM or upload) ─────────
 
 export interface SavedAsset {
@@ -466,4 +585,81 @@ export function deleteSavedAsset(id: string): void {
   const db = getDb();
   const stmt = db.prepare('DELETE FROM saved_assets WHERE id = ?');
   stmt.run(id);
+}
+
+// ─── Voice Guide ─────────────────────────────────────────────────────────────
+
+export interface VoiceGuideDoc {
+  id: string;
+  slug: string;
+  label: string;
+  content: string;
+  sortOrder: number;
+  updatedAt: number;
+}
+
+function rowToVoiceGuideDoc(row: Record<string, unknown>): VoiceGuideDoc {
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    label: row.label as string,
+    content: row.content as string,
+    sortOrder: row.sort_order as number,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+export function getVoiceGuideDocs(): VoiceGuideDoc[] {
+  const db = getDb();
+  const rows = db.prepare('SELECT * FROM voice_guide_docs ORDER BY sort_order').all() as Record<string, unknown>[];
+  return rows.map(rowToVoiceGuideDoc);
+}
+
+export function getVoiceGuideDoc(slug: string): VoiceGuideDoc | undefined {
+  const db = getDb();
+  const row = db.prepare('SELECT * FROM voice_guide_docs WHERE slug = ?').get(slug) as Record<string, unknown> | undefined;
+  return row ? rowToVoiceGuideDoc(row) : undefined;
+}
+
+export function updateVoiceGuideDoc(slug: string, content: string): void {
+  const db = getDb();
+  db.prepare('UPDATE voice_guide_docs SET content = ?, updated_at = ? WHERE slug = ?').run(content, Date.now(), slug);
+}
+
+// ─── Brand Patterns ──────────────────────────────────────────────────────────
+
+export interface BrandPattern {
+  id: string;
+  slug: string;
+  label: string;
+  category: string;
+  content: string;
+  sortOrder: number;
+  updatedAt: number;
+}
+
+function rowToBrandPattern(row: Record<string, unknown>): BrandPattern {
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    label: row.label as string,
+    category: row.category as string,
+    content: row.content as string,
+    sortOrder: row.sort_order as number,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+export function getBrandPatterns(category?: string): BrandPattern[] {
+  const db = getDb();
+  const rows = (category
+    ? db.prepare('SELECT * FROM brand_patterns WHERE category = ? ORDER BY sort_order').all(category)
+    : db.prepare('SELECT * FROM brand_patterns ORDER BY sort_order').all()) as Record<string, unknown>[];
+  return rows.map(rowToBrandPattern);
+}
+
+export function getBrandPatternBySlug(slug: string): BrandPattern | undefined {
+  const db = getDb();
+  const row = db.prepare('SELECT * FROM brand_patterns WHERE slug = ?').get(slug) as Record<string, unknown> | undefined;
+  return row ? rowToBrandPattern(row) : undefined;
 }

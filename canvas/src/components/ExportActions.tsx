@@ -102,16 +102,14 @@ export function ExportActions({ iteration, iframeEl }: ExportActionsProps) {
     setError(null);
 
     try {
-      // Fetch HTML with assets inlined so the file works when opened locally
-      const res = await fetch(`/api/iterations/${iteration.id}/html?download=1`);
+      const res = await fetch(`/api/iterations/${iteration.id}/html?export=zip`);
       if (!res.ok) {
-        setError(`Could not fetch HTML (${res.status})`);
+        setError(`Export failed: Could not fetch ZIP (${res.status})`);
         return;
       }
-      const html = await res.text();
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const filename = `fluid-asset-${iteration.id}.html`;
+      const filename = `fluid-asset-${iteration.id}.zip`;
       triggerDownload(url, filename);
       setTimeout(() => URL.revokeObjectURL(url), 5_000);
     } catch (err) {
@@ -135,7 +133,7 @@ export function ExportActions({ iteration, iframeEl }: ExportActionsProps) {
           onClick={() => exportImage('webp')}
         />
         <ExportButton
-          label="HTML"
+          label="ZIP"
           isLoading={loading === 'html'}
           onClick={exportHtml}
         />

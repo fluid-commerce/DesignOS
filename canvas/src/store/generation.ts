@@ -8,11 +8,14 @@ interface GenerationStore {
   activeCampaignId: string | null;
   activePid: number | null;
   errorMessage: string | null;
+  isSingleCreation: boolean;
+  creationIds: string[];
 
   addEvent: (event: StreamUIMessage) => void;
   startGeneration: () => void;
   setSessionId: (sessionId: string) => void;
   setCampaignId: (campaignId: string) => void;
+  setSessionMeta: (meta: { isSingleCreation?: boolean; creationIds?: string[] }) => void;
   completeGeneration: () => void;
   errorGeneration: (message: string) => void;
   reset: () => void;
@@ -25,6 +28,8 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
   activeCampaignId: null,
   activePid: null,
   errorMessage: null,
+  isSingleCreation: false,
+  creationIds: [],
 
   addEvent: (event: StreamUIMessage) => {
     set((state) => ({
@@ -39,6 +44,8 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
       activeSessionId: null,
       activeCampaignId: null,
       errorMessage: null,
+      isSingleCreation: false,
+      creationIds: [],
     });
   },
 
@@ -48,6 +55,13 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
 
   setCampaignId: (campaignId: string) => {
     set({ activeCampaignId: campaignId });
+  },
+
+  setSessionMeta: (meta) => {
+    set({
+      ...(meta.isSingleCreation !== undefined ? { isSingleCreation: meta.isSingleCreation } : {}),
+      ...(meta.creationIds ? { creationIds: meta.creationIds } : {}),
+    });
   },
 
   completeGeneration: () => {
@@ -66,6 +80,8 @@ export const useGenerationStore = create<GenerationStore>((set) => ({
       activeCampaignId: null,
       activePid: null,
       errorMessage: null,
+      isSingleCreation: false,
+      creationIds: [],
     });
   },
 }));

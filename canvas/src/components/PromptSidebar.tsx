@@ -38,7 +38,10 @@ export function PromptSidebar() {
   const resetGeneration = useGenerationStore((s) => s.reset);
   const activeCampaignId = useGenerationStore((s) => s.activeCampaignId);
   const generationStatus = useGenerationStore((s) => s.status);
+  const isSingleCreation = useGenerationStore((s) => s.isSingleCreation);
+  const creationIds = useGenerationStore((s) => s.creationIds);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
+  const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
   const campaignCurrentView = useCampaignStore((s) => s.currentView);
   const campaignActiveCampaignId = useCampaignStore((s) => s.activeCampaignId);
   const campaigns = useCampaignStore((s) => s.campaigns);
@@ -61,10 +64,12 @@ export function PromptSidebar() {
 
   const isGenerating = status === 'generating';
 
-  // Accumulate consecutive text events into single messages
+  // Accumulate consecutive text events into single messages, filter tool noise
   const displayMessages = useMemo(() => {
     const result: StreamUIMessage[] = [];
     for (const ev of events) {
+      // Filter out tool-level noise — stage badges replace these
+      if (ev.type === 'tool-start' || ev.type === 'tool-done') continue;
       if (ev.type === 'text' && result.length > 0 && result[result.length - 1].type === 'text') {
         // Merge into previous text message
         const prev = result[result.length - 1];
@@ -88,15 +93,20 @@ export function PromptSidebar() {
 
   const [submittedPrompt, setSubmittedPrompt] = useState('');
 
-  // Navigate to the newly created/updated campaign when generation completes.
+  // Navigate to the newly created/updated campaign (or creation) when generation completes.
   // No delay — the 'done' SSE event fires only after all subagents complete (Plan 02).
   const prevStatusRef = useRef(generationStatus);
   useEffect(() => {
     if (prevStatusRef.current === 'generating' && generationStatus === 'complete' && activeCampaignId) {
-      navigateToCampaign(activeCampaignId);
+      if (isSingleCreation && creationIds.length === 1) {
+        // Single-creation prompt: navigate directly to the creation
+        navigateToCreation(creationIds[0]);
+      } else {
+        navigateToCampaign(activeCampaignId);
+      }
     }
     prevStatusRef.current = generationStatus;
-  }, [generationStatus, activeCampaignId, navigateToCampaign]);
+  }, [generationStatus, activeCampaignId, isSingleCreation, creationIds, navigateToCampaign, navigateToCreation]);
 
   // Reset "Add to campaign" dismissed state when campaign view changes
   useEffect(() => {
@@ -191,8 +201,91 @@ export function PromptSidebar() {
         overflow: 'hidden',
       }}
     >
-      {/* Prompt input area */}
-      <div style={{ padding: '0.75rem', borderBottom: '1px solid #2a2a2e' }}>
+      {/* Header — static mode label */}
+      <div style={{ padding: '0.75rem', borderBottom: '1px solid #2a2a2e', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: '0.75rem', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {headerText}
+            </span>
+            {isIterateMode && annotationCount > 0 && (
+              <span
+                style={{
+                  fontSize: '0.6rem',
+                  color: '#a78bfa',
+                  backgroundColor: '#1e1e1e',
+                  padding: '0.1rem 0.35rem',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                }}
+              >
+                {annotationCount} annotation{annotationCount !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          {isIterateMode && (
+            <button
+              onClick={handleNewSession}
+              style={{
+                background: 'none',
+                border: '1px solid #2a2a2e',
+                color: '#888',
+                fontSize: '0.68rem',
+                padding: '0.15rem 0.4rem',
+                borderRadius: 4,
+                cursor: 'pointer',
+                fontWeight: 500,
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              + New
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Message scroll area — flex: 1, messages pushed to bottom via spacer */}
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '0.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+        }}
+      >
+        {displayMessages.length === 0 && !isGenerating ? (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '2rem' }}>
+            <span style={{ fontSize: '0.82rem', color: '#555', textAlign: 'center' }}>
+              Enter a prompt below to get started.
+            </span>
+          </div>
+        ) : (
+          <>
+            {/* Spacer pushes messages to bottom when few; shrinks as messages accumulate */}
+            <div style={{ flex: 1 }} />
+            {displayMessages.map((msg) => (
+              <StreamMessage key={msg.id} message={msg} />
+            ))}
+            {status === 'complete' && (
+              <div style={{ textAlign: 'center', color: '#22c55e', fontSize: '0.75rem', padding: '0.5rem 0' }}>
+                Done
+              </div>
+            )}
+            {status === 'error' && (
+              <div style={{ textAlign: 'center', color: '#ef4444', fontSize: '0.75rem', padding: '0.5rem 0' }}>
+                Generation failed{errorMessage ? `: ${errorMessage}` : ''}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Input zone — bottom, fixed height */}
+      <div style={{ padding: '0.75rem', borderTop: '1px solid #2a2a2e', flexShrink: 0 }}>
         {/* "Adding to existing campaign" banner */}
         {showAddToCampaignBanner && (
           <div style={{
@@ -238,47 +331,6 @@ export function PromptSidebar() {
             </button>
           </div>
         )}
-        {/* Header with optional + New button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem', gap: '0.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1 }}>
-            <span style={{ fontSize: '0.75rem', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {headerText}
-            </span>
-            {isIterateMode && annotationCount > 0 && (
-              <span
-                style={{
-                  fontSize: '0.6rem',
-                  color: '#a78bfa',
-                  backgroundColor: '#1e1e1e',
-                  padding: '0.1rem 0.35rem',
-                  borderRadius: 8,
-                  fontWeight: 600,
-                }}
-              >
-                {annotationCount} annotation{annotationCount !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          {isIterateMode && (
-            <button
-              onClick={handleNewSession}
-              style={{
-                background: 'none',
-                border: '1px solid #2a2a2e',
-                color: '#888',
-                fontSize: '0.68rem',
-                padding: '0.15rem 0.4rem',
-                borderRadius: 4,
-                cursor: 'pointer',
-                fontWeight: 500,
-                flexShrink: 0,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              + New
-            </button>
-          )}
-        </div>
         <textarea
           value={isGenerating ? submittedPrompt : prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -301,116 +353,44 @@ export function PromptSidebar() {
             opacity: isGenerating ? 0.5 : 1,
           }}
         />
-        <button
-          onClick={handleGenerate}
-          disabled={isGenerating || !prompt.trim()}
-          style={{
-            width: '100%',
-            marginTop: '0.35rem',
-            backgroundColor: isGenerating ? '#333' : '#44B2FF',
-            color: isGenerating ? '#666' : '#fff',
-            border: 'none',
-            borderRadius: 6,
-            padding: '0.45rem',
-            fontSize: '0.82rem',
-            fontWeight: 600,
-            cursor: isGenerating ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {buttonText}
-        </button>
-        {isGenerating && (
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
           <button
-            onClick={cancelGeneration}
+            onClick={handleGenerate}
+            disabled={isGenerating || !prompt.trim()}
             style={{
-              width: '100%',
-              marginTop: '0.25rem',
-              backgroundColor: 'transparent',
-              color: '#ef4444',
-              border: '1px solid #ef444444',
-              borderRadius: 6,
-              padding: '0.35rem',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              cursor: 'pointer',
-            }}
-          >
-            Cancel
-          </button>
-        )}
-      </div>
-
-      {/* Stream display */}
-      <div
-        ref={scrollRef}
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '0.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-        }}
-      >
-        {status === 'idle' && displayMessages.length === 0 && (
-          <div style={{ color: '#444', fontSize: '0.75rem', textAlign: 'center', padding: '2rem 0.5rem' }}>
-            Enter a prompt above or choose a template to get started.
-          </div>
-        )}
-
-        {displayMessages.map((msg) => (
-          <StreamMessage key={msg.id} message={msg} />
-        ))}
-
-        {status === 'complete' && (
-          <div style={{ textAlign: 'center', color: '#22c55e', fontSize: '0.75rem', padding: '0.5rem 0' }}>
-            Done
-          </div>
-        )}
-
-        {status === 'error' && (
-          <div style={{ textAlign: 'center', color: '#ef4444', fontSize: '0.75rem', padding: '0.5rem 0' }}>
-            Generation failed{errorMessage ? `: ${errorMessage}` : ''}
-          </div>
-        )}
-      </div>
-
-      {/* Recent sessions */}
-      <div style={{ borderTop: '1px solid #2a2a2e', maxHeight: 200, overflowY: 'auto' }}>
-        <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.7rem', color: '#555', fontWeight: 600 }}>
-          Recent Sessions
-        </div>
-        {sessions.map((s: any) => (
-          <button
-            key={s.id}
-            onClick={() => setActiveSessionId(s.id)}
-            style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'left',
-              background: s.id === activeSessionId ? '#1a1a1e' : 'none',
+              flex: 1,
+              backgroundColor: isGenerating || !prompt.trim() ? '#333' : '#44B2FF',
+              color: isGenerating || !prompt.trim() ? '#666' : '#fff',
               border: 'none',
-              borderBottom: '1px solid #1e1e1e',
-              color: s.id === activeSessionId ? '#e0e0e0' : '#888',
-              padding: '0.4rem 0.75rem',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              overflow: 'hidden',
+              borderRadius: 6,
+              padding: '0.45rem 0.75rem',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              cursor: isGenerating || !prompt.trim() ? 'default' : 'pointer',
+              fontFamily: "'Inter', sans-serif",
             }}
           >
-            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {s.title || formatSessionId(s.id)}
-            </div>
-            <div style={{ fontSize: '0.6rem', color: '#555', marginTop: '0.1rem' }}>
-              {formatSessionId(s.id)}
-            </div>
+            {buttonText}
           </button>
-        ))}
-        {sessions.length === 0 && (
-          <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.72rem', color: '#444' }}>
-            No sessions yet
-          </div>
-        )}
+          {isGenerating && (
+            <button
+              onClick={cancelGeneration}
+              style={{
+                padding: '0.45rem 0.75rem',
+                backgroundColor: 'transparent',
+                color: '#ef4444',
+                border: '1px solid #ef4444',
+                borderRadius: 6,
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Stop Generation
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

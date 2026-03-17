@@ -50,6 +50,7 @@ export function VersionGrid({
           <CreationFrame
             key={v.path}
             html={v.html}
+            iterationId={v.iterationId}
             name={v.name}
             path={v.path}
             platform={platform}

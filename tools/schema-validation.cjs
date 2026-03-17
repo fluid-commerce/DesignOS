@@ -3,7 +3,7 @@
  * schema-validation.cjs (CLI-01) — Validates .liquid schema completeness
  *
  * Extracts {% schema %}...{% endschema %} block from .liquid files and
- * validates against Gold Standard requirements from rules.json.
+ * validates against Gold Standard requirements.
  *
  * Usage: node tools/schema-validation.cjs path/to/file.liquid
  * Output: JSON results to stdout, human summary to stderr
@@ -15,14 +15,49 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RULES_PATH = path.resolve(__dirname, 'rules.json');
+// Gold Standard schema requirements — authoritative values from brand docs
+const GOLD_STANDARD_SCHEMA = {
+  font_size_count: 13,
+  font_size_options: [
+    'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl',
+    'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl',
+    'text-7xl', 'text-8xl', 'text-9xl',
+  ],
+  color_count: 13,
+  color_options: [
+    'text-primary', 'text-secondary', 'text-tertiary', 'text-accent',
+    'text-accent-secondary', 'text-white', 'text-black',
+    'text-success', 'text-warning', 'text-error', 'text-info',
+    'text-muted', 'text-inherit',
+  ],
+  weight_count: 5,
+  weight_options: ['light', 'normal', 'medium', 'semibold', 'bold'],
+  font_family_count: 4,
+  font_family_options: ['primary', 'body', 'handwritten', 'serif'],
+  button_settings: ['show', 'text', 'url', 'style', 'color', 'size', 'weight'],
+  button_style_options: ['filled', 'outline', 'ghost'],
+  button_color_count: 10,
+  button_size_options: ['btn-xs', 'btn-sm', 'btn-md', 'btn-lg', 'btn-xl'],
+  section_settings: [
+    'background_color', 'background_image',
+    'section_padding_y_mobile', 'section_padding_y_desktop',
+    'section_border_radius',
+  ],
+  section_padding_options: ['py-xs', 'py-sm', 'py-md', 'py-lg', 'py-xl', 'py-2xl', 'py-3xl'],
+  section_radius_options: [
+    'rounded-none', 'rounded-sm', 'rounded', 'rounded-md',
+    'rounded-lg', 'rounded-xl', 'rounded-2xl', 'rounded-3xl',
+  ],
+  container_settings: [
+    'container_background_color', 'container_background_image',
+    'container_border_radius',
+    'container_padding_y_mobile', 'container_padding_y_desktop',
+    'container_padding_x_mobile', 'container_padding_x_desktop',
+  ],
+};
 
 function loadRules() {
-  if (!fs.existsSync(RULES_PATH)) {
-    process.stderr.write('Error: rules.json not found. Run compile-rules.cjs first.\n');
-    process.exit(2);
-  }
-  return JSON.parse(fs.readFileSync(RULES_PATH, 'utf-8'));
+  return { schema: GOLD_STANDARD_SCHEMA };
 }
 
 function extractSchema(content) {
@@ -233,7 +268,7 @@ Output:
 Exit codes:
   0  Schema passes all checks
   1  Schema has shortfalls
-  2  Tool error (no schema found, missing rules.json)
+  2  Tool error (no schema found, parse error)
 `);
   process.exit(0);
 }

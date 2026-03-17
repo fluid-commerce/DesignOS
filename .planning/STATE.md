@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 10 complete + nomenclature overhaul + template fix
-last_updated: "2026-03-13T19:30:00.000Z"
-last_activity: "2026-03-13 -- Phase 10 executed, deep rename (Asset→Creation, Frame→Slide, Variation→Version), template iframe fix, DB migrated, PR #2 created on chey-work"
+stopped_at: Completed 13-02-PLAN.md (Phase 13 Plan 02 — DAM sync wiring + AssetsScreen UI)
+last_updated: "2026-03-17T15:36:58.434Z"
+last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
-  total_phases: 14
-  completed_phases: 12
-  total_plans: 39
-  completed_plans: 39
+  total_phases: 16
+  completed_phases: 16
+  total_plans: 51
+  completed_plans: 51
   percent: 100
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** An agent using this system produces assets that look and sound like Fluid made them from the very first prompt
-**Current focus:** Phases 1-10 complete. Remaining: 4.2 (asset linking refactor), 4.3 (install safety), 9 (chat UI).
+**Current focus:** All phases (1-12) complete. Next: Phase 13 (DAM Sync).
 
 ## Current Position
 
-Phase: Between phases. Next unexecuted: 4.2 (Asset Linking & Output Refactor)
-Status: Phase 10 complete. Deep nomenclature rename shipped (Asset→Creation, Frame→Slide, Variation→Version). Template iframe fix applied. DB migrated.
-Last activity: 2026-03-13 -- Phase 10 + rename + fixes on chey-work branch, PR #2 created
+Phase: 12 — Post-API Migration Cleanup & Audit
+Status: Complete (plan 03 of 03 done).
+Last activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 
-Progress: [█████████░] 94% (Overall: 35/36 plans)
+Progress: [████████████████████] 100% (16/16 phases, 48/48 plans)
 
 ## Performance Metrics
 
@@ -77,6 +77,21 @@ Progress: [█████████░] 94% (Overall: 35/36 plans)
 | Phase 08-ai-sidebar-to-campaign-dashboard-end-to-end P03 | 25 | 2 tasks | 8 files |
 | Phase 10 P01 | 7 | 3 tasks | 7 files |
 | Phase 10-top-level-tab-navigation-main-viewport-overhaul P02 | 20 | 3 tasks | 18 files |
+| Phase 11-anthropic-api-generation-pipeline P01 | 7min | 2 tasks | 5 files |
+| Phase 11-anthropic-api-generation-pipeline P02 | 8min | 2 tasks | 3 files |
+| Phase 04.2-asset-linking-output-refactor P01 | 12min | 2 tasks | 10 files |
+| Phase 04.2-asset-linking-output-refactor P02 | 3min | 2 tasks | 6 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P01 | 100min | 1 tasks | 4 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P02 | 5min | 2 tasks | 6 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P04 | 8min | 2 tasks | 5 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P03 | 9min | 1 tasks | 4 files |
+| Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P01 | 10min | 2 tasks | 3 files |
+| Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P02 | 12min | 2 tasks | 7 files |
+| Phase 12 P03 | 18 | 3 tasks | 6 files |
+| Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P04 | 8 | 2 tasks | 3 files |
+| Phase 13-dam-sync P01 | 4 | 2 tasks | 6 files |
+| Phase 13-dam-sync P02 | 7 | 2 tasks | 3 files |
+| Phase 13-dam-sync P02 | 7 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -202,6 +217,31 @@ Recent decisions affecting current work:
 - [Post-Phase 10 rename]: Deep nomenclature rename — Asset→Creation, Frame→Slide, Variation→Version across DB schema, types, store, API routes, components, tests. NavTab 'campaigns'→'create' with Campaigns/Creations sub-tabs in Create viewport. Rationale: "assets" conflicts with brand assets; "creations" better represents user-generated content. "slides" and "versions" are more intuitive than "frames" and "variations".
 - [Post-Phase 10 rename]: DB migration required for existing data — old tables (assets, frames) coexist with new (creations, slides); iterations.frame_id→slide_id column rename. CREATE TABLE IF NOT EXISTS won't recreate existing tables with new schema.
 - [Post-Phase 10 fix]: Template iframe middleware was double-nesting social/ subdirectory — templates/index.html uses relative src="social/t1-quote.html" which resolves to /templates/social/t1-quote.html, but middleware mapped to templates/social/social/. Fixed by resolving from templates/ root.
+- [Phase 11-01]: PROJECT_ROOT resolves to Fluid-DesignOS root (3 levels up from canvas/src/server/) — brand/, tools/, patterns/ live at project root, not canvas/
+- [Phase 11-01]: loadStagePrompt reads ~/.agents/skills/*/SKILL.md from disk; falls back to hardcoded prompts only on file read failure. Keeps read path swappable for Phase 14 DB-backed brand intelligence
+- [Phase 11-01]: api-pipeline.test.ts runs in node environment (not jsdom) — Anthropic SDK detects browser-like environment and throws in jsdom
+- [Phase 11-02]: Engine routing uses body.engine ?? 'api' as default — CLI is explicit opt-in escape hatch. Campaign pre-creation DB code shared above engine check. Cascade fix rule: copy fix re-runs layout+styling. API mode uses parallel fire-and-forget promises with shared counter.
+- [Phase 04.2-01]: Discovery-first asset pattern: agents call GET /api/brand-assets at generation time rather than using hardcoded filenames
+- [Phase 04.2-01]: ZIP export replaces base64 ?download=1: archiver creates index.html + assets/ bundle with /fluid-assets/ rewritten to relative paths for local opening
+- [Phase 04.2-02]: iterationId is optional on VersionFile and CreationFrameProps — backward compat with session-based html flows preserved
+- [Phase 04.2-02]: allow-scripts added to both src and srcDoc sandbox modes for postMessage compatibility
+- [Phase 04.2-02]: ExportActions internal loading state key stays 'html' — only visible label and URL pattern change to ZIP
+- [Phase 11-01]: isSingleCreation routing: SINGULAR_PATTERNS checked first, CAMPAIGN_PATTERNS override — single-asset prompts create standalone Creations under __standalone__ sentinel campaign
+- [Phase 11-01]: createIteration accepts optional id param — when id: iterationId is passed, DB row id matches filesystem html_path iterationId, fixing /api/iterations/:id/html lookup
+- [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: Seeder reads from filesystem at startup only — DB is source of truth after first seed; subsequent restarts skip via COUNT(*) guard
+- [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: brand_patterns category mapping: design-tokens for Color Palette/Typography/Opacity Patterns, layout-archetype for Layout Archetypes, pattern for all others
+- [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: Tool noise filtered at parser level (null return) AND at displayMessages useMemo for double safety
+- [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: Haiku narrator (claude-haiku-4-5-20251001) generates 1-sentence narrations after each pipeline stage with graceful fallback
+- [Phase 11]: Brand context loaded once per pipeline run via loadBrandContextFromDb() — single DB read passed to all stages eliminates ~48 read_file tool calls per run
+- [Phase 11]: build*Prompt functions exported for testability; runStageWithTools accepts optional brandCtx with DB fallback for backward compat
+- [Phase 12]: CLI dead code removed from watcher.ts — API pipeline (runApiPipeline) is now the only generation path. generate-endpoint.test.ts deleted.
+- [Phase Phase 12]: brand-compliance.cjs uses better-sqlite3 directly (CJS tools cannot import ESM canvas/src/lib/db.ts); DB supplements built-in color constants with any hex from brand_patterns
+- [Phase 12]: skill-paths canvas-active skipped: CLI-era sentinel not in API pipeline skill files; App describe skipped: BuildHero needs browser-env (ResizeObserver); push_asset MCP ACTIVE (fluid-campaign + watcher); other 4 MCP tools retained for external iterate sessions
+- [Phase 12-04]: Phase 13 directory renamed via git mv (not delete+recreate) to preserve git history; STATE.md body updated to match frontmatter for Phase 12 plan 03 completion
+- [Phase 13-dam-sync]: code field used as dam_asset_id (stable string identifier); file_path as dam/{filename} for /fluid-assets/ serving; runDamSync never throws; getBrandAssets filter uses (dam_deleted = 0 OR dam_deleted IS NULL)
+- [Phase 13-dam-sync]: Probe-on-mount to detect DAM token: POST /api/dam-sync probe if no dam assets exist; 400=no-token (hide bar), 200/500=token configured (show bar)
+- [Phase 13-dam-sync]: getAllBrandAssets added without dam_deleted filter for UI soft-delete visibility; getBrandAssets still excludes for MCP/pipeline backward compat
+- [Phase 13-dam-sync]: Probe-on-mount to detect DAM token: POST /api/dam-sync probe if no dam assets exist; 400=no-token (hide bar), 200/500=token configured (show bar)
 
 ### Parallel Development Note
 
@@ -209,18 +249,22 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ### Pending Todos
 
-None yet.
+7 pending:
+- **Refactor BuildHero into smaller sub-components** (ui)
+- **Fix hardcoded tooltip positioning in LeftNav** (ui)
+- **Verify chatSidebarOpen default change is intentional** (ui)
+- **Fix branch name typo createsceen-updates** (general)
+- **Fix BuildHero hardcoded height 924px** (ui)
+- **Refactor IdeasGetStarted 573-line monolith** (ui)
+- **Deduplicate assets fetch between AssetsScreen and BuildHero** (ui)
 
 ### Roadmap Evolution
 
-- Phase 04.1 inserted after Phase 4: Canvas Polish & Integration Hardening (URGENT) — addresses permissions, file watcher auto-discovery, MCP→agent triggering, canvas UX overhaul (star/favorite, remove aggressive blocking, infer winner), generation speed optimization, skill path hardening
-- Phase 6 added: Marketing Skills Integration — deep integration of 30 marketing domain skills (~/.agents/skills/) into subagent system for composable marketing intelligence
-- Phase 04.2 inserted after Phase 4.1: Asset Linking & Output Refactor — replace base64-inlined images/fonts with URL-linked assets served via Vite, shared brand assets folder, per-session assets, reducing HTML from 2-3MB to ~50KB
-- Phase 04.3 inserted after Phase 4.2: Install Process Safety — ensure sync.sh never wipes non-Fluid commands (GSD incident where ~/.claude/commands/gsd/ was deleted)
-- Phase 7 added: Merge Jonathan's codebase into Fluid DesignOS — consolidate Jonathan's implementation with existing system, documentation in Reference/Context
-- Phase 8 added: AI sidebar to campaign dashboard end-to-end — fix disconnected data paths (sidebar generates to disk, dashboard reads SQLite), multi-asset campaign creation, preview rendering at all navigation levels, MCP push_asset bridge
-- Phase 9 added: Conversational chat UI — bottom input, message bubbles, auto-scroll
-- Phase 10 added: App Navigation Overhaul — slim icon-based left nav (Campaigns, Templates, Patterns, Voice Guide) controlling main viewport; collapsible AI chat sidebar between left nav and viewport (toggled via bottom nav icon); Voice Guide renders 14 markdown docs with vertical side-tabs
+- Phases 01-09 complete: brand intelligence foundation, social posts, website sections, canvas, polish, asset linking, learning loop, marketing skills, Jonathan's codebase merge, campaign dashboard, app navigation overhaul
+- Phase 10: Anthropic API Generation Pipeline — replaced CLI `claude -p` spawning with direct Anthropic SDK calls (completed 2026-03-16)
+- Phase 11: API Pipeline Hardening + DB-Backed Brand Intelligence — combined scope: prompt routing, preview path fixes, token cost reduction, Claude-style chat UX, Voice Guide + Patterns DB migration (completed)
+- Phase 12: Post-API Migration Cleanup & Audit — migrate validation tools from rules.json to SQLite DB, delete orphaned directories, verify infrastructure coherence (completed 2026-03-17)
+- Phase 13: DAM Sync — Fluid DAM as upstream source of truth (next)
 
 ### Blockers/Concerns
 
@@ -230,6 +274,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T17:14:43.965Z
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-03-17T15:29:50.137Z
+Stopped at: Completed 13-02-PLAN.md (Phase 13 Plan 02 — DAM sync wiring + AssetsScreen UI)
 Resume file: None

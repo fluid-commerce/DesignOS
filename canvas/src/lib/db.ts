@@ -106,6 +106,47 @@ function initSchema(db: Database.Database): void {
       source TEXT NOT NULL DEFAULT 'dam',
       created_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS brand_assets (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      file_path TEXT NOT NULL UNIQUE,
+      mime_type TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      tags TEXT NOT NULL DEFAULT '[]',
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS campaign_assets (
+      id TEXT PRIMARY KEY,
+      campaign_id TEXT NOT NULL,
+      file_path TEXT NOT NULL,
+      url_path TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS voice_guide_docs (
+      id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      label TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS brand_patterns (
+      id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      label TEXT NOT NULL,
+      category TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.
@@ -115,4 +156,15 @@ function initSchema(db: Database.Database): void {
   } catch {
     // Column already exists — ignore
   }
+
+  // Migration: add DAM sync columns to brand_assets
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN source TEXT NOT NULL DEFAULT 'local'"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_asset_id TEXT"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_asset_url TEXT"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN last_synced_at INTEGER"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_modified_at TEXT"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_deleted INTEGER NOT NULL DEFAULT 0"); } catch {}
+
+  // Index for efficient DAM sync lookup
+  try { db.exec("CREATE UNIQUE INDEX idx_brand_assets_dam_id ON brand_assets(dam_asset_id) WHERE dam_asset_id IS NOT NULL"); } catch {}
 }

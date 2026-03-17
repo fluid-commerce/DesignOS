@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types';
 
-export type NavigationView = 'dashboard' | 'campaign' | 'creation' | 'slide';
+export type NavigationView = 'dashboard' | 'campaign' | 'creation';
 
 /** Top-level navigation tabs controlling the main viewport */
 export type NavTab = 'create' | 'my-creations' | 'assets' | 'templates' | 'patterns' | 'voice-guide';
@@ -25,6 +25,9 @@ interface CampaignStore {
 
   /** Latest iteration per creation (keyed by creationId). Populated on navigateToCampaign. */
   latestIterationByCreationId: Record<string, Iteration>;
+
+  /** Tracks last-viewed iteration per slide within a session */
+  slideMemory: Map<string, string>;
 
   // Loading state
   loading: boolean;
@@ -52,9 +55,12 @@ interface CampaignStore {
   navigateToDashboard: () => void;
   navigateToCampaign: (id: string) => Promise<void>;
   navigateToCreation: (id: string) => Promise<void>;
-  navigateToSlide: (id: string) => Promise<void>;
+  setActiveSlide: (slideId: string) => void;
   selectIteration: (id: string) => void;
   navigateBack: () => void;
+
+  // Status actions
+  toggleIterationStatus: (iterationId: string, status: 'winner' | 'rejected') => Promise<void>;
 
   // Data fetching actions
   fetchCampaigns: () => Promise<void>;
@@ -80,6 +86,18 @@ interface CampaignStore {
   setRightSidebarOpen: (open: boolean) => void;
 }
 
+/**
+ * Pick the best iteration for a slide: starred/winner first, then latest by index.
+ */
+function pickBestIteration(slideIterations: Iteration[]): Iteration | undefined {
+  if (slideIterations.length === 0) return undefined;
+  const winner = slideIterations.find((it) => it.status === 'winner');
+  if (winner) return winner;
+  return slideIterations.reduce((best, it) =>
+    it.iterationIndex > best.iterationIndex ? it : best
+  );
+}
+
 export const useCampaignStore = create<CampaignStore>((set, get) => ({
   // Initial navigation state
   currentView: 'dashboard',
@@ -94,6 +112,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   slides: [],
   iterations: [],
   latestIterationByCreationId: {},
+  slideMemory: new Map(),
 
   loading: false,
 
@@ -150,7 +169,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       iterations: [],
     });
     await get().fetchSlides(id);
-    // Fetch iterations for all slides so slide preview cards can show content
+    // Fetch iterations for all slides
     const { slides } = get();
     if (slides.length > 0) {
       const allIterations: Iteration[] = [];
@@ -165,32 +184,49 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         })
       );
       set({ iterations: allIterations });
+
+      // Auto-select first slide and best iteration
+      const firstSlide = slides[0];
+      const firstSlideIters = allIterations.filter((it) => it.slideId === firstSlide.id);
+      const best = pickBestIteration(firstSlideIters);
+      set({
+        activeSlideId: firstSlide.id,
+        activeIterationId: best?.id ?? null,
+      });
     }
   },
 
-  navigateToSlide: async (id: string) => {
+  setActiveSlide: (slideId: string) => {
+    const { iterations, slideMemory } = get();
+    const slideIters = iterations.filter((it) => it.slideId === slideId);
+
+    // Check slideMemory for last-viewed iteration on this slide
+    const remembered = slideMemory.get(slideId);
+    const rememberedIter = remembered ? slideIters.find((it) => it.id === remembered) : undefined;
+
+    const best = rememberedIter ?? pickBestIteration(slideIters);
+
     set({
-      currentView: 'slide',
-      activeSlideId: id,
-      activeIterationId: null,
+      activeSlideId: slideId,
+      activeIterationId: best?.id ?? null,
     });
-    await get().fetchIterations(id);
   },
 
   selectIteration: (id: string) => {
-    set({ activeIterationId: id });
+    const { activeSlideId, slideMemory } = get();
+    // Update slideMemory for the current slide
+    if (activeSlideId) {
+      const newMemory = new Map(slideMemory);
+      newMemory.set(activeSlideId, id);
+      set({ activeIterationId: id, slideMemory: newMemory });
+    } else {
+      set({ activeIterationId: id });
+    }
   },
 
   navigateBack: () => {
-    const { currentView, activeCampaignId, activeCreationId } = get();
+    const { currentView, activeCampaignId } = get();
     switch (currentView) {
-      case 'slide':
-        if (activeCreationId) {
-          get().navigateToCreation(activeCreationId);
-        } else {
-          get().navigateToDashboard();
-        }
-        break;
       case 'creation':
         if (activeCampaignId) {
           get().navigateToCampaign(activeCampaignId);
@@ -205,6 +241,49 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       default:
         // Already at top level; no-op
         break;
+    }
+  },
+
+  // ---- Status actions ----
+
+  toggleIterationStatus: async (iterationId: string, status: 'winner' | 'rejected') => {
+    const { iterations, activeSlideId } = get();
+    const target = iterations.find((it) => it.id === iterationId);
+    if (!target) return;
+
+    // Toggle: if already this status, set to 'unmarked'; otherwise set to the new status
+    const newStatus = target.status === status ? 'unmarked' : status;
+
+    try {
+      const res = await fetch(`/api/iterations/${iterationId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) return;
+
+      // If starring, un-star any previous winner on the same slide
+      const slideId = target.slideId;
+      set({
+        iterations: iterations.map((it) => {
+          if (it.id === iterationId) {
+            return { ...it, status: newStatus as Iteration['status'] };
+          }
+          // Un-star previous winner when starring a new one
+          if (newStatus === 'winner' && it.slideId === slideId && it.status === 'winner' && it.id !== iterationId) {
+            // Fire and forget the API call for the old winner
+            fetch(`/api/iterations/${it.id}/status`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'unmarked' }),
+            }).catch(() => {});
+            return { ...it, status: 'unmarked' as Iteration['status'] };
+          }
+          return it;
+        }),
+      });
+    } catch (err) {
+      console.error('[campaign store] Failed to toggle iteration status:', err);
     }
   },
 

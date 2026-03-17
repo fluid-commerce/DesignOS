@@ -5,7 +5,8 @@ import { AnnotationPin } from './AnnotationPin';
 import { AnnotationThread } from './AnnotationThread';
 
 interface CreationFrameProps {
-  html: string;
+  html?: string;           // Deprecated: kept for backward compat with session views
+  iterationId?: string;    // Preferred: iframe loads via src URL
   name: string;
   path: string;
   platform: string;
@@ -30,6 +31,7 @@ function StarIcon({ filled }: { filled: boolean }) {
 
 export function CreationFrame({
   html,
+  iterationId,
   name,
   path: versionPath,
   platform,
@@ -46,9 +48,12 @@ export function CreationFrame({
   const scale = displayWidth / dims.width;
   const displayHeight = dims.height * scale;
 
-  // Guard: if HTML is missing or too large (>10MB), show placeholder instead of crashing
-  const MAX_HTML_SIZE = 10_000_000;
-  const htmlTooLarge = !html || html.length > MAX_HTML_SIZE;
+  // Determine rendering mode: prefer iterationId (src), fallback to html (srcDoc)
+  const useSrcMode = !!iterationId;
+  const iframeSrc = iterationId ? `/api/iterations/${iterationId}/html` : undefined;
+
+  // Guard: if no content available at all
+  const hasContent = useSrcMode || (html && html.length > 0);
 
   const [showPinInput, setShowPinInput] = useState(false);
   const [pendingPin, setPendingPin] = useState<{ x: number; y: number } | null>(null);
@@ -102,7 +107,7 @@ export function CreationFrame({
         border: status === 'winner' ? '2px solid #22c55e' : '1px solid #333',
         position: 'relative',
       }}>
-        {htmlTooLarge ? (
+        {!hasContent ? (
           <div style={{
             width: dims.width,
             height: dims.height,
@@ -117,15 +122,25 @@ export function CreationFrame({
             transformOrigin: 'top left',
             gap: '0.5rem',
           }}>
-            <div style={{ fontSize: '1.2rem' }}>Preview too large</div>
-            <div style={{ fontSize: '0.85rem', color: '#555' }}>
-              {html ? `${(html.length / 1024 / 1024).toFixed(1)} MB` : 'No HTML content'}
-            </div>
+            <div style={{ fontSize: '1.2rem' }}>No preview available</div>
           </div>
+        ) : useSrcMode ? (
+          <iframe
+            src={iframeSrc}
+            sandbox="allow-same-origin allow-scripts"
+            style={{
+              width: dims.width,
+              height: dims.height,
+              border: 'none',
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+            title={name}
+          />
         ) : (
           <iframe
             srcDoc={html}
-            sandbox="allow-same-origin"
+            sandbox="allow-same-origin allow-scripts"
             style={{
               width: dims.width,
               height: dims.height,

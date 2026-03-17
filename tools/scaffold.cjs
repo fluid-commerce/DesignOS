@@ -14,16 +14,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RULES_PATH = path.resolve(__dirname, 'rules.json');
 const DEFAULT_OUTPUT_DIR = path.resolve(__dirname, '..', 'templates', 'gold-standard');
-
-function loadRules() {
-  if (!fs.existsSync(RULES_PATH)) {
-    process.stderr.write('Error: rules.json not found. Run compile-rules.cjs first.\n');
-    process.exit(2);
-  }
-  return JSON.parse(fs.readFileSync(RULES_PATH, 'utf-8'));
-}
 
 function toKebab(str) {
   return str.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
@@ -473,7 +464,6 @@ if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 
-const rules = loadRules();
 const liquid = generateLiquid(sectionName);
 
 fs.writeFileSync(outputPath, liquid, 'utf-8');

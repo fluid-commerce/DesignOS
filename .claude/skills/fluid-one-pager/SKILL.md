@@ -125,7 +125,7 @@ Print: `[2/4] Layout...      done (type: {type})`
 Delegate to `styling-agent` via the Agent tool with `model: "sonnet"`:
 
 **Delegation message:**
-"Apply Fluid brand styling to the one-pager layout. Mode: one-pager. Type: {type}. Read copy from {working_dir}/copy.md (for accent color and content text). Read layout from {working_dir}/layout.html. Reference patterns/index.html for brand building blocks (brushstrokes, side labels). Embed fonts via @font-face referencing ../../assets/fonts/. Add brushstrokes from ../../assets/brushstrokes/ (brush-texture-01.png through brush-texture-10.png, brush-white.png) with mix-blend-mode: screen and opacity 0.10-0.25. Add side label 'Fluid Commerce'. {If template: Match the visual styling of templates/one-pagers/{template}.html.} Write complete self-contained HTML to {working_dir}/styled.html"
+"Apply Fluid brand styling to the one-pager layout. Mode: one-pager. Type: {type}. Read copy from {working_dir}/copy.md (for accent color and content text). Read layout from {working_dir}/layout.html. Reference patterns/index.html for brand building blocks (brushstrokes, side labels). First, call GET /api/brand-assets to discover available assets. Use @font-face with url('/fluid-assets/fonts/{discovered-font-filename}') for each font returned by the API -- NEVER base64 data URIs, NEVER hardcode filenames. Reference brushstrokes as src='/fluid-assets/brushstrokes/{discovered-filename}' with mix-blend-mode: screen and opacity 0.10-0.25. Add side label 'Fluid Commerce'. {If template: Match the visual styling of templates/one-pagers/{template}.html.} Write complete self-contained HTML to {working_dir}/styled.html"
 
 Wait for completion.
 
@@ -249,7 +249,9 @@ Saved: ./output/fluid-one-pager-product-feature-20260310.html
 
 **NEVER let a subagent use the Agent tool.** Only the orchestrator (this skill) delegates to other agents.
 
-**NEVER reference assets from Reference/.** The `Reference/` directory is archival only. Use `assets/` paths for all brushstrokes, circles, fonts, and logos.
+**NEVER reference assets from Reference/ or use relative ../../assets/ paths.** Use /fluid-assets/ absolute URL paths for all brushstrokes, circles, fonts, and logos. Discover available assets via GET /api/brand-assets?category={category}.
+
+**NEVER embed assets as base64 data URIs.** Always reference via /fluid-assets/ URL paths discovered from GET /api/brand-assets (e.g., src="/fluid-assets/brushstrokes/{name}", url('/fluid-assets/fonts/{name}')). The canvas serves assets via Vite middleware. Base64 blobs create 620KB+ HTML files that crash the canvas when 6+ variations are displayed simultaneously.
 
 **NEVER use hue-rotate for circle recoloring.** Circle sketches use `mask-image` + `backgroundColor` exclusively.
 
