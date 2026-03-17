@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 16 UI-SPEC approved
-last_updated: "2026-03-17T22:35:25.162Z"
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-03-17T22:44:06.373Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 20
-  completed_phases: 18
-  total_plans: 61
-  completed_plans: 57
+  completed_phases: 16
+  total_plans: 58
+  completed_plans: 58
   percent: 100
 ---
 
@@ -97,6 +97,8 @@ Progress: [████████████████████] 100% (1
 | Phase 14.1-brand-agnostic-pipeline P01 | 4min | 2 tasks | 2 files |
 | Phase 14.1-brand-agnostic-pipeline P02 | 2min | 2 tasks | 4 files |
 | Phase 14.1-brand-agnostic-pipeline P03 | 3min | 2 tasks | 16 files |
+| Phase 15-brand-data-architecture P01 | 3min | 2 tasks | 5 files |
+| Phase 15-brand-data-architecture P03 | 3 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -255,6 +257,7 @@ Recent decisions affecting current work:
 - [Phase 14.1-03]: brand-intelligence/SKILL.md now routes agents to DB tools (list_brand_sections, read_brand_section, list_brand_assets) instead of brand/*.md files
 - [Phase 14.1-03]: CLAUDE.md Brand Intelligence section replaced with Brand Data section pointing to SQLite DB; brand/ directory deleted
 - [Phase 14.1-03]: feedback-ingest.cjs ASSET_DOC_MAP/TOPIC_BRAND_DOC_MAP updated to use DB section slugs instead of brand/ file paths
+- [Phase 15-brand-data-architecture]: PatternsScreen uses component-level group mapping (design-tokens -> foundations, all others -> rules) — no DB schema change needed
 
 ### Parallel Development Note
 
@@ -288,6 +291,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-17T22:35:25.159Z
-Stopped at: Phase 16 UI-SPEC approved
-Resume file: .planning/phases/16-smart-context-pipeline/16-UI-SPEC.md
+Last session: 2026-03-17T22:43:54.207Z
+Stopped at: Completed 15-01-PLAN.md
+Resume file: None
