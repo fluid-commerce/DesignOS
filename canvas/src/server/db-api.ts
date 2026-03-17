@@ -413,6 +413,8 @@ export interface BrandAsset {
   mimeType: string;
   sizeBytes: number;
   tags: string[];
+  source: string;        // 'local' | 'dam'
+  damDeleted: boolean;   // true if soft-deleted from DAM
 }
 
 function rowToBrandAsset(row: Record<string, unknown>): BrandAsset {
@@ -424,6 +426,8 @@ function rowToBrandAsset(row: Record<string, unknown>): BrandAsset {
     mimeType: row.mime_type as string,
     sizeBytes: row.size_bytes as number,
     tags: JSON.parse(row.tags as string),
+    source: (row.source as string) ?? 'local',
+    damDeleted: (row.dam_deleted as number) === 1,
   };
 }
 
@@ -433,6 +437,15 @@ export function getBrandAssets(category?: string): BrandAsset[] {
     return (db.prepare('SELECT * FROM brand_assets WHERE category = ? AND (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
   }
   return (db.prepare('SELECT * FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+}
+
+/** Returns ALL brand assets including soft-deleted DAM assets. Used by the UI to show "Removed from DAM" state. */
+export function getAllBrandAssets(category?: string): BrandAsset[] {
+  const db = getDb();
+  if (category) {
+    return (db.prepare('SELECT * FROM brand_assets WHERE category = ? ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
+  }
+  return (db.prepare('SELECT * FROM brand_assets ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
 }
 
 // ─── DAM asset sync ──────────────────────────────────────────────────────────

@@ -28,6 +28,7 @@ import {
   createSavedAsset,
   deleteSavedAsset,
   getBrandAssets,
+  getAllBrandAssets,
   getVoiceGuideDocs,
   getVoiceGuideDoc,
   updateVoiceGuideDoc,
@@ -36,6 +37,7 @@ import {
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
 import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty } from './brand-seeder';
+import { runDamSync } from './dam-sync';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -237,6 +239,16 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       seedBrandPatternsIfEmpty(path.join(projectRoot, 'patterns/index.html')).catch(err =>
         console.warn('[watcher] Brand patterns seeding failed:', err)
       );
+
+      // Sync brand assets from Fluid DAM on startup (non-blocking)
+      const damToken = process.env.VITE_FLUID_DAM_TOKEN;
+      if (damToken) {
+        runDamSync(damToken, path.join(projectRoot, 'assets')).then(result => {
+          console.log(`[dam-sync] Startup sync: ${result.synced} synced, ${result.skipped} skipped, ${result.softDeleted} soft-deleted${result.errors.length ? `, ${result.errors.length} errors` : ''}`);
+        }).catch(err => {
+          console.warn('[dam-sync] Startup sync failed:', err);
+        });
+      }
 
       // Home page: serve Template Library at / and its static assets (run first)
       srv.middlewares.use(async (req, res, next) => {
@@ -669,10 +681,31 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
           // ── Brand assets (catalog served via /fluid-assets/) ───────────────
 
+          // POST /api/dam-sync — trigger manual DAM sync
+          if (url === '/api/dam-sync' && method === 'POST') {
+            const token = process.env.VITE_FLUID_DAM_TOKEN;
+            if (!token) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'VITE_FLUID_DAM_TOKEN not configured' }));
+              return;
+            }
+            try {
+              const result = await runDamSync(token, path.join(projectRoot, 'assets'));
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(result));
+            } catch (err) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: String(err) }));
+            }
+            return;
+          }
+
           // GET /api/brand-assets or GET /api/brand-assets?category=brushstrokes
           if ((url === '/api/brand-assets' || url.startsWith('/api/brand-assets?')) && method === 'GET') {
-            const category = new URL(req.url!, 'http://localhost').searchParams.get('category') ?? undefined;
-            const assets = getBrandAssets(category);
+            const searchParams = new URL(req.url!, 'http://localhost').searchParams;
+            const category = searchParams.get('category') ?? undefined;
+            const includeDeleted = searchParams.get('include_deleted') === 'true';
+            const assets = includeDeleted ? getAllBrandAssets(category) : getBrandAssets(category);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(assets));
             return;
