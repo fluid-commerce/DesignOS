@@ -11,13 +11,136 @@ interface DesignRule {
   updatedAt: number;
 }
 
-type TemplatesTab = 'templates' | 'social-media-dna';
+interface CollapsibleSectionProps {
+  label: string;
+  description?: string;
+  defaultExpanded: boolean;
+  children: React.ReactNode;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DesignDnaPanel — inline-editable design rules grouped by scope
+// CollapsibleSection — animated expand/collapse with chevron
 // ─────────────────────────────────────────────────────────────────────────────
 
-function DesignDnaPanel() {
+function CollapsibleSection({ label, description, defaultExpanded, children }: CollapsibleSectionProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  return (
+    <div style={{ marginBottom: 1 }}>
+      {/* Header */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setExpanded((v) => !v)}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpanded((v) => !v)}
+        style={{
+          height: 44,
+          backgroundColor: '#141414',
+          borderBottom: '1px solid #1e1e1e',
+          paddingLeft: 24,
+          paddingRight: 16,
+          display: 'flex',
+          alignItems: 'center',
+          cursor: 'pointer',
+          userSelect: 'none',
+          gap: 10,
+        }}
+      >
+        {/* Chevron */}
+        <svg
+          width={16}
+          height={16}
+          viewBox="0 0 16 16"
+          fill="none"
+          style={{
+            flexShrink: 0,
+            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 150ms ease',
+            color: expanded ? '#44B2FF' : '#555',
+          }}
+        >
+          <path
+            d="M6 4L10 8L6 12"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        {/* Label */}
+        <span style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{label}</span>
+        {description && (
+          <span style={{ fontSize: 12, color: '#555', marginLeft: 4 }}>{description}</span>
+        )}
+      </div>
+      {/* Content */}
+      <div
+        style={{
+          overflow: 'hidden',
+          maxHeight: expanded ? 2000 : 0,
+          transition: 'max-height 200ms ease-out',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Template card definitions — descriptive names, no archetype/template suffix
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TEMPLATE_CARDS = [
+  {
+    slug: 'problem-first',
+    name: 'Problem-First',
+    purpose: 'Lead with the pain point, then present the solution',
+    previewFile: 'problem-first.html',
+  },
+  {
+    slug: 'quote',
+    name: 'Quote',
+    purpose: 'Feature a compelling testimonial or thought leadership quote',
+    previewFile: 'quote.html',
+  },
+  {
+    slug: 'stat-proof',
+    name: 'Stat Proof',
+    purpose: 'Lead with a powerful statistic that demands attention',
+    previewFile: 'stat-proof.html',
+  },
+  {
+    slug: 'app-highlight',
+    name: 'App Highlight',
+    purpose: 'Showcase a product feature or interface screenshot',
+    previewFile: 'app-highlight.html',
+  },
+  {
+    slug: 'partner-alert',
+    name: 'Partner Alert',
+    purpose: 'Announce a partnership or integration',
+    previewFile: 'partner-alert.html',
+  },
+  {
+    slug: 'comparison',
+    name: 'Comparison',
+    purpose: 'Side-by-side before/after or versus layout',
+    previewFile: null,
+  },
+  {
+    slug: 'timeline',
+    name: 'Timeline',
+    purpose: 'Sequential steps or chronological progression',
+    previewFile: null,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TemplatesScreen — unified page: collapsible social rules + per-template cards
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function TemplatesScreen() {
   const [rules, setRules] = useState<DesignRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -42,7 +165,6 @@ function DesignDnaPanel() {
 
   const saveRule = async (id: string, content: string) => {
     const prevRules = rules;
-    // Optimistic update
     setRules((r) => r.map((rule) => (rule.id === id ? { ...rule, content } : rule)));
     setEditingId(null);
 
@@ -57,7 +179,6 @@ function DesignDnaPanel() {
       if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
       savedTimerRef.current = setTimeout(() => setSavedId(null), 2000);
     } catch {
-      // Revert on failure
       setRules(prevRules);
     }
   };
@@ -77,29 +198,6 @@ function DesignDnaPanel() {
       setEditingId(null);
     }
   };
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#555', fontSize: '0.85rem' }}>
-        Loading design rules...
-      </div>
-    );
-  }
-
-  if (rules.length === 0) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#555', fontSize: '0.85rem', flexDirection: 'column', gap: '0.5rem' }}>
-        <p>No design rules found.</p>
-        <p style={{ fontSize: '0.75rem', color: '#444' }}>Run the server to seed the database.</p>
-      </div>
-    );
-  }
-
-  const globalRules = rules.filter((r) => r.scope === 'global-social');
-  const platformRules = rules.filter((r) => r.scope === 'platform');
-  const instagramRules = platformRules.filter((r) => r.platform === 'instagram');
-  const linkedinRules = platformRules.filter((r) => r.platform === 'linkedin');
-  const archetypeRules = rules.filter((r) => r.scope === 'archetype');
 
   const renderRule = (rule: DesignRule, minHeight: number) => {
     const isEditing = editingId === rule.id;
@@ -159,117 +257,133 @@ function DesignDnaPanel() {
     borderBottom: '1px solid #1e1e1e',
   };
 
-  return (
-    <div style={{ padding: '1rem', overflowY: 'auto', height: '100%', boxSizing: 'border-box' }}>
-      {/* General Social Media */}
-      {globalRules.length > 0 && (
-        <section>
-          <p style={{ ...sectionHeadingStyle, marginTop: 0 }}>General Social Media</p>
-          {globalRules.map((r) => renderRule(r, 120))}
-        </section>
-      )}
-
-      {/* Instagram */}
-      {instagramRules.length > 0 && (
-        <section>
-          <p style={sectionHeadingStyle}>Instagram</p>
-          {instagramRules.map((r) => renderRule(r, 120))}
-        </section>
-      )}
-
-      {/* LinkedIn */}
-      {linkedinRules.length > 0 && (
-        <section>
-          <p style={sectionHeadingStyle}>LinkedIn</p>
-          {linkedinRules.map((r) => renderRule(r, 120))}
-        </section>
-      )}
-
-      {/* Archetype Design Notes */}
-      {archetypeRules.length > 0 && (
-        <section>
-          <p style={sectionHeadingStyle}>Archetype Design Notes</p>
-          {archetypeRules.map((r) => renderRule(r, 80))}
-        </section>
-      )}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TemplatesScreen — tab bar wrapping template iframe + Design DNA panel
-// ─────────────────────────────────────────────────────────────────────────────
-
-export function TemplatesScreen() {
-  const [activeTab, setActiveTab] = useState<TemplatesTab>('templates');
-
-  const tabs: { id: TemplatesTab; label: string }[] = [
-    { id: 'templates', label: 'Templates' },
-    { id: 'social-media-dna', label: 'Social Media DNA' },
-  ];
+  const globalRules = rules.filter((r) => r.scope === 'global-social');
+  const platformRules = rules.filter((r) => r.scope === 'platform');
+  const instagramRules = platformRules.filter((r) => r.platform === 'instagram');
+  const linkedinRules = platformRules.filter((r) => r.platform === 'linkedin');
+  const archetypeRules = rules.filter((r) => r.scope === 'archetype');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      {/* Tab bar */}
-      <div style={{
-        display: 'flex',
-        flexShrink: 0,
-        borderBottom: '1px solid #1e1e1e',
+    <div
+      style={{
+        padding: '24px',
+        overflowY: 'auto',
+        height: '100%',
+        boxSizing: 'border-box',
         backgroundColor: '#0d0d0d',
-        padding: '0 1rem',
-        gap: '2px',
-      }}>
-        {tabs.map(({ id, label }) => {
-          const isActive = activeTab === id;
+      }}
+    >
+      {/* Social Media Design Rules — collapsible, collapsed by default */}
+      <CollapsibleSection
+        label="Social Media Design Rules"
+        description="Rules that apply to all social posts. Includes platform-specific guidelines for Instagram and LinkedIn."
+        defaultExpanded={false}
+      >
+        <div style={{ padding: '1rem' }}>
+          {loading && (
+            <div style={{ color: '#555', fontSize: '0.85rem' }}>Loading design rules...</div>
+          )}
+
+          {!loading && rules.length === 0 && (
+            <div style={{ color: '#555', fontSize: '0.85rem' }}>
+              <p style={{ margin: 0 }}>No design rules found.</p>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#444' }}>
+                Run the server to seed the database.
+              </p>
+            </div>
+          )}
+
+          {!loading && globalRules.length > 0 && (
+            <section>
+              <p style={{ ...sectionHeadingStyle, marginTop: 0 }}>General Social Media</p>
+              {globalRules.map((r) => renderRule(r, 120))}
+            </section>
+          )}
+
+          {!loading && instagramRules.length > 0 && (
+            <section>
+              <p style={sectionHeadingStyle}>Instagram</p>
+              {instagramRules.map((r) => renderRule(r, 120))}
+            </section>
+          )}
+
+          {!loading && linkedinRules.length > 0 && (
+            <section>
+              <p style={sectionHeadingStyle}>LinkedIn</p>
+              {linkedinRules.map((r) => renderRule(r, 120))}
+            </section>
+          )}
+        </div>
+      </CollapsibleSection>
+
+      {/* Template cards */}
+      <div
+        style={{
+          marginTop: 32,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+          gap: 24,
+        }}
+      >
+        {TEMPLATE_CARDS.map((template) => {
+          const templateRules = archetypeRules.filter((r) => r.archetypeSlug === template.slug);
+
           return (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
+            <div
+              key={template.slug}
               style={{
-                padding: '10px 14px',
-                fontSize: '0.72rem',
-                fontWeight: isActive ? 600 : 400,
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-                color: isActive ? '#fff' : '#888',
-                backgroundColor: 'transparent',
-                border: 'none',
-                borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
-                cursor: 'pointer',
-                transition: 'color 0.15s',
-                fontFamily: 'inherit',
-                marginBottom: '-1px',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.color = '#ccc';
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.color = '#888';
+                backgroundColor: '#1a1a1e',
+                border: '1px solid #1e1e1e',
+                borderRadius: 8,
+                overflow: 'hidden',
               }}
             >
-              {label}
-            </button>
+              {/* Template HTML preview */}
+              {template.previewFile ? (
+                <iframe
+                  src={`/templates/social/${template.previewFile}`}
+                  style={{ width: '100%', height: 300, border: 'none', display: 'block' }}
+                  title={template.name}
+                  sandbox="allow-scripts"
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: 300,
+                    backgroundColor: '#111',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#444',
+                    fontSize: 13,
+                  }}
+                >
+                  Preview not available
+                </div>
+              )}
+
+              {/* Template name + purpose */}
+              <div style={{ padding: '12px 16px', borderTop: '1px solid #1e1e1e' }}>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#fff' }}>
+                  {template.name}
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: 14, fontWeight: 400, color: '#888' }}>
+                  {template.purpose}
+                </p>
+              </div>
+
+              {/* Per-template design rules — collapsible, collapsed by default */}
+              {templateRules.length > 0 && (
+                <CollapsibleSection label="Design Rules" defaultExpanded={false}>
+                  <div style={{ padding: '1rem' }}>
+                    {templateRules.map((r) => renderRule(r, 80))}
+                  </div>
+                </CollapsibleSection>
+              )}
+            </div>
           );
         })}
-      </div>
-
-      {/* Tab content */}
-      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        {/* Templates iframe — always mounted, hidden when not active to preserve scroll state */}
-        <div style={{ position: 'absolute', inset: 0, display: activeTab === 'templates' ? 'block' : 'none' }}>
-          <iframe
-            src="/templates/"
-            style={{ width: '100%', height: '100%', border: 'none' }}
-            title="Template Library"
-          />
-        </div>
-
-        {/* Social Media DNA panel */}
-        {activeTab === 'social-media-dna' && (
-          <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-            <DesignDnaPanel />
-          </div>
-        )}
       </div>
     </div>
   );
