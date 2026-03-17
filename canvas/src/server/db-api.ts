@@ -430,9 +430,82 @@ function rowToBrandAsset(row: Record<string, unknown>): BrandAsset {
 export function getBrandAssets(category?: string): BrandAsset[] {
   const db = getDb();
   if (category) {
-    return (db.prepare('SELECT * FROM brand_assets WHERE category = ? ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
+    return (db.prepare('SELECT * FROM brand_assets WHERE category = ? AND (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
   }
-  return (db.prepare('SELECT * FROM brand_assets ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+  return (db.prepare('SELECT * FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+}
+
+// ─── DAM asset sync ──────────────────────────────────────────────────────────
+
+export interface DamAssetRow {
+  damId: string;
+  name: string;
+  category: string;
+  filePath: string;
+  mimeType: string;
+  sizeBytes: number;
+  damUrl: string;
+  damModifiedAt: string;
+}
+
+/**
+ * Insert a new DAM asset or update an existing one if it has been modified.
+ *
+ * - If no existing row: INSERT with source='dam'
+ * - If existing row with same dam_modified_at: skip (no change)
+ * - If existing row with older dam_modified_at: UPDATE fields + clear dam_deleted
+ */
+export function upsertDamAsset(row: DamAssetRow): void {
+  const db = getDb();
+  const existing = db.prepare(
+    'SELECT id, dam_modified_at, last_synced_at FROM brand_assets WHERE dam_asset_id = ?'
+  ).get(row.damId) as { id: string; dam_modified_at: string; last_synced_at: number } | undefined;
+
+  if (existing) {
+    // Skip if not newer (ISO datetime string comparison works lexicographically)
+    if (existing.dam_modified_at >= row.damModifiedAt) return;
+    db.prepare(`
+      UPDATE brand_assets SET
+        name = ?, file_path = ?, mime_type = ?, size_bytes = ?,
+        dam_asset_url = ?, dam_modified_at = ?, last_synced_at = ?, dam_deleted = 0
+      WHERE dam_asset_id = ?
+    `).run(
+      row.name, row.filePath, row.mimeType, row.sizeBytes,
+      row.damUrl, row.damModifiedAt, Date.now(), row.damId
+    );
+  } else {
+    db.prepare(`
+      INSERT INTO brand_assets
+        (id, name, category, file_path, mime_type, size_bytes, tags,
+         source, dam_asset_id, dam_asset_url, dam_modified_at, last_synced_at, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'dam', ?, ?, ?, ?, ?)
+    `).run(
+      nanoid(), row.name, row.category, row.filePath, row.mimeType, row.sizeBytes,
+      '[]', row.damId, row.damUrl, row.damModifiedAt, Date.now(), Date.now()
+    );
+  }
+}
+
+/**
+ * Mark DAM assets that are no longer in the DAM folder as soft-deleted.
+ *
+ * Selects all non-deleted DAM assets from the DB and marks any whose dam_asset_id
+ * is NOT in currentDamIds with dam_deleted=1. Returns the count of soft-deleted rows.
+ */
+export function softDeleteRemovedDamAssets(currentDamIds: Set<string>): number {
+  const db = getDb();
+  const rows = db.prepare(
+    "SELECT id, dam_asset_id FROM brand_assets WHERE source = 'dam' AND dam_deleted = 0"
+  ).all() as Array<{ id: string; dam_asset_id: string }>;
+
+  let count = 0;
+  for (const row of rows) {
+    if (!currentDamIds.has(row.dam_asset_id)) {
+      db.prepare('UPDATE brand_assets SET dam_deleted = 1 WHERE id = ?').run(row.id);
+      count++;
+    }
+  }
+  return count;
 }
 
 // ─── Saved assets (user library: add/save assets from DAM or upload) ─────────

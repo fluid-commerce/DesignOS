@@ -156,4 +156,15 @@ function initSchema(db: Database.Database): void {
   } catch {
     // Column already exists — ignore
   }
+
+  // Migration: add DAM sync columns to brand_assets
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN source TEXT NOT NULL DEFAULT 'local'"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_asset_id TEXT"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_asset_url TEXT"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN last_synced_at INTEGER"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_modified_at TEXT"); } catch {}
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN dam_deleted INTEGER NOT NULL DEFAULT 0"); } catch {}
+
+  // Index for efficient DAM sync lookup
+  try { db.exec("CREATE UNIQUE INDEX idx_brand_assets_dam_id ON brand_assets(dam_asset_id) WHERE dam_asset_id IS NOT NULL"); } catch {}
 }
