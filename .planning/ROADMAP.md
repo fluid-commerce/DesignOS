@@ -265,7 +265,7 @@ Plans:
   3. Incremental sync skips unchanged assets, soft-deletes removed assets
   4. Assets tab shows DAM sync status bar with "Sync now" button
   5. DAM-sourced assets show source badge; removed assets show amber warning badge
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 13-01-PLAN.md — DB migration + DAM client + sync engine + tests
@@ -292,5 +292,5 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 9. App Navigation Overhaul | 2/2 | Complete | 2026-03-13 |
 | 10. Anthropic API Generation Pipeline | 2/2 | Complete | 2026-03-16 |
 | 11. API Pipeline Hardening + DB Brand Intelligence | 4/4 | Complete | 2026-03-16 |
-| 12. Post-API Migration Cleanup & Audit | 4/4 | Complete   | 2026-03-17 |
-| 13. DAM Sync | 0/2 | Planning Complete | |
+| 12. Post-API Migration Cleanup & Audit | 4/4 | Complete    | 2026-03-17 |
+| 13. DAM Sync | 1/2 | In Progress|  |

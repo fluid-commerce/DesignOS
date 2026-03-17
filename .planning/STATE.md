@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: "Completed 12-04-PLAN.md: Phase 13 dir renamed to 13-dam-sync, STATE.md body updated to reflect Phase 12 complete"
-last_updated: "2026-03-17T02:35:48.517Z"
+stopped_at: "Completed 13-01-PLAN.md: DAM sync core engine — DB schema, dam-client.ts, dam-sync.ts, unit tests"
+last_updated: "2026-03-17T13:43:10.767Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 16
   completed_phases: 15
   total_plans: 51
-  completed_plans: 49
+  completed_plans: 50
   percent: 100
 ---
 
@@ -89,6 +89,7 @@ Progress: [████████████████████] 100% (1
 | Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P02 | 12min | 2 tasks | 7 files |
 | Phase 12 P03 | 18 | 3 tasks | 6 files |
 | Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P04 | 8 | 2 tasks | 3 files |
+| Phase 13-dam-sync P01 | 4 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -235,6 +236,7 @@ Recent decisions affecting current work:
 - [Phase Phase 12]: brand-compliance.cjs uses better-sqlite3 directly (CJS tools cannot import ESM canvas/src/lib/db.ts); DB supplements built-in color constants with any hex from brand_patterns
 - [Phase 12]: skill-paths canvas-active skipped: CLI-era sentinel not in API pipeline skill files; App describe skipped: BuildHero needs browser-env (ResizeObserver); push_asset MCP ACTIVE (fluid-campaign + watcher); other 4 MCP tools retained for external iterate sessions
 - [Phase 12-04]: Phase 13 directory renamed via git mv (not delete+recreate) to preserve git history; STATE.md body updated to match frontmatter for Phase 12 plan 03 completion
+- [Phase 13-dam-sync]: code field used as dam_asset_id (stable string identifier); file_path as dam/{filename} for /fluid-assets/ serving; runDamSync never throws; getBrandAssets filter uses (dam_deleted = 0 OR dam_deleted IS NULL)
 
 ### Parallel Development Note
 
@@ -267,6 +269,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-17T02:35:41.516Z
-Stopped at: Completed 12-04-PLAN.md: Phase 13 dir renamed to 13-dam-sync, STATE.md body updated to reflect Phase 12 complete
+Last session: 2026-03-17T13:43:10.764Z
+Stopped at: Completed 13-01-PLAN.md: DAM sync core engine — DB schema, dam-client.ts, dam-sync.ts, unit tests
 Resume file: None
