@@ -247,17 +247,34 @@ Plans:
 
 **Goal:** Audit the full codebase for CLI-era artifacts, dead code, and stale infrastructure left over from the CLI-to-API migration. Update CLI validation tools to read from DB instead of static `rules.json`. Remove dead CLI generation paths, stale tests, unused imports, and orphaned planning directories. Slim project-level skill .md files to behavioral contracts (strip embedded brand data). Verify infrastructure coherence -- API pipeline, DB schema, brand seeder, MCP server, skill files, and validation tools should tell a consistent story with no contradictions.
 **Depends on:** Phase 11
-**Plans:** 3/3 plans complete
+**Plans:** 4 plans (3 original + 1 gap closure)
 
 Plans:
 - [ ] 12-01-PLAN.md — CLI dead code removal from watcher.ts (iterate + campaign spawn paths) + stale test cleanup
 - [ ] 12-02-PLAN.md — Validation tools DB migration (brand-compliance.cjs reads SQLite) + orphan directory cleanup + STATE.md update
 - [ ] 12-03-PLAN.md — Pre-existing test failure fixes, skill file slimming (strip brand data), MCP tool audit, stale reference sweep, CLAUDE.md update
-
+- [ ] 12-04-PLAN.md — Gap closure: rename Phase 13 directory to match roadmap + update STATE.md completion status
 ### Phase 13: DAM Sync
 
-**Goal:** Sync layer between Fluid DAM and local DB so DAM is the upstream source of truth for brand assets. Local DB caches DAM content for offline/fast access; changes in DAM propagate downstream.
+**Goal:** Sync layer between Fluid DAM and local DB so DAM is the upstream source of truth for brand assets. Local DB caches DAM content for offline/fast access; changes in DAM propagate downstream. Two-way sync scoped to brand assets: DAM to local for browsing/generation, local to DAM for uploads. Startup sync + manual "Sync now" UI.
 **Depends on:** Phase 12
+**Requirements**: DAM-01, DAM-02, DAM-03, DAM-04, DAM-05, DAM-06, DAM-07, DAM-08, DAM-09, DAM-10
+**Success Criteria** (what must be TRUE):
+  1. DAM assets from Brand Elements folder sync to local DB on app startup
+  2. brand_assets table unified with source column distinguishing local vs DAM assets
+  3. Incremental sync skips unchanged assets, soft-deletes removed assets
+  4. Assets tab shows DAM sync status bar with "Sync now" button
+  5. DAM-sourced assets show source badge; removed assets show amber warning badge
+**Plans:** 2 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — DB migration + DAM client + sync engine + tests
+- [ ] 13-02-PLAN.md — API endpoint + watcher startup integration + AssetsScreen UI
+
+
+
+
+
 **Plans:** 0 plans
 
 ## Progress
