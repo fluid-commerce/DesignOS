@@ -364,6 +364,6 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 16-01-PLAN.md — Context mapping definition: (creation type, stage) → brand sections config, template matching strategy
-- [ ] 16-02-PLAN.md — Pipeline pre-injection: loadBrandContext(), system prompt injection, token budget tracking, product module detection
-- [ ] 16-03-PLAN.md — Observability: context logging per generation, context preview in chat sidebar, gap signal tracking
+- [ ] 16-01-PLAN.md — DB schema (context_map/context_log), db-api CRUD functions, seeder defaults, API endpoints, unit tests
+- [ ] 16-02-PLAN.md — Pipeline pre-injection: loadContextForStage(), buildSystemPrompt extension, wildcard expansion, token budget, gap signal logging, SSE context_injected event
+- [ ] 16-03-PLAN.md — Settings page (context map editor), ContextPanel in chat sidebar, LeftNav settings tab
