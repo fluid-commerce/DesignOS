@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 12-02-PLAN.md: DB migration + orphan cleanup"
-last_updated: "2026-03-17T02:02:31.525Z"
+stopped_at: "Completed 12-03-PLAN.md: coherence verification pass — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated"
+last_updated: "2026-03-17T02:14:06.439Z"
 last_activity: 2026-03-17 -- Phase 12 plan 02 complete (DB migration + orphan directory cleanup)
 progress:
-  total_phases: 15
-  completed_phases: 14
+  total_phases: 16
+  completed_phases: 15
   total_plans: 48
-  completed_plans: 47
+  completed_plans: 48
   percent: 85
 ---
 
@@ -87,6 +87,7 @@ Progress: [█████████████████░░░] 85% (14
 | Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P03 | 9min | 1 tasks | 4 files |
 | Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P01 | 10min | 2 tasks | 3 files |
 | Phase 12-api-pipeline-hardening-routing-context-injection-cost-ux P02 | 12min | 2 tasks | 7 files |
+| Phase 12 P03 | 18 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -231,6 +232,7 @@ Recent decisions affecting current work:
 - [Phase 11]: build*Prompt functions exported for testability; runStageWithTools accepts optional brandCtx with DB fallback for backward compat
 - [Phase 12]: CLI dead code removed from watcher.ts — API pipeline (runApiPipeline) is now the only generation path. generate-endpoint.test.ts deleted.
 - [Phase Phase 12]: brand-compliance.cjs uses better-sqlite3 directly (CJS tools cannot import ESM canvas/src/lib/db.ts); DB supplements built-in color constants with any hex from brand_patterns
+- [Phase 12]: skill-paths canvas-active skipped: CLI-era sentinel not in API pipeline skill files; App describe skipped: BuildHero needs browser-env (ResizeObserver); push_asset MCP ACTIVE (fluid-campaign + watcher); other 4 MCP tools retained for external iterate sessions
 
 ### Parallel Development Note
 
@@ -263,6 +265,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-17T02:02:31.523Z
-Stopped at: Completed 12-02-PLAN.md: DB migration + orphan cleanup
+Last session: 2026-03-17T02:14:06.437Z
+Stopped at: Completed 12-03-PLAN.md: coherence verification pass — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated
 Resume file: None
