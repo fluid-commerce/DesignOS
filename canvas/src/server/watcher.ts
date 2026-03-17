@@ -1,12 +1,9 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { watch } from 'chokidar';
-import { spawn, type ChildProcess } from 'node:child_process';
 import { runApiPipeline, type PipelineContext } from './api-pipeline';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
-import { createReadStream } from 'node:fs';
-import { createInterface } from 'node:readline';
 import { nanoid } from 'nanoid';
 import type { TemplateInfo } from '../lib/templates';
 import {
@@ -169,10 +166,6 @@ function buildCreationList(
 export function fluidWatcherPlugin(workingDir: string): Plugin {
   let server: ViteDevServer | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  // Legacy single-child lock kept for iterate (single-creation) mode
-  let activeChild: ChildProcess | null = null;
-  // Multi-creation parallel generation tracking
-  const activeChildren: Map<string, ChildProcess> = new Map(); // keyed by creationId
   let activeCampaignGeneration: string | null = null; // campaign-level lock
 
   return {
@@ -1199,19 +1192,6 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
           // POST /api/generate/cancel -- force-clear stuck generation lock
           if (req.url === '/api/generate/cancel' && req.method === 'POST') {
-            // Kill all active campaign children (CLI mode)
-            if (activeChildren.size > 0) {
-              for (const [, child] of activeChildren) {
-                try { child.kill('SIGKILL'); } catch { /* already dead */ }
-              }
-              activeChildren.clear();
-            }
-            // Also check legacy single-child lock
-            if (activeChild) {
-              try { activeChild.kill('SIGKILL'); } catch { /* already dead */ }
-              activeChild = null;
-            }
-            // Always clear the campaign-level lock (covers API mode too)
             const wasCampaign = activeCampaignGeneration;
             activeCampaignGeneration = null;
             res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -1222,148 +1202,12 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
-          // POST /api/generate -- spawn claude CLI and stream SSE
+          // POST /api/generate -- run API pipeline and stream SSE
           if (req.url === '/api/generate' && req.method === 'POST') {
             const body = JSON.parse(await readBody(req));
             const { prompt, template, customization, skillType } = body;
 
-            // Detect iteration mode (single-asset iterate flow)
-            const { sessionId: reqSessionId, iterationContext } = body;
-            const isIteration = !!(reqSessionId && iterationContext);
-
-            // ── ITERATE MODE: Legacy single-asset flow ─────────────────────
-            if (isIteration) {
-              // Concurrent generation lock for iterate mode -- with stale process detection
-              if (activeChild) {
-                try {
-                  process.kill(activeChild.pid!, 0);
-                } catch {
-                  activeChild = null;
-                }
-              }
-              if (activeChild) {
-                res.writeHead(409, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Generation already in progress' }));
-                return;
-              }
-
-              const actualSessionId = reqSessionId as string;
-              const actualSessionDir = path.join(absDir, actualSessionId);
-              const roundNumber = (iterationContext.currentRound || 0) + 1;
-              const roundDir = path.join(actualSessionDir, `round-${roundNumber}`);
-              await fs.mkdir(roundDir, { recursive: true });
-
-              const parts: string[] = [];
-              if (template) parts.push(`Template: ${template}`);
-              if (customization) parts.push(`Customization: ${JSON.stringify(customization)}`);
-              parts.push(prompt || 'Generate a marketing asset');
-              parts.push(`\nWrite all generated HTML output files to: ${roundDir}/`);
-              parts.push(`IMPORTANT: Do NOT create, read, or modify any file named lineage.json. The system manages that file automatically.`);
-
-              const winnerPath = path.join(actualSessionDir, '.iteration-winner.html');
-              await fs.writeFile(winnerPath, iterationContext.winnerHtml || '', 'utf-8');
-              parts.push(`\n--- ITERATION CONTEXT ---`);
-              parts.push(`This is Round ${roundNumber} of an iterative design session.`);
-              parts.push(`Previous winner HTML is saved at: ${winnerPath}`);
-              parts.push(`Read that file to see the current version you need to improve.`);
-              if (iterationContext.annotations?.length > 0) {
-                parts.push(`\nAnnotations from reviewer:`);
-                for (const ann of iterationContext.annotations) {
-                  parts.push(`- ${ann.text}${ann.x != null ? ` (at ${ann.x}%, ${ann.y}%)` : ''}`);
-                }
-              }
-              parts.push(`\nGenerate an improved version addressing the feedback above.`);
-              parts.push(`Write output HTML files to: ${roundDir}/`);
-
-              const fullPrompt = parts.join('\n');
-              const iterProjectRoot = path.resolve(srv.config.root, '..');
-              const iterMcpConfigPath = path.join(iterProjectRoot, '.mcp.json');
-              const iterArgs = [
-                '-p', fullPrompt,
-                '--output-format', 'stream-json',
-                '--verbose',
-                '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,Agent,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__read_history,mcp__fluid-canvas__push_asset',
-              ];
-              try {
-                await fs.access(iterMcpConfigPath);
-                iterArgs.push('--mcp-config', iterMcpConfigPath);
-              } catch { /* no MCP config, skip */ }
-              if (skillType) {
-                const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
-                try {
-                  await fs.access(skillPath);
-                  iterArgs.push('--append-system-prompt-file', skillPath);
-                } catch { /* skill file not found, skip */ }
-              }
-
-              const child = spawn('claude', iterArgs, {
-                cwd: iterProjectRoot,
-                stdio: ['ignore', 'pipe', 'pipe'],
-                env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
-              });
-              activeChild = child;
-
-              res.writeHead(200, {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-              });
-              (res as any).flushHeaders?.();
-
-              res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId: null, creationId: null, slideId: null })}\n\n`);
-
-              if (child.stdout) {
-                const rl = createInterface({ input: child.stdout });
-                rl.on('line', (line: string) => {
-                  if (line.trim()) res.write(`data: ${line}\n\n`);
-                });
-              }
-              if (child.stderr) {
-                const stderrRl = createInterface({ input: child.stderr });
-                stderrRl.on('line', (line: string) => {
-                  if (line.trim()) res.write(`event: stderr\ndata: ${JSON.stringify({ text: line })}\n\n`);
-                });
-              }
-
-              child.on('error', (err: Error) => {
-                activeChild = null;
-                try {
-                  res.write(`event: stderr\ndata: ${JSON.stringify({ text: `Spawn error: ${err.message}` })}\n\n`);
-                  res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId: actualSessionId, error: err.message })}\n\n`);
-                  res.end();
-                } catch { /* response may already be closed */ }
-              });
-
-              child.on('close', async (code: number | null) => {
-                activeChild = null;
-                try {
-                  await updateLineageAfterGeneration(actualSessionDir, roundDir, roundNumber, prompt || '', true);
-                } catch (err) {
-                  console.error('[watcher] Failed to update lineage:', err);
-                }
-                try {
-                  res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId, campaignId: null })}\n\n`);
-                  res.end();
-                } catch { /* response may already be closed */ }
-              });
-
-              const iterSafetyTimeout = setTimeout(() => {
-                if (activeChild === child) {
-                  try { child.kill('SIGTERM'); setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000); } catch { /* */ }
-                }
-              }, 5 * 60 * 1000);
-              child.on('close', () => clearTimeout(iterSafetyTimeout));
-              child.on('error', () => clearTimeout(iterSafetyTimeout));
-              req.on('close', () => {
-                clearTimeout(iterSafetyTimeout);
-                if (activeChild === child) { child.kill('SIGTERM'); activeChild = null; }
-              });
-              return;
-            }
-
-            // ── NEW CAMPAIGN MODE: Multi-creation parallel generation ────────
-            // Engine routing: default to API, opt into CLI explicitly
-            const engine = (body.engine as string | undefined) ?? 'api';
+            // ── CAMPAIGN MODE: Multi-creation parallel API generation ────────
 
             // Parse channels from prompt (shared by both API and CLI paths)
             const { channels, creationCounts, isSingleCreation } = parseChannelHints(prompt || '');
@@ -1376,7 +1220,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             // existingCampaignId: skip campaign creation if adding to existing
             const existingCampaignId: string | undefined = body.existingCampaignId;
 
-            // Pre-create all Campaign/Creation/Slide/Iteration records BEFORE spawning
+            // Pre-create all Campaign/Creation/Slide/Iteration records BEFORE running pipelines
             // (Shared between API and CLI paths)
             const projectRoot = path.resolve(srv.config.root, '..');
             const fluidDir = path.join(projectRoot, '.fluid');
@@ -1472,185 +1316,44 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             // Stream campaignId to client IMMEDIATELY after DB creation
             res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length, isSingleCreation, creationIds: creationSlideIterMap.map(m => m.creation.id) })}\n\n`);
 
-            if (engine === 'cli') {
-              // ── CLI MODE: spawn claude -p subagents (legacy) ───────────────
-              const mcpConfigPath = path.join(projectRoot, '.mcp.json');
-              let mcpConfigExists = false;
-              try { await fs.access(mcpConfigPath); mcpConfigExists = true; } catch { /* no MCP config */ }
+            // ── API MODE: Anthropic SDK pipeline ──────────────────────────
+            let apiCompletedCount = 0;
+            const apiTotalCount = creationSlideIterMap.length;
 
-              // Track completion for all children
-              let completedCount = 0;
-              const totalCount = creationSlideIterMap.length;
+            // Client disconnect cleanup
+            req.on('close', () => { activeCampaignGeneration = null; });
 
-              // Cleanup all children on client disconnect
-              req.on('close', () => {
-                for (const [creationId, child] of activeChildren) {
-                  try { child.kill('SIGTERM'); } catch { /* */ }
-                  activeChildren.delete(creationId);
-                }
-                activeCampaignGeneration = null;
-              });
+            // Run N parallel API pipelines — one per creation
+            for (const entry of creationSlideIterMap) {
+              const pipelineCtx: PipelineContext = {
+                prompt: prompt || 'Generate a marketing creation',
+                creationType: entry.creation.creationType,
+                workingDir: path.join(path.dirname(entry.absHtmlPath), 'working'),
+                htmlOutputPath: entry.absHtmlPath,
+                creationId: entry.creation.id,
+                campaignId,
+              };
 
-              // Spawn N parallel subagents — one per creation
-              for (const entry of creationSlideIterMap) {
-                const { creation, iterationId, absHtmlPath } = entry;
-                const dims = CREATION_DIMENSIONS[creation.creationType] || { width: 1080, height: 1080 };
-
-                const creationPromptParts = [
-                  `Generate a ${creation.creationType} marketing creation for the following brief:`,
-                  ``,
-                  prompt || 'Generate a marketing creation',
-                  ``,
-                  `--- CREATION SPECIFICATIONS ---`,
-                  `Creation type: ${creation.creationType}`,
-                  `Dimensions: ${dims.width}x${dims.height}px`,
-                  ``,
-                  `--- OUTPUT INSTRUCTIONS ---`,
-                  `Write the complete HTML file to EXACTLY this path:`,
-                  absHtmlPath,
-                  ``,
-                  `The file must be a standalone HTML file with all CSS inline.`,
-                  `After generating, call PATCH /api/creations/${creation.id} with body { "title": "<descriptive title>" } to set a descriptive title.`,
-                  `IMPORTANT: Do NOT create any other files. Write only to the exact path above.`,
-                ];
-
-                const creationArgs = [
-                  '-p', creationPromptParts.join('\n'),
-                  '--output-format', 'stream-json',
-                  '--verbose',
-                  '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__push_asset',
-                ];
-
-                if (mcpConfigExists) {
-                  creationArgs.push('--mcp-config', mcpConfigPath);
-                }
-
-                if (skillType) {
-                  const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
+              // Fire and forget — each pipeline runs independently in parallel
+              runApiPipeline(pipelineCtx, res)
+                .then(() => {
+                  try { updateIterationGenerationStatus(entry.iterationId, 'complete'); } catch { /* non-fatal */ }
+                })
+                .catch((err: Error) => {
                   try {
-                    await fs.access(skillPath);
-                    creationArgs.push('--append-system-prompt-file', skillPath);
-                  } catch { /* skill file not found, skip */ }
-                }
-
-                const child = spawn('claude', creationArgs, {
-                  cwd: projectRoot,
-                  stdio: ['ignore', 'pipe', 'pipe'],
-                  env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
-                });
-
-                activeChildren.set(creation.id, child);
-
-                // Multiplex stdout onto the SSE connection with creationId field
-                if (child.stdout) {
-                  const rl = createInterface({ input: child.stdout });
-                  rl.on('line', (line: string) => {
-                    if (line.trim()) {
-                      try {
-                        res.write(`data: ${JSON.stringify({ creationId: creation.id, line })}\n\n`);
-                      } catch { /* client disconnected */ }
-                    }
-                  });
-                }
-
-                // Multiplex stderr
-                if (child.stderr) {
-                  const stderrRl = createInterface({ input: child.stderr });
-                  stderrRl.on('line', (line: string) => {
-                    if (line.trim()) {
-                      try {
-                        res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: creation.id, text: line })}\n\n`);
-                      } catch { /* client disconnected */ }
-                    }
-                  });
-                }
-
-                child.on('error', (err: Error) => {
-                  activeChildren.delete(creation.id);
-                  completedCount++;
-                  try {
-                    res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: creation.id, text: `Spawn error: ${err.message}` })}\n\n`);
-                  } catch { /* */ }
-                  if (completedCount >= totalCount) {
+                    res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: entry.creation.id, text: `Pipeline error: ${err.message}` })}\n\n`);
+                  } catch { /* client disconnected */ }
+                })
+                .finally(() => {
+                  apiCompletedCount++;
+                  if (apiCompletedCount >= apiTotalCount) {
                     activeCampaignGeneration = null;
                     try {
-                      res.write(`event: done\ndata: ${JSON.stringify({ code: 1, campaignId })}\n\n`);
+                      res.write(`event: done\ndata: ${JSON.stringify({ code: 0, campaignId })}\n\n`);
                       res.end();
-                    } catch { /* */ }
-                  }
-                });
-
-                child.on('close', async (code: number | null) => {
-                  activeChildren.delete(creation.id);
-                  // Mark iteration as complete
-                  try {
-                    updateIterationGenerationStatus(iterationId, 'complete');
-                  } catch { /* non-fatal */ }
-                  completedCount++;
-
-                  // Only send 'done' event after ALL children have closed
-                  // This prevents the auto-navigate race condition
-                  if (completedCount >= totalCount) {
-                    activeCampaignGeneration = null;
-                    try {
-                      res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 0, campaignId })}\n\n`);
-                      res.end();
-                    } catch { /* client may have disconnected */ }
-                  }
-                });
-
-                // Safety timeout per child: kill after 5 minutes
-                const safetyTimeout = setTimeout(() => {
-                  if (activeChildren.has(creation.id)) {
-                    try {
-                      child.kill('SIGTERM');
-                      setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000);
-                    } catch { /* already dead */ }
-                  }
-                }, 5 * 60 * 1000);
-                child.on('close', () => clearTimeout(safetyTimeout));
-                child.on('error', () => clearTimeout(safetyTimeout));
-              }
-            } else {
-              // ── API MODE: Anthropic SDK pipeline (default) ─────────────────
-              let apiCompletedCount = 0;
-              const apiTotalCount = creationSlideIterMap.length;
-
-              // Client disconnect cleanup
-              req.on('close', () => { activeCampaignGeneration = null; });
-
-              // Run N parallel API pipelines — one per creation
-              for (const entry of creationSlideIterMap) {
-                const pipelineCtx: PipelineContext = {
-                  prompt: prompt || 'Generate a marketing creation',
-                  creationType: entry.creation.creationType,
-                  workingDir: path.join(path.dirname(entry.absHtmlPath), 'working'),
-                  htmlOutputPath: entry.absHtmlPath,
-                  creationId: entry.creation.id,
-                  campaignId,
-                };
-
-                // Fire and forget — each pipeline runs independently in parallel
-                runApiPipeline(pipelineCtx, res)
-                  .then(() => {
-                    try { updateIterationGenerationStatus(entry.iterationId, 'complete'); } catch { /* non-fatal */ }
-                  })
-                  .catch((err: Error) => {
-                    try {
-                      res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: entry.creation.id, text: `Pipeline error: ${err.message}` })}\n\n`);
                     } catch { /* client disconnected */ }
-                  })
-                  .finally(() => {
-                    apiCompletedCount++;
-                    if (apiCompletedCount >= apiTotalCount) {
-                      activeCampaignGeneration = null;
-                      try {
-                        res.write(`event: done\ndata: ${JSON.stringify({ code: 0, campaignId })}\n\n`);
-                        res.end();
-                      } catch { /* client disconnected */ }
-                    }
-                  });
-              }
+                  }
+                });
             }
 
             return;
