@@ -39,7 +39,7 @@ vi.mock('@anthropic-ai/sdk', () => {
 // ---------------------------------------------------------------------------
 // Imports after mocks
 // ---------------------------------------------------------------------------
-import { executeTool, PIPELINE_TOOLS, loadStagePrompt, STAGE_MODELS, runStageWithTools, runApiPipeline } from '../server/api-pipeline';
+import { executeTool, PIPELINE_TOOLS, buildSystemPrompt, STAGE_MODELS, runStageWithTools, runApiPipeline } from '../server/api-pipeline';
 import type { PipelineContext } from '../server/api-pipeline';
 
 // ---------------------------------------------------------------------------
@@ -131,17 +131,17 @@ describe('PIPELINE_TOOLS schemas', () => {
 // ---------------------------------------------------------------------------
 
 describe('executeTool: read_file', () => {
-  it('reads brand/voice-rules.md and returns contents', async () => {
+  it('reads CLAUDE.md and returns contents', async () => {
     const workingDir = PROJECT_ROOT;
-    const result = await executeTool('read_file', { path: 'brand/voice-rules.md' }, workingDir);
-    expect(result.toLowerCase()).toContain('voice');
+    const result = await executeTool('read_file', { path: 'CLAUDE.md' }, workingDir);
+    expect(result.toLowerCase()).toContain('cli tools');
     expect(result.length).toBeGreaterThan(100);
   });
 
   it('returns error string on missing file (does not throw)', async () => {
     const result = await executeTool(
       'read_file',
-      { path: 'brand/does-not-exist.md' },
+      { path: 'nonexistent/does-not-exist.md' },
       PROJECT_ROOT,
     );
     expect(result).toMatch(/error/i);
@@ -206,30 +206,29 @@ describe('executeTool: write_file', () => {
 // ---------------------------------------------------------------------------
 
 describe('executeTool: list_files', () => {
-  it('lists brand directory and includes markdown files', async () => {
-    const result = await executeTool('list_files', { directory: 'brand' }, PROJECT_ROOT);
-    expect(result).toContain('voice-rules.md');
-    expect(result).toContain('design-tokens.md');
+  it('lists tools directory and includes cjs files', async () => {
+    const result = await executeTool('list_files', { directory: 'tools' }, PROJECT_ROOT);
+    expect(result).toContain('brand-compliance.cjs');
+    expect(result).toContain('schema-validation.cjs');
   });
 
   it('filters by pattern when provided', async () => {
     const result = await executeTool(
       'list_files',
-      { directory: 'brand', pattern: '*.md' },
+      { directory: 'tools', pattern: '*.cjs' },
       PROJECT_ROOT,
     );
-    // All results should end in .md
     const files = result.split('\n').filter(Boolean);
     expect(files.length).toBeGreaterThan(0);
     for (const f of files) {
-      expect(f).toMatch(/\.md$/);
+      expect(f).toMatch(/\.cjs$/);
     }
   });
 
   it('returns error string on missing directory (does not throw)', async () => {
     const result = await executeTool(
       'list_files',
-      { directory: 'brand/nonexistent-subdir' },
+      { directory: 'nonexistent-subdir' },
       PROJECT_ROOT,
     );
     expect(result).toMatch(/error/i);
@@ -285,93 +284,66 @@ describe('executeTool: unknown tool', () => {
 });
 
 // ---------------------------------------------------------------------------
-// loadStagePrompt
+// buildSystemPrompt
 // ---------------------------------------------------------------------------
 
-describe('loadStagePrompt', () => {
-  it('reads fluid-social SKILL.md and returns prompt containing copy-stage content for instagram', async () => {
+describe('buildSystemPrompt', () => {
+  it('returns a string containing stage name and creation type', () => {
     const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('copy', ctx);
+    const prompt = buildSystemPrompt('copy', ctx);
     expect(typeof prompt).toBe('string');
     expect(prompt.length).toBeGreaterThan(50);
-    expect(prompt.toLowerCase()).toMatch(/copy/);
+    expect(prompt.toLowerCase()).toContain('copy');
+    expect(prompt).toContain('instagram');
   });
 
-  it('returns prompt containing layout-stage content', async () => {
-    const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('layout', ctx);
-    expect(typeof prompt).toBe('string');
-    expect(prompt.length).toBeGreaterThan(50);
-    expect(prompt.toLowerCase()).toMatch(/layout/);
-  });
-
-  it('returns prompt containing styling-stage content', async () => {
-    const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('styling', ctx);
-    expect(typeof prompt).toBe('string');
-    expect(prompt.length).toBeGreaterThan(50);
-    expect(prompt.toLowerCase()).toMatch(/styl/);
-  });
-
-  it('returns prompt referencing run_brand_check for spec-check stage', async () => {
-    const ctx = makeCtx({ creationType: 'instagram' });
-    const prompt = await loadStagePrompt('spec-check', ctx);
-    expect(typeof prompt).toBe('string');
-    expect(prompt.length).toBeGreaterThan(50);
-    expect(prompt).toMatch(/run_brand_check|spec.?check/i);
-  });
-
-  it('falls back to hardcoded prompt when skill file is missing', async () => {
-    const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('copy', ctx);
-    expect(typeof prompt).toBe('string');
-    expect(prompt.length).toBeGreaterThan(20);
-  });
-
-  it('fallback prompt for copy stage instructs agent to use brand tools', async () => {
-    const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('copy', ctx);
-    expect(prompt).toContain('list_brand_sections');
-    expect(prompt).toContain('voice-guide');
-  });
-
-  it('fallback prompt for layout stage instructs agent to use brand tools', async () => {
-    const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('layout', ctx);
-    expect(prompt).toContain('list_brand_sections');
-    expect(prompt).toContain('layout-archetype');
-  });
-
-  it('fallback prompt for styling stage instructs agent to use brand tools', async () => {
-    const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('styling', ctx);
-    expect(prompt).toContain('list_brand_sections');
-    expect(prompt).toContain('design-tokens');
-  });
-
-  it('fallback prompt for spec-check stage references run_brand_check', async () => {
-    const ctx = makeCtx({ creationType: 'nonexistent-type' });
-    const prompt = await loadStagePrompt('spec-check', ctx);
-    expect(prompt).toContain('run_brand_check');
-  });
-
-  it('injects workingDir into the prompt', async () => {
+  it('includes working directory in context section', () => {
     const ctx = makeCtx({
-      creationType: 'nonexistent-type',
+      creationType: 'instagram',
       workingDir: '/test/working/dir',
       htmlOutputPath: '/test/working/dir/output.html',
     });
-    const prompt = await loadStagePrompt('copy', ctx);
+    const prompt = buildSystemPrompt('copy', ctx);
     expect(prompt).toContain('/test/working/dir');
   });
 
-  it('returns prompt including workingDir in context when skill file loads successfully', async () => {
-    const ctx = makeCtx({
-      creationType: 'instagram',
-      workingDir: '/unique-working-dir-12345',
-    });
-    const prompt = await loadStagePrompt('copy', ctx);
-    expect(prompt).toContain('/unique-working-dir-12345');
+  it('includes brandName when provided', () => {
+    const ctx = makeCtx({ creationType: 'instagram', brandName: 'TestBrand' });
+    const prompt = buildSystemPrompt('copy', ctx);
+    expect(prompt).toContain('TestBrand');
+  });
+
+  it('uses generic "for the brand" when brandName is absent', () => {
+    const ctx = makeCtx({ creationType: 'instagram' });
+    const prompt = buildSystemPrompt('copy', ctx);
+    expect(prompt).toContain('for the brand');
+  });
+
+  it('lists run_brand_check tool for spec-check stage', () => {
+    const ctx = makeCtx({ creationType: 'instagram' });
+    const prompt = buildSystemPrompt('spec-check', ctx);
+    expect(prompt).toContain('run_brand_check');
+  });
+
+  it('lists list_brand_assets tool for styling stage', () => {
+    const ctx = makeCtx({ creationType: 'instagram' });
+    const prompt = buildSystemPrompt('styling', ctx);
+    expect(prompt).toContain('list_brand_assets');
+  });
+
+  it('lists list_brand_sections tool for copy stage', () => {
+    const ctx = makeCtx({ creationType: 'instagram' });
+    const prompt = buildSystemPrompt('copy', ctx);
+    expect(prompt).toContain('list_brand_sections');
+  });
+
+  it('does not contain the word Fluid', () => {
+    const stages: Array<import('../server/api-pipeline').PipelineStage> = ['copy', 'layout', 'styling', 'spec-check'];
+    for (const stage of stages) {
+      const ctx = makeCtx({ creationType: 'instagram' });
+      const prompt = buildSystemPrompt(stage, ctx);
+      expect(prompt.toLowerCase()).not.toContain('fluid');
+    }
   });
 });
 
@@ -559,7 +531,7 @@ describe('runStageWithTools: tool_use then end_turn', () => {
       .mockResolvedValueOnce({
         stop_reason: 'tool_use',
         content: [
-          { type: 'tool_use', id: 'tool-abc', name: 'read_file', input: { path: 'brand/voice-rules.md' } },
+          { type: 'tool_use', id: 'tool-abc', name: 'read_file', input: { path: 'CLAUDE.md' } },
         ],
       })
       .mockResolvedValueOnce({
