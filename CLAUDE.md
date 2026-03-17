@@ -26,10 +26,14 @@ Brand rules carry weights 1-100. Enforcement thresholds:
 ## CLI Tools
 
 Validation tools live in `tools/`. Run after generating output:
-- `node tools/brand-compliance.cjs <file>` — validate HTML against brand rules
+- `node tools/brand-compliance.cjs <file>` — validate HTML against brand rules (reads brand colors from SQLite DB)
 - `node tools/schema-validation.cjs <file>` — validate .liquid files against Gold Standard schema
 - `node tools/dimension-check.cjs <file> --target <type>` — check dimensions
 - `node tools/scaffold.cjs <section-name>` — generate Gold Standard .liquid skeleton
+
+Note: Validation tools read brand data from the SQLite database (`canvas/.fluid/fluid.db`).
+The app must be run at least once to seed the database before validation tools will work fully.
+Brand intelligence (voice guide docs, design tokens, patterns) lives in the DB as the source of truth.
 
 ## Pattern Library
 

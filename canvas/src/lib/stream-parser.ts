@@ -5,9 +5,10 @@
 
 export interface StreamUIMessage {
   id: string;
-  type: 'text' | 'tool-start' | 'tool-done' | 'status' | 'error';
+  type: 'text' | 'tool-start' | 'tool-done' | 'status' | 'error' | 'stage-running' | 'stage-done' | 'stage-narrative';
   content: string;
   toolName?: string;
+  stage?: string;
   timestamp: number;
 }
 
@@ -46,18 +47,12 @@ export function parseStreamEvent(
   if (event.type === 'stream_event') {
     const inner = event.event;
 
-    // Tool use start
+    // Tool use start — filtered from display (stage badges replace per-tool noise)
     if (
       inner.type === 'content_block_start' &&
       inner.content_block?.type === 'tool_use'
     ) {
-      return {
-        id: nextId(),
-        type: 'tool-start',
-        content: `Using ${inner.content_block.name}...`,
-        toolName: inner.content_block.name,
-        timestamp: Date.now(),
-      };
+      return null;
     }
 
     // Text delta
@@ -82,15 +77,47 @@ export function parseStreamEvent(
     return null;
   }
 
-  // Tool result from Claude CLI
+  // Tool result from Claude CLI — filtered from display (stage badges replace per-tool noise)
   if (event.type === 'tool_result') {
+    return null;
+  }
+
+  // Stage narrative from Haiku narrator
+  if (event.type === 'stage_narrative') {
     return {
       id: nextId(),
-      type: 'tool-done',
-      content: event.tool_name
-        ? `${event.tool_name} completed`
-        : 'Tool completed',
-      toolName: event.tool_name,
+      type: 'stage-narrative',
+      content: event.text,
+      stage: event.stage,
+      timestamp: Date.now(),
+    };
+  }
+
+  // Stage status from API pipeline (copy starting, layout done, etc.)
+  if (event.type === 'stage_status') {
+    if (event.status === 'starting') {
+      return {
+        id: nextId(),
+        type: 'stage-running',
+        content: event.stage,
+        stage: event.stage,
+        timestamp: Date.now(),
+      };
+    }
+    if (event.status === 'done') {
+      return {
+        id: nextId(),
+        type: 'stage-done',
+        content: event.stage,
+        stage: event.stage,
+        timestamp: Date.now(),
+      };
+    }
+    // Other statuses (max-tokens-reached, fix-N) — show as regular status
+    return {
+      id: nextId(),
+      type: 'status',
+      content: `[${event.stage}] ${event.status}`,
       timestamp: Date.now(),
     };
   }

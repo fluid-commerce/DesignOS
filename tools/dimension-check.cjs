@@ -3,7 +3,7 @@
  * dimension-check.cjs (CLI-03) — Validates HTML asset dimensions
  *
  * Extracts width/height from HTML files and compares against
- * target dimensions from rules.json.
+ * known target dimensions.
  *
  * Usage: node tools/dimension-check.cjs path/to/file.html [--target instagram|linkedin_landscape|linkedin_tall|WxH]
  * Output: JSON to stdout, human summary to stderr
@@ -15,14 +15,15 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RULES_PATH = path.resolve(__dirname, 'rules.json');
+// Known target dimensions — authoritative values from brand specs
+const KNOWN_DIMENSIONS = {
+  instagram: { width: 1080, height: 1080 },
+  linkedin_landscape: { width: 1200, height: 627 },
+  linkedin_tall: { width: 1340, height: 630 },
+};
 
 function loadRules() {
-  if (!fs.existsSync(RULES_PATH)) {
-    process.stderr.write('Error: rules.json not found. Run compile-rules.cjs first.\n');
-    process.exit(2);
-  }
-  return JSON.parse(fs.readFileSync(RULES_PATH, 'utf-8'));
+  return { dimensions: KNOWN_DIMENSIONS };
 }
 
 function extractDimensions(content) {

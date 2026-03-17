@@ -108,45 +108,72 @@ describe('navigateToCampaign', () => {
 });
 
 describe('navigateToCreation', () => {
-  it('sets currentView to creation and activeCreationId', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides));
+  it('sets currentView to creation and auto-selects first slide', async () => {
+    // fetchSlides returns slides, then fetchIterations for each slide
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleSlides))       // fetchSlides
+      .mockResolvedValueOnce(makeJsonResponse(sampleIterations));   // iterations for sld_1
 
     await useCampaignStore.getState().navigateToCreation('crt_1');
 
     const state = useCampaignStore.getState();
     expect(state.currentView).toBe('creation');
     expect(state.activeCreationId).toBe('crt_1');
-    expect(state.activeSlideId).toBeNull();
+    expect(state.activeSlideId).toBe('sld_1');
+    expect(state.activeIterationId).toBe('itr_1');
   });
 
-  it('fetches slides for the creation', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides));
+  it('fetches slides and all iterations for the creation', async () => {
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleSlides))
+      .mockResolvedValueOnce(makeJsonResponse(sampleIterations));
 
     await useCampaignStore.getState().navigateToCreation('crt_1');
 
     expect(mockFetch).toHaveBeenCalledWith('/api/creations/crt_1/slides');
+    expect(mockFetch).toHaveBeenCalledWith('/api/slides/sld_1/iterations');
     expect(useCampaignStore.getState().slides).toEqual(sampleSlides);
+    expect(useCampaignStore.getState().iterations).toEqual(sampleIterations);
   });
 });
 
-describe('navigateToSlide', () => {
-  it('sets currentView to slide and activeSlideId', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleIterations));
+describe('setActiveSlide', () => {
+  it('sets activeSlideId and picks best iteration', async () => {
+    // Setup: pre-populate slides and iterations
+    useCampaignStore.setState({
+      slides: sampleSlides,
+      iterations: sampleIterations,
+      activeSlideId: null,
+    });
 
-    await useCampaignStore.getState().navigateToSlide('sld_1');
+    useCampaignStore.getState().setActiveSlide('sld_1');
 
     const state = useCampaignStore.getState();
-    expect(state.currentView).toBe('slide');
     expect(state.activeSlideId).toBe('sld_1');
+    expect(state.activeIterationId).toBe('itr_1');
   });
 
-  it('fetches iterations for the slide', async () => {
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleIterations));
+  it('prefers winner iteration over latest', () => {
+    const winnerIter: Iteration = {
+      ...sampleIterations[0],
+      id: 'itr_winner',
+      iterationIndex: 0,
+      status: 'winner',
+    };
+    const laterIter: Iteration = {
+      ...sampleIterations[0],
+      id: 'itr_later',
+      iterationIndex: 1,
+      status: 'unmarked',
+    };
+    useCampaignStore.setState({
+      slides: sampleSlides,
+      iterations: [winnerIter, laterIter],
+    });
 
-    await useCampaignStore.getState().navigateToSlide('sld_1');
+    useCampaignStore.getState().setActiveSlide('sld_1');
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/slides/sld_1/iterations');
-    expect(useCampaignStore.getState().iterations).toEqual(sampleIterations);
+    expect(useCampaignStore.getState().activeIterationId).toBe('itr_winner');
   });
 });
 
@@ -172,22 +199,12 @@ describe('selectIteration', () => {
 // ============================================================
 
 describe('navigateBack', () => {
-  it('from slide goes to creation level', async () => {
-    // Setup creation and slide state
-    useCampaignStore.setState({ activeCampaignId: 'cmp_1', activeCreationId: 'crt_1' });
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleIterations)); // iterations for slide
-
-    await useCampaignStore.getState().navigateToSlide('sld_1');
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides)); // navigateBack -> navigateToCreation -> fetchSlides
-
-    await useCampaignStore.getState().navigateBack();
-
-    expect(useCampaignStore.getState().currentView).toBe('creation');
-  });
-
   it('from creation goes to campaign level', async () => {
     useCampaignStore.setState({ activeCampaignId: 'cmp_1' });
-    mockFetch.mockResolvedValueOnce(makeJsonResponse(sampleSlides));
+    // navigateToCreation: fetchSlides + fetch iterations for each slide
+    mockFetch
+      .mockResolvedValueOnce(makeJsonResponse(sampleSlides))
+      .mockResolvedValueOnce(makeJsonResponse(sampleIterations));
 
     await useCampaignStore.getState().navigateToCreation('crt_1');
     // navigateBack -> navigateToCampaign -> fetchCreations + fetchLatestIterations (empty slides)

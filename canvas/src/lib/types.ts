@@ -21,6 +21,7 @@ export interface VersionFile {
   path: string;
   html: string;
   name: string;
+  iterationId?: string;
 }
 
 // Annotation types

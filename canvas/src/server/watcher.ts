@@ -1,11 +1,9 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { watch } from 'chokidar';
-import { spawn, type ChildProcess } from 'node:child_process';
+import { runApiPipeline, type PipelineContext } from './api-pipeline';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
-import { createReadStream } from 'node:fs';
-import { createInterface } from 'node:readline';
 import { nanoid } from 'nanoid';
 import type { TemplateInfo } from '../lib/templates';
 import {
@@ -29,7 +27,17 @@ import {
   getSavedAssets,
   createSavedAsset,
   deleteSavedAsset,
+  getBrandAssets,
+  getAllBrandAssets,
+  getVoiceGuideDocs,
+  getVoiceGuideDoc,
+  updateVoiceGuideDoc,
+  getBrandPatterns,
 } from './db-api';
+import { getDb } from '../lib/db';
+import { scanAndSeedBrandAssets } from './asset-scanner';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty } from './brand-seeder';
+import { runDamSync } from './dam-sync';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -45,32 +53,96 @@ const DEFAULT_CHANNEL_COUNTS: Record<string, number> = {
   'one-pager': 1,
 };
 
+// Patterns that indicate a single-creation intent (one asset, not a campaign)
+const SINGULAR_PATTERNS = [
+  /\ba\s+(?:social\s+)?post\b/i,
+  /\ban?\s+(?:instagram|ig|insta)\b/i,
+  /\ban?\s+(?:linkedin|li)\s+(?:post|image)\b/i,
+  /\bone\s+(?:linkedin|instagram|post|one-pager|social)\b/i,
+  /^(?:create|make|generate|write|design)\s+(?:a|an|one)\s+/i,
+  /\ba\s+one-pager\b/i,
+  /\ban?\s+image\b/i,
+  /\b(?:a\s+)?single\s+(?:instagram|linkedin|post|one-pager|social|image)\b/i,
+  /\bjust\s+(?:a\s+)?(?:single\s+)?(?:post|instagram|linkedin|one-pager)\b/i,
+];
+
+// Patterns that indicate campaign intent (overrides singularity)
+const CAMPAIGN_PATTERNS = [
+  /\bcampaign\b/i,
+  /\bseries\b/i,
+  /\bmultiple\b/i,
+  /\bseveral\b/i,
+  /\bposts\b/i,  // plural "posts" = campaign intent
+];
+
+/** Infer the creation type from a single-creation prompt. */
+function inferCreationType(prompt: string): string {
+  const lower = prompt.toLowerCase();
+  if (/linkedin|li\b/.test(lower)) return 'linkedin';
+  if (/one-pager/.test(lower)) return 'one-pager';
+  return 'instagram'; // default
+}
+
 /**
  * Parses channel hints from a prompt string.
  * Detects keywords like "just linkedin", "instagram only", etc.
- * Returns channels array and per-channel counts.
+ * Also detects singularity — a prompt asking for one creation vs a full campaign.
+ * Returns channels array, per-channel counts, singularity flag, and inferred type.
  */
-function parseChannelHints(
+export function parseChannelHints(
   prompt: string
-): { channels: string[]; creationCounts: Record<string, number> } {
-  const lower = prompt.toLowerCase();
+): {
+  channels: string[];
+  creationCounts: Record<string, number>;
+  isSingleCreation: boolean;
+  inferredType?: string;
+} {
+  // Channel-only hints FIRST (existing behavior): "just linkedin" = 3 linkedin creations
+  if (/just linkedin|linkedin only|only linkedin/i.test(prompt)) {
+    return { channels: ['linkedin'], creationCounts: { linkedin: 3 }, isSingleCreation: false };
+  }
+  if (/just instagram|instagram only|only instagram/i.test(prompt)) {
+    return { channels: ['instagram'], creationCounts: { instagram: 3 }, isSingleCreation: false };
+  }
+  if (/one-pager only|just (?:a )?one-pager/i.test(prompt)) {
+    return { channels: ['one-pager'], creationCounts: { 'one-pager': 1 }, isSingleCreation: false };
+  }
 
-  // Check for single-channel hints
-  if (/just linkedin|linkedin only|only linkedin/i.test(lower)) {
-    return { channels: ['linkedin'], creationCounts: { linkedin: 3 } };
-  }
-  if (/just instagram|instagram only|only instagram/i.test(lower)) {
-    return { channels: ['instagram'], creationCounts: { instagram: 3 } };
-  }
-  if (/one-pager only|just (?:a )?one-pager/i.test(lower)) {
-    return { channels: ['one-pager'], creationCounts: { 'one-pager': 1 } };
+  // Singularity check: a singular prompt creates exactly 1 creation
+  // Campaign patterns override singularity
+  const isSingular = SINGULAR_PATTERNS.some(p => p.test(prompt));
+  const isCampaign = CAMPAIGN_PATTERNS.some(p => p.test(prompt));
+  const isSingleCreation = isSingular && !isCampaign;
+
+  if (isSingleCreation) {
+    const inferredType = inferCreationType(prompt);
+    return {
+      channels: [inferredType],
+      creationCounts: { [inferredType]: 1 },
+      isSingleCreation: true,
+      inferredType,
+    };
   }
 
   // No hint — return full default spread
   return {
     channels: Object.keys(DEFAULT_CHANNEL_COUNTS),
     creationCounts: { ...DEFAULT_CHANNEL_COUNTS },
+    isSingleCreation: false,
   };
+}
+
+/**
+ * Get or create the singleton "__standalone__" sentinel campaign.
+ * Standalone creations (single-asset prompts) are filed under this campaign
+ * to satisfy the NOT NULL FK constraint on creations.campaign_id.
+ */
+function getOrCreateStandaloneCampaign(): string {
+  const db = getDb();
+  const row = db.prepare("SELECT id FROM campaigns WHERE title = '__standalone__'").get() as { id: string } | undefined;
+  if (row) return row.id;
+  const campaign = createCampaign({ title: '__standalone__', channels: ['standalone'] });
+  return campaign.id;
 }
 
 /**
@@ -96,10 +168,6 @@ function buildCreationList(
 export function fluidWatcherPlugin(workingDir: string): Plugin {
   let server: ViteDevServer | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  // Legacy single-child lock kept for iterate (single-creation) mode
-  let activeChild: ChildProcess | null = null;
-  // Multi-creation parallel generation tracking
-  const activeChildren: Map<string, ChildProcess> = new Map(); // keyed by creationId
   let activeCampaignGeneration: string | null = null; // campaign-level lock
 
   return {
@@ -159,6 +227,29 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       const projectRoot = path.resolve(srv.config.root, '..');
       const templatesDir = path.resolve(projectRoot, 'templates');
 
+      // Auto-scan brand assets into DB on startup (non-blocking)
+      scanAndSeedBrandAssets(path.join(projectRoot, 'assets')).catch(err =>
+        console.error('[asset-scan] Failed:', err)
+      );
+
+      // Seed voice guide docs and brand patterns from source files (non-blocking)
+      seedVoiceGuideIfEmpty(path.join(projectRoot, 'voice-guide')).catch(err =>
+        console.warn('[watcher] Voice guide seeding failed:', err)
+      );
+      seedBrandPatternsIfEmpty(path.join(projectRoot, 'patterns/index.html')).catch(err =>
+        console.warn('[watcher] Brand patterns seeding failed:', err)
+      );
+
+      // Sync brand assets from Fluid DAM on startup (non-blocking)
+      const damToken = process.env.VITE_FLUID_DAM_TOKEN;
+      if (damToken) {
+        runDamSync(damToken, path.join(projectRoot, 'assets')).then(result => {
+          console.log(`[dam-sync] Startup sync: ${result.synced} synced, ${result.skipped} skipped, ${result.softDeleted} soft-deleted${result.errors.length ? `, ${result.errors.length} errors` : ''}`);
+        }).catch(err => {
+          console.warn('[dam-sync] Startup sync failed:', err);
+        });
+      }
+
       // Home page: serve Template Library at / and its static assets (run first)
       srv.middlewares.use(async (req, res, next) => {
         if (req.method !== 'GET' || !req.url) return next();
@@ -213,6 +304,29 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
         const assetPath = req.url.replace('/fluid-assets/', '');
         const fullPath = path.join(projectRoot, 'assets', assetPath);
+
+        try {
+          const data = await fs.readFile(fullPath);
+          const { contentType } = serveFluidAsset(assetPath);
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(data);
+        } catch {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not found');
+        }
+      });
+
+      // Serve campaign-specific assets from .fluid/campaigns/{cId}/assets/
+      const fluidDir = path.join(projectRoot, '.fluid');
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/fluid-campaigns/')) return next();
+
+        const assetPath = req.url.split('?')[0].replace('/fluid-campaigns/', '');
+        const fullPath = path.join(fluidDir, 'campaigns', assetPath);
+
+        // Path traversal guard
+        const campaignsBase = path.join(fluidDir, 'campaigns');
+        if (!fullPath.startsWith(campaignsBase + path.sep)) return next();
 
         try {
           const data = await fs.readFile(fullPath);
@@ -565,6 +679,89 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
+          // ── Brand assets (catalog served via /fluid-assets/) ───────────────
+
+          // POST /api/dam-sync — trigger manual DAM sync
+          if (url === '/api/dam-sync' && method === 'POST') {
+            const token = process.env.VITE_FLUID_DAM_TOKEN;
+            if (!token) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'VITE_FLUID_DAM_TOKEN not configured' }));
+              return;
+            }
+            try {
+              const result = await runDamSync(token, path.join(projectRoot, 'assets'));
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(result));
+            } catch (err) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: String(err) }));
+            }
+            return;
+          }
+
+          // GET /api/brand-assets or GET /api/brand-assets?category=brushstrokes
+          if ((url === '/api/brand-assets' || url.startsWith('/api/brand-assets?')) && method === 'GET') {
+            const searchParams = new URL(req.url!, 'http://localhost').searchParams;
+            const category = searchParams.get('category') ?? undefined;
+            const includeDeleted = searchParams.get('include_deleted') === 'true';
+            const assets = includeDeleted ? getAllBrandAssets(category) : getBrandAssets(category);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(assets));
+            return;
+          }
+
+          // ── Voice Guide ────────────────────────────────────────────────────
+
+          // GET /api/voice-guide — returns all voice guide docs
+          if (url === '/api/voice-guide' && method === 'GET') {
+            const docs = getVoiceGuideDocs();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(docs));
+            return;
+          }
+
+          // PUT /api/voice-guide/:slug — update a voice guide doc's content
+          const voiceGuideSlugMatch = url.match(/^\/api\/voice-guide\/([^/]+)$/);
+          if (voiceGuideSlugMatch && method === 'PUT') {
+            const slug = voiceGuideSlugMatch[1];
+            const body = JSON.parse(await readBody(req));
+            if (typeof body.content !== 'string') {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'content is required' }));
+              return;
+            }
+            updateVoiceGuideDoc(slug, body.content);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // GET /api/voice-guide/:slug — returns a single voice guide doc
+          if (voiceGuideSlugMatch && method === 'GET') {
+            const slug = voiceGuideSlugMatch[1];
+            const doc = getVoiceGuideDoc(slug);
+            if (!doc) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Voice guide doc not found' }));
+              return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(doc));
+            return;
+          }
+
+          // ── Brand Patterns ─────────────────────────────────────────────────
+
+          // GET /api/brand-patterns or GET /api/brand-patterns?category=design-tokens
+          if ((url === '/api/brand-patterns' || url.startsWith('/api/brand-patterns?')) && method === 'GET') {
+            const category = new URL(req.url!, 'http://localhost').searchParams.get('category') ?? undefined;
+            const patterns = getBrandPatterns(category);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(patterns));
+            return;
+          }
+
           // ── Saved assets (user library) ────────────────────────────────────
 
           // GET /api/assets
@@ -760,6 +957,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               userState: row.user_state ? JSON.parse(row.user_state as string) : null,
               status: row.status as string,
               source: row.source as string,
+              generationStatus: (row.generation_status as string) ?? 'complete',
               templateId: (row.template_id as string | null) ?? null,
               createdAt: row.created_at as number,
             };
@@ -847,40 +1045,41 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 html = html.replace(/<head[^>]*>/i, (m) => m + '<base href="' + baseHref + '">');
               }
               const userState: Record<string, string> = row.user_state ? JSON.parse(row.user_state) : {};
-              const isDownload = req.url?.includes('download=1');
+              const isZipExport = new URL(req.url!, 'http://localhost').searchParams.get('export') === 'zip';
               const assetsDir = path.join(projectRoot, 'assets');
 
-              async function toDataUrl(assetPath: string): Promise<string> {
-                try {
-                  const data = await fs.readFile(assetPath);
-                  const ext = path.extname(assetPath).toLowerCase();
-                  const mime = ext === '.svg' ? 'image/svg+xml' : ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'application/octet-stream';
-                  return 'data:' + mime + ';base64,' + (data instanceof Buffer ? data.toString('base64') : Buffer.from(data).toString('base64'));
-                } catch {
-                  return '';
-                }
-              }
+              if (isZipExport) {
+                const archiver = (await import('archiver')).default;
+                const archive = archiver('zip', { zlib: { level: 6 } });
 
-              if (isDownload) {
-                const imgSrcRegex = /src="(\/fluid-assets\/[^"]+)"/g;
+                res.writeHead(200, {
+                  'Content-Type': 'application/zip',
+                  'Content-Disposition': `attachment; filename="fluid-asset-${iterationId}.zip"`,
+                });
+
+                archive.pipe(res);
+
+                // Rewrite /fluid-assets/ to relative assets/ paths for local opening
+                let exportHtml = html.replace(/\/fluid-assets\//g, 'assets/');
+                archive.append(exportHtml, { name: 'index.html' });
+
+                // Collect all /fluid-assets/ references from original HTML and add files
+                const assetRegex = /\/fluid-assets\/([^"'\s)]+)/g;
+                const seen = new Set<string>();
                 let match;
-                const replacements: { from: string; to: string }[] = [];
-                while ((match = imgSrcRegex.exec(html)) !== null) {
-                  const assetFile = match[1].replace(/^\/fluid-assets\//, '').replace(/\?.*$/, '');
-                  const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
-                  if (dataUrl) replacements.push({ from: match[0], to: `src="${dataUrl}"` });
+                while ((match = assetRegex.exec(html)) !== null) {
+                  const relPath = match[1];
+                  if (seen.has(relPath)) continue;
+                  seen.add(relPath);
+                  const fullPath = path.join(assetsDir, relPath);
+                  try {
+                    await fs.access(fullPath);
+                    archive.file(fullPath, { name: `assets/${relPath}` });
+                  } catch { /* skip missing files */ }
                 }
-                for (const { from, to } of replacements) {
-                  html = html.replace(from, to);
-                }
-                for (const sel of Object.keys(userState)) {
-                  const v = userState[sel];
-                  if (typeof v === 'string' && (v.startsWith('/fluid-assets/') || v.startsWith('http') && v.includes('/fluid-assets/'))) {
-                    const assetFile = v.replace(/^.*\/fluid-assets\//, '').replace(/\?.*$/, '');
-                    const dataUrl = await toDataUrl(path.join(assetsDir, assetFile));
-                    if (dataUrl) userState[sel] = dataUrl;
-                  }
-                }
+
+                await archive.finalize();
+                return;
               }
 
               const initialValuesJson = JSON.stringify(userState).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
@@ -1026,179 +1225,25 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
           // POST /api/generate/cancel -- force-clear stuck generation lock
           if (req.url === '/api/generate/cancel' && req.method === 'POST') {
-            // Kill all active campaign children
-            if (activeChildren.size > 0) {
-              for (const [, child] of activeChildren) {
-                try { child.kill('SIGKILL'); } catch { /* already dead */ }
-              }
-              activeChildren.clear();
-              activeCampaignGeneration = null;
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ ok: true, message: 'Campaign generation cancelled' }));
-              return;
-            }
-            // Also check legacy single-child lock
-            if (activeChild) {
-              try { activeChild.kill('SIGKILL'); } catch { /* already dead */ }
-              activeChild = null;
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ ok: true, message: 'Generation cancelled' }));
-            } else {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ ok: true, message: 'No active generation' }));
-            }
+            const wasCampaign = activeCampaignGeneration;
+            activeCampaignGeneration = null;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              ok: true,
+              message: wasCampaign ? `Campaign ${wasCampaign} cancelled` : 'No active generation',
+            }));
             return;
           }
 
-          // POST /api/generate -- spawn claude CLI and stream SSE
+          // POST /api/generate -- run API pipeline and stream SSE
           if (req.url === '/api/generate' && req.method === 'POST') {
             const body = JSON.parse(await readBody(req));
             const { prompt, template, customization, skillType } = body;
 
-            // Detect iteration mode (single-asset iterate flow)
-            const { sessionId: reqSessionId, iterationContext } = body;
-            const isIteration = !!(reqSessionId && iterationContext);
+            // ── CAMPAIGN MODE: Multi-creation parallel API generation ────────
 
-            // ── ITERATE MODE: Legacy single-asset flow ─────────────────────
-            if (isIteration) {
-              // Concurrent generation lock for iterate mode -- with stale process detection
-              if (activeChild) {
-                try {
-                  process.kill(activeChild.pid!, 0);
-                } catch {
-                  activeChild = null;
-                }
-              }
-              if (activeChild) {
-                res.writeHead(409, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Generation already in progress' }));
-                return;
-              }
-
-              const actualSessionId = reqSessionId as string;
-              const actualSessionDir = path.join(absDir, actualSessionId);
-              const roundNumber = (iterationContext.currentRound || 0) + 1;
-              const roundDir = path.join(actualSessionDir, `round-${roundNumber}`);
-              await fs.mkdir(roundDir, { recursive: true });
-
-              const parts: string[] = [];
-              if (template) parts.push(`Template: ${template}`);
-              if (customization) parts.push(`Customization: ${JSON.stringify(customization)}`);
-              parts.push(prompt || 'Generate a marketing asset');
-              parts.push(`\nWrite all generated HTML output files to: ${roundDir}/`);
-              parts.push(`IMPORTANT: Do NOT create, read, or modify any file named lineage.json. The system manages that file automatically.`);
-
-              const winnerPath = path.join(actualSessionDir, '.iteration-winner.html');
-              await fs.writeFile(winnerPath, iterationContext.winnerHtml || '', 'utf-8');
-              parts.push(`\n--- ITERATION CONTEXT ---`);
-              parts.push(`This is Round ${roundNumber} of an iterative design session.`);
-              parts.push(`Previous winner HTML is saved at: ${winnerPath}`);
-              parts.push(`Read that file to see the current version you need to improve.`);
-              if (iterationContext.annotations?.length > 0) {
-                parts.push(`\nAnnotations from reviewer:`);
-                for (const ann of iterationContext.annotations) {
-                  parts.push(`- ${ann.text}${ann.x != null ? ` (at ${ann.x}%, ${ann.y}%)` : ''}`);
-                }
-              }
-              parts.push(`\nGenerate an improved version addressing the feedback above.`);
-              parts.push(`Write output HTML files to: ${roundDir}/`);
-
-              const fullPrompt = parts.join('\n');
-              const iterProjectRoot = path.resolve(srv.config.root, '..');
-              const iterMcpConfigPath = path.join(iterProjectRoot, '.mcp.json');
-              const iterArgs = [
-                '-p', fullPrompt,
-                '--output-format', 'stream-json',
-                '--verbose',
-                '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,Agent,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__read_history,mcp__fluid-canvas__push_asset',
-              ];
-              try {
-                await fs.access(iterMcpConfigPath);
-                iterArgs.push('--mcp-config', iterMcpConfigPath);
-              } catch { /* no MCP config, skip */ }
-              if (skillType) {
-                const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
-                try {
-                  await fs.access(skillPath);
-                  iterArgs.push('--append-system-prompt-file', skillPath);
-                } catch { /* skill file not found, skip */ }
-              }
-
-              const child = spawn('claude', iterArgs, {
-                cwd: iterProjectRoot,
-                stdio: ['ignore', 'pipe', 'pipe'],
-                env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
-              });
-              activeChild = child;
-
-              res.writeHead(200, {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-              });
-              (res as any).flushHeaders?.();
-
-              res.write(`data: ${JSON.stringify({ type: 'session', sessionId: actualSessionId, campaignId: null, creationId: null, slideId: null })}\n\n`);
-
-              if (child.stdout) {
-                const rl = createInterface({ input: child.stdout });
-                rl.on('line', (line: string) => {
-                  if (line.trim()) res.write(`data: ${line}\n\n`);
-                });
-              }
-              if (child.stderr) {
-                const stderrRl = createInterface({ input: child.stderr });
-                stderrRl.on('line', (line: string) => {
-                  if (line.trim()) res.write(`event: stderr\ndata: ${JSON.stringify({ text: line })}\n\n`);
-                });
-              }
-
-              child.on('error', (err: Error) => {
-                activeChild = null;
-                try {
-                  res.write(`event: stderr\ndata: ${JSON.stringify({ text: `Spawn error: ${err.message}` })}\n\n`);
-                  res.write(`event: done\ndata: ${JSON.stringify({ code: 1, sessionId: actualSessionId, error: err.message })}\n\n`);
-                  res.end();
-                } catch { /* response may already be closed */ }
-              });
-
-              child.on('close', async (code: number | null) => {
-                activeChild = null;
-                try {
-                  await updateLineageAfterGeneration(actualSessionDir, roundDir, roundNumber, prompt || '', true);
-                } catch (err) {
-                  console.error('[watcher] Failed to update lineage:', err);
-                }
-                try {
-                  res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 1, sessionId: actualSessionId, campaignId: null })}\n\n`);
-                  res.end();
-                } catch { /* response may already be closed */ }
-              });
-
-              const iterSafetyTimeout = setTimeout(() => {
-                if (activeChild === child) {
-                  try { child.kill('SIGTERM'); setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000); } catch { /* */ }
-                }
-              }, 5 * 60 * 1000);
-              child.on('close', () => clearTimeout(iterSafetyTimeout));
-              child.on('error', () => clearTimeout(iterSafetyTimeout));
-              req.on('close', () => {
-                clearTimeout(iterSafetyTimeout);
-                if (activeChild === child) { child.kill('SIGTERM'); activeChild = null; }
-              });
-              return;
-            }
-
-            // ── NEW CAMPAIGN MODE: Multi-creation parallel generation ────────
-            // Campaign-level lock: one full campaign generation at a time
-            if (activeCampaignGeneration !== null) {
-              res.writeHead(409, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Campaign generation already in progress', campaignId: activeCampaignGeneration }));
-              return;
-            }
-
-            // Parse channels from prompt
-            const { channels, creationCounts } = parseChannelHints(prompt || '');
+            // Parse channels from prompt (shared by both API and CLI paths)
+            const { channels, creationCounts, isSingleCreation } = parseChannelHints(prompt || '');
             const creationList = buildCreationList(creationCounts);
 
             // Title from first 30 chars of prompt
@@ -1208,7 +1253,8 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             // existingCampaignId: skip campaign creation if adding to existing
             const existingCampaignId: string | undefined = body.existingCampaignId;
 
-            // Pre-create all Campaign/Creation/Slide/Iteration records BEFORE spawning
+            // Pre-create all Campaign/Creation/Slide/Iteration records BEFORE running pipelines
+            // (Shared between API and CLI paths)
             const projectRoot = path.resolve(srv.config.root, '..');
             const fluidDir = path.join(projectRoot, '.fluid');
 
@@ -1221,9 +1267,28 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               absHtmlPath: string;
             }> = [];
 
+            // Campaign-level lock check (shared)
+            if (activeCampaignGeneration !== null) {
+              res.writeHead(409, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Campaign generation already in progress', campaignId: activeCampaignGeneration }));
+              return;
+            }
+
             try {
               if (existingCampaignId) {
                 campaignId = existingCampaignId;
+              } else if (isSingleCreation) {
+                // Single-creation prompts: file under sentinel "__standalone__" campaign
+                // and create the creation directly (not via createCampaignWithCreations)
+                campaignId = getOrCreateStandaloneCampaign();
+                for (const spec of creationList) {
+                  createCreation({
+                    campaignId,
+                    title: spec.title,
+                    creationType: spec.creationType,
+                    slideCount: spec.slideCount,
+                  });
+                }
               } else {
                 const { campaign } = createCampaignWithCreations(
                   { title: campaignTitle, channels },
@@ -1237,7 +1302,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
               // Use only the newly-created creations (all if new campaign, or just the new ones)
               const targetCreations = existingCampaignId
                 ? savedCreations.slice(-creationList.length)
-                : savedCreations;
+                : isSingleCreation
+                  ? savedCreations.slice(-creationList.length)
+                  : savedCreations;
 
               for (const creation of targetCreations) {
                 const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
@@ -1246,6 +1313,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 const absHtmlPath = path.join(projectRoot, htmlRelPath);
                 fsSync.mkdirSync(path.dirname(absHtmlPath), { recursive: true });
                 createIteration({
+                  id: iterationId,  // Pass pre-generated ID so DB row id matches html_path
                   slideId: slide.id,
                   iterationIndex: 0,
                   htmlPath: htmlRelPath,
@@ -1279,144 +1347,46 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             (res as any).flushHeaders?.();
 
             // Stream campaignId to client IMMEDIATELY after DB creation
-            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length, isSingleCreation, creationIds: creationSlideIterMap.map(m => m.creation.id) })}\n\n`);
 
-            const mcpConfigPath = path.join(projectRoot, '.mcp.json');
-            let mcpConfigExists = false;
-            try { await fs.access(mcpConfigPath); mcpConfigExists = true; } catch { /* no MCP config */ }
+            // ── API MODE: Anthropic SDK pipeline ──────────────────────────
+            let apiCompletedCount = 0;
+            const apiTotalCount = creationSlideIterMap.length;
 
-            // Track completion for all children
-            let completedCount = 0;
-            const totalCount = creationSlideIterMap.length;
+            // Client disconnect cleanup
+            req.on('close', () => { activeCampaignGeneration = null; });
 
-            // Cleanup all children on client disconnect
-            req.on('close', () => {
-              for (const [creationId, child] of activeChildren) {
-                try { child.kill('SIGTERM'); } catch { /* */ }
-                activeChildren.delete(creationId);
-              }
-              activeCampaignGeneration = null;
-            });
-
-            // Spawn N parallel subagents — one per creation
+            // Run N parallel API pipelines — one per creation
             for (const entry of creationSlideIterMap) {
-              const { creation, iterationId, absHtmlPath } = entry;
-              const dims = CREATION_DIMENSIONS[creation.creationType] || { width: 1080, height: 1080 };
+              const pipelineCtx: PipelineContext = {
+                prompt: prompt || 'Generate a marketing creation',
+                creationType: entry.creation.creationType,
+                workingDir: path.join(path.dirname(entry.absHtmlPath), 'working'),
+                htmlOutputPath: entry.absHtmlPath,
+                creationId: entry.creation.id,
+                campaignId,
+              };
 
-              const creationPromptParts = [
-                `Generate a ${creation.creationType} marketing creation for the following brief:`,
-                ``,
-                prompt || 'Generate a marketing creation',
-                ``,
-                `--- CREATION SPECIFICATIONS ---`,
-                `Creation type: ${creation.creationType}`,
-                `Dimensions: ${dims.width}x${dims.height}px`,
-                ``,
-                `--- OUTPUT INSTRUCTIONS ---`,
-                `Write the complete HTML file to EXACTLY this path:`,
-                absHtmlPath,
-                ``,
-                `The file must be a standalone HTML file with all CSS inline.`,
-                `After generating, call PATCH /api/creations/${creation.id} with body { "title": "<descriptive title>" } to set a descriptive title.`,
-                `IMPORTANT: Do NOT create any other files. Write only to the exact path above.`,
-              ];
-
-              const creationArgs = [
-                '-p', creationPromptParts.join('\n'),
-                '--output-format', 'stream-json',
-                '--verbose',
-                '--allowedTools', 'Read,Write,Bash,Glob,Grep,Edit,mcp__fluid-canvas__read_annotations,mcp__fluid-canvas__read_statuses,mcp__fluid-canvas__push_asset',
-              ];
-
-              if (mcpConfigExists) {
-                creationArgs.push('--mcp-config', mcpConfigPath);
-              }
-
-              if (skillType) {
-                const skillPath = path.resolve(srv.config.root, `skills/${skillType}/SKILL.md`);
-                try {
-                  await fs.access(skillPath);
-                  creationArgs.push('--append-system-prompt-file', skillPath);
-                } catch { /* skill file not found, skip */ }
-              }
-
-              const child = spawn('claude', creationArgs, {
-                cwd: projectRoot,
-                stdio: ['ignore', 'pipe', 'pipe'],
-                env: (() => { const e = { ...process.env }; delete e.CLAUDECODE; return e; })(),
-              });
-
-              activeChildren.set(creation.id, child);
-
-              // Multiplex stdout onto the SSE connection with creationId field
-              if (child.stdout) {
-                const rl = createInterface({ input: child.stdout });
-                rl.on('line', (line: string) => {
-                  if (line.trim()) {
+              // Fire and forget — each pipeline runs independently in parallel
+              runApiPipeline(pipelineCtx, res)
+                .then(() => {
+                  try { updateIterationGenerationStatus(entry.iterationId, 'complete'); } catch { /* non-fatal */ }
+                })
+                .catch((err: Error) => {
+                  try {
+                    res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: entry.creation.id, text: `Pipeline error: ${err.message}` })}\n\n`);
+                  } catch { /* client disconnected */ }
+                })
+                .finally(() => {
+                  apiCompletedCount++;
+                  if (apiCompletedCount >= apiTotalCount) {
+                    activeCampaignGeneration = null;
                     try {
-                      res.write(`data: ${JSON.stringify({ creationId: creation.id, line })}\n\n`);
+                      res.write(`event: done\ndata: ${JSON.stringify({ code: 0, campaignId })}\n\n`);
+                      res.end();
                     } catch { /* client disconnected */ }
                   }
                 });
-              }
-
-              // Multiplex stderr
-              if (child.stderr) {
-                const stderrRl = createInterface({ input: child.stderr });
-                stderrRl.on('line', (line: string) => {
-                  if (line.trim()) {
-                    try {
-                      res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: creation.id, text: line })}\n\n`);
-                    } catch { /* client disconnected */ }
-                  }
-                });
-              }
-
-              child.on('error', (err: Error) => {
-                activeChildren.delete(creation.id);
-                completedCount++;
-                try {
-                  res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: creation.id, text: `Spawn error: ${err.message}` })}\n\n`);
-                } catch { /* */ }
-                if (completedCount >= totalCount) {
-                  activeCampaignGeneration = null;
-                  try {
-                    res.write(`event: done\ndata: ${JSON.stringify({ code: 1, campaignId })}\n\n`);
-                    res.end();
-                  } catch { /* */ }
-                }
-              });
-
-              child.on('close', async (code: number | null) => {
-                activeChildren.delete(creation.id);
-                // Mark iteration as complete
-                try {
-                  updateIterationGenerationStatus(iterationId, 'complete');
-                } catch { /* non-fatal */ }
-                completedCount++;
-
-                // Only send 'done' event after ALL children have closed
-                // This prevents the auto-navigate race condition
-                if (completedCount >= totalCount) {
-                  activeCampaignGeneration = null;
-                  try {
-                    res.write(`event: done\ndata: ${JSON.stringify({ code: code ?? 0, campaignId })}\n\n`);
-                    res.end();
-                  } catch { /* client may have disconnected */ }
-                }
-              });
-
-              // Safety timeout per child: kill after 5 minutes
-              const safetyTimeout = setTimeout(() => {
-                if (activeChildren.has(creation.id)) {
-                  try {
-                    child.kill('SIGTERM');
-                    setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* */ } }, 5000);
-                  } catch { /* already dead */ }
-                }
-              }, 5 * 60 * 1000);
-              child.on('close', () => clearTimeout(safetyTimeout));
-              child.on('error', () => clearTimeout(safetyTimeout));
             }
 
             return;

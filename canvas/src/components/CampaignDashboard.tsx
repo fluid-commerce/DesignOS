@@ -675,13 +675,16 @@ export function CampaignDashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaigns]);
 
+  // Hide the __standalone__ sentinel campaign from the dashboard
+  const visibleCampaigns = campaigns.filter((c) => c.title !== '__standalone__');
+
   // Collect all channels across campaigns for the filter bar
-  const allChannels = campaigns.flatMap((c) => c.channels);
+  const allChannels = visibleCampaigns.flatMap((c) => c.channels);
 
   // Filter
   const filtered = filterChannel === 'all'
-    ? campaigns
-    : campaigns.filter((c) => c.channels.includes(filterChannel));
+    ? visibleCampaigns
+    : visibleCampaigns.filter((c) => c.channels.includes(filterChannel));
 
   // Sort
   const sorted = [...filtered].sort((a, b) => {

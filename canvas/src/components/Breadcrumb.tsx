@@ -57,13 +57,10 @@ export function Breadcrumb() {
   const currentView = useCampaignStore((s) => s.currentView);
   const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
   const activeCreationId = useCampaignStore((s) => s.activeCreationId);
-  const activeSlideId = useCampaignStore((s) => s.activeSlideId);
   const campaigns = useCampaignStore((s) => s.campaigns);
   const creations = useCampaignStore((s) => s.creations);
-  const slides = useCampaignStore((s) => s.slides);
   const navigateToDashboard = useCampaignStore((s) => s.navigateToDashboard);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
-  const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
   const navigateBack = useCampaignStore((s) => s.navigateBack);
 
   // Resolve display names from cache
@@ -72,9 +69,6 @@ export function Breadcrumb() {
     : null;
   const creationTitle = activeCreationId
     ? (creations.find((a) => a.id === activeCreationId)?.title ?? activeCreationId)
-    : null;
-  const slideIndex = activeSlideId
-    ? (slides.find((f) => f.id === activeSlideId)?.slideIndex ?? null)
     : null;
 
   // Build segments
@@ -92,18 +86,8 @@ export function Breadcrumb() {
     });
   }
 
-  if ((currentView === 'creation' || currentView === 'slide') && creationTitle) {
-    segments.push({
-      label: creationTitle,
-      onClick:
-        currentView !== 'creation' && activeCreationId
-          ? () => navigateToCreation(activeCreationId)
-          : undefined,
-    });
-  }
-
-  if (currentView === 'slide' && slideIndex !== null) {
-    segments.push({ label: `Slide ${slideIndex + 1}` });
+  if (currentView === 'creation' && creationTitle) {
+    segments.push({ label: creationTitle });
   }
 
   const canGoBack = currentView !== 'dashboard';

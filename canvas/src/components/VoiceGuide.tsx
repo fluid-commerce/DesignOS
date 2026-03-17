@@ -1,39 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-// Static ?raw imports for all 13 Voice Guide markdown docs
-import whatIsFluidMd from '../../../voice-guide/What_Is_Fluid.md?raw';
-import theProblemMd from '../../../voice-guide/The_Problem_Were_Solving.md?raw';
-import whyWecommerceMd from '../../../voice-guide/Why_WeCommerce_Exists.md?raw';
-import voiceAndStyleMd from '../../../voice-guide/Voice_and_Style_Guide.md?raw';
-import builderMd from '../../../voice-guide/Builder.md?raw';
-import checkoutMd from '../../../voice-guide/Checkout.md?raw';
-import dropletsMd from '../../../voice-guide/Droplets.md?raw';
-import fluidConnectMd from '../../../voice-guide/Fluid_Connect.md?raw';
-import fluidPaymentsMd from '../../../voice-guide/Fluid_Payments.md?raw';
-import fairShareMd from '../../../voice-guide/FairShare.md?raw';
-import corporateToolsMd from '../../../voice-guide/Corporate_Tools.md?raw';
-import appRepToolsMd from '../../../voice-guide/App_Rep_Tools.md?raw';
-import blitzWeekMd from '../../../voice-guide/What_is_Blitz_Week.md?raw';
-
-const DOCS = [
-  { id: 'what-is-fluid', label: 'What Is Fluid', content: whatIsFluidMd },
-  { id: 'the-problem', label: "The Problem We're Solving", content: theProblemMd },
-  { id: 'why-wecommerce', label: 'Why WeCommerce Exists', content: whyWecommerceMd },
-  { id: 'voice-and-style', label: 'Voice and Style Guide', content: voiceAndStyleMd },
-  { id: 'builder', label: 'Builder', content: builderMd },
-  { id: 'checkout', label: 'Checkout', content: checkoutMd },
-  { id: 'droplets', label: 'Droplets', content: dropletsMd },
-  { id: 'fluid-connect', label: 'Fluid Connect', content: fluidConnectMd },
-  { id: 'fluid-payments', label: 'Fluid Payments', content: fluidPaymentsMd },
-  { id: 'fair-share', label: 'FairShare', content: fairShareMd },
-  { id: 'corporate-tools', label: 'Corporate Tools', content: corporateToolsMd },
-  { id: 'app-rep-tools', label: 'App Rep Tools', content: appRepToolsMd },
-  { id: 'blitz-week', label: 'What Is Blitz Week', content: blitzWeekMd },
-] as const;
-
-type DocId = (typeof DOCS)[number]['id'];
+interface VoiceGuideDoc {
+  id: string;
+  slug: string;
+  label: string;
+  content: string;
+}
 
 // Dark-theme markdown component overrides
 const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components'] = {
@@ -160,9 +134,28 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components
 };
 
 export function VoiceGuide() {
-  const [activeDocId, setActiveDocId] = useState<DocId>(DOCS[0].id);
+  const [docs, setDocs] = useState<VoiceGuideDoc[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeDocSlug, setActiveDocSlug] = useState<string>('');
 
-  const selectedDoc = DOCS.find((d) => d.id === activeDocId) ?? DOCS[0];
+  useEffect(() => {
+    fetch('/api/voice-guide')
+      .then(r => r.json())
+      .then((data: VoiceGuideDoc[]) => {
+        setDocs(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Set first doc as active once docs load
+  useEffect(() => {
+    if (docs.length > 0 && !activeDocSlug) {
+      setActiveDocSlug(docs[0].slug);
+    }
+  }, [docs, activeDocSlug]);
+
+  const selectedDoc = docs.find(d => d.slug === activeDocSlug);
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
@@ -193,12 +186,12 @@ export function VoiceGuide() {
         >
           Voice Guide
         </div>
-        {DOCS.map((doc) => {
-          const isActive = doc.id === activeDocId;
+        {docs.map((doc) => {
+          const isActive = doc.slug === activeDocSlug;
           return (
             <button
-              key={doc.id}
-              onClick={() => setActiveDocId(doc.id)}
+              key={doc.slug}
+              onClick={() => setActiveDocSlug(doc.slug)}
               style={{
                 display: 'block',
                 width: '100%',
@@ -248,12 +241,16 @@ export function VoiceGuide() {
           fontSize: '0.9375rem',
         }}
       >
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={markdownComponents}
-        >
-          {selectedDoc.content}
-        </ReactMarkdown>
+        {loading && docs.length === 0 ? (
+          <p style={{ color: '#555', textAlign: 'center', marginTop: '2rem' }}>Loading...</p>
+        ) : selectedDoc ? (
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={markdownComponents}
+          >
+            {selectedDoc.content}
+          </ReactMarkdown>
+        ) : null}
       </div>
     </div>
   );

@@ -13,6 +13,25 @@
  * Use console.error() for all diagnostic output.
  */
 
+/**
+ * MCP Tool Audit (Phase 12, 2026-03-17):
+ * - push_asset: ACTIVE — used by fluid-campaign skill (fluid-campaign/SKILL.md lines 138/153/166)
+ *   and referenced in watcher.ts for orphan-HTML detection. This is the primary write path
+ *   for agent-generated HTML into the SQLite campaign hierarchy.
+ * - read_annotations: INACTIVE in API pipeline — was used by iterate-mode subagent prompts
+ *   in the CLI era. No current skill files reference this tool. Retained for external
+ *   Claude Code sessions that may run iterate workflows via the MCP server directly.
+ * - read_statuses: INACTIVE in API pipeline — same as read_annotations. Not referenced
+ *   in any active skill or pipeline prompt. Retained for external sessions.
+ * - read_history: INACTIVE in API pipeline — same as above. Not referenced in active skills.
+ * - iterate_request: INACTIVE in API pipeline — was used to signal next-round iteration.
+ *   API pipeline handles iteration via direct DB writes in watcher.ts, not via this tool.
+ *   Retained for external Claude Code iterate workflows that may still use it.
+ *
+ * Future cleanup: read_annotations, read_statuses, read_history, iterate_request can be
+ * removed once the external iterate workflow is fully migrated to the API pipeline.
+ */
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';

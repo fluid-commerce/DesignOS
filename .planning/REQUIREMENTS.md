@@ -99,10 +99,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Asset Management
 
-- [ ] **ASSET-01**: Generated HTML references brand assets (logos, fonts, brushstrokes) via URL paths instead of inline base64 encoding
-- [ ] **ASSET-02**: Vite serves a static `/assets/` route so linked assets load correctly in canvas iframes
-- [ ] **ASSET-03**: Per-session non-brand images saved to `assets/sessions/{sessionId}/` with URL references in HTML
-- [ ] **ASSET-04**: Variation HTML files under 100KB (down from 2-3MB) enabling 6+ simultaneous iframe renders without memory pressure
+- [x] **ASSET-01**: Generated HTML references brand assets (logos, fonts, brushstrokes) via URL paths instead of inline base64 encoding
+- [x] **ASSET-02**: Vite serves a static `/assets/` route so linked assets load correctly in canvas iframes
+- [x] **ASSET-03**: Per-session non-brand images saved to `assets/sessions/{sessionId}/` with URL references in HTML
+- [x] **ASSET-04**: Variation HTML files under 100KB (down from 2-3MB) enabling 6+ simultaneous iframe renders without memory pressure
 
 ### Install Safety
 

@@ -5,6 +5,7 @@ import type { VersionStatus } from '../lib/types';
 
 const baseProps = {
   html: '<h1>Test</h1>',
+  iterationId: undefined as string | undefined,
   name: 'variation-1',
   path: 'v1/styled.html',
   platform: 'instagram',

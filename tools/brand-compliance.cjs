@@ -3,26 +3,97 @@
  * brand-compliance.cjs (CLI-02) — Validates HTML/CSS against brand tokens
  *
  * Checks hex colors, font families, rgba patterns, and hardcoded spacing
- * against compiled rules.json.
+ * against brand rules loaded from SQLite DB.
  *
  * Usage: node tools/brand-compliance.cjs path/to/file.html [--context social|website]
  * Output: JSON violations to stdout, human summary to stderr
  * Exit code: 1 if any errors (weight >= 81), 0 otherwise
- *
- * Zero external dependencies — uses only Node.js built-ins.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RULES_PATH = path.resolve(__dirname, 'rules.json');
+const DB_PATH = process.env.FLUID_DB_PATH || path.resolve(__dirname, '../canvas/.fluid/fluid.db');
 
-function loadRules() {
-  if (!fs.existsSync(RULES_PATH)) {
-    process.stderr.write('Error: rules.json not found. Run compile-rules.cjs first.\n');
-    process.exit(2);
+// Hardcoded brand rule constants — these are authoritative values derived from
+// Fluid brand docs. The DB is queried to supplement/extend these with any
+// additional hex colors stored in brand_patterns.
+const BASE_RULES = {
+  version: '2.0.0',
+  colors: {
+    accent_colors: ['#FF8B58', '#42B1FF', '#44B574', '#C985E5'],
+    neutrals: [
+      '#000000', '#050505', '#0A0A0A', '#111111', '#161616',
+      '#FFFFFF', '#F5F0E8', '#888888', '#1A1A1A', '#222222',
+    ],
+    allowed_rgba_patterns: [
+      'rgba(255,255,255,0.45)',
+      'rgba(255,255,255,0.25)',
+      'rgba(255,255,255,0.03)',
+      'rgba(255,255,255,0.06)',
+    ],
+  },
+  fonts: {
+    social_families: ['NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold', 'Inter'],
+    website_families: ['Syne', 'DM Sans', 'Space Mono', 'Inter', 'NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold'],
+    allowed_families: ['NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold', 'Inter', 'Syne', 'DM Sans', 'Space Mono'],
+  },
+  thresholds: { error: 81, warning: 51, info: 21, hint: 1 },
+};
+
+function loadRulesFromDb() {
+  let extraHex = new Set();
+
+  try {
+    const Database = require('better-sqlite3');
+    const db = new Database(DB_PATH, { readonly: true });
+
+    // Load brand_patterns with category 'design-tokens' to extract any extra hex colors
+    const patterns = db.prepare(
+      "SELECT name, html_snippet FROM brand_patterns WHERE category = 'design-tokens'"
+    ).all();
+
+    for (const p of patterns) {
+      if (!p.html_snippet) continue;
+      const matches = p.html_snippet.match(/#[0-9A-Fa-f]{6}\b/g);
+      if (matches) matches.forEach(m => extraHex.add(m.toUpperCase()));
+    }
+
+    db.close();
+  } catch (err) {
+    // DB not available — use base rules only. This is expected on first run
+    // before the app has seeded the database.
+    process.stderr.write(`Note: Could not read from DB at ${DB_PATH}. Using built-in brand rules.\n`);
   }
-  return JSON.parse(fs.readFileSync(RULES_PATH, 'utf-8'));
+
+  // Merge DB colors with base rules
+  const accentColors = [...BASE_RULES.colors.accent_colors];
+  const neutralColors = [...BASE_RULES.colors.neutrals];
+
+  // Add any DB colors not already in the base set
+  const allBaseHex = new Set([...accentColors, ...neutralColors].map(h => h.toUpperCase()));
+  const dbOnlyHex = [...extraHex].filter(h => !allBaseHex.has(h));
+
+  const allowedHex = [...accentColors, ...neutralColors, ...dbOnlyHex];
+
+  return {
+    version: BASE_RULES.version,
+    colors: {
+      accent_colors: accentColors,
+      neutrals: neutralColors,
+      allowed_hex: allowedHex,
+      // Context-aware: social and website share the same palette for hex checking
+      social: { allowed_hex: allowedHex, accent_colors: accentColors },
+      website: { allowed_hex: allowedHex },
+      allowed_rgba_patterns: BASE_RULES.colors.allowed_rgba_patterns,
+    },
+    fonts: {
+      allowed_families: BASE_RULES.fonts.allowed_families,
+      social_families: BASE_RULES.fonts.social_families,
+      website_families: BASE_RULES.fonts.website_families,
+    },
+    thresholds: BASE_RULES.thresholds,
+  };
 }
 
 function severityFromWeight(weight, thresholds) {
@@ -75,9 +146,6 @@ function checkHexColors(lines, rules, context) {
     const websiteColors = (rules.colors.website && rules.colors.website.allowed_hex) || rules.colors.allowed_hex || [];
     websiteColors.forEach(h => allowedHex.add(normalizeHex(h)));
   }
-
-  // Also add common CSS colors that aren't brand-specific but are harmless
-  // (transparent, currentColor handled elsewhere)
 
   const hexRegex = /#([0-9a-fA-F]{3,6})\b/g;
 
@@ -239,7 +307,11 @@ Output:
 Exit codes:
   0  No errors (may have warnings/info)
   1  Errors found (weight >= 81)
-  2  Tool error (missing rules.json, missing file)
+  2  Tool error (missing file)
+
+Brand rules are loaded from SQLite DB at:
+  ${DB_PATH}
+  (override with FLUID_DB_PATH env var)
 `);
   process.exit(0);
 }
@@ -263,7 +335,7 @@ if (!fs.existsSync(filePath)) {
   process.exit(2);
 }
 
-const rules = loadRules();
+const rules = loadRulesFromDb();
 const content = fs.readFileSync(filePath, 'utf-8');
 const lines = content.split('\n');
 const context = contextOverride || detectContext(content);

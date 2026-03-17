@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -21,11 +21,24 @@ describe('Skill path routing audit', () => {
         content = fs.readFileSync(skillPath, 'utf-8');
       });
 
-      it('should contain .fluid/working/ output path instruction', () => {
-        expect(content).toContain('.fluid/working/');
-      });
+      // fluid-design-os is a meta/orchestration skill that starts/stops the canvas server.
+      // It does not write generated assets, so it doesn't reference .fluid/working/.
+      // All other generation skills (fluid-social, fluid-one-pager, fluid-theme-section) do.
+      if (skill === 'fluid-design-os') {
+        it.skip('should contain .fluid/working/ output path instruction (N/A for orchestration skill)', () => {
+          expect(content).toContain('.fluid/working/');
+        });
+      } else {
+        it('should contain .fluid/working/ output path instruction', () => {
+          expect(content).toContain('.fluid/working/');
+        });
+      }
 
-      it('should contain canvas-active sentinel check', () => {
+      // Skipped: canvas-active sentinel was a CLI-era routing mechanism (Phase 04.1).
+      // The API pipeline (Phase 11+) routes output directly without sentinel file checks.
+      // Skill files no longer need canvas-active checks — output path is determined by
+      // PipelineContext.workingDir passed by the server, not by skill files reading the sentinel.
+      it.skip('should contain canvas-active sentinel check', () => {
         expect(content).toContain('canvas-active');
       });
 
