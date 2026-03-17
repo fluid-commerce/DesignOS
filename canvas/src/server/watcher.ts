@@ -33,10 +33,14 @@ import {
   getVoiceGuideDoc,
   updateVoiceGuideDoc,
   getBrandPatterns,
+  getDesignRules,
+  getDesignRule,
+  updateDesignRule,
+  getDesignRulesByArchetype,
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty } from './brand-seeder';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
@@ -238,6 +242,14 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       );
       seedBrandPatternsIfEmpty(path.join(projectRoot, 'patterns/index.html')).catch(err =>
         console.warn('[watcher] Brand patterns seeding failed:', err)
+      );
+
+      // Seed Design DNA: global visual style contract + per-deliverable design rules
+      seedGlobalVisualStyleIfEmpty().catch(err =>
+        console.warn('[watcher] Global visual style seeding failed:', err)
+      );
+      seedDesignRulesIfEmpty().catch(err =>
+        console.warn('[watcher] Design rules seeding failed:', err)
       );
 
       // Sync brand assets from Fluid DAM on startup (non-blocking)
@@ -762,6 +774,58 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             return;
           }
 
+          // ── Design Rules ───────────────────────────────────────────────────
+
+          // GET /api/design-rules/archetype/:slug — must come before /:id route
+          const designRulesArchetypeMatch = url.match(/^\/api\/design-rules\/archetype\/([^/?]+)/);
+          if (designRulesArchetypeMatch && method === 'GET') {
+            const slug = designRulesArchetypeMatch[1];
+            const platform = new URL(req.url!, 'http://localhost').searchParams.get('platform') ?? undefined;
+            const rules = getDesignRulesByArchetype(slug, platform);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(rules));
+            return;
+          }
+
+          // GET /api/design-rules or GET /api/design-rules?scope=X&platform=Y
+          if ((url === '/api/design-rules' || url.startsWith('/api/design-rules?')) && method === 'GET') {
+            const params = new URL(req.url!, 'http://localhost').searchParams;
+            const scope = params.get('scope') ?? undefined;
+            const platform = params.get('platform') ?? undefined;
+            const rules = getDesignRules(scope, platform);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(rules));
+            return;
+          }
+
+          // GET /api/design-rules/:id
+          const designRuleIdMatch = url.match(/^\/api\/design-rules\/([^/?]+)$/);
+          if (designRuleIdMatch && method === 'GET') {
+            const rule = getDesignRule(designRuleIdMatch[1]);
+            if (!rule) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Not found' }));
+              return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(rule));
+            return;
+          }
+
+          // PUT /api/design-rules/:id
+          if (designRuleIdMatch && method === 'PUT') {
+            const body = JSON.parse(await readBody(req));
+            if (typeof body.content !== 'string') {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'content is required' }));
+              return;
+            }
+            updateDesignRule(designRuleIdMatch[1], body.content);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
           // ── Saved assets (user library) ────────────────────────────────────
 
           // GET /api/assets
@@ -1126,7 +1190,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 '}else if(d.mode==="br"){' +
                 'var x=document.createElement("div");x.textContent=d.value;' +
                 'el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");' +
-                '}else{el.textContent=d.value;}'; +
+                '}else{el.textContent=d.value;}' +
                 '});</script>';
               html = html.replace('</body>', listenerScript + '</body>');
               res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
