@@ -1126,7 +1126,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 '}else if(d.mode==="br"){' +
                 'var x=document.createElement("div");x.textContent=d.value;' +
                 'el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");' +
-                '}else{el.textContent=d.value;}'; +
+                '}else{el.textContent=d.value;}' +
                 '});</script>';
               html = html.replace('</body>', listenerScript + '</body>');
               res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });

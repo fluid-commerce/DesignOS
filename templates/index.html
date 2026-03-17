@@ -1498,7 +1498,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t1-quote">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t1-quote')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t1-quote')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -1551,7 +1551,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t2-app-highlight">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t2-app-highlight')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t2-app-highlight')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -1605,7 +1605,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t3-partner-alert">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t3-partner-alert')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t3-partner-alert')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -1657,7 +1657,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t4-fluid-ad">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t4-fluid-ad')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t4-fluid-ad')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -1721,7 +1721,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t5-partner-announcement">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t5-partner-announcement')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t5-partner-announcement')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -1776,7 +1776,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t6-employee-spotlight">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t6-employee-spotlight')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t6-employee-spotlight')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -1828,7 +1828,7 @@
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
-            <a class="overlay-menu-item" href="editor?t=t7-carousel">✎ &nbsp;Edit Template</a>
+            <button class="overlay-menu-item" onclick="editTemplate('t7-carousel')">✎ &nbsp;Edit Template</button>
             <button class="overlay-menu-item" onclick="openCreateModalWithBase('t7-carousel')">✦ &nbsp;Create with AI</button>
           </div>
         </div>
@@ -2218,7 +2218,7 @@
                    '<button class="creation-card-dl-btn" onclick="dlCreation(' + c.id + ',\'jpeg\')">JPG</button>' +
                    '<button class="creation-card-dl-btn" onclick="dlCreation(' + c.id + ',\'webp\')">WebP</button>' +
                  '</div>' +
-                 '<a class="creation-card-edit-btn" href="editor?t=' + escHtml(c.base) + '&c=' + c.id + '">✎ &nbsp;Edit</a>' +
+                 '<button class="creation-card-edit-btn" onclick="editTemplate(\'' + escHtml(c.base) + '\')">✎ &nbsp;Edit</button>' +
                '</div>' +
              '</div>';
     }).join('');
@@ -3090,6 +3090,11 @@
     renderDamBlock();
     var linkList = document.getElementById('campaignLinkList');
     linkList.innerHTML = '<div class="ref-row"><input class="form-input" type="url" placeholder="https://figma.com/… or https://docs.google.com/…" /><button class="btn-remove-ref" onclick="removeCampaignLink(this)" title="Remove">×</button></div>';
+  }
+
+  /* ── Edit Template — postMessage to parent React app ── */
+  function editTemplate(templateId) {
+    window.parent.postMessage({ type: 'editTemplate', templateId: templateId }, '*');
   }
 
   /* ── Overlay dropdown ── */

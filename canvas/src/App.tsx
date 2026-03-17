@@ -13,7 +13,7 @@ import { useCampaignStore } from './store/campaign';
 import { useEditorStore } from './store/editor';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import type { Creation, Slide, Iteration } from './lib/campaign-types';
-import { TEMPLATE_METADATA, type TemplateMetadata } from './lib/template-configs';
+import { TEMPLATE_METADATA, getTemplateSchema, type TemplateMetadata } from './lib/template-configs';
 import { buildCreationPreview, buildSlidePreview } from './lib/preview-utils';
 // Note: iteration previews always try the API — the server handles path resolution with multiple fallback strategies
 import { StatusBadge } from './components/StatusBadge';
@@ -170,6 +170,8 @@ export function App() {
   const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
   const selectIteration = useCampaignStore((s) => s.selectIteration);
   const setRightSidebarOpen = useCampaignStore((s) => s.setRightSidebarOpen);
+  const setActiveNavTab = useCampaignStore((s) => s.setActiveNavTab);
+  const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
   const createViewportTab = useCampaignStore((s) => s.createViewportTab);
 
@@ -207,6 +209,85 @@ export function App() {
   useEffect(() => {
     if (!activeIterationId) setEditIframeEl(null);
   }, [activeIterationId]);
+
+  // ── Listen for "editTemplate" postMessage from templates iframe ────────
+  useEffect(() => {
+    const handler = async (e: MessageEvent) => {
+      if (!e.data || e.data.type !== 'editTemplate' || !e.data.templateId) return;
+      const templateId: string = e.data.templateId;
+      const meta = TEMPLATE_METADATA.find((t) => t.templateId === templateId);
+      if (!meta) return;
+
+      try {
+        // Find or create the __standalone__ campaign
+        const campRes = await fetch('/api/campaigns');
+        if (!campRes.ok) return;
+        const campaigns = await campRes.json();
+        let standalone = campaigns.find((c: { title: string }) => c.title === '__standalone__');
+        if (!standalone) {
+          const newRes = await fetch('/api/campaigns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: '__standalone__' }),
+          });
+          if (!newRes.ok) return;
+          standalone = await newRes.json();
+        }
+
+        // Create Creation → Slide → Iteration (same as TemplateCustomizer)
+        const creationRes = await fetch(`/api/campaigns/${standalone.id}/creations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: meta.name,
+            creationType: meta.platform,
+            slideCount: 1,
+          }),
+        });
+        if (!creationRes.ok) return;
+        const creation = await creationRes.json();
+
+        const slideRes = await fetch(`/api/creations/${creation.id}/slides`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slideIndex: 0 }),
+        });
+        if (!slideRes.ok) return;
+        const slide = await slideRes.json();
+
+        const slotSchema = getTemplateSchema(templateId);
+        await fetch(`/api/slides/${slide.id}/iterations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            iterationIndex: 0,
+            htmlPath: `templates/${templateId}.html`,
+            source: 'template',
+            templateId,
+            slotSchema: slotSchema ?? null,
+            aiBaseline: null,
+          }),
+        });
+
+        // Navigate to the creation editor under Creations tab with right sidebar open
+        setActiveNavTab('my-creations');
+        setCreateViewportTab('creations');
+        // Ensure campaigns list includes __standalone__ so breadcrumb can detect it
+        await fetchCampaigns();
+        useCampaignStore.setState({
+          activeCampaignId: standalone.id,
+          creations: [creation, ...useCampaignStore.getState().creations],
+        });
+        await navigateToCreation(creation.id);
+        setRightSidebarOpen(true);
+      } catch (err) {
+        console.error('[App] editTemplate handler failed:', err);
+      }
+    };
+
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [navigateToCreation, setActiveNavTab, setCreateViewportTab, setRightSidebarOpen, fetchCampaigns]);
 
   // ── Iteration selection handler ──────────────────────────────────────────
   const handleSelectIteration = useCallback(

@@ -275,7 +275,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 > 10 > 11 > 12 > 13 > 14
+Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 > 10 > 11 > 12 > 13 > 14 > 14.1
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -295,6 +295,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 12. Post-API Migration Cleanup & Audit | 4/4 | Complete    | 2026-03-17 |
 | 13. DAM Sync | 2/2 | Complete    | 2026-03-17 |
 | 14. Design DNA | 0/3 | Planned | — |
+| 14.1 Brand-Agnostic Pipeline | 0/3 | Planned | — |
 
 ### Phase 14: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
 
@@ -313,3 +314,21 @@ Plans:
 - [ ] 14-01-PLAN.md — DB schema (template_design_rules), db-api functions, seeder (global visual style + design rules), API endpoints
 - [ ] 14-02-PLAN.md — Pipeline prompt injection (Design DNA + HTML exemplar), list_brand_assets URL fix (fontSrc/cssUrl/imgSrc)
 - [ ] 14-03-PLAN.md — Templates page Social Media DNA tab with inline-editable design rules
+
+### Phase 14.1: Brand-Agnostic Pipeline (INSERTED)
+
+**Goal:** Remove all Fluid brand-specific content from the app's pipeline code, stage prompts, skill files, and project configuration. The generation pipeline treats brand identity as runtime data loaded from the DB — not as hardcoded references to Fluid-specific files, colors, fonts, or voice rules. The pipeline logic (copy→layout→styling→spec-check→fix loop) becomes universal tooling that works for any brand whose data is in the DB.
+**Depends on:** Phase 14
+**Success Criteria** (what must be TRUE):
+  1. Zero occurrences of "Fluid" brand references in api-pipeline.ts stage prompts (platform dimension constants excluded)
+  2. Stage prompts are brand-agnostic process instructions that tell agents to query DB tools for brand context
+  3. CLI orchestrator skills (/fluid-social, /fluid-one-pager, /fluid-theme-section) are thin wrappers that POST to /api/generate — no brand file reads, no duplicate pipeline logic
+  4. brand-intelligence/SKILL.md routes agents to DB tools, not brand/*.md files
+  5. CLAUDE.md contains zero brand/*.md file routing
+  6. brand/ directory archived to Reference/brand-seed-archive/ — no runtime code reads from it
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14.1-01-PLAN.md — Brand-agnostic stage prompts in api-pipeline.ts (delete SKILL_FILES/loadStagePrompt, rewrite prompt builders)
+- [ ] 14.1-02-PLAN.md — CLI orchestrators → thin API wrappers (rewrite 3 skill files to POST /api/generate)
+- [ ] 14.1-03-PLAN.md — Cleanup: brand-intelligence rewrite, CLAUDE.md update, brand/ archive, skill-map.json retirement

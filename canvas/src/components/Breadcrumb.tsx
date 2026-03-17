@@ -38,9 +38,6 @@ function BreadcrumbSegment({ label, onClick, isLast }: BreadcrumbSegmentProps) {
         padding: '2px 4px',
         borderRadius: 4,
         transition: 'color 0.1s',
-        maxWidth: 160,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         display: 'inline-block',
         verticalAlign: 'middle',
@@ -64,26 +61,38 @@ export function Breadcrumb() {
   const navigateBack = useCampaignStore((s) => s.navigateBack);
 
   // Resolve display names from cache
-  const campaignTitle = activeCampaignId
-    ? (campaigns.find((c) => c.id === activeCampaignId)?.title ?? activeCampaignId)
+  const campaign = activeCampaignId
+    ? campaigns.find((c) => c.id === activeCampaignId)
     : null;
+  const campaignTitle = campaign?.title ?? activeCampaignId;
+  const isStandalone = campaign?.title === '__standalone__';
   const creationTitle = activeCreationId
     ? (creations.find((a) => a.id === activeCreationId)?.title ?? activeCreationId)
     : null;
 
   // Build segments
-  const segments: Array<{ label: string; onClick?: () => void }> = [
-    { label: 'Campaigns', onClick: currentView !== 'dashboard' ? navigateToDashboard : undefined },
-  ];
+  const segments: Array<{ label: string; onClick?: () => void }> = [];
 
-  if (currentView !== 'dashboard' && campaignTitle) {
+  if (isStandalone) {
+    // Standalone creations: show "Creations" root, skip campaign segment
     segments.push({
-      label: campaignTitle,
-      onClick:
-        currentView !== 'campaign' && activeCampaignId
-          ? () => navigateToCampaign(activeCampaignId)
-          : undefined,
+      label: 'Creations',
+      onClick: currentView !== 'dashboard' ? navigateToDashboard : undefined,
     });
+  } else {
+    segments.push({
+      label: 'Campaigns',
+      onClick: currentView !== 'dashboard' ? navigateToDashboard : undefined,
+    });
+    if (currentView !== 'dashboard' && campaignTitle) {
+      segments.push({
+        label: campaignTitle,
+        onClick:
+          currentView !== 'campaign' && activeCampaignId
+            ? () => navigateToCampaign(activeCampaignId)
+            : undefined,
+      });
+    }
   }
 
   if (currentView === 'creation' && creationTitle) {
