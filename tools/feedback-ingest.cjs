@@ -45,29 +45,31 @@ const TOPIC_KEYWORDS = {
   logo: ['logo', 'brand mark', 'wordmark'],
 };
 
-// Asset type -> target doc mapping
+// Asset type -> target DB section slug mapping
+// Brand data lives in SQLite DB (canvas/.fluid/fluid.db), accessed via MCP tools
 const ASSET_DOC_MAP = {
-  social: 'brand/social-post-specs.md',
-  instagram: 'brand/social-post-specs.md',
-  linkedin: 'brand/social-post-specs.md',
-  twitter: 'brand/social-post-specs.md',
-  website: 'brand/website-section-specs.md',
-  'one-pager': 'brand/website-section-specs.md',
-  onepager: 'brand/website-section-specs.md',
+  social: 'social-post-specs',
+  instagram: 'social-post-specs',
+  linkedin: 'social-post-specs',
+  twitter: 'social-post-specs',
+  website: 'website-section-specs',
+  'one-pager': 'website-section-specs',
+  onepager: 'website-section-specs',
 };
 
-// Topic -> brand-level doc mapping (used when pattern spans 2+ asset types)
+// Topic -> brand-level DB section slug mapping (used when pattern spans 2+ asset types)
+// Read sections via: read_brand_section(slug)
 const TOPIC_BRAND_DOC_MAP = {
-  brushstroke: 'brand/design-tokens.md',
-  opacity: 'brand/design-tokens.md',
-  circle: 'brand/design-tokens.md',
-  font: 'brand/design-tokens.md',
-  color: 'brand/design-tokens.md',
-  layout: 'brand/design-tokens.md',
-  logo: 'brand/asset-usage.md',
-  copy_density: 'brand/voice-rules.md',
-  web_vs_social: 'brand/voice-rules.md',
-  general: 'brand/voice-rules.md',
+  brushstroke: 'design-tokens',
+  opacity: 'design-tokens',
+  circle: 'design-tokens',
+  font: 'design-tokens',
+  color: 'design-tokens',
+  layout: 'design-tokens',
+  logo: 'asset-usage',
+  copy_density: 'voice-rules',
+  web_vs_social: 'voice-rules',
+  general: 'voice-rules',
 };
 
 // ---------------------------------------------------------------------------
@@ -551,12 +553,12 @@ function scopeProposal(cluster) {
   if (assetTypes.length === 1) {
     // Asset-specific scope
     const assetType = assetTypes[0].toLowerCase();
-    const targetFile = ASSET_DOC_MAP[assetType] || 'brand/social-post-specs.md';
+    const targetFile = ASSET_DOC_MAP[assetType] || 'social-post-specs';
     return { targetFile, scope: 'asset-specific' };
   }
 
   // Brand-level scope — pick doc based on topic
-  const targetFile = TOPIC_BRAND_DOC_MAP[topic] || 'brand/voice-rules.md';
+  const targetFile = TOPIC_BRAND_DOC_MAP[topic] || 'voice-rules';
   return { targetFile, scope: 'brand-level' };
 }
 
@@ -1227,7 +1229,7 @@ function runTask2Tests() {
     };
     const { targetFile: f1, scope: s1 } = scopeProposal(singleTypeCluster);
     assertEqual(s1, 'asset-specific', 'scopeProposal: single asset type -> asset-specific scope');
-    assertEqual(f1, 'brand/social-post-specs.md', 'scopeProposal: instagram -> social-post-specs.md');
+    assertEqual(f1, 'social-post-specs', 'scopeProposal: instagram -> social-post-specs');
 
     // Single website type -> website doc
     const websiteCluster = {
@@ -1236,7 +1238,7 @@ function runTask2Tests() {
     };
     const { targetFile: f2, scope: s2 } = scopeProposal(websiteCluster);
     assertEqual(s2, 'asset-specific', 'scopeProposal: website type -> asset-specific scope');
-    assertEqual(f2, 'brand/website-section-specs.md', 'scopeProposal: website -> website-section-specs.md');
+    assertEqual(f2, 'website-section-specs', 'scopeProposal: website -> website-section-specs');
 
     // Multiple asset types -> brand-level doc
     const multiTypeCluster = {
@@ -1245,16 +1247,16 @@ function runTask2Tests() {
     };
     const { targetFile: f3, scope: s3 } = scopeProposal(multiTypeCluster);
     assertEqual(s3, 'brand-level', 'scopeProposal: multi asset type -> brand-level scope');
-    assertEqual(f3, 'brand/design-tokens.md', 'scopeProposal: opacity multi-type -> design-tokens.md');
+    assertEqual(f3, 'design-tokens', 'scopeProposal: opacity multi-type -> design-tokens');
 
-    // Copy topic -> voice-rules.md
+    // Copy topic -> voice-rules
     const copyCluster = {
       topic: 'copy_density',
       assetTypes: ['instagram', 'linkedin'],
     };
     const { targetFile: f4, scope: s4 } = scopeProposal(copyCluster);
     assertEqual(s4, 'brand-level', 'scopeProposal: copy_density multi-type -> brand-level');
-    assertEqual(f4, 'brand/voice-rules.md', 'scopeProposal: copy_density -> voice-rules.md');
+    assertEqual(f4, 'voice-rules', 'scopeProposal: copy_density -> voice-rules');
   }
 
   process.stderr.write('\n--- generateProposals tests ---\n');
@@ -1322,7 +1324,7 @@ function runTask2Tests() {
       {
         type: 'rule-modification',
         confidence: 'HIGH',
-        target: 'brand/social-post-specs.md',
+        target: 'social-post-specs',
         scope: 'asset-specific',
         topic: 'opacity',
         assetTypes: ['instagram'],
@@ -1340,7 +1342,7 @@ function runTask2Tests() {
     assert(content.includes('Proposal 1:'), 'writeProposalFile: contains proposal header');
     assert(content.includes('rule-modification'), 'writeProposalFile: contains proposal type');
     assert(content.includes('HIGH'), 'writeProposalFile: contains confidence');
-    assert(content.includes('brand/social-post-specs.md'), 'writeProposalFile: contains target file');
+    assert(content.includes('social-post-specs'), 'writeProposalFile: contains target section slug');
     assert(content.includes('opacity too high'), 'writeProposalFile: contains evidence');
     assert(content.includes('Brushstroke opacity: 0.10–0.18'), 'writeProposalFile: contains proposed text');
 
