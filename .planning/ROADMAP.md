@@ -275,7 +275,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 > 10 > 11 > 12 > 13
+Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 > 10 > 11 > 12 > 13 > 14 > 14.1 > 15 > 16
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -294,3 +294,76 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 11. API Pipeline Hardening + DB Brand Intelligence | 4/4 | Complete | 2026-03-16 |
 | 12. Post-API Migration Cleanup & Audit | 4/4 | Complete    | 2026-03-17 |
 | 13. DAM Sync | 2/2 | Complete    | 2026-03-17 |
+| 14. Design DNA | 0/3 | Planned | — |
+| 14.1 Brand-Agnostic Pipeline | 0/3 | Planned | — |
+| 15. Brand Data Architecture | 0/4 | Planned | — |
+| 16. Smart Context Pipeline | 0/3 | Planned | — |
+
+### Phase 14: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
+
+**Goal:** Extract visual style intelligence from hand-designed templates into a layered, DB-backed system that agents reference during generation. Global visual style rules (compositor contract: layers, typography ratios, blend modes, "poster not web page") live in the Patterns page/DB. Per-deliverable design DNA (social media general rules, Instagram-specific brand guidelines, LinkedIn-specific brand guidelines, per-archetype design notes) lives in the Templates page/DB via a new `template_design_rules` table. Platform specs (dimensions, safe areas) stay in pipeline code as system-level config. The generation pipeline injects matched Design DNA + one full HTML exemplar into agent system prompts so generated output matches the quality of Jonathan's hand-designed templates. Fixes the base64 embedding problem by making `list_brand_assets` return ready-to-use URLs. Scope limited to social media posts for this phase.
+**Requirements**: DNA-01, DNA-02, DNA-03, DNA-04, DNA-05, DNA-06, DNA-07, DNA-08, DNA-09
+**Depends on:** Phase 13
+**Success Criteria** (what must be TRUE):
+  1. Global visual style rules (compositor contract) seeded into brand_patterns DB and available via read_brand_section tool
+  2. Per-deliverable design rules (social general, Instagram, LinkedIn, 7 archetypes) stored in template_design_rules table and editable via Templates page UI
+  3. Generation pipeline injects matched Design DNA + one full HTML exemplar into styling agent system prompts
+  4. list_brand_assets returns ready-to-use CSS values (fontSrc, cssUrl, imgSrc) so agents use asset URLs verbatim instead of embedding base64
+  5. Copy agent outputs archetype selection, pipeline reads it to select matching template exemplar
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — DB schema (template_design_rules), db-api functions, seeder (global visual style + design rules), API endpoints
+- [ ] 14-02-PLAN.md — Pipeline prompt injection (Design DNA + HTML exemplar), list_brand_assets URL fix (fontSrc/cssUrl/imgSrc)
+- [ ] 14-03-PLAN.md — Templates page Social Media DNA tab with inline-editable design rules
+
+### Phase 14.1: Brand-Agnostic Pipeline (INSERTED)
+
+**Goal:** Remove all Fluid brand-specific content from the app's pipeline code, stage prompts, skill files, and project configuration. The generation pipeline treats brand identity as runtime data loaded from the DB — not as hardcoded references to Fluid-specific files, colors, fonts, or voice rules. The pipeline logic (copy→layout→styling→spec-check→fix loop) becomes universal tooling that works for any brand whose data is in the DB.
+**Depends on:** Phase 14
+**Success Criteria** (what must be TRUE):
+  1. Zero occurrences of "Fluid" brand references in api-pipeline.ts stage prompts (platform dimension constants excluded)
+  2. Stage prompts are brand-agnostic process instructions that tell agents to query DB tools for brand context
+  3. CLI orchestrator skills (/fluid-social, /fluid-one-pager, /fluid-theme-section) are thin wrappers that POST to /api/generate — no brand file reads, no duplicate pipeline logic
+  4. brand-intelligence/SKILL.md routes agents to DB tools, not brand/*.md files
+  5. CLAUDE.md contains zero brand/*.md file routing
+  6. brand/ directory archived to Reference/brand-seed-archive/ — no runtime code reads from it
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14.1-01-PLAN.md — Brand-agnostic stage prompts in api-pipeline.ts (delete SKILL_FILES/loadStagePrompt, rewrite prompt builders)
+- [ ] 14.1-02-PLAN.md — CLI orchestrators → thin API wrappers (rewrite 3 skill files to POST /api/generate)
+- [ ] 14.1-03-PLAN.md — Cleanup: brand-intelligence rewrite, CLAUDE.md update, brand/ archive, skill-map.json retirement
+
+### Phase 15: Brand Data Architecture
+
+**Goal:** Reorganize how brand data is structured in the DB and presented in the UI. Users understand what each page is for and can intuitively find/edit brand data. Data is structured for optimal agent consumption. Asset categories align between app, DB, and DAM.
+**Depends on:** Phase 14.1
+**Success Criteria** (what must be TRUE):
+  1. Patterns page organized into Foundations (colors, typography, spacing/opacity) and Rules (asset usage, visual techniques) — layout archetypes removed
+  2. Assets page uses new categories (Fonts, Images, Brand Elements, Decorations) with optional short descriptions per asset — categories match DAM folder structure
+  3. Templates page shows each template as unified card: text header (purpose, characteristics) + HTML preview — "archetype" nomenclature retired
+  4. All brand pages have subtitles explaining their purpose and internal grouping where applicable
+**Plans:** 4 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Patterns page: remove archetypes, Foundations/Rules grouping, DB recategorization
+- [ ] 15-02-PLAN.md — Assets page: new categories, description field, asset-scanner + DAM sync alignment
+- [ ] 15-03-PLAN.md — Templates page: unified template + header cards, drop archetype nomenclature
+- [ ] 15-04-PLAN.md — UI communication: page subtitles, internal grouping, empty state guidance
+
+### Phase 16: Smart Context Pipeline
+
+**Goal:** Replace agent self-discovery of brand context with deterministic, creation-type-aware pre-injection. Each pipeline stage receives exactly the brand data it needs. The context mapping is configurable and observable for iterative refinement.
+**Depends on:** Phase 15
+**Success Criteria** (what must be TRUE):
+  1. A dev-editable context map defines (creation type, stage) → exact brand sections to inject
+  2. Pipeline pre-loads brand context from DB per the context map and injects it into stage system prompts — agents receive brand context without calling discovery tools
+  3. Each generation logs what brand context was loaded per stage (token count, sections used, any fallback discovery tool calls)
+  4. Discovery tool usage during pre-injected stages is tracked as "context gap" signals for mapping refinement
+**Plans:** 3 plans
+
+Plans:
+- [ ] 16-01-PLAN.md — Context mapping definition: (creation type, stage) → brand sections config, template matching strategy
+- [ ] 16-02-PLAN.md — Pipeline pre-injection: loadBrandContext(), system prompt injection, token budget tracking, product module detection
+- [ ] 16-03-PLAN.md — Observability: context logging per generation, context preview in chat sidebar, gap signal tracking

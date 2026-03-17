@@ -264,7 +264,8 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 - Phase 10: Anthropic API Generation Pipeline — replaced CLI `claude -p` spawning with direct Anthropic SDK calls (completed 2026-03-16)
 - Phase 11: API Pipeline Hardening + DB-Backed Brand Intelligence — combined scope: prompt routing, preview path fixes, token cost reduction, Claude-style chat UX, Voice Guide + Patterns DB migration (completed)
 - Phase 12: Post-API Migration Cleanup & Audit — migrate validation tools from rules.json to SQLite DB, delete orphaned directories, verify infrastructure coherence (completed 2026-03-17)
-- Phase 13: DAM Sync — Fluid DAM as upstream source of truth (next)
+- Phase 13: DAM Sync — Fluid DAM as upstream source of truth (completed 2026-03-17)
+- Phase 14 added: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
 
 ### Blockers/Concerns
 
