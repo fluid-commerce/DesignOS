@@ -24,8 +24,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: AI Sidebar to Campaign Dashboard End-to-End** - Bridge sidebar generation to campaign dashboard with multi-asset creation, preview rendering, canonical paths (completed 2026-03-13)
 - [x] **Phase 9: App Navigation Overhaul** - Icon left nav, collapsible chat sidebar, Voice Guide viewport (completed 2026-03-13)
 - [x] **Phase 10: Anthropic API Generation Pipeline** - Direct Anthropic API calls replacing CLI-spawned generation, 4-stage pipeline with tool use and SSE streaming (completed 2026-03-16)
-- [ ] **Phase 11: API Pipeline Hardening + DB-Backed Brand Intelligence** - Single-asset routing, preview path fixes, token cost reduction via DB brand context, Claude-style chat UX, migrate Voice Guide/Patterns/Templates to DB
-- [ ] **Phase 12: Pipeline Integration** - Update subagents to read from DB via MCP, slim skill .md files, update CLI validation tools
+- [x] **Phase 11: API Pipeline Hardening + DB-Backed Brand Intelligence** - Single-asset routing, preview path fixes, token cost reduction via DB brand context, Claude-style chat UX, migrate Voice Guide/Patterns/Templates to DB (completed 2026-03-16)
+- [ ] **Phase 12: Post-API Migration Cleanup & Audit** - Audit for CLI-era dead code, slim skill .md files, update CLI tools to read from DB, verify infrastructure coherence
 - [ ] **Phase 13: DAM Sync** - Sync layer between Fluid DAM and local DB, DAM as upstream source of truth
 
 ## Phase Details
@@ -235,7 +235,7 @@ Plans:
 **Goal:** Fix the API pipeline to be production-usable: route single-asset prompts to standalone creations (not 7-asset campaigns), fix HTML output paths so previews render, cut token cost ~50% by pre-injecting brand context from DB instead of agent file reads, overhaul chat sidebar to Claude-style conversational layout with stage-by-stage narrated updates, and migrate Voice Guide/Patterns/Templates to DB-backed content so the app's brand pages become the canonical source for pipeline brand intelligence. Absorbs former Phase 9 (chat UI redesign) scope.
 **Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06
 **Depends on:** Phase 10
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] 11-01-PLAN.md — Prompt routing (single vs campaign) + preview path fix (iteration ID mismatch)
@@ -243,9 +243,9 @@ Plans:
 - [ ] 11-03-PLAN.md — Brand context injection from DB into pipeline stage prompts
 - [ ] 11-04-PLAN.md — Claude-style chat sidebar UX + Haiku stage narrator + stage badge components
 
-### Phase 12: Pipeline Integration
+### Phase 12: Post-API Migration Cleanup & Audit
 
-**Goal:** Update subagents to read brand intelligence from DB via MCP tools instead of static file reads. Slim down skill .md files to behavioral contracts only (no brand data). Update CLI validation tools to validate against DB content.
+**Goal:** Audit the full codebase for CLI-era artifacts, dead code, and stale infrastructure left over from the CLI→API migration. Slim skill `.md` files to behavioral contracts only (strip embedded brand data, keep behavioral instructions). Update CLI validation tools to read from DB instead of static `rules.json`. Remove dead CLI generation paths, stale MCP tools, unused imports, and orphaned utilities. Verify infrastructure coherence — API pipeline, DB schema, brand seeder, MCP server, skill files, and validation tools should tell a consistent story with no contradictions.
 **Depends on:** Phase 11
 **Plans:** 0 plans
 
@@ -274,6 +274,6 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 8. AI Sidebar to Campaign Dashboard E2E | 4/4 | Complete | 2026-03-13 |
 | 9. App Navigation Overhaul | 2/2 | Complete | 2026-03-13 |
 | 10. Anthropic API Generation Pipeline | 2/2 | Complete | 2026-03-16 |
-| 11. API Pipeline Hardening + DB Brand Intelligence | 3/4 | In Progress|  |
-| 12. Pipeline Integration | 0/? | Not Started | |
+| 11. API Pipeline Hardening + DB Brand Intelligence | 4/4 | Complete    | 2026-03-16 |
+| 12. Post-API Migration Cleanup & Audit | 0/? | Not Started | |
 | 13. DAM Sync | 0/? | Not Started | |

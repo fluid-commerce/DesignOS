@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-04-PLAN.md (Claude-style chat UX + stage badges + Haiku narrator)
-last_updated: "2026-03-16T23:49:04.266Z"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-03-17T01:26:01.118Z"
 last_activity: 2026-03-16 -- Phase 04.2 complete, roadmap synced
 progress:
   total_phases: 19
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 45
-  completed_plans: 44
+  completed_plans: 45
   percent: 80
 ---
 
@@ -84,6 +84,7 @@ Progress: [████████████████░░░░] 80% (12
 | Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P01 | 100min | 1 tasks | 4 files |
 | Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P02 | 5min | 2 tasks | 6 files |
 | Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P04 | 8min | 2 tasks | 5 files |
+| Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux P03 | 9min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -224,6 +225,8 @@ Recent decisions affecting current work:
 - [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: brand_patterns category mapping: design-tokens for Color Palette/Typography/Opacity Patterns, layout-archetype for Layout Archetypes, pattern for all others
 - [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: Tool noise filtered at parser level (null return) AND at displayMessages useMemo for double safety
 - [Phase 11-api-pipeline-hardening-routing-context-injection-cost-ux]: Haiku narrator (claude-haiku-4-5-20251001) generates 1-sentence narrations after each pipeline stage with graceful fallback
+- [Phase 11]: Brand context loaded once per pipeline run via loadBrandContextFromDb() — single DB read passed to all stages eliminates ~48 read_file tool calls per run
+- [Phase 11]: build*Prompt functions exported for testability; runStageWithTools accepts optional brandCtx with DB fallback for backward compat
 
 ### Parallel Development Note
 
@@ -263,6 +266,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-16T23:49:04.263Z
-Stopped at: Completed 11-04-PLAN.md (Claude-style chat UX + stage badges + Haiku narrator)
-Resume file: None
+Last session: 2026-03-17T01:26:01.115Z
+Stopped at: Phase 12 context gathered
+Resume file: .planning/phases/12-api-pipeline-hardening-routing-context-injection-cost-ux/12-CONTEXT.md
