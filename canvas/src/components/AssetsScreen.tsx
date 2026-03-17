@@ -31,7 +31,25 @@ interface BrandAssetUI {
   tags: string[];
   source?: 'local' | 'dam';
   damDeleted?: boolean;
+  description: string | null;
 }
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const ASSET_CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'fonts', label: 'Fonts' },
+  { id: 'images', label: 'Images' },
+  { id: 'brand-elements', label: 'Brand Elements' },
+  { id: 'decorations', label: 'Decorations' },
+];
+
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  'fonts': 'Font files used by the generation pipeline for brand typography',
+  'images': 'Photography and illustrations used in generated assets',
+  'brand-elements': 'Core identity pieces — logos and wordmarks always present in output',
+  'decorations': 'Hand-drawn elements like circles, underlines, arrows, and brushstrokes',
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -64,6 +82,14 @@ export function AssetsScreen() {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error' | 'no-token'>('idle');
   const [lastSynced, setLastSynced] = useState<number | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+
+  // Category filter state
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  // Inline description editing state
+  const [editingDescId, setEditingDescId] = useState<string | null>(null);
+  const [editDescContent, setEditDescContent] = useState('');
+  const [savedDescId, setSavedDescId] = useState<string | null>(null);
 
   const fetchBrandAssets = useCallback(async () => {
     try {
@@ -175,6 +201,24 @@ export function AssetsScreen() {
     }
   };
 
+  const saveDescription = async (id: string, description: string) => {
+    const prev = brandAssets;
+    setBrandAssets(a => a.map(asset => asset.id === id ? { ...asset, description } : asset));
+    setEditingDescId(null);
+    try {
+      const res = await fetch(`/api/brand-assets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description }),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      setSavedDescId(id);
+      setTimeout(() => setSavedDescId(null), 2000);
+    } catch {
+      setBrandAssets(prev);
+    }
+  };
+
   const isImage = (mime: string | null | undefined, url: string) => {
     if (mime?.startsWith('image/')) return true;
     return /\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(url);
@@ -185,6 +229,16 @@ export function AssetsScreen() {
     if (syncStatus === 'error') return syncError ?? 'DAM unreachable — showing cached assets';
     if (lastSynced) return `Last synced ${getRelativeTime(lastSynced)}`;
     return 'Synced on startup';
+  };
+
+  // Filtered brand assets (exclude dam-deleted from count calculation)
+  const filteredBrandAssets = activeCategory === 'all'
+    ? brandAssets
+    : brandAssets.filter(a => a.category === activeCategory);
+
+  const getCategoryCount = (categoryId: string) => {
+    if (categoryId === 'all') return brandAssets.filter(a => !a.damDeleted).length;
+    return brandAssets.filter(a => a.category === categoryId && !a.damDeleted).length;
   };
 
   return (
@@ -303,6 +357,60 @@ export function AssetsScreen() {
         </div>
       )}
 
+      {/* ── Category tab filter bar ── */}
+      {brandAssets.length > 0 && (
+        <>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 8,
+            marginBottom: 16,
+            flexWrap: 'wrap',
+          }}>
+            {ASSET_CATEGORIES.map(cat => {
+              const isActive = activeCategory === cat.id;
+              const count = getCategoryCount(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  style={{
+                    height: 32,
+                    paddingInline: 12,
+                    borderRadius: 16,
+                    fontSize: 12,
+                    fontWeight: 400,
+                    border: `1px solid ${isActive ? '#2a2a2e' : 'transparent'}`,
+                    cursor: 'pointer',
+                    transition: 'all 150ms',
+                    backgroundColor: isActive ? '#1a1a1e' : 'transparent',
+                    color: isActive ? '#fff' : '#888',
+                  }}
+                >
+                  {cat.label}
+                  {' '}
+                  <span style={{ color: '#555' }}>({count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Category description */}
+          {activeCategory !== 'all' && CATEGORY_DESCRIPTIONS[activeCategory] && (
+            <p style={{
+              fontSize: 12,
+              fontWeight: 400,
+              color: '#888',
+              padding: '0 0 16px 0',
+              margin: 0,
+            }}>
+              {CATEGORY_DESCRIPTIONS[activeCategory]}
+            </p>
+          )}
+        </>
+      )}
+
       {/* Brand assets grid */}
       {brandAssets.length === 0 && syncStatus !== 'no-token' ? (
         <div style={{
@@ -318,14 +426,14 @@ export function AssetsScreen() {
           <p style={{ margin: '0 0 0.5rem' }}>No brand assets yet.</p>
           <p style={{ margin: 0 }}>Brand assets sync automatically from the Fluid DAM Brand Elements folder on startup. Configure VITE_FLUID_DAM_TOKEN to enable sync.</p>
         </div>
-      ) : brandAssets.length > 0 ? (
+      ) : filteredBrandAssets.length > 0 ? (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
           gap: '1rem',
           marginBottom: '1.5rem',
         }}>
-          {brandAssets.map((a) => (
+          {filteredBrandAssets.map((a) => (
             <div
               key={a.id}
               style={{
@@ -406,9 +514,86 @@ export function AssetsScreen() {
                 >
                   {a.name}
                 </span>
+                {/* Inline description editing */}
+                {editingDescId === a.id ? (
+                  <textarea
+                    autoFocus
+                    value={editDescContent}
+                    onChange={e => setEditDescContent(e.target.value)}
+                    onBlur={() => saveDescription(a.id, editDescContent)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        saveDescription(a.id, editDescContent);
+                      }
+                      if (e.key === 'Escape') {
+                        setEditingDescId(null);
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      marginTop: 4,
+                      fontSize: 11,
+                      color: '#aaa',
+                      backgroundColor: '#111',
+                      border: '1px solid #333',
+                      borderRadius: 4,
+                      padding: '4px 6px',
+                      resize: 'none',
+                      boxSizing: 'border-box',
+                      fontFamily: 'inherit',
+                      lineHeight: 1.4,
+                      minHeight: 48,
+                      outline: 'none',
+                    }}
+                  />
+                ) : savedDescId === a.id ? (
+                  <span style={{
+                    display: 'block',
+                    marginTop: 4,
+                    fontSize: 11,
+                    color: '#44B2FF',
+                    fontWeight: 500,
+                  }}>
+                    Saved
+                  </span>
+                ) : (
+                  <span
+                    onClick={() => {
+                      setEditingDescId(a.id);
+                      setEditDescContent(a.description ?? '');
+                    }}
+                    style={{
+                      display: 'block',
+                      marginTop: 4,
+                      fontSize: 11,
+                      color: a.description ? '#888' : '#555',
+                      fontStyle: a.description ? 'normal' : 'italic',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {a.description ?? 'Add description...'}
+                  </span>
+                )}
               </div>
             </div>
           ))}
+        </div>
+      ) : brandAssets.length > 0 ? (
+        <div style={{
+          padding: '2rem 1.5rem',
+          textAlign: 'center',
+          color: '#666',
+          fontSize: '0.875rem',
+          backgroundColor: 'rgba(255,255,255,0.03)',
+          borderRadius: 8,
+          border: '1px dashed #333',
+          marginBottom: '1.5rem',
+        }}>
+          No assets in this category.
         </div>
       ) : null}
 
