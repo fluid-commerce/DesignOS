@@ -356,14 +356,45 @@ export function PatternsScreen() {
         backgroundColor: '#0d0d0d',
       }}
     >
+      {/* Page heading + subtitle */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: 0 }}>
+          Patterns
+        </h1>
+        <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+          Visual building blocks — color foundations, typographic rules, spacing systems, and compositional techniques
+        </p>
+      </div>
+
       <CollapsibleSection
         label="Foundations"
         description={`${foundationsPatterns.length} patterns`}
         defaultExpanded={true}
       >
-        <div style={gridStyle}>
-          {foundationsPatterns.map(renderPatternCard)}
-        </div>
+        {foundationsPatterns.length === 0 ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '48px 24px',
+            textAlign: 'center',
+          }}>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L26 14H34L28 22L30 32L20 27L10 32L12 22L6 14H14L20 6Z" />
+            </svg>
+            <h4 style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0', margin: '12px 0 4px' }}>
+              No patterns in this section
+            </h4>
+            <p style={{ fontSize: 12, fontWeight: 400, color: '#888', margin: 0, maxWidth: 300 }}>
+              Add brand context from the DB seeder or create a new entry.
+            </p>
+          </div>
+        ) : (
+          <div style={gridStyle}>
+            {foundationsPatterns.map(renderPatternCard)}
+          </div>
+        )}
       </CollapsibleSection>
 
       <div style={{ height: 48 }} />
@@ -373,9 +404,30 @@ export function PatternsScreen() {
         description={`${rulesPatterns.length} patterns`}
         defaultExpanded={true}
       >
-        <div style={gridStyle}>
-          {rulesPatterns.map(renderPatternCard)}
-        </div>
+        {rulesPatterns.length === 0 ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '48px 24px',
+            textAlign: 'center',
+          }}>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L26 14H34L28 22L30 32L20 27L10 32L12 22L6 14H14L20 6Z" />
+            </svg>
+            <h4 style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0', margin: '12px 0 4px' }}>
+              No patterns in this section
+            </h4>
+            <p style={{ fontSize: 12, fontWeight: 400, color: '#888', margin: 0, maxWidth: 300 }}>
+              Add brand context from the DB seeder or create a new entry.
+            </p>
+          </div>
+        ) : (
+          <div style={gridStyle}>
+            {rulesPatterns.map(renderPatternCard)}
+          </div>
+        )}
       </CollapsibleSection>
     </div>
   );

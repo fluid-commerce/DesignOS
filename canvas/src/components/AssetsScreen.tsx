@@ -63,6 +63,82 @@ function getRelativeTime(ts: number): string {
   return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
 }
 
+// ─── Empty state per category ─────────────────────────────────────────────────
+
+const CATEGORY_EMPTY_STATES: Record<string, { heading: string; body: string }> = {
+  'fonts': {
+    heading: 'No fonts yet',
+    body: 'No fonts yet. Sync from DAM or add font files manually.',
+  },
+  'images': {
+    heading: 'No images yet',
+    body: 'Sync from DAM to import photography and illustrations.',
+  },
+  'brand-elements': {
+    heading: 'No brand elements yet',
+    body: 'Sync from DAM to import logos and wordmarks.',
+  },
+  'decorations': {
+    heading: 'No decorations yet',
+    body: 'Sync from DAM to import hand-drawn circles, brushstrokes, and textures.',
+  },
+};
+
+function CategoryEmptyState({ category }: { category: string }) {
+  const state = CATEGORY_EMPTY_STATES[category] ?? {
+    heading: 'No assets in this category',
+    body: 'Sync from DAM to import assets.',
+  };
+
+  // Category-appropriate SVG icons (40x40, stroke only, #555)
+  const icon = category === 'fonts' ? (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <text x="8" y="30" fontFamily="serif" fontSize="26" fill="none" stroke="#555" strokeWidth="1.5">A</text>
+    </svg>
+  ) : category === 'images' ? (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="8" width="32" height="24" rx="2" />
+      <path d="M4 26L13 16L20 22L27 14L36 26" />
+    </svg>
+  ) : category === 'brand-elements' ? (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 4L36 12V22C36 30 29 36 20 38C11 36 4 30 4 22V12L20 4Z" />
+    </svg>
+  ) : category === 'decorations' ? (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 32C12 32 16 24 20 16C24 8 28 6 30 8C32 10 30 14 26 18" />
+      <path d="M10 34L14 30" />
+      <circle cx="11" cy="33" r="2" />
+    </svg>
+  ) : (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="4" width="32" height="32" rx="3" />
+      <line x1="4" y1="14" x2="36" y2="14" />
+      <line x1="20" y1="14" x2="20" y2="36" />
+    </svg>
+  );
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '48px 24px',
+      textAlign: 'center',
+      marginBottom: '1.5rem',
+    }}>
+      {icon}
+      <h4 style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0', margin: '12px 0 4px' }}>
+        {state.heading}
+      </h4>
+      <p style={{ fontSize: 12, fontWeight: 400, color: '#888', margin: 0, maxWidth: 300 }}>
+        {state.body}
+      </p>
+    </div>
+  );
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function AssetsScreen() {
@@ -259,15 +335,20 @@ export function AssetsScreen() {
         flexWrap: 'wrap',
         gap: '0.75rem',
       }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: '1.25rem',
-          fontWeight: 600,
-          color: '#e0e0e0',
-          letterSpacing: '-0.02em',
-        }}>
-          Assets
-        </h1>
+        <div>
+          <h1 style={{
+            margin: 0,
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#e0e0e0',
+            letterSpacing: '-0.02em',
+          }}>
+            Assets
+          </h1>
+          <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+            Fonts, images, logos, and decorative elements available to the generation pipeline
+          </p>
+        </div>
         <button
           type="button"
           onClick={handleAddFromDAM}
@@ -583,18 +664,7 @@ export function AssetsScreen() {
           ))}
         </div>
       ) : brandAssets.length > 0 ? (
-        <div style={{
-          padding: '2rem 1.5rem',
-          textAlign: 'center',
-          color: '#666',
-          fontSize: '0.875rem',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 8,
-          border: '1px dashed #333',
-          marginBottom: '1.5rem',
-        }}>
-          No assets in this category.
-        </div>
+        <CategoryEmptyState category={activeCategory} />
       ) : null}
 
       {/* ── Divider ── */}

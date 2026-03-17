@@ -273,6 +273,16 @@ export function TemplatesScreen() {
         backgroundColor: '#0d0d0d',
       }}
     >
+      {/* Page heading + subtitle */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: 0 }}>
+          Templates
+        </h1>
+        <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+          Designed examples that show how brand patterns come together for specific content types
+        </p>
+      </div>
+
       {/* Social Media Design Rules — collapsible, collapsed by default */}
       <CollapsibleSection
         label="Social Media Design Rules"
@@ -317,6 +327,29 @@ export function TemplatesScreen() {
       </CollapsibleSection>
 
       {/* Template cards */}
+      {TEMPLATE_CARDS.length === 0 ? (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 24px',
+          textAlign: 'center',
+          marginTop: 32,
+        }}>
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="4" width="32" height="32" rx="3" />
+            <line x1="4" y1="14" x2="36" y2="14" />
+            <line x1="20" y1="14" x2="20" y2="36" />
+          </svg>
+          <h4 style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0', margin: '12px 0 4px' }}>
+            No templates yet
+          </h4>
+          <p style={{ fontSize: 12, fontWeight: 400, color: '#888', margin: 0, maxWidth: 300 }}>
+            Templates are seeded automatically on first app startup.
+          </p>
+        </div>
+      ) : (
       <div
         style={{
           marginTop: 32,
@@ -385,6 +418,7 @@ export function TemplatesScreen() {
           );
         })}
       </div>
+      )}
     </div>
   );
 }
