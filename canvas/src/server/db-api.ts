@@ -663,3 +663,78 @@ export function getBrandPatternBySlug(slug: string): BrandPattern | undefined {
   const row = db.prepare('SELECT * FROM brand_patterns WHERE slug = ?').get(slug) as Record<string, unknown> | undefined;
   return row ? rowToBrandPattern(row) : undefined;
 }
+
+// ─── Design Rules (template_design_rules) ────────────────────────────────────
+
+export interface DesignRule {
+  id: string;
+  scope: string;
+  platform: string | null;
+  archetypeSlug: string | null;
+  label: string;
+  content: string;
+  sortOrder: number;
+  updatedAt: number;
+}
+
+function rowToDesignRule(row: Record<string, unknown>): DesignRule {
+  return {
+    id: row.id as string,
+    scope: row.scope as string,
+    platform: (row.platform as string | null) ?? null,
+    archetypeSlug: (row.archetype_slug as string | null) ?? null,
+    label: row.label as string,
+    content: row.content as string,
+    sortOrder: row.sort_order as number,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+export function getDesignRules(scope?: string, platform?: string): DesignRule[] {
+  const db = getDb();
+  if (scope && platform) {
+    return (db.prepare(
+      'SELECT * FROM template_design_rules WHERE scope = ? AND platform = ? ORDER BY sort_order'
+    ).all(scope, platform) as Record<string, unknown>[]).map(rowToDesignRule);
+  }
+  if (scope) {
+    return (db.prepare(
+      'SELECT * FROM template_design_rules WHERE scope = ? ORDER BY sort_order'
+    ).all(scope) as Record<string, unknown>[]).map(rowToDesignRule);
+  }
+  if (platform) {
+    return (db.prepare(
+      'SELECT * FROM template_design_rules WHERE platform = ? ORDER BY sort_order'
+    ).all(platform) as Record<string, unknown>[]).map(rowToDesignRule);
+  }
+  return (db.prepare(
+    'SELECT * FROM template_design_rules ORDER BY sort_order'
+  ).all() as Record<string, unknown>[]).map(rowToDesignRule);
+}
+
+export function getDesignRule(id: string): DesignRule | undefined {
+  const db = getDb();
+  const row = db.prepare(
+    'SELECT * FROM template_design_rules WHERE id = ?'
+  ).get(id) as Record<string, unknown> | undefined;
+  return row ? rowToDesignRule(row) : undefined;
+}
+
+export function getDesignRulesByArchetype(archetypeSlug: string, platform?: string): DesignRule[] {
+  const db = getDb();
+  if (platform) {
+    return (db.prepare(
+      'SELECT * FROM template_design_rules WHERE archetype_slug = ? AND platform = ? ORDER BY sort_order'
+    ).all(archetypeSlug, platform) as Record<string, unknown>[]).map(rowToDesignRule);
+  }
+  return (db.prepare(
+    'SELECT * FROM template_design_rules WHERE archetype_slug = ? ORDER BY sort_order'
+  ).all(archetypeSlug) as Record<string, unknown>[]).map(rowToDesignRule);
+}
+
+export function updateDesignRule(id: string, content: string): void {
+  const db = getDb();
+  db.prepare(
+    'UPDATE template_design_rules SET content = ?, updated_at = ? WHERE id = ?'
+  ).run(content, Date.now(), id);
+}
