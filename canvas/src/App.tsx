@@ -26,12 +26,16 @@ type CreationFlow = null | 'gallery' | 'customizer';
  */
 function StandaloneCreationsView() {
   const navigateToCreation = useCampaignStore((s) => s.navigateToCreation);
+  const createViewportTab = useCampaignStore((s) => s.createViewportTab);
   const [standaloneCreations, setStandaloneCreations] = useState<Creation[]>([]);
   const [standaloneLoading, setStandaloneLoading] = useState(true);
   const [previews, setPreviews] = useState<Record<string, string>>({});
 
+  // Refetch when Creations tab is shown so new assets appear after create/save
   useEffect(() => {
+    if (createViewportTab !== 'creations') return;
     let cancelled = false;
+    setStandaloneLoading(true);
     (async () => {
       try {
         // Find the __standalone__ campaign
@@ -73,7 +77,7 @@ function StandaloneCreationsView() {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [createViewportTab]);
 
   if (standaloneLoading) {
     return (
@@ -171,6 +175,7 @@ export function App() {
   const selectIteration = useCampaignStore((s) => s.selectIteration);
   const setRightSidebarOpen = useCampaignStore((s) => s.setRightSidebarOpen);
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
+  const fetchCreations = useCampaignStore((s) => s.fetchCreations);
   const createViewportTab = useCampaignStore((s) => s.createViewportTab);
 
   const selectedIterationId = useEditorStore((s) => s.selectedIterationId);
@@ -178,6 +183,8 @@ export function App() {
   // Template creation flow state
   const [creationFlow, setCreationFlow] = useState<CreationFlow>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateMetadata | null>(null);
+  // When no campaign is selected, use __standalone__ so template customizer can still run
+  const [standaloneCampaignId, setStandaloneCampaignId] = useState<string | null>(null);
 
   // Creations tab filter/sort (when viewing creations in a campaign)
   const [filterCreationType, setFilterCreationType] = useState('all');
@@ -190,6 +197,23 @@ export function App() {
 
   // Auto-refresh on filesystem changes (campaign-aware)
   useFileWatcher();
+
+  // Resolve __standalone__ campaign when creation modal opens (so customizer works without a selected campaign)
+  useEffect(() => {
+    if (creationFlow === null) return;
+    let cancelled = false;
+    fetch('/api/campaigns')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((list: { id: string; title: string }[]) => {
+        if (cancelled) return;
+        const standalone = list.find((c) => c.title === '__standalone__');
+        setStandaloneCampaignId(standalone?.id ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setStandaloneCampaignId(null);
+      });
+    return () => { cancelled = true; };
+  }, [creationFlow]);
 
   // Initial data load
   useEffect(() => {
@@ -245,13 +269,18 @@ export function App() {
     setCreationFlow('gallery');
   }, []);
 
-  // Called by TemplateCustomizer after successfully creating a creation
+  // Called by TemplateCustomizer after successfully creating a creation; opens edit mode for the new iteration
   const handleCreationCreated = useCallback(
-    (campaignId: string) => {
+    async (campaignId: string, creationId: string, iterationId: string) => {
       handleCloseCreationFlow();
-      navigateToCampaign(campaignId);
+      await navigateToCampaign(campaignId);
+      await navigateToCreation(creationId);
+      selectIteration(iterationId);
+      setRightSidebarOpen(true);
+      // Refetch creations so the Creations tab list shows the new asset when user navigates back
+      await fetchCreations(campaignId);
     },
-    [handleCloseCreationFlow, navigateToCampaign]
+    [handleCloseCreationFlow, navigateToCampaign, navigateToCreation, selectIteration, setRightSidebarOpen, fetchCreations]
   );
 
   // ── Derive active iteration object ──────────────────────────────────────
@@ -429,7 +458,7 @@ export function App() {
         <TemplateCreationModal
           flow={creationFlow}
           selectedTemplate={selectedTemplate}
-          activeCampaignId={activeCampaignId}
+          activeCampaignId={activeCampaignId ?? standaloneCampaignId}
           onSelectTemplate={handleSelectTemplate}
           onBack={handleBackToGallery}
           onClose={handleCloseCreationFlow}
@@ -449,7 +478,7 @@ interface TemplateCreationModalProps {
   onSelectTemplate: (t: TemplateMetadata) => void;
   onBack: () => void;
   onClose: () => void;
-  onCreationCreated: (campaignId: string) => void;
+  onCreationCreated: (campaignId: string, creationId: string, iterationId: string) => void;
 }
 
 // ── Shared style constants (matching Jonathan's original) ─────────────────────
@@ -521,7 +550,7 @@ interface NewCreationTabProps {
   selectedTemplate: TemplateMetadata | null;
   onSelectTemplate: (t: TemplateMetadata) => void;
   activeCampaignId: string | null;
-  onCreationCreated: (campaignId: string) => void;
+  onCreationCreated: (campaignId: string, creationId: string, iterationId: string) => void;
 }
 
 function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onCreationCreated }: NewCreationTabProps) {
@@ -1442,13 +1471,13 @@ function TemplateCreationModal({
           maxHeight: activeTab === 'campaign' ? '82vh' : '88vh',
           backgroundColor: BG_MODAL,
           border: `1px solid ${BORDER_LIGHT}`,
-          borderRadius: 6,
+          borderRadius: 0,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
         }}
       >
-        {/* ── Header: pill toggle tabs + close ── */}
+        {/* ── Header: tabs (match My Creations style) + close ── */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -1457,100 +1486,42 @@ function TemplateCreationModal({
           marginBottom: 24,
           flexShrink: 0,
         }}>
-          <div style={{ display: 'flex', gap: 3, flex: 1 }}>
-            {/* New Asset pill tab */}
-            <button
-              onClick={() => setActiveTab('creation')}
-              style={{
-                padding: '7px 20px',
-                border: `1px solid ${BORDER_LIGHT}`,
-                borderRadius: 4,
-                background: activeTab === 'creation' ? '#171717' : 'transparent',
-                color: activeTab === 'creation' ? '#fff' : '#333',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: '0.09em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                transition: 'color 0.15s, border-color 0.15s, background 0.15s',
-                userSelect: 'none',
-                outline: 'none',
-                borderColor: activeTab === 'creation' ? '#2a2a2a' : BORDER_LIGHT,
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'creation') {
-                  e.currentTarget.style.color = '#555';
-                  e.currentTarget.style.borderColor = '#2a2a2a';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'creation') {
-                  e.currentTarget.style.color = '#333';
-                  e.currentTarget.style.borderColor = BORDER_LIGHT;
-                }
-              }}
-            >
-              <span style={{
-                width: 5,
-                height: 5,
-                borderRadius: '50%',
-                background: activeTab === 'creation' ? BLUE : '#2a2a2a',
-                transition: 'background 0.15s',
-                flexShrink: 0,
-              }} />
-              New Creation
-            </button>
-
-            {/* New Campaign pill tab */}
-            <button
-              onClick={() => setActiveTab('campaign')}
-              style={{
-                padding: '7px 20px',
-                border: `1px solid ${BORDER_LIGHT}`,
-                borderRadius: 4,
-                background: activeTab === 'campaign' ? '#171717' : 'transparent',
-                color: activeTab === 'campaign' ? '#fff' : '#333',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: '0.09em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                transition: 'color 0.15s, border-color 0.15s, background 0.15s',
-                userSelect: 'none',
-                outline: 'none',
-                borderColor: activeTab === 'campaign' ? '#2a2a2a' : BORDER_LIGHT,
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'campaign') {
-                  e.currentTarget.style.color = '#555';
-                  e.currentTarget.style.borderColor = '#2a2a2a';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'campaign') {
-                  e.currentTarget.style.color = '#333';
-                  e.currentTarget.style.borderColor = BORDER_LIGHT;
-                }
-              }}
-            >
-              <span style={{
-                width: 5,
-                height: 5,
-                borderRadius: '50%',
-                background: activeTab === 'campaign' ? BLUE : '#2a2a2a',
-                transition: 'background 0.15s',
-                flexShrink: 0,
-              }} />
-              New Campaign
-            </button>
+          <div style={{ display: 'flex', gap: '2px', flexShrink: 0, borderRadius: 0, overflow: 'hidden' }}>
+            {(['creation', 'campaign'] as const).map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    padding: '8px 14px',
+                    minHeight: 36,
+                    boxSizing: 'border-box',
+                    fontSize: '0.75rem',
+                    fontWeight: isActive ? 600 : 400,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    color: isActive ? '#e0e0e0' : '#666',
+                    backgroundColor: isActive ? '#1a1a1e' : 'transparent',
+                    border: 'none',
+                    borderRadius: 0,
+                    borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'color 0.15s, background-color 0.15s',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) e.currentTarget.style.color = '#aaa';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) e.currentTarget.style.color = '#666';
+                  }}
+                >
+                  {tab === 'creation' ? 'New Asset' : 'New Campaign'}
+                </button>
+              );
+            })}
           </div>
 
           {/* Close button */}

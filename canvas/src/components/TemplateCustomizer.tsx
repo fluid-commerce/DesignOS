@@ -6,8 +6,8 @@ interface TemplateCustomizerProps {
   template: TemplateMetadata;
   campaignId: string;
   onBack: () => void;
-  /** Called with the campaignId after the creation+slide+iteration are created. */
-  onCreated: (campaignId: string) => void;
+  /** Called with campaignId, creationId, and iterationId after the creation+slide+iteration are created (so app can open edit mode). */
+  onCreated: (campaignId: string, creationId: string, iterationId: string) => void;
 }
 
 const ACCENT_COLORS: Array<{ name: string; hex: string }> = [
@@ -81,9 +81,10 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
         }),
       });
       if (!iterRes.ok) throw new Error(`Failed to create iteration: ${iterRes.status}`);
+      const iteration = await iterRes.json();
 
-      // 4. Navigate to the campaign (which will reload creations)
-      onCreated(campaignId);
+      // 4. Notify app so it can navigate to campaign, creation, and open this iteration in edit mode
+      onCreated(campaignId, creation.id, iteration.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create creation');
       setCreating(false);

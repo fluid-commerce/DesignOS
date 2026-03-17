@@ -96,7 +96,7 @@ function CreateNewChoiceModal({
           overflow: 'hidden',
           background: '#111',
           border: '1px solid #1e1e1e',
-          borderRadius: 8,
+          borderRadius: 0,
           display: 'flex',
           flexDirection: 'column',
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -110,38 +110,43 @@ function CreateNewChoiceModal({
           marginBottom: 24,
           flexShrink: 0,
         }}>
-          <div style={{ display: 'flex', gap: 3, flex: 1 }}>
-            {(['asset', 'campaign'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                style={{
-                  padding: '7px 20px',
-                  border: '1px solid ' + (mode === m ? '#2a2a2a' : '#1e1e1e'),
-                  borderRadius: 4,
-                  background: mode === m ? '#171717' : 'transparent',
-                  color: mode === m ? '#fff' : '#333',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: '0.09em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 7,
-                  fontFamily: 'inherit',
-                }}
-              >
-                <span style={{
-                  width: 5,
-                  height: 5,
-                  borderRadius: '50%',
-                  background: mode === m ? '#44B2FF' : '#2a2a2a',
-                }} />
-                {m === 'asset' ? 'New Asset' : 'New Campaign'}
-              </button>
-            ))}
+          <div style={{ display: 'flex', gap: '2px', flexShrink: 0, borderRadius: 0, overflow: 'hidden' }}>
+            {(['asset', 'campaign'] as const).map((m) => {
+              const isActive = mode === m;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  style={{
+                    padding: '8px 14px',
+                    minHeight: 36,
+                    boxSizing: 'border-box',
+                    fontSize: '0.75rem',
+                    fontWeight: isActive ? 600 : 400,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    color: isActive ? '#e0e0e0' : '#666',
+                    backgroundColor: isActive ? '#1a1a1e' : 'transparent',
+                    border: 'none',
+                    borderRadius: 0,
+                    borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'color 0.15s, background-color 0.15s',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) e.currentTarget.style.color = '#aaa';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) e.currentTarget.style.color = '#666';
+                  }}
+                >
+                  {m === 'asset' ? 'New Asset' : 'New Campaign'}
+                </button>
+              );
+            })}
           </div>
           <button
             type="button"
@@ -232,11 +237,25 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
   const activeNavTab = useCampaignStore((s) => s.activeNavTab);
   const createViewportTab = useCampaignStore((s) => s.createViewportTab);
   const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
+  const currentView = useCampaignStore((s) => s.currentView);
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
+  const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
   const rightSidebarOpen = useCampaignStore((s) => s.rightSidebarOpen);
   const toggleRightSidebar = useCampaignStore((s) => s.toggleRightSidebar);
   const showNewCampaignModal = useCampaignStore((s) => s.showNewCampaignModal);
   const setShowNewCampaignModal = useCampaignStore((s) => s.setShowNewCampaignModal);
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
+
+  const handleSetCreateViewportTab = useCallback(
+    (tab: 'campaigns' | 'creations') => {
+      setCreateViewportTab(tab);
+      // If user is in the editor and clicks Creations tab, show the list (navigate to campaign view)
+      if (tab === 'creations' && currentView === 'creation' && activeCampaignId) {
+        navigateToCampaign(activeCampaignId);
+      }
+    },
+    [setCreateViewportTab, currentView, activeCampaignId, navigateToCampaign]
+  );
 
   const handleNewCampaignCreated = useCallback((title: string, channels: string[]) => {
     fetch('/api/campaigns', {
@@ -301,7 +320,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                     return (
                       <button
                         key={tab}
-                        onClick={() => setCreateViewportTab(tab)}
+                        onClick={() => handleSetCreateViewportTab(tab)}
                         style={{
                           padding: '8px 14px',
                           minHeight: 36,
@@ -313,7 +332,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
                           color: isActive ? '#e0e0e0' : '#666',
                           backgroundColor: isActive ? '#1a1a1e' : 'transparent',
                           border: 'none',
-                          borderRadius: 5,
+                          borderRadius: 0,
                           borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
                           cursor: 'pointer',
                           transition: 'color 0.15s, background-color 0.15s',

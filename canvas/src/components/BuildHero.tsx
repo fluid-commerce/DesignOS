@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { nanoid } from 'nanoid';
 import { FluidDAMModal } from './DAMPicker';
 import { IdeasGetStarted, type IdeaAction } from './IdeasGetStarted';
+import { useGenerationStore } from '../store/generation';
 
 /** Saved asset from /api/assets (same shape as IdeasGetStarted.SelectedAsset). */
 interface SavedAssetForIdeas {
@@ -209,6 +210,9 @@ function usePillsOverflow() {
 
 export function BuildHero() {
   const [inputValue, setInputValue] = useState('');
+  const generationStatus = useGenerationStore((s) => s.status);
+  const isGenerating = generationStatus === 'generating';
+  const borderDuration = isGenerating ? 1.2 : 10;
   const [creationTypeId, setCreationTypeId] = useState<string>('');
   const [creationDropdownOpen, setCreationDropdownOpen] = useState(false);
   const [socialPostFormatId, setSocialPostFormatId] = useState<string>(SOCIAL_POST_FORMATS[0].id);
@@ -432,7 +436,7 @@ export function BuildHero() {
               transparent 260deg,
               transparent 360deg
             )`,
-            animation: 'build-hero-shine-rotate 10s cubic-bezier(0.35, 0, 0.25, 1) infinite',
+            animation: `build-hero-shine-rotate ${borderDuration}s cubic-bezier(0.35, 0, 0.25, 1) infinite`,
             pointerEvents: 'none',
             zIndex: 1,
           }}
