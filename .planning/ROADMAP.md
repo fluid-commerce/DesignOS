@@ -275,7 +275,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 > 10 > 11 > 12 > 13
+Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 > 10 > 11 > 12 > 13 > 14
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -294,3 +294,22 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 11. API Pipeline Hardening + DB Brand Intelligence | 4/4 | Complete | 2026-03-16 |
 | 12. Post-API Migration Cleanup & Audit | 4/4 | Complete    | 2026-03-17 |
 | 13. DAM Sync | 2/2 | Complete    | 2026-03-17 |
+| 14. Design DNA | 0/3 | Planned | — |
+
+### Phase 14: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
+
+**Goal:** Extract visual style intelligence from hand-designed templates into a layered, DB-backed system that agents reference during generation. Global visual style rules (compositor contract: layers, typography ratios, blend modes, "poster not web page") live in the Patterns page/DB. Per-deliverable design DNA (social media general rules, Instagram-specific brand guidelines, LinkedIn-specific brand guidelines, per-archetype design notes) lives in the Templates page/DB via a new `template_design_rules` table. Platform specs (dimensions, safe areas) stay in pipeline code as system-level config. The generation pipeline injects matched Design DNA + one full HTML exemplar into agent system prompts so generated output matches the quality of Jonathan's hand-designed templates. Fixes the base64 embedding problem by making `list_brand_assets` return ready-to-use URLs. Scope limited to social media posts for this phase.
+**Requirements**: DNA-01, DNA-02, DNA-03, DNA-04, DNA-05, DNA-06, DNA-07, DNA-08, DNA-09
+**Depends on:** Phase 13
+**Success Criteria** (what must be TRUE):
+  1. Global visual style rules (compositor contract) seeded into brand_patterns DB and available via read_brand_section tool
+  2. Per-deliverable design rules (social general, Instagram, LinkedIn, 7 archetypes) stored in template_design_rules table and editable via Templates page UI
+  3. Generation pipeline injects matched Design DNA + one full HTML exemplar into styling agent system prompts
+  4. list_brand_assets returns ready-to-use CSS values (fontSrc, cssUrl, imgSrc) so agents use asset URLs verbatim instead of embedding base64
+  5. Copy agent outputs archetype selection, pipeline reads it to select matching template exemplar
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — DB schema (template_design_rules), db-api functions, seeder (global visual style + design rules), API endpoints
+- [ ] 14-02-PLAN.md — Pipeline prompt injection (Design DNA + HTML exemplar), list_brand_assets URL fix (fontSrc/cssUrl/imgSrc)
+- [ ] 14-03-PLAN.md — Templates page Social Media DNA tab with inline-editable design rules
