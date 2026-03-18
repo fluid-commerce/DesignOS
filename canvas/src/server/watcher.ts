@@ -1154,23 +1154,29 @@ export function fluidWatcherPlugin(): Plugin {
 
           // POST /api/slides/:id/iterations
           if (slideIterationsMatch && method === 'POST') {
-            const body = JSON.parse(await readBody(req));
-            if (body.iterationIndex == null || !body.htmlPath || !body.source) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'iterationIndex, htmlPath, and source are required' }));
-              return;
+            try {
+              const body = JSON.parse(await readBody(req));
+              if (body.iterationIndex == null || !body.htmlPath || !body.source) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'iterationIndex, htmlPath, and source are required' }));
+                return;
+              }
+              const iteration = createIteration({
+                slideId: slideIterationsMatch[1],
+                iterationIndex: body.iterationIndex,
+                htmlPath: body.htmlPath,
+                slotSchema: body.slotSchema ?? null,
+                aiBaseline: body.aiBaseline ?? null,
+                source: body.source,
+                templateId: body.templateId ?? null,
+              });
+              res.writeHead(201, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(iteration));
+            } catch (err) {
+              console.error('[api] POST /api/slides/:id/iterations failed:', err);
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: String(err) }));
             }
-            const iteration = createIteration({
-              slideId: slideIterationsMatch[1],
-              iterationIndex: body.iterationIndex,
-              htmlPath: body.htmlPath,
-              slotSchema: body.slotSchema ?? null,
-              aiBaseline: body.aiBaseline ?? null,
-              source: body.source,
-              templateId: body.templateId ?? null,
-            });
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(iteration));
             return;
           }
 
