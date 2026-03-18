@@ -19,8 +19,8 @@
 ┌────────────────────────▼────────────────────────────────┐
 │  Runtime Layer                                           │
 │  .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html        │
-│  File watcher (chokidar) → SQLite records → HMR push     │
-│  Vite middleware: API routes + static serving             │
+│  SQLite records → HMR push to browser                      │
+│  Vite middleware: API routes + static serving              │
 └────────────────────────┬────────────────────────────────┘
                          │ renders in
 ┌────────────────────────▼────────────────────────────────┐
@@ -74,7 +74,7 @@ The server is a **Vite middleware plugin** (`canvas/src/server/watcher.ts`), not
 
 **Iterations:** `GET /api/iterations/:id`, `GET /api/iterations/:id/html`, `PATCH /api/iterations/:id/status`
 
-**Generation:** `POST /api/generate` (SSE stream), `GET /api/generation/status/:sessionId`
+**Generation:** `POST /api/generate` (SSE stream)
 
 **Templates:** `GET /api/templates`, `POST /api/templates/preview`
 
@@ -93,13 +93,9 @@ After reading the file, the server:
 - Applies saved `userState` slot values
 - Adds `postMessage` listener for live editing from ContentEditor
 
-### File Watcher
+### HMR Updates
 
-Chokidar watches `.fluid/working/` for new HTML files. On detection:
-1. Creates/updates SQLite iteration records
-2. Sets `generationStatus` to `complete`
-3. Pushes Vite HMR custom event to browser
-4. `useFileWatcher` hook in React triggers store refresh
+When generation completes or data changes, the server pushes a Vite HMR custom event (`fluid:file-change`) to the browser. The `useFileWatcher` hook in React triggers store refresh for the current view.
 
 ### Static Serving
 
@@ -154,29 +150,14 @@ POST /api/generate { prompt, campaignId? }
   │   ├── Write HTML to .fluid/campaigns/{cId}/{aId}/{fId}/{iterId}.html
   │   └── Update generationStatus to 'complete'
   │
-  └── Stream SSE events: { sessionId, campaignId, status, stderr }
+  └── Stream SSE events: { campaignId, status, stderr }
 ```
 
-## Brand Doc Loading
+## Brand Data Loading
 
-Agents load brand docs selectively by role. This keeps context lean and focused.
+Brand data lives in SQLite (`canvas/fluid.db`), managed through the app's UI pages. Agents load brand context at runtime via pipeline tools (`list_brand_sections`, `read_brand_section`, `list_brand_assets`).
 
-```
-brand/
-├── index.md              # Start here if unsure which docs to load
-├── voice-rules.md        # Copy agents
-├── design-tokens.md      # Styling agents
-├── layout-archetypes.md  # Layout agents
-├── asset-usage.md        # Any agent placing visual assets
-├── asset-index.md        # Asset file paths and inventory
-├── social-post-specs.md  # Social post generation
-├── website-section-specs.md  # .liquid section generation
-├── messaging-frameworks.md   # Strategic messaging direction
-├── audience-personas.md      # Sales-facing content
-├── objection-handling.md     # Sales enablement
-├── elevator-pitches.md       # Campaign taglines
-└── skill-map.json            # Orchestrator: which skills per subagent
-```
+**DB tables:** `voice_guide_docs`, `brand_patterns`, `brand_assets`, `templates`, `template_design_rules`
 
 **Weight system** (in each doc): rules carry weights 1-100. Enforcement:
 - 81-100 = must follow (brand-critical)
@@ -226,5 +207,5 @@ beforeAll(() => {
 | MCP via stdio, not TCP | No external service; integrates with agent's context window |
 | Brand docs as required context | Agents can't skip brand rules; weight system enables tuning |
 | Max 3-6 brand docs per agent | Prevents context overload; role-specific loading |
-| File watcher as data bridge | Chokidar detects writes → SQLite records → HMR push; no message queue |
+| HMR push on data changes | Server sends custom Vite HMR event after writes; `useFileWatcher` refreshes UI |
 | Parallel subagents per asset | Each asset gets fresh context; no cross-contamination between assets |
