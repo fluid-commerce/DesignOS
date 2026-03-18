@@ -44,10 +44,14 @@ import {
   getTemplates,
   getTemplate,
   updateTemplate,
+  getContextMap,
+  upsertContextMapEntry,
+  deleteContextMapEntry,
+  getContextLogs,
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty } from './brand-seeder';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
@@ -263,6 +267,11 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       seedTemplatesIfEmpty().catch(err =>
         console.warn('[watcher] Templates seeding failed:', err)
       );
+      try {
+        seedContextMapIfEmpty();
+      } catch (err) {
+        console.warn('[watcher] Context map seeding failed:', err);
+      }
 
       // Sync brand assets from Fluid DAM on startup (non-blocking)
       const damToken = process.env.VITE_FLUID_DAM_TOKEN;
@@ -903,6 +912,76 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             updateDesignRule(designRuleIdMatch[1], body.content);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // ── Context Map ────────────────────────────────────────────────────
+
+          // GET /api/context-map — returns all context map entries
+          if (url === '/api/context-map' && method === 'GET') {
+            const entries = getContextMap();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(entries));
+            return;
+          }
+
+          // POST /api/context-map — create a new context map entry
+          if (url === '/api/context-map' && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            const entry = upsertContextMapEntry({
+              creationType: body.creation_type,
+              stage: body.stage,
+              sections: body.sections,
+              priority: body.priority,
+              maxTokens: body.max_tokens,
+            });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(entry));
+            return;
+          }
+
+          // PUT /api/context-map/:id — update an existing context map entry
+          const contextMapPutMatch = url.match(/^\/api\/context-map\/([^/?]+)$/);
+          if (contextMapPutMatch && method === 'PUT') {
+            const id = contextMapPutMatch[1];
+            const body = JSON.parse(await readBody(req));
+            const entry = upsertContextMapEntry({
+              id,
+              creationType: body.creation_type,
+              stage: body.stage,
+              sections: body.sections,
+              priority: body.priority,
+              maxTokens: body.max_tokens,
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(entry));
+            return;
+          }
+
+          // DELETE /api/context-map/:id — remove a context map entry
+          if (contextMapPutMatch && method === 'DELETE') {
+            const id = contextMapPutMatch[1];
+            const deleted = deleteContextMapEntry(id);
+            if (deleted) {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ deleted: true }));
+            } else {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Not found' }));
+            }
+            return;
+          }
+
+          // GET /api/context-log — returns recent context log entries with optional filters
+          if ((url === '/api/context-log' || url.startsWith('/api/context-log?')) && method === 'GET') {
+            const params = new URL(req.url!, 'http://localhost').searchParams;
+            const creationType = params.get('creation_type') ?? undefined;
+            const stage = params.get('stage') ?? undefined;
+            const limitStr = params.get('limit');
+            const limit = limitStr ? parseInt(limitStr, 10) : 50;
+            const logs = getContextLogs({ creationType, stage, limit });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(logs));
             return;
           }
 
