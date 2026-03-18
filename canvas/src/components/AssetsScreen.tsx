@@ -323,6 +323,7 @@ export function AssetsScreen() {
       flexDirection: 'column',
       height: '100%',
       minHeight: 0,
+      overflowY: 'auto',
     }}>
       {/* ── Fixed header bar ── */}
       <div style={{
@@ -342,8 +343,8 @@ export function AssetsScreen() {
           <div>
             <h1 style={{
               margin: 0,
-              fontSize: '1.25rem',
-              fontWeight: 600,
+              fontSize: '26px',
+              fontWeight: 700,
               color: '#e0e0e0',
               letterSpacing: '-0.02em',
             }}>
@@ -361,14 +362,19 @@ export function AssetsScreen() {
               alignItems: 'center',
               gap: '0.5rem',
               padding: '8px 14px',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              color: '#0d0d0d',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: '#fff',
               backgroundColor: '#44B2FF',
               border: 'none',
-              borderRadius: 6,
+              borderRadius: 5,
               cursor: 'pointer',
+              fontFamily: 'inherit',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
           >
             <PlusIcon />
             Add from Fluid DAM

@@ -437,21 +437,67 @@ export function fluidWatcherPlugin(): Plugin {
         next();
       });
 
-      // Serve Template Library at /templates/ for the AppShell iframe
+      // Serve Template Library: index pages and static files under /templates/
+      // (Individual .html files are already served with asset rewriting by the middleware above.)
       srv.middlewares.use(async (req, res, next) => {
         if (req.method !== 'GET' || !req.url) return next();
         const pathname = req.url.split('?')[0];
         if (!pathname.startsWith('/templates/') && pathname !== '/templates') return next();
-        // Individual template HTML files are already handled by the /templates/:id.html middleware above;
-        // this handler serves the template library index at /templates/ and /templates/index.html
-        if (pathname !== '/templates' && pathname !== '/templates/') return next();
         try {
-          const html = await fs.readFile(path.join(templatesDir, 'index.html'), 'utf-8');
-          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-          res.end(html);
-          return;
+          // Root index
+          if (pathname === '/templates' || pathname === '/templates/') {
+            const html = await fs.readFile(path.join(templatesDir, 'index.html'), 'utf-8');
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(html);
+            return;
+          }
+          // Subdirectory indices: /templates/social/, /templates/social, /templates/one-pagers/, /templates/one-pagers
+          const relative = pathname.replace(/^\/templates\/?/, '').replace(/\/$/, '') || '';
+          const hasTrailingSlash = pathname.endsWith('/');
+          const segs = relative.split('/').filter(Boolean);
+          if (segs.length === 1 && (hasTrailingSlash || relative === segs[0])) {
+            const subIndex = path.join(templatesDir, segs[0], 'index.html');
+            try {
+              const html = await fs.readFile(subIndex, 'utf-8');
+              res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+              res.end(html);
+              return;
+            } catch {
+              /* no index in this subdir */
+            }
+          }
+          // Static files under /templates/ (e.g. editor.html, editor.js, nav.js)
+          let filePath = path.resolve(templatesDir, relative);
+          if (!filePath.startsWith(templatesDir + path.sep) && filePath !== templatesDir) return next();
+          let stat = await fs.stat(filePath).catch(() => null);
+          // Allow /templates/editor?t=... to serve editor.html
+          if (!stat?.isFile() && !path.extname(relative)) {
+            const withHtml = path.join(path.dirname(filePath), path.basename(filePath) + '.html');
+            const statHtml = await fs.stat(withHtml).catch(() => null);
+            if (statHtml?.isFile()) {
+              filePath = withHtml;
+              stat = statHtml;
+            }
+          }
+          if (stat?.isFile()) {
+            const ext = path.extname(filePath).toLowerCase();
+            let data: Buffer | string = await fs.readFile(filePath);
+            if (ext === '.html') {
+              let html = data.toString('utf-8');
+              html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
+              html = html.replace(/<script src="nav\.js"><\/script>/g, '');
+              data = html;
+            }
+            const mime = ext === '.js' ? 'application/javascript'
+              : ext === '.css' ? 'text/css'
+              : ext === '.html' ? 'text/html; charset=utf-8'
+              : 'application/octet-stream';
+            res.writeHead(200, { 'Content-Type': mime });
+            res.end(data);
+            return;
+          }
         } catch {
-          /* templates/index.html not found */
+          /* not found */
         }
         next();
       });
@@ -483,7 +529,8 @@ export function fluidWatcherPlugin(): Plugin {
         const nextLabel = nextSlug ? previewMeta[nextSlug]?.label ?? nextSlug : null;
         const prevHref = prevSlug ? '/preview/templates/' + prevSlug + '.html' : '#';
         const nextHref = nextSlug ? '/preview/templates/' + nextSlug + '.html' : '#';
-        const iframeSrc = '/templates/' + fileName;
+        // Template files live under templates/social/ (preview list is all social)
+        const iframeSrc = '/templates/social/' + fileName;
         const previewHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>

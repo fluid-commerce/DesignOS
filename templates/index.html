@@ -10,60 +10,50 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0a0a0a;
+      background: #0d0d0d;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: #fff;
-      padding: 48px 40px;
+      color: #e0e0e0;
+      padding: 24px 1.5rem;
     }
 
     /* ── Header ── */
     .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
       margin-bottom: 32px;
       padding-bottom: 28px;
-      border-bottom: 1px solid #1c1c1c;
+      border-bottom: 1px solid #1e1e1e;
     }
-    .eyebrow {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
+    .header-title { flex: 1; }
+    .header h1 { font-size: 26px; font-weight: 700; margin: 0 0 6px 0; color: #e0e0e0; }
+    .header p  { font-size: 12px; color: #888; margin: 0; }
+    /* Header primary button — matches canvas Create New (8px 14px, 36px height, 0.75rem, 600, uppercase) */
+    .header-btn-create {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 8px 14px;
+      min-height: 36px;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 5px;
+      background: #44B2FF;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #44B2FF;
-      margin-bottom: 8px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
     }
-    .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
-    .header p  { font-size: 12px; color: #3a3a3a; }
-
-    /* ── Design System bar ── */
-    .ds-bar {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      border: 1px solid #1a1a1a;
-      margin-bottom: 52px;
+    .header-btn-create:hover {
+      background: #3a9fe0;
     }
-    .ds-block {
-      padding: 18px 20px;
-      border-right: 1px solid #1a1a1a;
-    }
-    .ds-block:last-child { border-right: none; }
-    .ds-block h4 {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: #2d2d2d;
-      margin-bottom: 12px;
-    }
-    .color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-    .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #222; flex-shrink: 0; }
-    .color-hex { font-size: 11px; font-weight: 600; color: #ccc; }
-    .color-role { font-size: 10px; color: #3a3a3a; }
-    .font-item { margin-bottom: 7px; }
-    .font-item .fn { font-size: 11px; font-weight: 600; color: #bbb; }
-    .font-item .fu { font-size: 10px; color: #3a3a3a; }
-    .stat { font-size: 11px; color: #444; margin-bottom: 5px; }
-    .stat b { color: #aaa; }
-    .rule { font-size: 11px; color: #3a3a3a; margin-bottom: 5px; padding-left: 8px; border-left: 2px solid #1e1e1e; }
-    .rule b { color: #666; }
 
     /* ── Section heading ── */
     .section-label {
@@ -75,13 +65,18 @@
       margin-bottom: 32px;
     }
 
-    /* ── Template row ── */
+    /* ── Template row (card) ── */
     .template-row {
       display: grid;
       grid-template-columns: 480px 1fr;
       gap: 48px;
       align-items: start;
-      margin-bottom: 72px;
+      margin-bottom: 24px;
+      padding: 24px;
+      background: #1a1a1e;
+      border: 1px solid #1e1e1e;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
     .template-meta {
@@ -130,8 +125,38 @@
       pointer-events: none;
     }
 
-    /* ── Spec panel ── */
+    /* ── Spec panel (right column) ── */
     .spec { }
+    .spec-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .spec-actions .canvas-overlay-edit {
+      opacity: 1;
+      transform: none;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 6px 12px;
+      border-radius: 4px;
+    }
+    .spec-actions .overlay-menu-wrap {
+      position: relative;
+    }
+    .spec-actions .overlay-menu {
+      top: 100%;
+      bottom: auto;
+      right: 0;
+      left: auto;
+      transform: none;
+      margin-top: 4px;
+      z-index: 100;
+    }
+    .spec-actions .overlay-menu-wrap.open .overlay-menu {
+      display: block;
+    }
     .spec .desc { font-size: 12px; color: #444; line-height: 1.65; margin-bottom: 20px; }
 
     .spec-label {
@@ -243,17 +268,23 @@
       transform: translateY(0);
     }
 
-    /* ── Tabs ── */
+    /* ── Tabs (same size as header Create New button; square, no rounded underline) ── */
     .tabs {
       display: flex;
       gap: 2px;
       margin-bottom: 48px;
-      border-bottom: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1e1e1e;
       padding-bottom: 0;
+      border-radius: 0;
     }
     .tab {
       position: relative;
-      padding: 10px 20px 12px;
+      padding: 8px 14px;
+      min-height: 36px;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.06em;
@@ -263,9 +294,11 @@
       background: transparent;
       color: #333;
       transition: color 0.15s;
+      border-radius: 0;
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
       user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     .tab:hover:not(.tab--disabled) { color: #666; }
     .tab--active {
@@ -304,28 +337,6 @@
       margin-bottom: 32px;
     }
     .section-header .section-label { margin-bottom: 0; }
-    .btn-create {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 18px;
-      border: 1px solid #1e1e1e;
-      border-radius: 3px;
-      background: transparent;
-      color: #44B2FF;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .btn-create:hover {
-      background: #0c2233;
-      border-color: #1a3a50;
-    }
-    .btn-create svg { width: 14px; height: 14px; }
 
     /* ── Creation Modal ── */
     .modal-backdrop {
@@ -353,7 +364,7 @@
       overflow: hidden;
       background: #111;
       border: 1px solid #1e1e1e;
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       opacity: 0;
@@ -1152,34 +1163,6 @@
     }
     .campaign-slot-view-btn:hover { background: #081a08; }
 
-    /* ── Sub-tabs ── */
-    .sub-tabs-bar {
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid #1a1a1a;
-      margin-bottom: 36px;
-    }
-    .sub-tabs {
-      display: flex;
-      flex: 1;
-    }
-    .sub-tab {
-      padding: 9px 20px 11px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: #333;
-      transition: color 0.15s;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      user-select: none;
-    }
-    .sub-tab:hover { color: #666; }
-    .sub-tab--active { color: #fff; border-bottom-color: #44B2FF; }
     .sub-panel { display: none; }
     .sub-panel--active { display: block; }
 
@@ -1413,15 +1396,71 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* ── Card actions (Download ZIP + New from Template on the card) ── */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .card-actions .overlay-menu-wrap {
+      position: relative;
+    }
+    .card-actions .canvas-overlay-edit,
+    .card-actions .canvas-overlay-dl {
+      opacity: 1;
+      transform: none;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .card-actions .canvas-overlay-edit {
+      color: #44B2FF;
+      background: transparent;
+      border: 1px solid #44B2FF;
+    }
+    .card-actions .canvas-overlay-edit:hover {
+      background: rgba(68,178,255,0.12);
+      border-color: #5cc0ff;
+    }
+    .card-actions .canvas-overlay-dl {
+      color: #888;
+      background: transparent;
+      border: 1px solid #1e1e1e;
+    }
+    .card-actions .canvas-overlay-dl:hover {
+      color: #e0e0e0;
+      border-color: #2a2a2e;
+    }
+    .card-actions .overlay-menu {
+      top: 100%;
+      left: 0;
+      bottom: auto;
+      transform: none;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
 
 <!-- Header -->
 <div class="header">
-  <div class="eyebrow">@NEumi · Design System</div>
-  <h1>Template Library</h1>
-  <p>Live HTML/CSS templates · pixel-perfect · flfontbold + Inter (Neue Haas proxy)</p>
+  <div class="header-title">
+    <h1>Template Library</h1>
+    <p>Live HTML/CSS templates · pixel-perfect · flfontbold + Inter (Neue Haas proxy)</p>
+  </div>
+  <button type="button" class="header-btn-create" onclick="openCreateModal()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+    Create New
+  </button>
 </div>
 
 <!-- Tabs -->
@@ -1434,51 +1473,6 @@
 
 <!-- Social Tab Panel -->
 <div id="tab-social" class="tab-panel tab-panel--active">
-
-<!-- Design System -->
-<div class="ds-bar">
-  <div class="ds-block">
-    <h4>Colors</h4>
-    <div class="color-row"><div class="swatch" style="background:#000;border-color:#2a2a2a"></div><div><div class="color-hex">#000000</div><div class="color-role">Background</div></div></div>
-    <div class="color-row"><div class="swatch" style="background:#fff"></div><div><div class="color-hex">#FFFFFF</div><div class="color-role">Primary Text</div></div></div>
-    <div class="color-row"><div class="swatch" style="background:#44B2FF"></div><div><div class="color-hex">#44B2FF</div><div class="color-role">Accent Blue</div></div></div>
-    <div class="color-row"><div class="swatch" style="background:#FF6614"></div><div><div class="color-hex">#FF6614</div><div class="color-role">Accent Orange</div></div></div>
-  </div>
-  <div class="ds-block">
-    <h4>Typography</h4>
-    <div class="font-item"><div class="fn">Neue Haas Grotesk Display Pro</div><div class="fu">Weight 700 · Headlines, names, quotes</div></div>
-    <div class="font-item"><div class="fn">flfontbold</div><div class="fu">Weight 700 · Titles, handles, accent labels</div></div>
-  </div>
-  <div class="ds-block">
-    <h4>Canvas</h4>
-    <div class="stat">Square: <b>1080 × 1080px</b></div>
-    <div class="stat">Landscape: <b>1340 × 630px</b></div>
-    <div class="stat">Export: <b>PNG @2x</b></div>
-    <div class="stat">Background: <b>#000000</b></div>
-    <div class="stat">Accent: <b>One per post</b></div>
-  </div>
-  <div class="ds-block">
-    <h4>Principles</h4>
-    <div class="rule"><b>Oversized type</b> — push sizes big</div>
-    <div class="rule"><b>Photo bleeds</b> — editorial, not boxed</div>
-    <div class="rule"><b>One accent</b> — blue OR orange</div>
-    <div class="rule"><b>Rotated label</b> — right edge, 90°</div>
-    <div class="rule"><b>Hanging quotes</b> — all quote posts</div>
-  </div>
-</div>
-
-<!-- Sub-tabs bar -->
-<div class="sub-tabs-bar">
-  <div class="sub-tabs">
-    <button class="sub-tab sub-tab--active" data-subtab="templates" onclick="switchSubTab(this)">Templates</button>
-    <button class="sub-tab" data-subtab="my-creations" onclick="switchSubTab(this)">My Creations</button>
-    <button class="sub-tab" data-subtab="my-campaigns" onclick="switchSubTab(this)">My Campaigns</button>
-  </div>
-  <button class="btn-create" onclick="openCreateModal()">
-    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
-    Create
-  </button>
-</div>
 
 <!-- Templates sub-panel -->
 <div class="sub-panel sub-panel--active" id="subtab-templates">
@@ -1494,7 +1488,7 @@
     <div class="canvas-outer">
       <iframe src="social/t1-quote.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t1-quote.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t1-quote.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1505,8 +1499,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t1-quote', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t1-quote', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t1-quote">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t1-quote')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">Portrait photo top-left. Large white name overlapping right. flfontbold title + handle in accent blue. Full-width quote in the lower half. Rotated label on far right edge.</p>
 
     <div class="spec-label">Content Slots</div>
@@ -1547,7 +1553,7 @@
     <div class="canvas-outer">
       <iframe src="social/t2-app-highlight.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t2-app-highlight.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t2-app-highlight.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1558,8 +1564,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t2-app-highlight', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t2-app-highlight', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t2-app-highlight">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t2-app-highlight')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">Massive bold headline top half. Product/app mockup bleeds into lower half. flfontbold accent label overlaps at −29°. Brand logos bottom bar. Slide counter + rotated label on right edge.</p>
 
     <div class="spec-label">Content Slots</div>
@@ -1601,7 +1619,7 @@
     <div class="canvas-outer-landscape">
       <iframe src="social/t3-partner-alert.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t3-partner-alert.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t3-partner-alert.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1612,8 +1630,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t3-partner-alert', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t3-partner-alert', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t3-partner-alert">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t3-partner-alert')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">Landscape 1340×630 banner. Massive headline bleeds off both sides. Phone mockup fills the canvas height on the left. Blue circle brush stroke and flfontbold accent on the right. Three brand logos (flag, WeCommerce, Fluid) along the bottom.</p>
 
     <div class="spec-label">Content Slots</div>
@@ -1653,7 +1683,7 @@
     <div class="canvas-outer">
       <iframe src="social/t4-fluid-ad.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t4-fluid-ad.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t4-fluid-ad.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1664,8 +1694,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t4-fluid-ad', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t4-fluid-ad', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t4-fluid-ad">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t4-fluid-ad')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">Instagram feed ad (1080×1080). Oversized "BUILT FOR REPS." headline left. Blue circle brush stroke + phone mockup right. flfontbold feature list with sub-labels. Fluid logo + handle bottom bar. Rotated "Instagram Ad" label on right edge.</p>
 
     <div class="spec-label">Ad Copy — Instagram</div>
@@ -1717,7 +1759,7 @@
     <div class="canvas-outer-landscape">
       <iframe src="social/t5-partner-announcement.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t5-partner-announcement.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t5-partner-announcement.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1728,8 +1770,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t5-partner-announcement', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t5-partner-announcement', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t5-partner-announcement">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t5-partner-announcement')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">Landscape 1340×630 announcement banner. Bold headline fills the left half. Portrait photo + person name &amp; title on the right. Partnership logo row (brand × partner) below the headline. Flag, WeCommerce, and Fluid logos along the bottom.</p>
 
     <div class="spec-label">Content Slots</div>
@@ -1772,7 +1826,7 @@
     <div class="canvas-outer">
       <iframe src="social/t6-employee-spotlight.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t6-employee-spotlight.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t6-employee-spotlight.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1783,8 +1837,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t6-employee-spotlight', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t6-employee-spotlight', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t6-employee-spotlight">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t6-employee-spotlight')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">Square 1080×1080 employee / new hire spotlight. Giant bold headline fills the top. Centered portrait photo in the middle. Employee name and title below the photo. Flag, WeCommerce, and Fluid logos at the bottom.</p>
 
     <div class="spec-label">Content Slots</div>
@@ -1824,7 +1890,7 @@
     <div class="canvas-outer">
       <iframe src="social/t7-carousel.html" scrolling="no"></iframe>
       <div class="canvas-overlay">
-        <a class="canvas-overlay-btn" href="/preview/social/t7-carousel.html" target="_blank">↗ Full Size</a>
+        <a class="canvas-overlay-btn" href="/preview/templates/t7-carousel.html" target="_blank">↗ Full Size</a>
         <div class="overlay-menu-wrap">
           <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
           <div class="overlay-menu">
@@ -1835,8 +1901,20 @@
         <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t7-carousel', this)">⬇ Download ZIP</button>
       </div>
     </div>
+    <div class="card-actions">
+      <button class="canvas-overlay-dl" onclick="downloadTemplateZip('t7-carousel', this)">⬇ Download ZIP</button>
+    </div>
   </div>
   <div class="spec">
+    <div class="spec-actions">
+      <div class="overlay-menu-wrap">
+        <button class="canvas-overlay-edit" onclick="toggleOverlayMenu(event,this)">✦ New from Template ▾</button>
+        <div class="overlay-menu">
+          <a class="overlay-menu-item" href="editor?t=t7-carousel">✎ &nbsp;Edit Template</a>
+          <button class="overlay-menu-item" onclick="openCreateModalWithBase('t7-carousel')">✦ &nbsp;Create with AI</button>
+        </div>
+      </div>
+    </div>
     <p class="desc">4-slide Instagram/LinkedIn carousel. Slide 1: bold cover with employee portrait. Slide 2: large intro text + blue arrow. Slide 3: tool feature with name, description, screenshot + difficulty badge. Slide 4: app feature with two body paragraphs. Counter 01/04 in each slide's top-right corner.</p>
 
     <div class="spec-label">Carousel Slides</div>

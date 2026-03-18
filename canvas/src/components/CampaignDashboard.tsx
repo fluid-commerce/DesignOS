@@ -167,9 +167,9 @@ function buildMosaicSrcDoc(urls: PreviewUrl[], totalCreations: number): string {
   </style></head><body><div class="mosaic">${cells}</div></body></html>`;
 }
 
-// ---- New Campaign Modal ----
+// ---- New Campaign Modal (exported for use in AppShell header) ----
 
-interface NewCampaignModalProps {
+export interface NewCampaignModalProps {
   onClose: () => void;
   onCreated: (title: string, channels: string[]) => void;
 }
@@ -183,7 +183,7 @@ const CHANNEL_OPTIONS = [
   { value: 'email', label: 'Email' },
 ];
 
-function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
+export function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
   const [title, setTitle] = useState('');
   const [brief, setBrief] = useState('');
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
@@ -207,76 +207,108 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
   const updateLink = (i: number, val: string) =>
     setRefLinks((prev) => prev.map((l, idx) => (idx === i ? val : l)));
 
+  /* Match templates/index.html modal styling */
   const labelStyle: React.CSSProperties = {
-    fontSize: '0.7rem',
-    color: '#888',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    marginBottom: '0.5rem',
     display: 'block',
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: '0.13em',
+    textTransform: 'uppercase',
+    color: '#444',
+    marginBottom: 10,
   };
 
   const inputStyle: React.CSSProperties = {
     backgroundColor: '#141414',
     border: '1px solid #2a2a2e',
-    borderRadius: 6,
+    borderRadius: 4,
     color: '#e0e0e0',
-    padding: '8px 12px',
-    fontSize: '0.875rem',
+    padding: '9px 12px',
+    fontSize: 12,
     outline: 'none',
     width: '100%',
     boxSizing: 'border-box',
-    fontFamily: "'Inter', sans-serif",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   };
 
   return (
-    /* Backdrop */
+    /* Backdrop — match templates .modal-backdrop.open */
     <div
       onClick={onClose}
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        zIndex: 9000,
+        background: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 100,
       }}
     >
-      {/* Dialog */}
+      {/* Dialog — match templates .modal */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 580,
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          backgroundColor: '#1a1a1e',
-          border: '1px solid #2a2a2e',
-          borderRadius: 10,
-          padding: '1.75rem',
+          maxHeight: '88vh',
+          overflow: 'hidden',
+          background: '#111',
+          border: '1px solid #1e1e1e',
+          borderRadius: 8,
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.5rem',
-          boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         }}
       >
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+        {/* Header — match .modal-header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '28px 36px 0 36px',
+          marginBottom: 24,
+          flexShrink: 0,
+        }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#fff' }}>
             New Campaign
           </h3>
           <button
+            type="button"
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '1.25rem', lineHeight: 1, padding: '2px 6px' }}
+            style={{
+              width: 28,
+              height: 28,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: 'transparent',
+              color: '#444',
+              cursor: 'pointer',
+              borderRadius: 3,
+              fontSize: 18,
+              transition: 'color 0.15s, background 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#aaa';
+              e.currentTarget.style.background = '#1a1a1a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#444';
+              e.currentTarget.style.background = 'transparent';
+            }}
           >
             ×
           </button>
         </div>
 
+        {/* Body — match .modal-form padding */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 36px 36px 36px' }}>
+
         {/* Campaign Name */}
-        <div>
+        <div style={{ marginBottom: 24 }}>
           <label style={labelStyle}>Campaign Name</label>
           <input
             autoFocus
@@ -292,7 +324,7 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
         </div>
 
         {/* Brief */}
-        <div>
+        <div style={{ marginBottom: 24 }}>
           <label style={labelStyle}>Brief</label>
           <textarea
             placeholder="e.g. Q2 product launch campaign targeting independent sales reps on LinkedIn and Instagram..."
@@ -310,18 +342,10 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
         </div>
 
         {/* Resources */}
-        <div>
+        <div style={{ marginBottom: 24 }}>
           <label style={labelStyle}>Resources</label>
-          <div style={{ marginBottom: '0.5rem' }}>
-            <span style={{
-              fontSize: '0.7rem',
-              color: '#555',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-            }}>
-              Reference Links
-            </span>
+          <div style={{ fontSize: 11, color: '#2a2a2a', marginBottom: 12 }}>
+            Reference Links
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {refLinks.map((link, i) => (
@@ -373,7 +397,7 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
         </div>
 
         {/* Attach Files */}
-        <div>
+        <div style={{ marginBottom: 24 }}>
           <label style={labelStyle}>Attach Files</label>
           <button
             style={{
@@ -395,7 +419,7 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
         </div>
 
         {/* Fluid DAM */}
-        <div>
+        <div style={{ marginBottom: 24 }}>
           <label style={labelStyle}>Fluid DAM</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
             <span style={{ color: '#4ade80', fontSize: '0.85rem' }}>✦</span>
@@ -430,7 +454,7 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
         </div>
 
         {/* Channel selection (styled to match) */}
-        <div>
+        <div style={{ marginBottom: 24 }}>
           <label style={labelStyle}>Channels</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {CHANNEL_OPTIONS.map((ch) => {
@@ -458,43 +482,66 @@ function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) {
           </div>
         </div>
 
-        {/* Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.25rem' }}>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '7px 16px',
-              background: 'none',
-              border: '1px solid #2a2a2e',
-              borderRadius: 6,
-              color: '#888',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleCreate}
-            disabled={!title.trim()}
-            style={{
-              padding: '7px 20px',
-              backgroundColor: title.trim() ? '#44B2FF' : '#1a2530',
-              border: 'none',
-              borderRadius: 6,
-              color: title.trim() ? '#fff' : '#444',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: title.trim() ? 'pointer' : 'not-allowed',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              transition: 'background-color 0.15s',
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            Save Campaign
-          </button>
+        {/* Footer — match templates .modal-footer and .btn-generate */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          marginTop: 32,
+          paddingTop: 24,
+          borderTop: '1px solid #1a1a1a',
+        }}>
+          <div style={{ fontSize: 10, color: '#2a2a2a', lineHeight: 1.5 }}>
+            Saves the campaign so you can add creations and assets.
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: '11px 16px',
+                background: 'none',
+                border: '1px solid #2a2a2e',
+                borderRadius: 3,
+                color: '#888',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleCreate}
+              disabled={!title.trim()}
+              style={{
+                padding: '11px 24px',
+                border: 'none',
+                borderRadius: 3,
+                background: title.trim() ? '#44B2FF' : '#1a1a1a',
+                color: title.trim() ? '#000' : '#333',
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                cursor: title.trim() ? 'pointer' : 'default',
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                if (title.trim()) e.currentTarget.style.background = '#5cc0ff';
+              }}
+              onMouseLeave={(e) => {
+                if (title.trim()) e.currentTarget.style.background = '#44B2FF';
+              }}
+            >
+              Save Campaign
+            </button>
+          </div>
+        </div>
         </div>
       </div>
     </div>
@@ -597,7 +644,6 @@ export function CampaignDashboard() {
   const fetchCampaigns = useCampaignStore((s) => s.fetchCampaigns);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
 
-  const showNewCampaignModal = useCampaignStore((s) => s.showNewCampaignModal);
   const setShowNewCampaignModal = useCampaignStore((s) => s.setShowNewCampaignModal);
   const [filterChannel, setFilterChannel] = useState('all');
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
@@ -687,17 +733,6 @@ export function CampaignDashboard() {
     navigateToCampaign(item.id);
   };
 
-  const handleCreated = (title: string, channels: string[]) => {
-    // POST to API — fire-and-forget, then refresh
-    fetch('/api/campaigns', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, channels }),
-    })
-      .then(() => fetchCampaigns())
-      .catch((err) => console.error('[CampaignDashboard] Failed to create campaign:', err));
-  };
-
   const headerActions = (
     <FilterSortBar
       filterChannel={filterChannel}
@@ -775,23 +810,14 @@ export function CampaignDashboard() {
   }
 
   return (
-    <>
-      <DrillDownGrid
-        items={items}
-        renderPreview={renderPreview}
-        onSelect={handleSelect}
-        emptyState={emptyState}
-        title="Campaigns"
-        headerActions={headerActions}
-      />
-
-      {showNewCampaignModal && (
-        <NewCampaignModal
-          onClose={() => setShowNewCampaignModal(false)}
-          onCreated={handleCreated}
-        />
-      )}
-    </>
+    <DrillDownGrid
+      items={items}
+      renderPreview={renderPreview}
+      onSelect={handleSelect}
+      emptyState={emptyState}
+      title="Campaigns"
+      headerActions={headerActions}
+    />
   );
 }
 
@@ -1017,7 +1043,7 @@ const slotStyles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '0 1.25rem',
+    padding: '0 1.5rem',
     borderBottom: '1px solid #1e1e1e',
     flexShrink: 0,
     gap: '1rem',
@@ -1055,7 +1081,7 @@ const slotStyles: Record<string, React.CSSProperties> = {
     display: 'grid',
     gridTemplateColumns: 'repeat(5, 1fr)',
     gap: '0.75rem',
-    padding: '1.25rem',
+    padding: '1.5rem',
     flex: 1,
     alignContent: 'start',
   },
@@ -1115,7 +1141,7 @@ const slotStyles: Record<string, React.CSSProperties> = {
     alignSelf: 'flex-end',
   },
   emptyHint: {
-    padding: '0 1.25rem 1.25rem',
+    padding: '0 1.5rem 1.5rem',
     fontSize: '0.78rem',
     color: '#3a3a3a',
     textAlign: 'center' as const,
