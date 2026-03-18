@@ -46,10 +46,10 @@ describe('brand_assets DB and API', () => {
     expect(decorations[0].category).toBe('decorations');
   });
 
-  it('getBrandAssets returns /fluid-assets/ URLs', () => {
+  it('getBrandAssets returns /api/brand-assets/serve/ URLs', () => {
     const all = getBrandAssets();
     for (const asset of all) {
-      expect(asset.url).toMatch(/^\/fluid-assets\//);
+      expect(asset.url).toMatch(/^\/api\/brand-assets\/serve\//);
     }
   });
 

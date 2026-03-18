@@ -409,7 +409,7 @@ export interface BrandAsset {
   id: string;
   name: string;
   category: string;
-  url: string;       // /fluid-assets/{file_path}
+  url: string;       // /api/brand-assets/serve/{name} (DB-backed serving)
   mimeType: string;
   sizeBytes: number;
   tags: string[];
@@ -423,7 +423,7 @@ function rowToBrandAsset(row: Record<string, unknown>): BrandAsset {
     id: row.id as string,
     name: row.name as string,
     category: row.category as string,
-    url: `/fluid-assets/${row.file_path as string}`,
+    url: `/api/brand-assets/serve/${encodeURIComponent(row.name as string)}`,
     mimeType: row.mime_type as string,
     sizeBytes: row.size_bytes as number,
     tags: JSON.parse(row.tags as string),
@@ -439,6 +439,22 @@ export function getBrandAssets(category?: string): BrandAsset[] {
     return (db.prepare('SELECT * FROM brand_assets WHERE category = ? AND (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY name ASC').all(category) as Record<string, unknown>[]).map(rowToBrandAsset);
   }
   return (db.prepare('SELECT * FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY category ASC, name ASC').all() as Record<string, unknown>[]).map(rowToBrandAsset);
+}
+
+/** Look up a single brand asset by name (first match). Returns raw row with file_path and mime_type. */
+export function getBrandAssetByName(name: string): { file_path: string; mime_type: string } | undefined {
+  const db = getDb();
+  return db.prepare(
+    'SELECT file_path, mime_type FROM brand_assets WHERE name = ? AND (dam_deleted = 0 OR dam_deleted IS NULL) LIMIT 1'
+  ).get(name) as { file_path: string; mime_type: string } | undefined;
+}
+
+/** Look up a single brand asset by file_path. Returns raw row with file_path and mime_type. */
+export function getBrandAssetByFilePath(filePath: string): { file_path: string; mime_type: string; name: string } | undefined {
+  const db = getDb();
+  return db.prepare(
+    'SELECT file_path, mime_type, name FROM brand_assets WHERE file_path = ? AND (dam_deleted = 0 OR dam_deleted IS NULL) LIMIT 1'
+  ).get(filePath) as { file_path: string; mime_type: string; name: string } | undefined;
 }
 
 /** Returns ALL brand assets including soft-deleted DAM assets. Used by the UI to show "Removed from DAM" state. */

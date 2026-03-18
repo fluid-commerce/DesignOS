@@ -506,10 +506,12 @@ export async function executeTool(
       const category = input.category as string | undefined;
       const assets = getBrandAssets(category);
       return JSON.stringify(assets.map(a => {
+        // Use DB-backed serving URL: /api/brand-assets/serve/{name}
+        const serveUrl = `/api/brand-assets/serve/${encodeURIComponent(a.name)}`;
         const base: Record<string, string | null> = {
           name: a.name,
           category: a.category,
-          url: a.url,
+          url: serveUrl,
           mimeType: a.mimeType,
           description: a.description,
         };
@@ -520,11 +522,11 @@ export async function executeTool(
             : a.url.endsWith('.woff') ? 'woff'
             : a.url.endsWith('.otf') ? 'opentype'
             : 'truetype';
-          base.fontSrc = `url('${a.url}') format('${format}')`;
+          base.fontSrc = `url('${serveUrl}') format('${format}')`;
         }
         if (a.mimeType.startsWith('image/')) {
-          base.cssUrl = `url('${a.url}')`;
-          base.imgSrc = a.url;
+          base.cssUrl = `url('${serveUrl}')`;
+          base.imgSrc = serveUrl;
         }
         return base;
       }), null, 2);
@@ -800,7 +802,7 @@ export function buildStylingPrompt(ctx: PipelineContext, designDna?: string): st
     `Use list_voice_guide / read_voice_guide if you need brand voice context for copy refinement.`,
     ``,
     `Use list_brand_assets to discover available fonts, brushstrokes, and other assets (includes descriptions).`,
-    `Reference all assets via the URLs returned by list_brand_assets (they start with /fluid-assets/).`,
+    `Reference all assets via the URLs returned by list_brand_assets (they start with /api/brand-assets/serve/).`,
     `Use @font-face with the fontSrc field from list_brand_assets(category="fonts") — it is already formatted as url('...') format('...'), use it verbatim.`,
     `For images, use cssUrl for background-image and imgSrc for img src attributes — both returned by list_brand_assets.`,
     `NEVER embed base64 data URIs. NEVER hardcode specific asset filenames — always discover them via the tool.`,

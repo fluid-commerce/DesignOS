@@ -30,6 +30,8 @@ import {
   getBrandAssets,
   getAllBrandAssets,
   updateBrandAsset,
+  getBrandAssetByName,
+  getBrandAssetByFilePath,
   getVoiceGuideDocs,
   getVoiceGuideDoc,
   updateVoiceGuideDoc,
@@ -318,6 +320,49 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         next();
       });
 
+      // DB-backed asset serving: /api/brand-assets/serve/:name
+      // Looks up brand_assets by name, resolves file_path, serves with correct Content-Type
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/brand-assets/serve/')) return next();
+        const pathname = req.url.split('?')[0];
+        const nameOrPath = decodeURIComponent(pathname.replace('/api/brand-assets/serve/', ''));
+        if (!nameOrPath) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Missing asset name');
+          return;
+        }
+
+        // Try lookup by name first, then by file_path (for paths like "circles/circle-1")
+        let asset = getBrandAssetByName(nameOrPath);
+        if (!asset && nameOrPath.includes('/')) {
+          // Could be a path segment — try with and without extension
+          const withExt = getBrandAssetByFilePath(nameOrPath);
+          if (withExt) {
+            asset = { file_path: withExt.file_path, mime_type: withExt.mime_type };
+          }
+        }
+        if (!asset) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Asset not found in DB');
+          return;
+        }
+
+        const fullPath = path.join(projectRoot, 'assets', asset.file_path);
+        try {
+          const data = await fs.readFile(fullPath);
+          // Use mime_type from DB, fallback to extension detection
+          const contentType = asset.mime_type || serveFluidAsset(asset.file_path).contentType;
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Cache-Control': 'public, max-age=86400',
+          });
+          res.end(data);
+        } catch {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Asset file not found on disk');
+        }
+      });
+
       // Static asset serving for /fluid-assets/ -- serves from project assets/ dir
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/fluid-assets/')) return next();
@@ -359,14 +404,14 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
         }
       });
 
-      // Serve template HTML files at /templates/:path.html with asset path rewriting
+      // Serve template HTML files at /templates/:path.html
       srv.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/templates/') || !req.url.endsWith('.html')) return next();
         const filePath = req.url.split('?')[0].replace('/templates/', '');
         const templatePath = path.resolve(projectRoot, 'templates', filePath);
         try {
           let html = await fs.readFile(templatePath, 'utf-8');
-          // Rewrite relative asset paths for serving via /fluid-assets/
+          // Rewrite any remaining ../../assets/ paths to DB-backed URLs (legacy fallback)
           html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
           // Remove nav.js script (not needed in preview)
           html = html.replace(/<script src="nav\.js"><\/script>/g, '');
@@ -1205,11 +1250,38 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
 
                 archive.pipe(res);
 
-                // Rewrite /fluid-assets/ to relative assets/ paths for local opening
-                let exportHtml = html.replace(/\/fluid-assets\//g, 'assets/');
+                // Rewrite DB-backed URLs to relative paths for local opening
+                let exportHtml = html;
+
+                // Handle /api/brand-assets/serve/:name URLs — resolve name to file_path via DB
+                const dbAssetRegex = /\/api\/brand-assets\/serve\/([^"'\s)]+)/g;
+                const dbSeen = new Set<string>();
+                let dbMatch;
+                while ((dbMatch = dbAssetRegex.exec(html)) !== null) {
+                  const name = decodeURIComponent(dbMatch[1]);
+                  if (dbSeen.has(name)) continue;
+                  dbSeen.add(name);
+                  const asset = getBrandAssetByName(name);
+                  if (asset) {
+                    const fullAssetPath = path.join(assetsDir, asset.file_path);
+                    try {
+                      await fs.access(fullAssetPath);
+                      archive.file(fullAssetPath, { name: `assets/${asset.file_path}` });
+                    } catch { /* skip missing files */ }
+                  }
+                }
+                // Rewrite /api/brand-assets/serve/:name to relative assets/ paths
+                exportHtml = exportHtml.replace(/\/api\/brand-assets\/serve\/([^"'\s)]+)/g, (_full, encodedName) => {
+                  const name = decodeURIComponent(encodedName);
+                  const asset = getBrandAssetByName(name);
+                  return asset ? `assets/${asset.file_path}` : `assets/${name}`;
+                });
+
+                // Handle legacy /fluid-assets/ URLs
+                exportHtml = exportHtml.replace(/\/fluid-assets\//g, 'assets/');
                 archive.append(exportHtml, { name: 'index.html' });
 
-                // Collect all /fluid-assets/ references from original HTML and add files
+                // Collect legacy /fluid-assets/ references and add files
                 const assetRegex = /\/fluid-assets\/([^"'\s)]+)/g;
                 const seen = new Set<string>();
                 let match;
@@ -1241,7 +1313,7 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
                 'var src=null;' +
                 'if(v.indexOf("blob:")===0){src=null;}' +
                 'else if(v.indexOf("data:")===0){src=v;}' +
-                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&u.pathname.indexOf("/fluid-assets/")===0)src=u.pathname;else src=v;}catch(e){src=v;}}' +
+                'else if(v.indexOf("http")===0){try{var u=new URL(v);if(u.origin===location.origin&&(u.pathname.indexOf("/fluid-assets/")===0||u.pathname.indexOf("/api/brand-assets/serve/")===0))src=u.pathname;else src=v;}catch(e){src=v;}}' +
                 'else if(v.indexOf("/")===0){src=v;}' +
                 'else if(v.indexOf("fluid-assets/")===0){src=location.origin+"/"+v;}' +
                 'else if(v.indexOf("assets/")===0){src=location.origin+"/fluid-assets/"+v.substring(7);}' +
@@ -1786,7 +1858,7 @@ async function autoIngestHtmlToIterations(
 /**
  * Discover templates from the project's templates/ directory.
  * Reads social/ and one-pagers/ subdirectories, excludes index.html,
- * rewrites asset paths from ../../assets/ to /fluid-assets/.
+ * rewrites any remaining ../../assets/ paths to /fluid-assets/ (legacy fallback).
  * Exported for testing.
  */
 export async function discoverTemplates(projectRoot: string): Promise<TemplateInfo[]> {
