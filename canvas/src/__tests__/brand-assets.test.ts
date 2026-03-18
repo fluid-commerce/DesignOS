@@ -40,15 +40,16 @@ describe('brand_assets DB and API', () => {
   });
 
   it('getBrandAssets filters by category', () => {
-    const brushes = getBrandAssets('brushstrokes');
-    expect(brushes.length).toBe(2);
-    expect(brushes[0].category).toBe('brushstrokes');
+    // brushstrokes directory is mapped to 'decorations' semantic category
+    const decorations = getBrandAssets('decorations');
+    expect(decorations.length).toBe(2);
+    expect(decorations[0].category).toBe('decorations');
   });
 
-  it('getBrandAssets returns /fluid-assets/ URLs', () => {
+  it('getBrandAssets returns /api/brand-assets/serve/ URLs', () => {
     const all = getBrandAssets();
     for (const asset of all) {
-      expect(asset.url).toMatch(/^\/fluid-assets\//);
+      expect(asset.url).toMatch(/^\/api\/brand-assets\/serve\//);
     }
   });
 

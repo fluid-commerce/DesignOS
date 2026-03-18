@@ -12,20 +12,23 @@ describe('AppShell', () => {
     } as Parameters<typeof useCampaignStore.setState>[0]);
   });
 
-  it('renders templates iframe when activeNavTab is templates', () => {
+  it('renders templates page when activeNavTab is templates', () => {
     useCampaignStore.setState({ activeNavTab: 'templates' } as Parameters<typeof useCampaignStore.setState>[0]);
     render(<AppShell><div>children</div></AppShell>);
-    const iframe = screen.getByTitle('Template Library') as HTMLIFrameElement;
-    expect(iframe).toBeTruthy();
-    expect(iframe.src).toContain('/templates/');
+    // New unified page: no single "Template Library" iframe; per-card iframes use template names
+    const quoteIframe = screen.getByTitle('Quote') as HTMLIFrameElement;
+    expect(quoteIframe).toBeTruthy();
+    expect(quoteIframe.src).toContain('/templates/social/');
   });
 
-  it('renders patterns iframe when activeNavTab is patterns', () => {
+  it('renders PatternsScreen component when activeNavTab is patterns', () => {
     useCampaignStore.setState({ activeNavTab: 'patterns' } as Parameters<typeof useCampaignStore.setState>[0]);
-    render(<AppShell><div>children</div></AppShell>);
-    const iframe = screen.getByTitle('Pattern Library') as HTMLIFrameElement;
-    expect(iframe).toBeTruthy();
-    expect(iframe.src).toContain('/patterns/');
+    const { container } = render(<AppShell><div>children</div></AppShell>);
+    // PatternsScreen renders (loading spinner or content) — no /patterns/ iframe
+    const patternIframe = container.querySelector('iframe[src="/patterns/"]');
+    expect(patternIframe).toBeNull();
+    // Container itself is present (PatternsScreen renders a div)
+    expect(container.firstChild).toBeTruthy();
   });
 
   // Skipped: AppShell renders BuildHero (when activeNavTab='create') which uses ResizeObserver.

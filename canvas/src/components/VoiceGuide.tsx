@@ -241,6 +241,15 @@ export function VoiceGuide() {
           fontSize: '0.9375rem',
         }}
       >
+        {/* Page heading + subtitle */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <p style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: 0, lineHeight: 1.2 }}>
+            Voice Guide
+          </p>
+          <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+            Brand voice rules, messaging frameworks, and example copy your team and agents reference
+          </p>
+        </div>
         {loading && docs.length === 0 ? (
           <p style={{ color: '#555', textAlign: 'center', marginTop: '2rem' }}>Loading...</p>
         ) : selectedDoc ? (

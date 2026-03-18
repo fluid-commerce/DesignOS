@@ -27,6 +27,26 @@ function getMimeType(ext: string): string {
 }
 
 /**
+ * Maps filesystem directory names (old granular categories) to the 4 semantic categories.
+ * Directories not listed here default to 'decorations'.
+ */
+const CATEGORY_MAP: Record<string, string> = {
+  'fonts': 'fonts',
+  'photos': 'images',
+  'logos': 'brand-elements',
+  'brushstrokes': 'decorations',
+  'circles': 'decorations',
+  'lines': 'decorations',
+  'scribbles': 'decorations',
+  'underlines': 'decorations',
+  'xs': 'decorations',
+  // New semantic categories are also valid as-is
+  'images': 'images',
+  'brand-elements': 'brand-elements',
+  'decorations': 'decorations',
+};
+
+/**
  * Scan the given assets directory and seed brand_assets with any new files.
  * Each top-level subdirectory is treated as a category (brushstrokes, fonts, etc.).
  * Skips hidden files and non-file entries. Uses INSERT OR IGNORE for idempotency.
@@ -78,10 +98,12 @@ export async function scanAndSeedBrandAssets(assetsDir: string): Promise<void> {
 
       const mimeType = getMimeType(ext);
 
+      const semanticCategory = CATEGORY_MAP[category] ?? 'decorations';
+
       stmt.run(
         nanoid(),
         name,
-        category,
+        semanticCategory,
         filePath,
         mimeType,
         sizeBytes,

@@ -40,7 +40,7 @@ function normalizeImageUrlForSave(value: string): string {
   if (value.startsWith('data:') || !value.startsWith('http')) return value;
   try {
     const u = new URL(value);
-    if (u.origin === window.location.origin && u.pathname.startsWith('/fluid-assets/')) {
+    if (u.origin === window.location.origin && (u.pathname.startsWith('/fluid-assets/') || u.pathname.startsWith('/api/brand-assets/serve/'))) {
       return u.pathname;
     }
   } catch {

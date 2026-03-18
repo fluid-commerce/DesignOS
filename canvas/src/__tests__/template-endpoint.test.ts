@@ -86,7 +86,7 @@ describe('GET /api/templates', () => {
     expect(templates[0].id).toBe('quote');
   });
 
-  it('rewrites asset paths from ../../assets/ to /fluid-assets/', async () => {
+  it('rewrites legacy ../../assets/ paths to /fluid-assets/ (fallback)', async () => {
     vi.mocked(fs.readdir).mockImplementation(async (dirPath: any) => {
       const p = String(dirPath);
       if (p.includes('social')) return ['test.html'] as any;

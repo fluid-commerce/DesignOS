@@ -158,6 +158,23 @@ function initSchema(db: Database.Database): void {
       sort_order INTEGER NOT NULL DEFAULT 0,
       updated_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS templates (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      num TEXT NOT NULL,
+      name TEXT NOT NULL,
+      file TEXT NOT NULL,
+      layout TEXT NOT NULL,
+      dims TEXT,
+      description TEXT NOT NULL,
+      content_slots TEXT NOT NULL,
+      creation_steps TEXT NOT NULL,
+      extra_tables TEXT,
+      preview_path TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.
@@ -178,4 +195,13 @@ function initSchema(db: Database.Database): void {
 
   // Index for efficient DAM sync lookup
   try { db.exec("CREATE UNIQUE INDEX idx_brand_assets_dam_id ON brand_assets(dam_asset_id) WHERE dam_asset_id IS NOT NULL"); } catch {}
+
+  // Migration: add description column to brand_assets
+  try { db.exec("ALTER TABLE brand_assets ADD COLUMN description TEXT"); } catch {}
+
+  // Migration: recategorize brand_assets from granular to semantic categories
+  // Idempotent: only updates rows with old category values
+  db.exec("UPDATE brand_assets SET category = 'images' WHERE category = 'photos'");
+  db.exec("UPDATE brand_assets SET category = 'brand-elements' WHERE category = 'logos'");
+  db.exec("UPDATE brand_assets SET category = 'decorations' WHERE category IN ('brushstrokes','circles','lines','scribbles','underlines','xs')");
 }
