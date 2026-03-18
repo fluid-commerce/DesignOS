@@ -995,6 +995,12 @@ export function TemplatesScreen() {
             />
 
             {/* Template listings */}
+            {socialTemplates.length === 0 && (
+              <div style={{ color: '#555', fontSize: 13, padding: '48px 0', textAlign: 'center' }}>
+                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>No templates yet</p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Templates are seeded automatically on first app startup.</p>
+              </div>
+            )}
             {socialTemplates.map((t, i) => (
               <div key={t.id}>
                 <TemplateRow
@@ -1014,6 +1020,12 @@ export function TemplatesScreen() {
         {/* Paid Ads tab */}
         {!loading && activeTab === 'paid-ads' && (
           <div>
+            {paidAdTemplates.length === 0 && (
+              <div style={{ color: '#555', fontSize: 13, padding: '48px 0', textAlign: 'center' }}>
+                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>No ad templates yet</p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Templates are seeded automatically on first app startup.</p>
+              </div>
+            )}
             {paidAdTemplates.map((t, i) => (
               <div key={t.id}>
                 <TemplateRow
@@ -1033,6 +1045,12 @@ export function TemplatesScreen() {
         {/* One-Page tab */}
         {!loading && activeTab === 'one-page' && (
           <div>
+            {onePagerTemplates.length === 0 && (
+              <div style={{ color: '#555', fontSize: 13, padding: '48px 0', textAlign: 'center' }}>
+                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>No one-pager templates yet</p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Templates are seeded automatically on first app startup.</p>
+              </div>
+            )}
             {onePagerTemplates.map((t, i) => (
               <div key={t.id}>
                 <TemplateRow
