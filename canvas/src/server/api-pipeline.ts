@@ -197,6 +197,70 @@ const listBrandAssetsTool: Anthropic.Tool = {
   },
 };
 
+const listBrandPatternsTool: Anthropic.Tool = {
+  name: 'list_brand_patterns',
+  description:
+    'List available brand patterns (design tokens, brushstrokes, circles, textures, etc.) from the DB. ' +
+    'Returns slug, label, category, and a short description for each pattern. ' +
+    'Use read_brand_pattern to load full content by slug.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      category: {
+        type: 'string',
+        description: 'Optional filter: "design-tokens", "brushstrokes", "circles", "textures", etc.',
+      },
+    },
+    required: [],
+  },
+};
+
+const readBrandPatternTool: Anthropic.Tool = {
+  name: 'read_brand_pattern',
+  description:
+    'Read full content of a brand pattern by slug. Returns label, category, and complete HTML/content. ' +
+    'Use list_brand_patterns first to discover available slugs.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      slug: {
+        type: 'string',
+        description: 'The slug of the brand pattern to read.',
+      },
+    },
+    required: ['slug'],
+  },
+};
+
+const listVoiceGuideTool: Anthropic.Tool = {
+  name: 'list_voice_guide',
+  description:
+    'List available voice guide documents from the DB. Returns slug, title, and a short description for each doc. ' +
+    'Use read_voice_guide to load full content by slug.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {},
+    required: [],
+  },
+};
+
+const readVoiceGuideTool: Anthropic.Tool = {
+  name: 'read_voice_guide',
+  description:
+    'Read full content of a voice guide document by slug. Returns title and complete content. ' +
+    'Use list_voice_guide first to discover available slugs.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      slug: {
+        type: 'string',
+        description: 'The slug of the voice guide doc to read.',
+      },
+    },
+    required: ['slug'],
+  },
+};
+
 const listTemplatesTool: Anthropic.Tool = {
   name: 'list_templates',
   description:
@@ -238,15 +302,19 @@ export const PIPELINE_TOOLS: Anthropic.Tool[] = [
   listBrandSectionsTool,
   readBrandSectionTool,
   listBrandAssetsTool,
+  listBrandPatternsTool,
+  readBrandPatternTool,
+  listVoiceGuideTool,
+  readVoiceGuideTool,
   listTemplatesTool,
   readTemplateTool,
 ];
 
 /** Tools available per stage */
 export const STAGE_TOOLS: Record<PipelineStage, Anthropic.Tool[]> = {
-  copy: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listTemplatesTool, readTemplateTool],
-  layout: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool],
-  styling: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listBrandAssetsTool, listTemplatesTool, readTemplateTool],
+  copy: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listVoiceGuideTool, readVoiceGuideTool, listTemplatesTool, readTemplateTool],
+  layout: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listBrandPatternsTool, readBrandPatternTool],
+  styling: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listBrandAssetsTool, listBrandPatternsTool, readBrandPatternTool, listVoiceGuideTool, readVoiceGuideTool, listTemplatesTool, readTemplateTool],
   'spec-check': [readFileTool, writeFileTool, runBrandCheckTool],
 };
 
@@ -400,15 +468,50 @@ export async function executeTool(
       return `No brand section found with slug: ${slug}`;
     }
 
+    case 'list_brand_patterns': {
+      const category = input.category as string | undefined;
+      const patterns = getBrandPatterns(category);
+      return JSON.stringify(patterns.map(p => ({
+        slug: p.slug,
+        label: p.label,
+        category: p.category,
+        description: p.content.length > 80 ? p.content.slice(0, 80) + '...' : p.content,
+      })), null, 2);
+    }
+
+    case 'read_brand_pattern': {
+      const slug = input.slug as string;
+      const pattern = getBrandPatternBySlug(slug);
+      if (!pattern) return `No brand pattern found with slug: ${slug}`;
+      return `# ${pattern.label} [${pattern.category}]\n\n${pattern.content}`;
+    }
+
+    case 'list_voice_guide': {
+      const docs = getVoiceGuideDocs();
+      return JSON.stringify(docs.map(d => ({
+        slug: d.slug,
+        title: d.label,
+        description: d.content.length > 80 ? d.content.slice(0, 80) + '...' : d.content,
+      })), null, 2);
+    }
+
+    case 'read_voice_guide': {
+      const slug = input.slug as string;
+      const doc = getVoiceGuideDoc(slug);
+      if (!doc) return `No voice guide doc found with slug: ${slug}`;
+      return `# ${doc.label}\n\n${doc.content}`;
+    }
+
     case 'list_brand_assets': {
       const category = input.category as string | undefined;
       const assets = getBrandAssets(category);
       return JSON.stringify(assets.map(a => {
-        const base: Record<string, string> = {
+        const base: Record<string, string | null> = {
           name: a.name,
           category: a.category,
           url: a.url,
           mimeType: a.mimeType,
+          description: a.description,
         };
         // Add ready-to-use CSS values so agents use them verbatim
         if (a.mimeType.startsWith('font/') || a.url.endsWith('.ttf') || a.url.endsWith('.woff2') || a.url.endsWith('.woff') || a.url.endsWith('.otf')) {
@@ -579,10 +682,10 @@ export function buildSystemPrompt(stage: PipelineStage, ctx: PipelineContext): s
   const toolSection = stage === 'spec-check'
     ? '## Available Tools\nread_file, write_file, run_brand_check'
     : stage === 'styling'
-      ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_brand_assets, list_templates, read_template'
+      ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_brand_assets, list_brand_patterns, read_brand_pattern, list_voice_guide, read_voice_guide, list_templates, read_template'
       : stage === 'copy'
-        ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_templates, read_template'
-        : '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section';
+        ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_voice_guide, read_voice_guide, list_templates, read_template'
+        : '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_brand_patterns, read_brand_pattern';
 
   return [...base, '', toolSection].join('\n');
 }
@@ -661,8 +764,8 @@ export function buildCopyPrompt(ctx: PipelineContext): string {
     `Generate marketing copy for a ${ctx.creationType} creation.`,
     `Topic: ${ctx.prompt}`,
     ``,
-    `Use list_brand_sections(category="voice-guide") to see available voice guide docs.`,
-    `Then read_brand_section to load the ones relevant to this topic (always include "voice-and-style", plus the product-specific doc if applicable).`,
+    `Use list_voice_guide to see available voice guide docs.`,
+    `Then read_voice_guide to load the ones relevant to this topic (always include "voice-and-style", plus the product-specific doc if applicable).`,
     ``,
     `Write structured copy (headline, subtext, accent color, archetype selection) to ${ctx.workingDir}/copy.md.`,
     `Include an "Archetype:" line in your output specifying which visual archetype to use. Options: problem-first, quote, stat-proof, app-highlight, manifesto, partner-alert, feature-spotlight.`,
@@ -690,11 +793,13 @@ export function buildStylingPrompt(ctx: PipelineContext, designDna?: string): st
     `Apply brand styling to create a complete HTML output.`,
     `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
     ``,
-    `Use list_brand_sections to discover available brand specs, then read_brand_section to load what you need:`,
-    `- From "design-tokens" category: color palette, typography, opacity patterns`,
-    `- From "pattern" category: brushstrokes, circles, textures, footer structure — load only the ones relevant to this creation`,
+    `Use list_brand_patterns to discover available visual patterns, then read_brand_pattern to load what you need:`,
+    `- Design tokens: color palette, typography, opacity patterns`,
+    `- Visual patterns: brushstrokes, circles, textures, footer structure — load only the ones relevant to this creation`,
     ``,
-    `Use the list_brand_assets tool to discover available fonts, brushstrokes, and other assets.`,
+    `Use list_voice_guide / read_voice_guide if you need brand voice context for copy refinement.`,
+    ``,
+    `Use list_brand_assets to discover available fonts, brushstrokes, and other assets (includes descriptions).`,
     `Reference all assets via the URLs returned by list_brand_assets (they start with /fluid-assets/).`,
     `Use @font-face with the fontSrc field from list_brand_assets(category="fonts") — it is already formatted as url('...') format('...'), use it verbatim.`,
     `For images, use cssUrl for background-image and imgSrc for img src attributes — both returned by list_brand_assets.`,
