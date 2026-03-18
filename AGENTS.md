@@ -172,7 +172,15 @@ copy → layout → styling → spec-check (→ fix if needed)
 - **Styling:** Sonnet (complex CSS composition)
 - **Spec-check:** Sonnet (holistic brand judgment)
 
-**Smart context injection:** The `context_map` table maps (creation_type, pipeline_stage) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Safety caps truncate any single section exceeding its budget.
+**Smart context injection:** The `context_map` table maps (creation_type, pipeline_stage) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Per-section cap (60% of budget) prevents any single section from monopolizing the injection. Safety caps truncate oversized sections.
+
+**Hard rules extraction:** Brand patterns with weight ≥ 81 are automatically parsed and promoted to system prompt directives (injected into layout/styling stages as `## Hard Rules (NON-NEGOTIABLE)`). This ensures the model treats critical brand rules as constraints, not suggestions.
+
+**Asset manifest pre-injection:** The styling stage receives a pre-built manifest of all brand asset URLs (fonts, brushstrokes, logos) in the system prompt. Eliminates the need for agents to call `list_brand_assets` and prevents wrong URL format guessing.
+
+**Campaign copy accumulator:** In-memory tracker prevents headline/tagline repetition across creations within the same campaign. Each copy agent receives prior creations' headlines and taglines as negative examples.
+
+**Micro-fix loop:** Before spinning up full API-based fix agents, the pipeline attempts regex-based fixes for simple violations (wrong background color, non-brand font families). Saves ~$0.03 and ~15s per fix.
 
 **Design DNA:** For social posts, layout and styling stages receive Design DNA (visual compositor contract + platform rules + archetype notes + HTML exemplar) in the system prompt. Injected once — not duplicated in the user prompt.
 
