@@ -864,7 +864,12 @@ function DesignRulesPanel({
 // TemplatesScreen — main export
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function TemplatesScreen() {
+interface TemplatesScreenProps {
+  /** When provided, shows a Create New button in the header that invokes this callback */
+  onCreateNew?: () => void;
+}
+
+export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
   const [activeTab, setActiveTab] = useState<'social' | 'paid-ads' | 'one-page'>('social');
   const [socialTemplates, setSocialTemplates] = useState<DbTemplate[]>([]);
   const [paidAdTemplates, setPaidAdTemplates] = useState<DbTemplate[]>([]);
@@ -943,18 +948,75 @@ export function TemplatesScreen() {
         color: '#fff',
       }}
     >
-      {/* Header bar with tabs — matches My Creations pattern */}
+      {/* Header bar with title and tabs — matches Assets screen */}
       <div
         style={{
           flexShrink: 0,
           borderBottom: '1px solid #1e1e1e',
           backgroundColor: '#0d0d0d',
           padding: '14px 1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
         }}
       >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '10px',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+        }}>
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: '26px',
+              fontWeight: 700,
+              color: '#e0e0e0',
+              letterSpacing: '-0.02em',
+            }}>
+              Templates
+            </h1>
+            <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+              Designed examples that show how brand patterns come together for specific content types
+            </p>
+          </div>
+          {onCreateNew && (
+            <button
+              type="button"
+              onClick={onCreateNew}
+              title="Create new campaign or asset"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem',
+                padding: '8px 14px',
+                minHeight: 36,
+                boxSizing: 'border-box',
+                backgroundColor: '#44B2FF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 5,
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'background-color 0.15s',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Create New
+            </button>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
           {([
             { id: 'social' as const, label: 'Social' },
@@ -1003,11 +1065,6 @@ export function TemplatesScreen() {
           boxSizing: 'border-box',
         }}
       >
-        {/* Subtitle */}
-        <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 0, marginBottom: 32 }}>
-          Designed examples that show how brand patterns come together for specific content types
-        </p>
-
         {loading && (
           <div style={{ color: '#555', fontSize: 14 }}>Loading templates...</div>
         )}
