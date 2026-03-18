@@ -9,7 +9,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import type { ServerResponse } from 'node:http';
-import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline } from './db-api';
+import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline, getTemplates, getTemplate, getDesignRulesByArchetype } from './db-api';
 
 // Load .env file — try multiple paths since __dirname is unreliable in Vite middleware
 const envPaths = [
@@ -197,6 +197,38 @@ const listBrandAssetsTool: Anthropic.Tool = {
   },
 };
 
+const listTemplatesTool: Anthropic.Tool = {
+  name: 'list_templates',
+  description:
+    'List available design templates. Returns id, type (social/one-pager), name, layout, and a short description for each. Use read_template for full specs and design rules.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      type: {
+        type: 'string',
+        description: 'Filter by type: "social" or "one-pager". Omit for all.',
+      },
+    },
+    required: [],
+  },
+};
+
+const readTemplateTool: Anthropic.Tool = {
+  name: 'read_template',
+  description:
+    'Read full details of a template by ID. Returns name, description, content slots with specs, creation steps, and associated design rules. Use list_templates first to discover available template IDs.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      id: {
+        type: 'string',
+        description: 'Template ID from list_templates',
+      },
+    },
+    required: ['id'],
+  },
+};
+
 /** All pipeline tools */
 export const PIPELINE_TOOLS: Anthropic.Tool[] = [
   readFileTool,
@@ -206,13 +238,15 @@ export const PIPELINE_TOOLS: Anthropic.Tool[] = [
   listBrandSectionsTool,
   readBrandSectionTool,
   listBrandAssetsTool,
+  listTemplatesTool,
+  readTemplateTool,
 ];
 
 /** Tools available per stage */
 export const STAGE_TOOLS: Record<PipelineStage, Anthropic.Tool[]> = {
-  copy: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool],
+  copy: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listTemplatesTool, readTemplateTool],
   layout: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool],
-  styling: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listBrandAssetsTool],
+  styling: [readFileTool, writeFileTool, listFilesTool, listBrandSectionsTool, readBrandSectionTool, listBrandAssetsTool, listTemplatesTool, readTemplateTool],
   'spec-check': [readFileTool, writeFileTool, runBrandCheckTool],
 };
 
@@ -393,6 +427,64 @@ export async function executeTool(
       }), null, 2);
     }
 
+    case 'list_templates': {
+      const type = input.type as string | undefined;
+      const templates = getTemplates(type);
+      return JSON.stringify(templates.map(t => ({
+        id: t.id,
+        type: t.type,
+        name: t.name,
+        layout: t.layout,
+        description: t.description.length > 100 ? t.description.slice(0, 100) + '...' : t.description,
+      })), null, 2);
+    }
+
+    case 'read_template': {
+      const id = input.id as string;
+      const template = getTemplate(id);
+      if (!template) return `No template found with id: ${id}`;
+
+      const designRules = getDesignRulesByArchetype(template.file);
+      const dims = template.dims || (template.layout === 'square' ? '1080x1080' : template.layout === 'landscape' ? '1340x630' : '816x1056');
+
+      const parts: string[] = [
+        `# Template: ${template.name}`,
+        `Type: ${template.type} | Layout: ${template.layout} (${dims}) | File: ${template.file}`,
+        '',
+        '## Description',
+        template.description,
+      ];
+
+      if (template.contentSlots.length > 0) {
+        parts.push('', '## Content Slots', '| Slot | Spec | Color |', '|------|------|-------|');
+        for (const s of template.contentSlots) {
+          parts.push(`| ${s.slot} | ${s.spec} | ${s.color || '\u2014'} |`);
+        }
+      }
+
+      if (template.extraTables) {
+        for (const et of template.extraTables) {
+          parts.push('', `## ${et.label}`);
+          if (et.headers) {
+            parts.push('| ' + et.headers.join(' | ') + ' |');
+            parts.push('|' + et.headers.map(() => '------').join('|') + '|');
+          }
+          for (const row of et.rows) {
+            parts.push('| ' + row.join(' | ') + ' |');
+          }
+        }
+      }
+
+      if (designRules.length > 0) {
+        parts.push('', '## Design Rules');
+        for (const rule of designRules) {
+          parts.push(`### ${rule.label}`, rule.content, '');
+        }
+      }
+
+      return parts.join('\n');
+    }
+
     default:
       return `Unknown tool: ${name}`;
   }
@@ -487,8 +579,10 @@ export function buildSystemPrompt(stage: PipelineStage, ctx: PipelineContext): s
   const toolSection = stage === 'spec-check'
     ? '## Available Tools\nread_file, write_file, run_brand_check'
     : stage === 'styling'
-      ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_brand_assets'
-      : '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section';
+      ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_brand_assets, list_templates, read_template'
+      : stage === 'copy'
+        ? '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_templates, read_template'
+        : '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section';
 
   return [...base, '', toolSection].join('\n');
 }

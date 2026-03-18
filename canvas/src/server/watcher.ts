@@ -39,10 +39,13 @@ import {
   getDesignRule,
   updateDesignRule,
   getDesignRulesByArchetype,
+  getTemplates,
+  getTemplate,
+  updateTemplate,
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty } from './brand-seeder';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
@@ -252,6 +255,9 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       );
       seedDesignRulesIfEmpty().catch(err =>
         console.warn('[watcher] Design rules seeding failed:', err)
+      );
+      seedTemplatesIfEmpty().catch(err =>
+        console.warn('[watcher] Templates seeding failed:', err)
       );
 
       // Sync brand assets from Fluid DAM on startup (non-blocking)
@@ -850,6 +856,55 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
             updateDesignRule(designRuleIdMatch[1], body.content);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // ── Templates (DB-backed) ──────────────────────────────────────────
+
+          // GET /api/templates/:id/full — template + design rules merged
+          const templateFullMatch = url.match(/^\/api\/db-templates\/([^/?]+)\/full$/);
+          if (templateFullMatch && method === 'GET') {
+            const template = getTemplate(templateFullMatch[1]);
+            if (!template) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Not found' }));
+              return;
+            }
+            const designRules = getDesignRulesByArchetype(template.file);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ...template, designRules }));
+            return;
+          }
+
+          // GET /api/db-templates/:id
+          const templateIdMatch = url.match(/^\/api\/db-templates\/([^/?]+)$/);
+          if (templateIdMatch && method === 'GET') {
+            const template = getTemplate(templateIdMatch[1]);
+            if (!template) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Not found' }));
+              return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(template));
+            return;
+          }
+
+          // PUT /api/db-templates/:id
+          if (templateIdMatch && method === 'PUT') {
+            const body = JSON.parse(await readBody(req));
+            updateTemplate(templateIdMatch[1], body);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // GET /api/db-templates or GET /api/db-templates?type=social
+          if ((url === '/api/db-templates' || url.startsWith('/api/db-templates?')) && method === 'GET') {
+            const type = new URL(req.url!, 'http://localhost').searchParams.get('type') ?? undefined;
+            const templates = getTemplates(type);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(templates));
             return;
           }
 

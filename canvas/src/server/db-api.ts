@@ -760,6 +760,73 @@ export function updateDesignRule(id: string, content: string): void {
   ).run(content, Date.now(), id);
 }
 
+// ─── Templates ────────────────────────────────────────────────────────────────
+
+export interface Template {
+  id: string;
+  type: string;
+  num: string;
+  name: string;
+  file: string;
+  layout: string;
+  dims: string | null;
+  description: string;
+  contentSlots: Array<{ slot: string; spec: string; color: string | null }>;
+  extraTables: Array<{ label: string; headers: string[] | null; rows: string[][] }> | null;
+  previewPath: string;
+  sortOrder: number;
+  updatedAt: number;
+}
+
+function rowToTemplate(row: Record<string, unknown>): Template {
+  return {
+    id: row.id as string,
+    type: row.type as string,
+    num: row.num as string,
+    name: row.name as string,
+    file: row.file as string,
+    layout: row.layout as string,
+    dims: (row.dims as string | null) ?? null,
+    description: row.description as string,
+    contentSlots: JSON.parse(row.content_slots as string),
+    extraTables: row.extra_tables ? JSON.parse(row.extra_tables as string) : null,
+    previewPath: row.preview_path as string,
+    sortOrder: row.sort_order as number,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+export function getTemplates(type?: string): Template[] {
+  const db = getDb();
+  if (type) {
+    return (db.prepare('SELECT * FROM templates WHERE type = ? ORDER BY sort_order').all(type) as Record<string, unknown>[]).map(rowToTemplate);
+  }
+  return (db.prepare('SELECT * FROM templates ORDER BY sort_order').all() as Record<string, unknown>[]).map(rowToTemplate);
+}
+
+export function getTemplate(id: string): Template | undefined {
+  const db = getDb();
+  const row = db.prepare('SELECT * FROM templates WHERE id = ?').get(id) as Record<string, unknown> | undefined;
+  return row ? rowToTemplate(row) : undefined;
+}
+
+export function updateTemplate(
+  id: string,
+  fields: Partial<Pick<Template, 'description' | 'contentSlots' | 'extraTables'>>
+): void {
+  const db = getDb();
+  const sets: string[] = [];
+  const vals: unknown[] = [];
+  if (fields.description !== undefined) { sets.push('description = ?'); vals.push(fields.description); }
+  if (fields.contentSlots !== undefined) { sets.push('content_slots = ?'); vals.push(JSON.stringify(fields.contentSlots)); }
+  if (fields.extraTables !== undefined) { sets.push('extra_tables = ?'); vals.push(fields.extraTables ? JSON.stringify(fields.extraTables) : null); }
+  if (sets.length === 0) return;
+  sets.push('updated_at = ?');
+  vals.push(Date.now());
+  vals.push(id);
+  db.prepare(`UPDATE templates SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+}
+
 /**
  * Load all Design DNA relevant to a pipeline generation context.
  * Returns: global visual style, social general rules, platform-specific rules,

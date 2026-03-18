@@ -158,6 +158,23 @@ function initSchema(db: Database.Database): void {
       sort_order INTEGER NOT NULL DEFAULT 0,
       updated_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS templates (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      num TEXT NOT NULL,
+      name TEXT NOT NULL,
+      file TEXT NOT NULL,
+      layout TEXT NOT NULL,
+      dims TEXT,
+      description TEXT NOT NULL,
+      content_slots TEXT NOT NULL,
+      creation_steps TEXT NOT NULL,
+      extra_tables TEXT,
+      preview_path TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.
