@@ -238,17 +238,19 @@ export function fluidWatcherPlugin(workingDir: string): Plugin {
       const projectRoot = path.resolve(srv.config.root, '..');
       const templatesDir = path.resolve(projectRoot, 'templates');
 
-      // Auto-scan brand assets into DB on startup (non-blocking)
-      scanAndSeedBrandAssets(path.join(projectRoot, 'assets')).catch(err =>
+      // Auto-scan brand assets into DB on startup, then seed patterns
+      // (patterns depend on brand_assets table for DB URL rewriting)
+      scanAndSeedBrandAssets(path.join(projectRoot, 'assets')).then(() => {
+        seedBrandPatternsIfEmpty(path.join(projectRoot, 'patterns/index.html')).catch(err =>
+          console.warn('[watcher] Brand patterns seeding failed:', err)
+        );
+      }).catch(err =>
         console.error('[asset-scan] Failed:', err)
       );
 
-      // Seed voice guide docs and brand patterns from source files (non-blocking)
+      // Seed voice guide docs from source files (non-blocking)
       seedVoiceGuideIfEmpty(path.join(projectRoot, 'voice-guide')).catch(err =>
         console.warn('[watcher] Voice guide seeding failed:', err)
-      );
-      seedBrandPatternsIfEmpty(path.join(projectRoot, 'patterns/index.html')).catch(err =>
-        console.warn('[watcher] Brand patterns seeding failed:', err)
       );
 
       // Seed Design DNA: global visual style contract + per-deliverable design rules

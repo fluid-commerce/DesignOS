@@ -160,8 +160,9 @@ function rewriteAssetPathsToDbUrls(content: string): string {
  */
 export async function seedBrandPatternsIfEmpty(patternsHtmlPath: string): Promise<number> {
   const db = getDb();
-  const count = (db.prepare('SELECT COUNT(*) as c FROM brand_patterns').get() as { c: number }).c;
-  if (count > 0) return count;
+  // Check for HTML-sourced patterns specifically (not the text-only visual-compositor-contract)
+  const htmlPatternCount = (db.prepare("SELECT COUNT(*) as c FROM brand_patterns WHERE category != 'visual-style'").get() as { c: number }).c;
+  if (htmlPatternCount > 0) return htmlPatternCount;
 
   let html: string;
   try {
