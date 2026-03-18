@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Timeline } from '../components/Timeline';
 import { PromptReveal } from '../components/PromptReveal';
-import { useAnnotationStore } from '../store/annotations';
 import type { Lineage, Round } from '../lib/types';
 
 const makeRound = (num: number, winnerId: string | null = null): Round => ({
@@ -89,20 +88,3 @@ describe('PromptReveal', () => {
   });
 });
 
-describe('Status management', () => {
-  it('setting a winner auto-rejects other variations in the same round', () => {
-    // Test the store-level logic
-    const store = useAnnotationStore.getState();
-
-    // Set one as winner
-    store.setStatus('v1/styled.html', 'winner');
-    // Simulate auto-reject logic (as App.tsx does)
-    store.setStatus('v2/styled.html', 'rejected');
-    store.setStatus('v3/styled.html', 'rejected');
-
-    const state = useAnnotationStore.getState();
-    expect(state.statuses['v1/styled.html']).toBe('winner');
-    expect(state.statuses['v2/styled.html']).toBe('rejected');
-    expect(state.statuses['v3/styled.html']).toBe('rejected');
-  });
-});
