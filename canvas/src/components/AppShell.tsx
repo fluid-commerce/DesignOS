@@ -8,6 +8,7 @@ import { BuildHero } from './BuildHero';
 import { AssetsScreen } from './AssetsScreen';
 import { TemplatesScreen } from './TemplatesScreen';
 import { PatternsScreen } from './PatternsScreen';
+import { SettingsScreen } from './SettingsScreen';
 
 interface AppShellProps {
   /**
@@ -221,6 +222,9 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation }:
 
       case 'voice-guide':
         return <VoiceGuide />;
+
+      case 'settings':
+        return <SettingsScreen />;
 
       default:
         return null;

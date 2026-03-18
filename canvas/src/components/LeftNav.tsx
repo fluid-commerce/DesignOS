@@ -74,6 +74,16 @@ function VoiceGuideIcon() {
   );
 }
 
+function SettingsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
 function ChatBubbleIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -178,16 +188,53 @@ export function LeftNav() {
         </div>
       )}
 
-      {/* Chat toggle at bottom */}
-      <div style={{ marginTop: 'auto' }}>
+      {/* Settings + Chat toggle at bottom */}
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
+        {/* Settings */}
+        <button
+          key="settings"
+          title="Settings"
+          onClick={() => setActiveNavTab('settings')}
+          onMouseEnter={(e) => {
+            if (activeNavTab !== 'settings') e.currentTarget.style.color = '#aaa';
+            const rect = e.currentTarget.getBoundingClientRect();
+            setTooltip({ label: 'Settings', top: rect.top + rect.height / 2, left: rect.right + 8 });
+          }}
+          onMouseLeave={(e) => {
+            if (activeNavTab !== 'settings') e.currentTarget.style.color = '#666';
+            setTooltip(null);
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 40,
+            height: 40,
+            background: activeNavTab === 'settings' ? '#1a1a1e' : 'none',
+            border: 'none',
+            borderLeft: activeNavTab === 'settings' ? '2px solid #44B2FF' : '2px solid transparent',
+            borderRadius: activeNavTab === 'settings' ? '0 4px 4px 0' : 4,
+            color: activeNavTab === 'settings' ? '#e0e0e0' : '#666',
+            cursor: 'pointer',
+            transition: 'color 0.15s, background-color 0.15s',
+            marginLeft: 2,
+          }}
+        >
+          <SettingsIcon />
+        </button>
+        {/* AI Chat toggle */}
         <button
           title="AI Chat"
+          onClick={toggleChatSidebar}
           onMouseEnter={(e) => {
+            if (!chatSidebarOpen) e.currentTarget.style.color = '#aaa';
             const rect = e.currentTarget.getBoundingClientRect();
             setTooltip({ label: 'AI Chat', top: rect.top + rect.height / 2, left: rect.right + 8 });
           }}
-          onMouseLeave={() => setTooltip(null)}
-          onClick={toggleChatSidebar}
+          onMouseLeave={(e) => {
+            if (!chatSidebarOpen) e.currentTarget.style.color = '#666';
+            setTooltip(null);
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -200,12 +247,6 @@ export function LeftNav() {
             color: chatSidebarOpen ? '#44B2FF' : '#666',
             cursor: 'pointer',
             transition: 'color 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            if (!chatSidebarOpen) e.currentTarget.style.color = '#aaa';
-          }}
-          onMouseLeave={(e) => {
-            if (!chatSidebarOpen) e.currentTarget.style.color = '#666';
           }}
         >
           <ChatBubbleIcon />

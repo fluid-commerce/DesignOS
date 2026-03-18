@@ -8,6 +8,7 @@ import { useCampaignStore } from '../store/campaign';
 import { useAnnotations } from '../hooks/useAnnotations';
 import { buildIterationContext } from '../lib/context-bundler';
 import type { StreamUIMessage } from '../lib/stream-parser';
+import { ContextPanel } from './ContextPanel';
 
 /** Format a YYYYMMDD-HHMMSS session ID into a readable date string. */
 function formatSessionId(id: string): string {
@@ -267,9 +268,19 @@ export function PromptSidebar() {
           <>
             {/* Spacer pushes messages to bottom when few; shrinks as messages accumulate */}
             <div style={{ flex: 1 }} />
-            {displayMessages.map((msg) => (
-              <StreamMessage key={msg.id} message={msg} />
-            ))}
+            {displayMessages.map((msg) => {
+              if (msg.type === 'context-injected') {
+                return (
+                  <ContextPanel
+                    key={msg.id}
+                    sections={msg.sections || []}
+                    tokenEstimate={msg.tokenEstimate || 0}
+                    gapCount={msg.gapCount}
+                  />
+                );
+              }
+              return <StreamMessage key={msg.id} message={msg} />;
+            })}
             {status === 'complete' && (
               <div style={{ textAlign: 'center', color: '#22c55e', fontSize: '0.75rem', padding: '0.5rem 0' }}>
                 Done
