@@ -297,7 +297,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 14. Design DNA | 2/3 | Complete    | 2026-03-17 |
 | 14.1 Brand-Agnostic Pipeline | 3/3 | Complete    | 2026-03-17 |
 | 15. Brand Data Architecture | 3/4 | In Progress|  |
-| 16. Smart Context Pipeline | 1/3 | In Progress|  |
+| 16. Smart Context Pipeline | 2/3 | In Progress|  |
 
 ### Phase 14: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
 
@@ -361,7 +361,7 @@ Plans:
   2. Pipeline pre-loads brand context from DB per the context map and injects it into stage system prompts — agents receive brand context without calling discovery tools
   3. Each generation logs what brand context was loaded per stage (token count, sections used, any fallback discovery tool calls)
   4. Discovery tool usage during pre-injected stages is tracked as "context gap" signals for mapping refinement
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 16-01-PLAN.md — DB schema (context_map/context_log), db-api CRUD functions, seeder defaults, API endpoints, unit tests
