@@ -11,6 +11,11 @@ import { execSync } from 'node:child_process';
 import type { ServerResponse } from 'node:http';
 import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline, getTemplates, getTemplate, getDesignRulesByArchetype, loadContextMap, insertContextLog } from './db-api';
 
+// ---------------------------------------------------------------------------
+// Campaign copy accumulator — prevents tagline/headline repetition across creations
+// ---------------------------------------------------------------------------
+const campaignCopyAccumulator = new Map<string, Array<{ headline: string; tagline: string; creationType: string }>>();
+
 // Load .env file — try multiple paths since __dirname is unreliable in Vite middleware
 const envPaths = [
   path.resolve(process.cwd(), '../.env'),  // canvas/ -> repo root
@@ -738,6 +743,18 @@ function loadContextForStage(
     }
   }
 
+  // Per-section cap: no single section should monopolize the budget (max 60% of total)
+  if (combinedMaxTokens) {
+    const perSectionCap = Math.ceil(combinedMaxTokens * 0.6);
+    for (const section of sectionContents) {
+      if (section.tokens > perSectionCap) {
+        const maxChars = perSectionCap * 4;
+        section.content = section.content.slice(0, maxChars) + `\n\n[TRUNCATED — exceeds per-section cap of ${perSectionCap} tokens]`;
+        section.tokens = perSectionCap;
+      }
+    }
+  }
+
   // Enforce token budget — drop largest sections first when over budget
   let totalTokens = sectionContents.reduce((sum, s) => sum + s.tokens, 0);
   if (combinedMaxTokens && totalTokens > combinedMaxTokens) {
@@ -777,6 +794,71 @@ function loadContextForStage(
 // Stage prompt builder
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Hard rules extraction — promote weight >= 81 brand rules to system directives
+// ---------------------------------------------------------------------------
+
+let _cachedHardRules: string | null = null;
+
+/**
+ * Extract brand rules with weight >= 81 from pattern content and format as
+ * system prompt directives. Cached since patterns rarely change at runtime.
+ */
+function extractHardRules(): string {
+  if (_cachedHardRules !== null) return _cachedHardRules;
+
+  const patterns = getBrandPatterns();
+  const rules: Array<{ weight: number; text: string }> = [];
+
+  for (const pattern of patterns) {
+    // Match weight badges in various formats: (weight: 95), (Weight: 85), etc.
+    const weightRegex = /\((?:weight|Weight):\s*(\d+)\)/g;
+    const lines = pattern.content.split('\n');
+
+    for (const line of lines) {
+      const match = weightRegex.exec(line);
+      if (match) {
+        const weight = parseInt(match[1]);
+        if (weight >= 81) {
+          // Clean the line: remove the weight badge, HTML tags, and trim
+          const cleaned = line
+            .replace(/\((?:weight|Weight):\s*\d+\)/g, '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/^[#*\-\s]+/, '')
+            .trim();
+          if (cleaned.length > 10) {
+            rules.push({ weight, text: cleaned });
+          }
+        }
+      }
+      weightRegex.lastIndex = 0; // reset regex state
+    }
+  }
+
+  if (rules.length === 0) {
+    _cachedHardRules = '';
+    return '';
+  }
+
+  // Sort by weight descending, deduplicate similar rules
+  rules.sort((a, b) => b.weight - a.weight);
+  const seen = new Set<string>();
+  const uniqueRules = rules.filter(r => {
+    const key = r.text.slice(0, 40).toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const formatted = uniqueRules
+    .slice(0, 15) // cap at 15 rules to avoid prompt bloat
+    .map(r => `- [W${r.weight}] ${r.text}`)
+    .join('\n');
+
+  _cachedHardRules = `## Hard Rules (NON-NEGOTIABLE — weight ≥ 81)\nThese brand rules MUST be followed. Violations will fail brand compliance.\n\n${formatted}`;
+  return _cachedHardRules;
+}
+
 /**
  * Build the system prompt for a pipeline stage.
  * Generic process instructions — no brand-specific content.
@@ -802,11 +884,56 @@ export function buildSystemPrompt(stage: PipelineStage, ctx: PipelineContext, in
         : '## Available Tools\nread_file, write_file, list_files, list_brand_sections, read_brand_section, list_brand_patterns, read_brand_pattern';
 
   const parts = [...base];
+
+  // Inject hard rules (weight >= 81) BEFORE brand context — model sees these as constraints
+  const hardRules = extractHardRules();
+  if (hardRules && (stage === 'styling' || stage === 'layout')) {
+    parts.push('', hardRules);
+  }
+
   if (injectedContext) {
     parts.push('', injectedContext);
   }
   parts.push('', toolSection);
   return parts.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Asset manifest builder — pre-inject asset URLs into styling prompts
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a compact markdown asset manifest from the brand_assets DB table.
+ * Includes ready-to-use CSS values so the styling agent doesn't need to call list_brand_assets.
+ */
+function buildAssetManifest(): string {
+  const assets = getBrandAssets();
+  if (assets.length === 0) return '';
+
+  const lines: string[] = ['## Pre-loaded Asset URLs', 'Use these URLs verbatim. Do NOT modify paths or add extensions.', ''];
+
+  // Group by category
+  const byCategory = new Map<string, typeof assets>();
+  for (const a of assets) {
+    if (!byCategory.has(a.category)) byCategory.set(a.category, []);
+    byCategory.get(a.category)!.push(a);
+  }
+
+  for (const [category, catAssets] of byCategory) {
+    lines.push(`### ${category}`);
+    for (const a of catAssets) {
+      const serveUrl = `/api/brand-assets/serve/${encodeURIComponent(a.name)}`;
+      if (a.mimeType.startsWith('font/') || a.name.includes('Font') || a.name.includes('font')) {
+        const format = a.mimeType.includes('ttf') || a.name.endsWith('.ttf') ? 'truetype' : 'truetype';
+        lines.push(`- **${a.name}**: fontSrc=\`url('${serveUrl}') format('${format}')\``);
+      } else {
+        lines.push(`- **${a.name}**: imgSrc=\`${serveUrl}\` | cssUrl=\`url('${serveUrl}')\``);
+      }
+    }
+    lines.push('');
+  }
+
+  return lines.join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -894,7 +1021,45 @@ export function emitContextInjected(
 // Stage user prompt builders — exported for testing
 // ---------------------------------------------------------------------------
 
-export function buildCopyPrompt(ctx: PipelineContext): string {
+/**
+ * Read accumulated copy context for a campaign (headlines + taglines from prior creations).
+ * Returns empty string if no prior creations exist for this campaign.
+ */
+function getCampaignCopyContext(campaignId: string): string {
+  const entries = campaignCopyAccumulator.get(campaignId);
+  if (!entries || entries.length === 0) return '';
+
+  const lines = entries.map((e, i) =>
+    `  ${i + 1}. [${e.creationType}] Headline: "${e.headline}" | Tagline: "${e.tagline}"`
+  );
+
+  return [
+    `\nPrevious creations in this campaign (DO NOT reuse these headlines or taglines):`,
+    ...lines,
+    `Write something DISTINCT from the above.`,
+  ].join('\n');
+}
+
+/**
+ * Record a creation's headline and tagline after the copy stage completes.
+ */
+function recordCampaignCopy(campaignId: string, creationType: string, copyContent: string): void {
+  const headlineMatch = copyContent.match(/###\s*HEADLINE\s*\n(.+)/i);
+  const taglineMatch = copyContent.match(/###\s*TAGLINE\s*\n(.+)/i);
+
+  if (headlineMatch || taglineMatch) {
+    if (!campaignCopyAccumulator.has(campaignId)) {
+      campaignCopyAccumulator.set(campaignId, []);
+    }
+    campaignCopyAccumulator.get(campaignId)!.push({
+      headline: headlineMatch?.[1]?.trim() ?? '',
+      tagline: taglineMatch?.[1]?.trim() ?? '',
+      creationType,
+    });
+  }
+}
+
+export function buildCopyPrompt(ctx: PipelineContext, campaignContext?: string): string {
   return [
     `Generate marketing copy for a ${ctx.creationType} creation.`,
     `Topic: ${ctx.prompt}`,
@@ -911,6 +1076,7 @@ export function buildCopyPrompt(ctx: PipelineContext): string {
     `- For stat-proof archetype: the HEADLINE must be a giant number or short stat phrase (e.g., "6X", "4 DAYS", "82%", "$75,000"). NOT a full sentence.`,
     `- Accent color options: orange=#FF8B58 (urgency/pain), blue=#42b1ff (trust/tech), green=#44b574 (success/proof), purple=#c985e5 (premium/analytical). Pick ONE.`,
     `- If this is part of a campaign with multiple creations, ensure your tagline is DISTINCT from other posts — do not reuse similar phrasing.`,
+    ...(campaignContext ? [campaignContext] : []),
   ].join('\n');
 }
 
@@ -941,8 +1107,8 @@ export function buildStylingPrompt(ctx: PipelineContext, designDna?: string): st
     ``,
     `Use list_voice_guide / read_voice_guide if you need brand voice context for copy refinement.`,
     ``,
-    `Use list_brand_assets to discover available fonts, brushstrokes, and other assets (includes descriptions).`,
-    `Reference all assets via the URLs returned by list_brand_assets (they start with /api/brand-assets/serve/).`,
+    `Asset URLs are pre-injected in your system context. Use them verbatim.`,
+    `If you need additional assets not in the pre-loaded manifest, use list_brand_assets to discover them.`,
     `Use @font-face with the fontSrc field from list_brand_assets(category="fonts") — it is already formatted as url('...') format('...'), use it verbatim.`,
     `For images, use cssUrl for background-image and imgSrc for img src attributes — both returned by list_brand_assets.`,
     `NEVER embed base64 data URIs. NEVER hardcode specific asset filenames — always discover them via the tool.`,
@@ -1134,6 +1300,88 @@ export async function runStageWithTools(
 }
 
 // ---------------------------------------------------------------------------
+// Micro-fix: regex-based fixes for simple brand violations (saves API calls)
+// ---------------------------------------------------------------------------
+
+interface SpecViolation {
+  rule: string;
+  found?: string;
+  severity: string;
+  description?: string;
+  fix_target?: string;
+}
+
+const MICRO_FIXABLE_RULES = new Set([
+  'color-bg-pure-black',
+  'font-non-brand-family',
+]);
+
+// Map of non-brand fonts to their brand replacements
+const FONT_REPLACEMENTS: Record<string, string> = {
+  'Georgia': "'NeueHaas', sans-serif",
+  'Times New Roman': "'NeueHaas', sans-serif",
+  'Times': "'NeueHaas', sans-serif",
+  'Helvetica': "'NeueHaas', sans-serif",
+  'Arial': "'NeueHaas', sans-serif",
+  'serif': 'sans-serif',
+  'cursive': 'sans-serif',
+};
+
+/**
+ * Attempt regex-based fixes for simple brand violations.
+ * Returns true if all violations were fixable and the file was updated.
+ */
+async function tryMicroFix(htmlPath: string, violations: SpecViolation[]): Promise<boolean> {
+  // Only attempt if ALL violations are micro-fixable
+  if (!violations.every(v => MICRO_FIXABLE_RULES.has(v.rule))) {
+    return false;
+  }
+
+  try {
+    let html = await fs.readFile(htmlPath, 'utf-8');
+    let modified = false;
+
+    for (const v of violations) {
+      if (v.rule === 'color-bg-pure-black' && v.found) {
+        // Replace dark gray backgrounds with pure black
+        const darkGray = v.found.replace('#', '').toLowerCase();
+        const pattern = new RegExp(`#${darkGray}`, 'gi');
+        const newHtml = html.replace(pattern, '#000000');
+        if (newHtml !== html) {
+          html = newHtml;
+          modified = true;
+        }
+      }
+
+      if (v.rule === 'font-non-brand-family' && v.found) {
+        const fontName = v.found.trim();
+        const replacement = FONT_REPLACEMENTS[fontName];
+        if (replacement) {
+          // Replace font-family declarations containing the non-brand font
+          // Match patterns like: 'Georgia', serif  or  "Georgia", serif  or  Georgia, serif
+          const escaped = fontName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`(['"]?)${escaped}\\1(?:\\s*,\\s*[^;}"']+)?`, 'gi');
+          const newHtml = html.replace(pattern, replacement);
+          if (newHtml !== html) {
+            html = newHtml;
+            modified = true;
+          }
+        }
+      }
+    }
+
+    if (modified) {
+      await fs.writeFile(htmlPath, html, 'utf-8');
+      return true;
+    }
+  } catch {
+    // File read/write error — fall back to full fix loop
+  }
+
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // Pipeline orchestrator: runApiPipeline
 // ---------------------------------------------------------------------------
 
@@ -1161,8 +1409,15 @@ export async function runApiPipeline(
   if (copyCtx.sectionSlugs.length > 0) {
     emitContextInjected(res, ctx.creationId, 'copy', copyCtx.sectionSlugs, copyCtx.tokenEstimate);
   }
-  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx), ctx, res, copyCtx.injectedContext);
+  const campaignContext = getCampaignCopyContext(ctx.campaignId);
+  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx, campaignContext), ctx, res, copyCtx.injectedContext);
   await generateStageNarrative('copy', copyResult.output, ctx, res);
+
+  // Record this creation's copy for campaign-level dedup
+  try {
+    const copyContent = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8');
+    recordCampaignCopy(ctx.campaignId, ctx.creationType, copyContent);
+  } catch { /* best-effort */ }
 
   // ── Detect archetype from copy output and load Design DNA ──────────────────
   let detectedArchetype: string | undefined;
@@ -1190,7 +1445,9 @@ export async function runApiPipeline(
 
   // ── Stage 3: Styling ───────────────────────────────────────────────────────
   const stylingCtx = loadContextForStage(contextMap, ctx.creationType, 'styling');
-  const stylingInjected = designDna ? `${designDna}\n\n${stylingCtx.injectedContext}` : stylingCtx.injectedContext;
+  const assetManifest = buildAssetManifest();
+  const stylingParts = [designDna, assetManifest, stylingCtx.injectedContext].filter(Boolean);
+  const stylingInjected = stylingParts.join('\n\n');
   if (stylingCtx.sectionSlugs.length > 0) {
     emitContextInjected(res, ctx.creationId, 'styling', stylingCtx.sectionSlugs, stylingCtx.tokenEstimate);
   }
@@ -1248,6 +1505,22 @@ export async function runApiPipeline(
     for (let fixIter = 1; fixIter <= MAX_FIX_ITERATIONS; fixIter++) {
       const blockingIssues = specReport.blocking_issues ?? [];
       if (blockingIssues.length === 0) break;
+
+      // Try micro-fix first for simple violations (regex-based, no API call needed)
+      const microFixed = await tryMicroFix(ctx.htmlOutputPath, blockingIssues as SpecViolation[]);
+      if (microFixed) {
+        console.log(`[api-pipeline] Micro-fix applied for ${blockingIssues.length} violations`);
+        // Re-run spec-check to verify the micro-fix worked
+        try {
+          await runStageWithTools('spec-check', buildSpecCheckPrompt(ctx), ctx, res);
+          const raw = await fs.readFile(specReportPath, 'utf-8');
+          specReport = JSON.parse(raw);
+          if (specReport.overall === 'pass') {
+            emitStageStatus(res, ctx.creationId, `fix-${fixIter}`, 'micro-fixed');
+            break;
+          }
+        } catch { /* fall through to full fix */ }
+      }
 
       emitStageStatus(res, ctx.creationId, `fix-${fixIter}`, 'starting');
 
