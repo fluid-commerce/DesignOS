@@ -1129,15 +1129,22 @@ export function fluidWatcherPlugin(): Plugin {
 
           // POST /api/creations/:id/slides
           if (creationSlidesMatch && method === 'POST') {
-            const body = JSON.parse(await readBody(req));
-            if (body.slideIndex == null) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'slideIndex is required' }));
-              return;
+            try {
+              const body = JSON.parse(await readBody(req));
+              if (body.slideIndex == null) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'slideIndex is required' }));
+                return;
+              }
+              const slide = createSlide({ creationId: creationSlidesMatch[1], slideIndex: body.slideIndex });
+              console.log(`[api] Created slide ${slide.id} for creation ${creationSlidesMatch[1]}`);
+              res.writeHead(201, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(slide));
+            } catch (err) {
+              console.error('[api] POST /api/creations/:id/slides failed:', err);
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: String(err) }));
             }
-            const slide = createSlide({ creationId: creationSlidesMatch[1], slideIndex: body.slideIndex });
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(slide));
             return;
           }
 
@@ -1161,8 +1168,20 @@ export function fluidWatcherPlugin(): Plugin {
                 res.end(JSON.stringify({ error: 'iterationIndex, htmlPath, and source are required' }));
                 return;
               }
+              const slideId = slideIterationsMatch[1];
+              // Verify the slide exists before attempting insert (debug FK failures)
+              const { getDb: getDbForCheck } = await import('../lib/db.js');
+              const checkDb = getDbForCheck();
+              const slideExists = checkDb.prepare('SELECT id FROM slides WHERE id = ?').get(slideId);
+              if (!slideExists) {
+                console.error(`[api] FK will fail: slide ${slideId} not found in slides table`);
+                console.error('[api] Total slides in DB:', checkDb.prepare('SELECT COUNT(*) as c FROM slides').get());
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: `Slide ${slideId} not found` }));
+                return;
+              }
               const iteration = createIteration({
-                slideId: slideIterationsMatch[1],
+                slideId,
                 iterationIndex: body.iterationIndex,
                 htmlPath: body.htmlPath,
                 slotSchema: body.slotSchema ?? null,
