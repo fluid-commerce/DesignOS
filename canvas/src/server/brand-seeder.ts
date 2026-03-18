@@ -121,6 +121,39 @@ function parsePatternsHtml(html: string): PatternSection[] {
 }
 
 /**
+ * Rewrites asset paths in HTML content to use DB-backed /api/brand-assets/serve/:name URLs.
+ * Builds a lookup map from brand_assets (file_path -> name) and replaces known patterns:
+ *   ../assets/fonts/flfontbold.ttf -> /api/brand-assets/serve/flfontbold
+ *   assets/circles/circle-1.png   -> /api/brand-assets/serve/circle-1
+ */
+function rewriteAssetPathsToDbUrls(content: string): string {
+  const db = getDb();
+  const rows = db.prepare('SELECT name, file_path FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL)').all() as Array<{ name: string; file_path: string }>;
+
+  // Build lookup: various path forms -> DB serve URL
+  const pathToUrl = new Map<string, string>();
+  for (const row of rows) {
+    const url = `/api/brand-assets/serve/${encodeURIComponent(row.name)}`;
+    // file_path is e.g. "circles/circle-1.png"
+    pathToUrl.set(row.file_path, url);
+    pathToUrl.set(`assets/${row.file_path}`, url);
+    pathToUrl.set(`../assets/${row.file_path}`, url);
+    pathToUrl.set(`../../assets/${row.file_path}`, url);
+  }
+
+  // Sort by longest path first so more specific paths match before shorter ones
+  const sortedPaths = [...pathToUrl.entries()].sort((a, b) => b[0].length - a[0].length);
+
+  let result = content;
+  for (const [assetPath, dbUrl] of sortedPaths) {
+    // Escape special regex chars in the path
+    const escaped = assetPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(escaped, 'g'), dbUrl);
+  }
+  return result;
+}
+
+/**
  * Seeds brand_patterns table from patterns/index.html if the table is empty.
  * @param patternsHtmlPath — absolute path to patterns/index.html
  * @returns number of rows that exist after seeding (inserted or pre-existing)
@@ -146,7 +179,9 @@ export async function seedBrandPatternsIfEmpty(patternsHtmlPath: string): Promis
   let order = 0;
   let inserted = 0;
   for (const section of sections) {
-    insert.run(nanoid(), section.slug, section.label, section.category, section.content, order++, Date.now());
+    // Rewrite asset paths to DB-backed URLs at seed time
+    const rewrittenContent = rewriteAssetPathsToDbUrls(section.content);
+    insert.run(nanoid(), section.slug, section.label, section.category, rewrittenContent, order++, Date.now());
     inserted++;
   }
   return inserted;

@@ -51,16 +51,16 @@ const DISPLAY_GROUPS: PatternGroup[] = [
   },
 ];
 
-// ─── Rewrite asset paths ──────────────────────────────────────────────────────
+// ─── Rewrite legacy paths and inject mask-image ──────────────────────────────
 
-function rewriteAssetPaths(html: string): string {
-  // DB content has ../assets/ or assets/ paths — rewrite to /fluid-assets/
+function rewriteAndInjectMasks(html: string): string {
+  // Legacy fallback: rewrite ../assets/ and assets/ paths to /fluid-assets/ for old DB content
+  // (new seeds use /api/brand-assets/serve/ URLs directly)
   let result = html
     .replace(/\.\.\/assets\//g, '/fluid-assets/')
     .replace(/(?<=['"])assets\//g, '/fluid-assets/');
 
   // Inject mask-image inline from data-mask attributes so masks render immediately
-  // without needing a useEffect (which can race with React re-renders)
   result = result.replace(
     /data-mask="([^"]+)"([^>]*?)style="([^"]*)"/g,
     (_, maskUrl, between, existingStyle) => {
@@ -80,19 +80,19 @@ const PATTERN_STYLES = `
      ============================================================ */
   @font-face {
     font-family: 'flfontbold';
-    src: url('/fluid-assets/fonts/flfontbold.ttf') format('truetype');
+    src: url('/api/brand-assets/serve/flfontbold') format('truetype');
     font-weight: 700;
     font-style: normal;
   }
   @font-face {
     font-family: 'NeueHaas';
-    src: url('/fluid-assets/fonts/Inter-VariableFont.ttf') format('truetype');
+    src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype');
     font-weight: 100 900;
     font-style: normal;
   }
   @font-face {
     font-family: 'Inter';
-    src: url('/fluid-assets/fonts/Inter-VariableFont.ttf') format('truetype');
+    src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype');
     font-weight: 100 900;
     font-style: normal;
   }
@@ -389,14 +389,15 @@ function PatternSection({ pattern, onSave, savedSlug, failedSlug }: PatternSecti
   const [editContent, setEditContent] = useState('');
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // After render, apply data-mask attributes as actual mask-image styles
+  // After render, apply data-mask attributes as actual mask-image styles (safety net)
   useEffect(() => {
     if (!contentRef.current || editing) return;
     const masked = contentRef.current.querySelectorAll('[data-mask]');
     masked.forEach((el) => {
       const maskPath = el.getAttribute('data-mask');
       if (!maskPath) return;
-      const url = maskPath.startsWith('/') ? maskPath : `/fluid-assets/${maskPath.replace(/^\.\.\/assets\//, '')}`;
+      // DB content already uses /api/brand-assets/serve/ URLs; keep as-is if absolute
+      const url = maskPath.startsWith('/') ? maskPath : `/api/brand-assets/serve/${maskPath.replace(/^(?:\.\.\/)*assets\//, '').replace(/\.[^.]+$/, '').split('/').pop()}`;
       const s = (el as HTMLElement).style;
       s.webkitMaskImage = `url('${url}')`;
       s.maskImage = `url('${url}')`;
@@ -427,7 +428,7 @@ function PatternSection({ pattern, onSave, savedSlug, failedSlug }: PatternSecti
     }
   };
 
-  const rewrittenContent = rewriteAssetPaths(pattern.content);
+  const rewrittenContent = rewriteAndInjectMasks(pattern.content);
   const isSaved = savedSlug === pattern.slug;
   const isFailed = failedSlug === pattern.slug;
 

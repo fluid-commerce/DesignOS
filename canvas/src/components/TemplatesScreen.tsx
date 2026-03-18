@@ -99,44 +99,72 @@ async function downloadTemplateZip(templatePath: string, templateName: string) {
   const htmlRes = await fetch(`/templates/${templatePath}.html`);
   let html = await htmlRes.text();
 
-  // Patch font paths
-  html = html.replace(/\.\.\/fonts\//g, 'fonts/');
-
   // Remove nav.js script references
   html = html.replace(/<script[^>]*nav\.js[^>]*><\/script>\s*/g, '');
 
-  // Find referenced asset paths
-  const assetMatches = html.match(/(?:src|href)="(assets\/[^"]+)"/g) || [];
-  const assetPaths = assetMatches.map((m: string) => {
-    const match = m.match(/"(assets\/[^"]+)"/);
-    return match ? match[1] : null;
-  }).filter(Boolean) as string[];
+  // Collect all /api/brand-assets/serve/:name references and rewrite to local paths for ZIP
+  const dbAssetRegex = /\/api\/brand-assets\/serve\/([^"'\s)]+)/g;
+  const assetNames = new Set<string>();
+  let match: RegExpExecArray | null;
+  while ((match = dbAssetRegex.exec(html)) !== null) {
+    assetNames.add(decodeURIComponent(match[1]));
+  }
+
+  // Fetch brand assets catalog to map name -> file_path for local paths in ZIP
+  const catalogRes = await fetch('/api/brand-assets');
+  const catalog: Array<{ name: string; url: string }> = catalogRes.ok ? await catalogRes.json() : [];
+  const nameToPath = new Map<string, string>();
+  for (const a of catalog) {
+    // url is /api/brand-assets/serve/:name — extract name from the original catalog
+    nameToPath.set(a.name, a.name);
+  }
+
+  // Rewrite DB URLs to relative 'assets/{name}{ext}' paths for the ZIP
+  // We'll fetch the binary from the serve endpoint and include it in the ZIP
+  html = html.replace(dbAssetRegex, (_full, encodedName) => {
+    const name = decodeURIComponent(encodedName);
+    return `assets/${name}`;
+  });
+
+  // Also handle any remaining /fluid-assets/ references (legacy fallback)
+  const fluidAssetRegex = /\/fluid-assets\/([^"'\s)]+)/g;
+  const legacyAssetPaths = new Set<string>();
+  while ((match = fluidAssetRegex.exec(html)) !== null) {
+    legacyAssetPaths.add(match[1]);
+  }
+  html = html.replace(fluidAssetRegex, (_full, assetPath) => `assets/${assetPath}`);
 
   // Add HTML to zip
   zip.file(`${templateName}.html`, html);
 
-  // Add fonts
-  const fontFiles = ['flfontbold.ttf', 'Inter-VariableFont_opsz,wght.ttf'];
-  for (const font of fontFiles) {
+  // Fetch and add DB-backed assets
+  for (const name of assetNames) {
     try {
-      const fontRes = await fetch(`/fonts/${font}`);
-      if (fontRes.ok) {
-        const blob = await fontRes.blob();
-        zip.file(`fonts/${font}`, blob);
+      const assetRes = await fetch(`/api/brand-assets/serve/${encodeURIComponent(name)}`);
+      if (assetRes.ok) {
+        const blob = await assetRes.blob();
+        // Determine extension from content-type
+        const ct = assetRes.headers.get('content-type') || '';
+        const extMap: Record<string, string> = {
+          'font/ttf': '.ttf', 'font/woff2': '.woff2', 'font/woff': '.woff',
+          'image/png': '.png', 'image/jpeg': '.jpg', 'image/svg+xml': '.svg',
+          'image/gif': '.gif', 'image/webp': '.webp',
+        };
+        const ext = extMap[ct] || '';
+        zip.file(`assets/${name}${ext}`, blob);
       }
     } catch {
-      // Skip missing fonts
+      // Skip missing assets
     }
   }
 
-  // Add referenced assets
-  for (const assetPath of assetPaths) {
+  // Fetch and add legacy fluid-assets
+  for (const assetPath of legacyAssetPaths) {
     try {
-      const dir = templatePath.includes('/') ? templatePath.split('/').slice(0, -1).join('/') + '/' : '';
-      const assetRes = await fetch(`/templates/${dir}${assetPath}`);
+      const assetRes = await fetch(`/fluid-assets/${assetPath}`);
       if (assetRes.ok) {
         const blob = await assetRes.blob();
-        zip.file(assetPath, blob);
+        zip.file(`assets/${assetPath}`, blob);
       }
     } catch {
       // Skip missing assets

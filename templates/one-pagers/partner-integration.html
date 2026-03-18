@@ -15,11 +15,11 @@
   -->
   <style>
     /* ── Brand Fonts ── */
-    @font-face { font-family: 'NeueHaasDisplay'; src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
-    @font-face { font-family: 'NeueHaasDisplay'; src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
-    @font-face { font-family: 'NeueHaasDisplay'; src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
-    @font-face { font-family: 'NeueHaasDisplay'; src: url('../../assets/fonts/Inter-VariableFont.ttf') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
-    @font-face { font-family: 'FLFont'; src: url('../../assets/fonts/flfontbold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'NeueHaasDisplay'; src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'FLFont'; src: url('/api/brand-assets/serve/flfontbold') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -275,7 +275,7 @@
   <div class="page">
 
     <!-- BRUSHSTROKE — bottom-left corner bleed (FIXED: blend mode; OPTIONAL: second brushstroke) -->
-    <img class="brush" src="../../assets/brushstrokes/brush-texture-03.png" alt="" style="bottom: -20px; left: -30px; width: 400px; opacity: 0.15; transform: rotate(2deg);">
+    <img class="brush" src="/api/brand-assets/serve/brush-texture-03" alt="" style="bottom: -20px; left: -30px; width: 400px; opacity: 0.15; transform: rotate(2deg);">
 
     <!-- SIDE LABEL (FIXED) -->
     <div class="side-label">Fluid Commerce</div>
@@ -286,9 +286,9 @@
     <!-- OPTIONAL: Partner logo (can be text instead) -->
     <div class="header">
       <div class="logo-area">
-        <img src="../../assets/logos/wecommerce-flags.png" alt="Fluid" />
+        <img src="/api/brand-assets/serve/wecommerce-flags" alt="Fluid" />
         <span class="separator">|</span>
-        <img src="../../assets/logos/wecommerce-logos.png" alt="We-Commerce" />
+        <img src="/api/brand-assets/serve/wecommerce-logos" alt="We-Commerce" />
       </div>
       <!-- SLOT: PARTNER_LOGO - Partner company logo or text -->
       <span style="font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--gray-dim); text-transform: uppercase; letter-spacing: 0.1em;">Partner Name</span>
@@ -387,9 +387,9 @@
     <div class="footer">
       <div>
         <div class="footer-left">
-          <img src="../../assets/logos/wecommerce-flags.png" alt="Fluid" />
+          <img src="/api/brand-assets/serve/wecommerce-flags" alt="Fluid" />
           <span class="sep">|</span>
-          <img src="../../assets/logos/wecommerce-logos.png" alt="We-Commerce" />
+          <img src="/api/brand-assets/serve/wecommerce-logos" alt="We-Commerce" />
         </div>
         <div class="footer-sub">Part of the We-Commerce platform. Connected to Fair Share, Payments, Mobile, and Sync.</div>
       </div>
