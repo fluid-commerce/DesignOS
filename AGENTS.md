@@ -240,9 +240,76 @@ node tools/db-export.cjs                             # Export DB to canvas/seed-
 node tools/db-import.cjs [--merge] [--force]         # Import seed-data.json into DB
 node tools/verify-context-sizes.cjs                  # Check pattern sizes + simulate pipeline token usage
 node tools/feedback-ingest.cjs [--dry-run]           # Analyze feedback, generate proposals
+node tools/simulate-pipeline.cjs "<prompt>"           # Run full pipeline from CLI (see Pipeline Simulation below)
+node tools/simulate-pipeline.cjs --prompt "..." --dry-run  # Set up DB records + dirs only (no API calls)
+node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json  # Batch test
 ```
 
 Note: Validation tools read from the SQLite database. The app must run at least once to seed the DB.
+
+## Pipeline Simulation
+
+To test the generation pipeline at scale without the browser UI, use `simulate-pipeline.cjs` or run manual agent-based simulations.
+
+### Using the CLI harness
+
+```bash
+# Single prompt — runs the real pipeline with Anthropic API calls
+node tools/simulate-pipeline.cjs "Create an Instagram post about Fluid Connect"
+
+# Dry-run — creates DB records + filesystem only, for manual agent simulation
+node tools/simulate-pipeline.cjs --prompt "Launch a campaign for Payments" --dry-run
+
+# Batch — read prompts from file, run each, output JSON report
+node tools/simulate-pipeline.cjs --batch test-prompts.txt --report results.json
+```
+
+The CLI harness uses the **exact same code paths** as the app: `parseChannelHints()` for routing, `createCampaign/Creation/Slide/Iteration` for DB records, `runApiPipeline()` for the 4-stage pipeline, and `brand-compliance.cjs` for spec-check. The only difference is no SSE streaming to a browser.
+
+### Agent-based simulation (manual)
+
+When simulating without API calls (spawning subagents as the pipeline stages), follow these rules:
+
+1. **File paths:** HTML output goes to `{PROJECT_ROOT}/.fluid/campaigns/{campaignId}/{creationId}/{slideId}/{iterationId}.html` — NOT inside `canvas/`. The app resolves `html_path` relative to the project root.
+
+2. **DB records:** Use the `--dry-run` mode of simulate-pipeline.cjs to create proper DB records, or create them manually with nanoid IDs, millisecond timestamps, and correct foreign keys (campaign → creation → slide → iteration).
+
+3. **Brand context:** Agents in the real pipeline access brand data via tools (`list_brand_assets`, `read_brand_section`, etc.) that return exact URLs and formatted content. When simulating, either:
+   - Query the SQLite DB directly (`sqlite3 canvas/fluid.db "SELECT ..."`)
+   - Or use the `--dry-run` output which lists working directories where you can dump context files
+
+4. **Spec-check:** Run `node tools/brand-compliance.cjs <file> --context social|website` after each generation. Social posts must use context `social` (enforces #000 bg). One-pagers use `website` (allows #050505).
+
+5. **DB finalization:** After generation, update `iterations.generation_status` from `pending` to `complete`.
+
+### What to evaluate
+
+When reviewing simulation output, check:
+
+- **Brand compliance** — run the validator, track pass/fail rates by creation type
+- **Copy quality** — voice guide adherence, body length (IG: 1-2 sentences, LI: 2-3), tagline variety within campaigns, stat-proof headlines (must be numbers not sentences)
+- **Styling quality** — background color (#000 for social), asset URL format (/api/brand-assets/serve/{name} with no subdirs/extensions), font fallbacks (sans-serif only), position:absolute for social layout
+- **Routing accuracy** — single vs campaign detection, channel inference, DB record correctness
+- **Campaign coherence** — tagline/headline diversity across posts, accent color variety, archetype variety
+
+### Test prompt battery
+
+Good prompts for comprehensive testing (covers all products, platforms, archetypes, and edge cases):
+
+```
+Create an Instagram post about Fluid Connect — how it eliminates the 3am integration fire drills
+Launch a campaign for Fluid Payments — emphasize the 6x retry logic
+Make me a one-pager about FairShare
+just a linkedin post about why WeCommerce exists
+Instagram post for Checkout
+Create a series of posts about Blitz Week for both Instagram and LinkedIn
+Generate multiple posts about Droplets across Instagram
+an instagram post with an employee spotlight format
+posts about Builder
+Create an Instagram post about the competitive advantage of direct selling over D2C brands
+3 instagram posts and a one-pager for Corporate Tools
+just make something cool about Fluid
+```
 
 ## Testing
 
