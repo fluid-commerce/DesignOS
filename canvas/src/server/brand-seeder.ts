@@ -9,6 +9,7 @@
 import { nanoid } from 'nanoid';
 import { getDb } from '../lib/db';
 import * as fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import * as path from 'node:path';
 
 // ─── Voice Guide ─────────────────────────────────────────────────────────────
@@ -681,4 +682,75 @@ export async function seedDesignRulesIfEmpty(): Promise<void> {
       now
     );
   }
+}
+
+// ─── JSON Seed Import (from seed-data.json) ──────────────────────────────────
+
+/** Tables in dependency order (parents first for FK safety). */
+const SEED_TABLES_ORDERED = [
+  'voice_guide_docs',
+  'brand_patterns',
+  'template_design_rules',
+  'templates',
+  'context_map',
+  'campaigns',
+  'creations',
+  'slides',
+  'iterations',
+  'annotations',
+] as const;
+
+/**
+ * Merge from canvas/seed-data.json on every startup.
+ * Uses INSERT OR IGNORE so only rows with new IDs are added —
+ * existing local data is never overwritten.
+ *
+ * @param projectRoot — absolute path to the project root (parent of canvas/)
+ * @returns number of new rows imported (0 if seed file missing or nothing new)
+ */
+export function importSeedDataIfFresh(projectRoot: string): boolean {
+  const seedPath = path.resolve(projectRoot, 'canvas/seed-data.json');
+  if (!fsSync.existsSync(seedPath)) return false;
+
+  const db = getDb();
+
+  let data: Record<string, Array<Record<string, unknown>>>;
+  try {
+    data = JSON.parse(fsSync.readFileSync(seedPath, 'utf-8'));
+  } catch {
+    console.warn('[seed-import] Failed to parse seed-data.json');
+    return false;
+  }
+
+  let totalImported = 0;
+
+  const importAll = db.transaction(() => {
+    for (const table of SEED_TABLES_ORDERED) {
+      const rows = data[table];
+      if (!rows || rows.length === 0) continue;
+
+      const columns = Object.keys(rows[0]);
+      const placeholders = columns.map(() => '?').join(', ');
+      // INSERT OR IGNORE: skips rows whose primary key already exists locally
+      const insert = db.prepare(
+        `INSERT OR IGNORE INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`
+      );
+
+      for (const row of rows) {
+        try {
+          const result = insert.run(...columns.map(col => row[col] ?? null));
+          if (result.changes > 0) totalImported++;
+        } catch {
+          // Skip rows with FK violations, etc.
+        }
+      }
+    }
+  });
+
+  importAll();
+
+  if (totalImported > 0) {
+    console.log(`[seed-import] Merged ${totalImported} new rows from seed-data.json`);
+  }
+  return totalImported > 0;
 }
