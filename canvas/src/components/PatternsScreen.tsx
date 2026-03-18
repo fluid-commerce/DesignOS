@@ -54,10 +54,22 @@ const DISPLAY_GROUPS: PatternGroup[] = [
 // ─── Rewrite asset paths ──────────────────────────────────────────────────────
 
 function rewriteAssetPaths(html: string): string {
-  // DB content has ../assets/ paths from patterns/index.html parsing
-  return html
+  // DB content has ../assets/ or assets/ paths — rewrite to /fluid-assets/
+  let result = html
     .replace(/\.\.\/assets\//g, '/fluid-assets/')
     .replace(/(?<=['"])assets\//g, '/fluid-assets/');
+
+  // Inject mask-image inline from data-mask attributes so masks render immediately
+  // without needing a useEffect (which can race with React re-renders)
+  result = result.replace(
+    /data-mask="([^"]+)"([^>]*?)style="([^"]*)"/g,
+    (_, maskUrl, between, existingStyle) => {
+      const maskCss = `-webkit-mask-image: url('${maskUrl}'); mask-image: url('${maskUrl}');`;
+      return `data-mask="${maskUrl}"${between}style="${existingStyle} ${maskCss}"`;
+    }
+  );
+
+  return result;
 }
 
 // ─── Pattern styles (from patterns/index.html <style> block) ──────────────────
