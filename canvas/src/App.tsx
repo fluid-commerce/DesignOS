@@ -12,6 +12,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { useCampaignStore } from './store/campaign';
 import { useEditorStore } from './store/editor';
 import { useFileWatcher } from './hooks/useFileWatcher';
+import { useRouteSync } from './hooks/useRouteSync';
 import type { Creation, Slide, Iteration } from './lib/campaign-types';
 import { TEMPLATE_METADATA, getTemplateSchema, type TemplateMetadata } from './lib/template-configs';
 import { PREVIEW_CHROME_PADDING_PX, buildCreationPreview, buildSlidePreview } from './lib/preview-utils';
@@ -228,6 +229,9 @@ export function App() {
 
   // Auto-refresh on filesystem changes (campaign-aware)
   useFileWatcher();
+
+  // Sync browser URL ↔ Zustand navigation state
+  useRouteSync();
 
   // Resolve __standalone__ campaign when creation modal opens (so customizer works without a selected campaign)
   useEffect(() => {
