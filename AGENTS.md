@@ -240,9 +240,10 @@ node tools/db-export.cjs                             # Export DB to canvas/seed-
 node tools/db-import.cjs [--merge] [--force]         # Import seed-data.json into DB
 node tools/verify-context-sizes.cjs                  # Check pattern sizes + simulate pipeline token usage
 node tools/feedback-ingest.cjs [--dry-run]           # Analyze feedback, generate proposals
-node tools/simulate-pipeline.cjs "<prompt>"           # Run full pipeline from CLI (see Pipeline Simulation below)
-node tools/simulate-pipeline.cjs --prompt "..." --dry-run  # Set up DB records + dirs only (no API calls)
-node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json  # Batch test
+node tools/simulate-pipeline.cjs "<prompt>"           # Build pipeline prompts + context for agent simulation
+node tools/simulate-pipeline.cjs --live "<prompt>"    # Run real Anthropic API pipeline from CLI
+node tools/simulate-pipeline.cjs --dry-run "<prompt>" # DB records + filesystem only (fastest)
+node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json  # Batch mode
 ```
 
 Note: Validation tools read from the SQLite database. The app must run at least once to seed the DB.
@@ -254,17 +255,31 @@ To test the generation pipeline at scale without the browser UI, use `simulate-p
 ### Using the CLI harness
 
 ```bash
-# Single prompt — runs the real pipeline with Anthropic API calls
+# Default: set up DB + filesystem + dump exact pipeline prompts/context per stage
+# Ready for a Claude Code agent to simulate each stage
 node tools/simulate-pipeline.cjs "Create an Instagram post about Fluid Connect"
 
-# Dry-run — creates DB records + filesystem only, for manual agent simulation
-node tools/simulate-pipeline.cjs --prompt "Launch a campaign for Payments" --dry-run
+# Live: run the real Anthropic API pipeline (requires ANTHROPIC_API_KEY)
+node tools/simulate-pipeline.cjs --live "Launch a campaign for Payments"
 
-# Batch — read prompts from file, run each, output JSON report
+# Dry-run: DB records + filesystem only (no prompt building)
+node tools/simulate-pipeline.cjs --dry-run "Just a linkedin post about FairShare"
+
+# Batch: read prompts from file, run each, output JSON report
 node tools/simulate-pipeline.cjs --batch test-prompts.txt --report results.json
 ```
 
-The CLI harness uses the **exact same code paths** as the app: `parseChannelHints()` for routing, `createCampaign/Creation/Slide/Iteration` for DB records, `runApiPipeline()` for the 4-stage pipeline, and `brand-compliance.cjs` for spec-check. The only difference is no SSE streaming to a browser.
+The CLI harness uses the **exact same code paths** as the app: `parseChannelHints()` for routing, `createCampaign/Creation/Slide/Iteration` for DB records. In default mode, it also calls the real `buildSystemPrompt()`, `buildCopyPrompt()`, `buildStylingPrompt()` etc. from `api-pipeline.ts` to dump the exact prompts and injected context each stage would receive.
+
+Each creation gets a `working/_pipeline/` directory containing:
+- `copy-system.txt` / `copy-user.txt` — exact prompts for the copy stage
+- `layout-system.txt` / `layout-user.txt` — exact prompts for layout
+- `styling-system.txt` / `styling-user.txt` — exact prompts for styling
+- `asset-manifest.json` — all brand asset URLs (what `list_brand_assets` returns)
+- `voice-guide-list.json`, `brand-patterns-list.json` — discoverable content catalogs
+- `context.json` — creation metadata, model assignments, file paths
+
+A Claude Code agent can read these files and execute each stage with identical context to what the real API pipeline would provide.
 
 ### Agent-based simulation (manual)
 
