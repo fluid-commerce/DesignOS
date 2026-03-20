@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCampaignStore } from '../store/campaign';
 import { useEditorStore } from '../store/editor';
 import { getCreationDimensions } from '../lib/preview-utils';
+import { clearIframeClientRectModeCache } from '../lib/iframe-overlay-geometry';
 import { slotMapsEqual } from '../lib/editor-history';
 import { Breadcrumb } from './Breadcrumb';
 import { VersionBar } from './VersionBar';
@@ -223,6 +224,7 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
                   setIframeEl(el);
                   onIframeRef(el);
                 }}
+                onLoad={(e) => clearIframeClientRectModeCache(e.currentTarget)}
                 src={`/api/iterations/${activeIterationId}/html`}
                 sandbox="allow-same-origin allow-scripts"
                 style={{

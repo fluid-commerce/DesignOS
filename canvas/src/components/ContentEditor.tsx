@@ -204,12 +204,17 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
           <div style={styles.sectionLabel}>Layout in preview</div>
           <p style={styles.pickHint}>
             Click any editable text or image in the preview. A blue outline shows the selection.
-            <strong> Text:</strong> drag the filled frame to move or use the top handle to rotate; use the
+            <strong> Text:</strong> drag the filled frame to move (snaps when edges line up with other edges,
+            or centers with centers — including artboard center; hold <strong>Shift</strong> to disable) or
+            use the top handle to rotate; use the
             dashed box edges for width (fixed width wraps copy; Hug width grows to fit) and bottom for
-            height. Corner scaling
+            height — those snaps match other slots’ widths/heights and edges (hold <strong>Shift</strong> to
+            disable). Corner scaling
             would stretch type — use the dashed box instead.
             <strong> Image / photo:</strong> click the picture in the preview, then drag the blue frame to
-            move, use corners to scale, or the top handle to rotate (or use the fields below).{' '}
+            move — edge-to-edge and center-to-center snapping vs other slots and the artboard (hold{' '}
+            <strong>Shift</strong> to move freely). Corner scaling snaps to the same sizes and edges when
+            axis-aligned. Use the top handle to rotate (or use the fields below).{' '}
             <strong> Brush:</strong> same as image.
           </p>
           {pickedTransform && (

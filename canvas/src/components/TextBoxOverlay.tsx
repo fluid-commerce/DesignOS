@@ -3,9 +3,25 @@
  * South sets a fixed height (scroll if content exceeds). Hug width is restored from the sidebar checkbox.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useEditorStore, SLOT_TEXT_BOX_PREFIX } from '../store/editor';
+import { collectTransformTargets } from '../lib/slot-schema';
+import { elementRectToWrapOverlay } from '../lib/iframe-overlay-geometry';
+import {
+  collectSnapEdgeLinesX,
+  collectSnapEdgeLinesY,
+  collectSnapHeights,
+  collectSnapMidLinesX,
+  collectSnapMidLinesY,
+  collectSnapWidths,
+  DEFAULT_SNAP_THRESHOLD_PX,
+  layoutScalarToOverlayX,
+  layoutScalarToOverlayY,
+  pickBestScalarSnap,
+  snapDimensionToTargets,
+  snapTranslate1D,
+} from '../lib/layout-snap';
 
 const HANDLE = 9;
 const MIN_W = 32;
@@ -19,9 +35,22 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
   const picked = useEditorStore((s) => s.pickedTransform);
   const updateTextBox = useEditorStore((s) => s.updateTextBox);
   const slotValues = useEditorStore((s) => s.slotValues);
+  const slotSchema = useEditorStore((s) => s.slotSchema);
 
   const sel = picked?.kind === 'text' ? picked.sel : null;
   const textBoxKey = sel ? `${SLOT_TEXT_BOX_PREFIX}${sel}` : '';
+
+  const snapTargetSels = useMemo(
+    () => (slotSchema ? collectTransformTargets(slotSchema).map((t) => t.sel) : []),
+    [slotSchema]
+  );
+  const artboardW = slotSchema?.width ?? 1080;
+  const artboardH = slotSchema?.height ?? 1080;
+
+  const [snapGuides, setSnapGuides] = useState<{
+    verticalLayoutX?: number;
+    horizontalLayoutY?: number;
+  } | null>(null);
 
   const dragRef = useRef<{
     edge: 'e' | 'w' | 's';
@@ -47,17 +76,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
       setBox(null);
       return;
     }
-    const er = el.getBoundingClientRect();
-    const wr = wrap.getBoundingClientRect();
-    const ir = iframeEl.getBoundingClientRect();
-    const sX = ir.width / (iframeEl.offsetWidth || 1);
-    const sY = ir.height / (iframeEl.offsetHeight || 1);
-    setBox({
-      x: ir.left + er.left * sX - wr.left,
-      y: ir.top + er.top * sY - wr.top,
-      w: er.width * sX,
-      h: er.height * sY,
-    });
+    setBox(elementRectToWrapOverlay(iframeEl, wrap, el));
   }, [readEl, wrapRef, iframeEl]);
 
   useEffect(() => {
@@ -127,6 +146,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
       e.preventDefault();
       e.stopPropagation();
       t.setPointerCapture(e.pointerId);
+      setSnapGuides(null);
       const lay = readLayoutAtDragStart(el);
       dragRef.current = {
         edge,
@@ -151,24 +171,136 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
       const sY = ir.height / (iframeEl.offsetHeight || 1);
       const dx = (e.clientX - d.startClientX) / sX;
       const dy = (e.clientY - d.startClientY) / sY;
+      const doc = iframeEl.contentDocument;
+      const th = DEFAULT_SNAP_THRESHOLD_PX;
+      const snapOn = !e.shiftKey && doc != null;
 
       if (d.edge === 'e') {
-        const w = Math.max(MIN_W, d.startW + dx);
+        const rawW = Math.max(MIN_W, d.startW + dx);
+        let w = rawW;
+        let guides: { verticalLayoutX?: number; horizontalLayoutY?: number } | null = null;
+
+        if (snapOn) {
+          const rawR = d.startL + rawW;
+          const rawCx = d.startL + rawW / 2;
+          const edgeX = collectSnapEdgeLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+          const midX = collectSnapMidLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+          const widthTargets = collectSnapWidths(doc, iframeEl, snapTargetSels, sel, artboardW);
+
+          const dim = snapDimensionToTargets(rawW, widthTargets, th, MIN_W);
+          const edgeR = snapTranslate1D([rawR], edgeX, th);
+          const mid = snapTranslate1D([rawCx], midX, th);
+          const wMid =
+            mid.guidePos != null ? 2 * (mid.guidePos - d.startL) : rawW;
+
+          type CW = { dist: number; w: number; vx?: number };
+          const cDim: CW | null =
+            dim.dist <= th ? { dist: dim.dist, w: dim.value } : null;
+          const cEdge: CW | null =
+            edgeR.dist <= th ? { dist: edgeR.dist, w: rawW + edgeR.delta, vx: edgeR.guidePos } : null;
+          const cMid: CW | null =
+            mid.dist <= th && wMid >= MIN_W ? { dist: mid.dist, w: wMid, vx: mid.guidePos } : null;
+
+          const best = pickBestScalarSnap([cDim, cEdge, cMid], th);
+          if (best) {
+            w = best.w;
+            if (best.vx != null) guides = { verticalLayoutX: best.vx };
+          }
+        }
+        setSnapGuides(snapOn ? guides : null);
         updateTextBox(sel, { w, h: d.startH, l: d.startL, t: d.startT });
         return;
       }
       if (d.edge === 'w') {
-        const w = Math.max(MIN_W, d.startW - dx);
-        const l = d.startL + (d.startW - w);
+        const rawW = Math.max(MIN_W, d.startW - dx);
+        let w = rawW;
+        let l = d.startL + (d.startW - rawW);
+        let guides: { verticalLayoutX?: number; horizontalLayoutY?: number } | null = null;
+
+        if (snapOn) {
+          const R0 = d.startL + d.startW;
+          const rawL = d.startL + d.startW - rawW;
+          const rawCx = rawL + rawW / 2;
+          const edgeX = collectSnapEdgeLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+          const midX = collectSnapMidLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+          const widthTargets = collectSnapWidths(doc, iframeEl, snapTargetSels, sel, artboardW);
+
+          const dim = snapDimensionToTargets(rawW, widthTargets, th, MIN_W);
+          const edgeL = snapTranslate1D([rawL], edgeX, th);
+          const mid = snapTranslate1D([rawCx], midX, th);
+          const wMid = mid.guidePos != null ? 2 * (R0 - mid.guidePos) : rawW;
+          const lMid = R0 - wMid;
+
+          type CW = { dist: number; w: number; l: number; vx?: number };
+          const cDim: CW | null =
+            dim.dist <= th ? { dist: dim.dist, w: dim.value, l: R0 - dim.value } : null;
+          const newL = rawL + edgeL.delta;
+          const wE = R0 - newL;
+          const cEdge: CW | null =
+            edgeL.dist <= th && wE >= MIN_W
+              ? { dist: edgeL.dist, w: wE, l: newL, vx: edgeL.guidePos }
+              : null;
+          const cMid: CW | null =
+            mid.dist <= th && wMid >= MIN_W
+              ? { dist: mid.dist, w: wMid, l: lMid, vx: mid.guidePos }
+              : null;
+
+          const best = pickBestScalarSnap([cDim, cEdge, cMid], th);
+          if (best) {
+            w = best.w;
+            l = best.l;
+            if (best.vx != null) guides = { verticalLayoutX: best.vx };
+          }
+        }
+        setSnapGuides(snapOn ? guides : null);
         updateTextBox(sel, { w, h: d.startH, l, t: d.startT });
         return;
       }
       if (d.edge === 's') {
-        const newH = Math.max(24, (d.startH ?? elOffsetHeight(readEl())) + dy);
+        const baseH = d.startH ?? elOffsetHeight(readEl());
+        const rawH = Math.max(24, baseH + dy);
+        let newH = rawH;
+        let guides: { verticalLayoutX?: number; horizontalLayoutY?: number } | null = null;
+
+        if (snapOn) {
+          const rawB = d.startT + rawH;
+          const rawCy = d.startT + rawH / 2;
+          const edgeY = collectSnapEdgeLinesY(doc, iframeEl, snapTargetSels, sel, artboardH);
+          const midY = collectSnapMidLinesY(doc, iframeEl, snapTargetSels, sel, artboardH);
+          const heightTargets = collectSnapHeights(doc, iframeEl, snapTargetSels, sel, artboardH);
+
+          const dim = snapDimensionToTargets(rawH, heightTargets, th, 24);
+          const edgeB = snapTranslate1D([rawB], edgeY, th);
+          const mid = snapTranslate1D([rawCy], midY, th);
+          const hMid = mid.guidePos != null ? 2 * (mid.guidePos - d.startT) : rawH;
+
+          type CH = { dist: number; h: number; hy?: number };
+          const cDim: CH | null =
+            dim.dist <= th ? { dist: dim.dist, h: dim.value } : null;
+          const cEdge: CH | null =
+            edgeB.dist <= th ? { dist: edgeB.dist, h: rawH + edgeB.delta, hy: edgeB.guidePos } : null;
+          const cMid: CH | null =
+            mid.dist <= th && hMid >= 24 ? { dist: mid.dist, h: hMid, hy: mid.guidePos } : null;
+
+          const best = pickBestScalarSnap([cDim, cEdge, cMid], th);
+          if (best) {
+            newH = best.h;
+            if (best.hy != null) guides = { horizontalLayoutY: best.hy };
+          }
+        }
+        setSnapGuides(snapOn ? guides : null);
         updateTextBox(sel, { w: d.startW, h: newH, l: d.startL, t: d.startT });
       }
     },
-    [sel, iframeEl, updateTextBox, readEl]
+    [
+      sel,
+      iframeEl,
+      updateTextBox,
+      readEl,
+      snapTargetSels,
+      artboardW,
+      artboardH,
+    ]
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
@@ -179,6 +311,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
       /* ignore */
     }
     dragRef.current = null;
+    setSnapGuides(null);
   }, []);
 
   if (!sel || !box || box.w < 4 || box.h < 4) return null;
@@ -186,9 +319,49 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
   const yMid = box.y + box.h / 2;
   const xMid = box.x + box.w / 2;
 
+  const wrapEl = wrapRef.current;
+  let guideVOverlay: number | null = null;
+  let guideHOverlay: number | null = null;
+  if (snapGuides && wrapEl && iframeEl) {
+    if (snapGuides.verticalLayoutX != null) {
+      guideVOverlay = layoutScalarToOverlayX(iframeEl, wrapEl, snapGuides.verticalLayoutX);
+    }
+    if (snapGuides.horizontalLayoutY != null) {
+      guideHOverlay = layoutScalarToOverlayY(iframeEl, wrapEl, snapGuides.horizontalLayoutY);
+    }
+  }
+  const overlayH = wrapEl?.clientHeight ?? 0;
+  const overlayW = wrapEl?.clientWidth ?? 0;
+
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 25, pointerEvents: 'none' }}>
       <svg width="100%" height="100%" style={{ overflow: 'visible', pointerEvents: 'none' }} aria-hidden>
+        {guideVOverlay != null && overlayH > 0 && (
+          <line
+            x1={guideVOverlay}
+            y1={0}
+            x2={guideVOverlay}
+            y2={overlayH}
+            stroke="#ff6b9d"
+            strokeWidth={1}
+            strokeDasharray="4 3"
+            opacity={0.95}
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
+        {guideHOverlay != null && overlayW > 0 && (
+          <line
+            x1={0}
+            y1={guideHOverlay}
+            x2={overlayW}
+            y2={guideHOverlay}
+            stroke="#ff6b9d"
+            strokeWidth={1}
+            strokeDasharray="4 3"
+            opacity={0.95}
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
         <rect
           x={box.x}
           y={box.y}

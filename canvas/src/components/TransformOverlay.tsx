@@ -4,10 +4,30 @@
  * Works with the same transform strings as BrushTransform / user-state.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useEditorStore, SLOT_TRANSFORM_PREFIX } from '../store/editor';
 import { buildTransformString, parseTransform, parseTransformComputed } from '../lib/transform-format';
+import { elementRectToWrapOverlay } from '../lib/iframe-overlay-geometry';
+import { collectTransformTargets } from '../lib/slot-schema';
+import {
+  canSnapAxisAlignedTransform,
+  collectSnapEdgeLinesX,
+  collectSnapEdgeLinesY,
+  collectSnapHeights,
+  collectSnapMidLinesX,
+  collectSnapMidLinesY,
+  collectSnapWidths,
+  DEFAULT_SNAP_THRESHOLD_PX,
+  elementRectInIframeLayout,
+  layoutScalarToOverlayX,
+  layoutScalarToOverlayY,
+  pickCloserSnap,
+  snapScaleSx,
+  snapScaleSy,
+  snapTranslate1D,
+  type LRect,
+} from '../lib/layout-snap';
 
 const HANDLE = 9;
 const ROT_STEM = 28;
@@ -30,6 +50,14 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
   const savedTransformForSel = useEditorStore((s) =>
     transformKey ? (s.slotValues[transformKey] ?? '') : ''
   );
+  const slotSchema = useEditorStore((s) => s.slotSchema);
+
+  const snapTargetSels = useMemo(
+    () => (slotSchema ? collectTransformTargets(slotSchema).map((t) => t.sel) : []),
+    [slotSchema]
+  );
+  const artboardW = slotSchema?.width ?? 1080;
+  const artboardH = slotSchema?.height ?? 1080;
 
   const dragRef = useRef<{
     mode: 'move' | 'rotate' | 'nw' | 'ne' | 'se' | 'sw';
@@ -49,6 +77,17 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
     cy: number;
     nW: number;
     nH: number;
+    /** Bbox of moving element at drag start (iframe layout px) — move + axis-aligned snap only */
+    moveStartRect?: LRect;
+    /** Unscaled layout center at drag start — corner scale + dimension snap */
+    scaleLayoutCX?: number;
+    scaleLayoutCY?: number;
+  } | null>(null);
+
+  /** Smart-guide positions in iframe layout space (while snapping). */
+  const [snapGuides, setSnapGuides] = useState<{
+    verticalLayoutX?: number;
+    horizontalLayoutY?: number;
   } | null>(null);
 
   const [box, setBox] = useState<{
@@ -89,10 +128,9 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
   }, [readEl, iframeEl, savedTransformForSel]);
 
   /**
-   * Map inner-element rect to overlay coordinates.
-   * getBoundingClientRect() inside the iframe is in iframe layout CSS pixels (unscaled).
-   * The preview applies transform: scale(previewScale) on the iframe, so we convert
-   * via iframe.getBoundingClientRect() — never subtract inner rect from wrap directly.
+   * Map inner-element rect to overlay coordinates (same space as pink snap guides).
+   * Browsers disagree whether iframe content rects are embedder- or document-relative; we detect
+   * and map in {@link elementRectToWrapOverlay}.
    */
   const syncBox = useCallback(() => {
     const wrap = wrapRef.current;
@@ -101,17 +139,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       setBox(null);
       return;
     }
-    const er = el.getBoundingClientRect();
-    const wr = wrap.getBoundingClientRect();
-    const ir = iframeEl.getBoundingClientRect();
-    const sX = ir.width / (iframeEl.offsetWidth || 1);
-    const sY = ir.height / (iframeEl.offsetHeight || 1);
-    setBox({
-      x: ir.left + er.left * sX - wr.left,
-      y: ir.top + er.top * sY - wr.top,
-      w: er.width * sX,
-      h: er.height * sY,
-    });
+    setBox(elementRectToWrapOverlay(iframeEl, wrap, el));
   }, [readEl, wrapRef, iframeEl]);
 
   useEffect(() => {
@@ -176,6 +204,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       e.preventDefault();
       e.stopPropagation();
       t.setPointerCapture(e.pointerId);
+      setSnapGuides(null);
 
       const st = readParsed();
       const el = readEl();
@@ -217,6 +246,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       }
 
       if (mode === 'move') {
+        const moveStartRect = elementRectInIframeLayout(iframeEl, el);
         dragRef.current = {
           mode: 'move',
           startClientX: e.clientX,
@@ -233,10 +263,12 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
           cy,
           nW,
           nH,
+          moveStartRect,
         };
         return;
       }
 
+      const lr = elementRectInIframeLayout(iframeEl, el);
       dragRef.current = {
         mode,
         startClientX: e.clientX,
@@ -253,6 +285,8 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
         cy,
         nW,
         nH,
+        scaleLayoutCX: (lr.l + lr.r) / 2,
+        scaleLayoutCY: (lr.t + lr.b) / 2,
       };
     },
     [sel, box, readParsed, readEl, iframeEl, isTextLayout]
@@ -274,7 +308,64 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
         const sY = ir.height / (iframeEl.offsetHeight || 1);
         const dx = (e.clientX - d.startClientX) / sX;
         const dy = (e.clientY - d.startClientY) / sY;
-        applyTransform(d.startTx + dx, d.startTy + dy, d.startRot, sxUse, syUse);
+        let tx = d.startTx + dx;
+        let ty = d.startTy + dy;
+
+        const doc = iframeEl.contentDocument;
+        const msr = d.moveStartRect;
+        const snapOk =
+          !e.shiftKey &&
+          msr &&
+          doc &&
+          canSnapAxisAlignedTransform(d.startRot, d.startSx, d.startSy);
+
+        if (snapOk) {
+          const dTx = tx - d.startTx;
+          const dTy = ty - d.startTy;
+          const hypoL = msr.l + dTx;
+          const hypoT = msr.t + dTy;
+          const hypoR = hypoL + msr.w;
+          const hypoB = hypoT + msr.h;
+          const hypoCX = hypoL + msr.w / 2;
+          const hypoCY = hypoT + msr.h / 2;
+
+          const edgeX = collectSnapEdgeLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+          const midX = collectSnapMidLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+          const edgeY = collectSnapEdgeLinesY(doc, iframeEl, snapTargetSels, sel, artboardH);
+          const midY = collectSnapMidLinesY(doc, iframeEl, snapTargetSels, sel, artboardH);
+
+          const th = DEFAULT_SNAP_THRESHOLD_PX;
+          const sxSnap = pickCloserSnap(
+            snapTranslate1D([hypoL, hypoR], edgeX, th),
+            snapTranslate1D([hypoCX], midX, th),
+            th
+          );
+          const sySnap = pickCloserSnap(
+            snapTranslate1D([hypoT, hypoB], edgeY, th),
+            snapTranslate1D([hypoCY], midY, th),
+            th
+          );
+
+          tx += sxSnap.delta;
+          ty += sySnap.delta;
+
+          const nextGuides: { verticalLayoutX?: number; horizontalLayoutY?: number } = {};
+          if (sxSnap.delta !== 0 && sxSnap.guidePos != null) {
+            nextGuides.verticalLayoutX = sxSnap.guidePos;
+          }
+          if (sySnap.delta !== 0 && sySnap.guidePos != null) {
+            nextGuides.horizontalLayoutY = sySnap.guidePos;
+          }
+          setSnapGuides(
+            nextGuides.verticalLayoutX != null || nextGuides.horizontalLayoutY != null
+              ? nextGuides
+              : null
+          );
+        } else {
+          setSnapGuides(null);
+        }
+
+        applyTransform(tx, ty, d.startRot, sxUse, syUse);
         return;
       }
 
@@ -293,18 +384,61 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       const elX = Math.cos(θ) * dx + Math.sin(θ) * dy;
       const elY = -Math.sin(θ) * dx + Math.cos(θ) * dy;
       const mode = d.mode;
-      const nSx =
+      const MIN_SCL = 0.05;
+      let nSx =
         mode === 'nw' || mode === 'sw'
-          ? Math.max(0.05, -elX / (d.nW / 2))
-          : Math.max(0.05, elX / (d.nW / 2));
-      const nSy =
+          ? Math.max(MIN_SCL, -elX / (d.nW / 2))
+          : Math.max(MIN_SCL, elX / (d.nW / 2));
+      let nSy =
         mode === 'nw' || mode === 'ne'
-          ? Math.max(0.05, -elY / (d.nH / 2))
-          : Math.max(0.05, elY / (d.nH / 2));
+          ? Math.max(MIN_SCL, -elY / (d.nH / 2))
+          : Math.max(MIN_SCL, elY / (d.nH / 2));
+
+      const doc = iframeEl?.contentDocument;
+      const snapScaleOk =
+        iframeEl &&
+        doc &&
+        !e.shiftKey &&
+        d.scaleLayoutCX != null &&
+        d.scaleLayoutCY != null &&
+        canSnapAxisAlignedTransform(d.startRot, d.startSx, d.startSy);
+
+      if (snapScaleOk) {
+        const th = DEFAULT_SNAP_THRESHOLD_PX;
+        const edgeX = collectSnapEdgeLinesX(doc, iframeEl, snapTargetSels, sel, artboardW);
+        const edgeY = collectSnapEdgeLinesY(doc, iframeEl, snapTargetSels, sel, artboardH);
+        const widthTargets = collectSnapWidths(doc, iframeEl, snapTargetSels, sel, artboardW);
+        const heightTargets = collectSnapHeights(doc, iframeEl, snapTargetSels, sel, artboardH);
+        const cxL = d.scaleLayoutCX;
+        const cyL = d.scaleLayoutCY;
+
+        if (mode === 'se') {
+          nSx = snapScaleSx(d.nW, nSx, cxL, 'east', widthTargets, edgeX, th, MIN_SCL);
+          nSy = snapScaleSy(d.nH, nSy, cyL, 'south', heightTargets, edgeY, th, MIN_SCL);
+        } else if (mode === 'sw') {
+          nSx = snapScaleSx(d.nW, nSx, cxL, 'west', widthTargets, edgeX, th, MIN_SCL);
+          nSy = snapScaleSy(d.nH, nSy, cyL, 'south', heightTargets, edgeY, th, MIN_SCL);
+        } else if (mode === 'ne') {
+          nSx = snapScaleSx(d.nW, nSx, cxL, 'east', widthTargets, edgeX, th, MIN_SCL);
+          nSy = snapScaleSy(d.nH, nSy, cyL, 'north', heightTargets, edgeY, th, MIN_SCL);
+        } else if (mode === 'nw') {
+          nSx = snapScaleSx(d.nW, nSx, cxL, 'west', widthTargets, edgeX, th, MIN_SCL);
+          nSy = snapScaleSy(d.nH, nSy, cyL, 'north', heightTargets, edgeY, th, MIN_SCL);
+        }
+      }
 
       applyTransform(d.startTx, d.startTy, d.startRot, nSx, nSy);
     },
-    [sel, iframeEl, applyTransform, eventToIframeLayout, isTextLayout]
+    [
+      sel,
+      iframeEl,
+      applyTransform,
+      eventToIframeLayout,
+      isTextLayout,
+      snapTargetSels,
+      artboardW,
+      artboardH,
+    ]
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
@@ -315,6 +449,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       /* ignore */
     }
     dragRef.current = null;
+    setSnapGuides(null);
   }, []);
 
   if (!sel || !box || box.w < 2 || box.h < 2) return null;
@@ -322,6 +457,20 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
   const cx = box.x + box.w / 2;
   const cy = box.y + box.h / 2;
   const rotHandleY = box.y - ROT_STEM;
+
+  const wrapEl = wrapRef.current;
+  let guideVOverlay: number | null = null;
+  let guideHOverlay: number | null = null;
+  if (snapGuides && wrapEl && iframeEl) {
+    if (snapGuides.verticalLayoutX != null) {
+      guideVOverlay = layoutScalarToOverlayX(iframeEl, wrapEl, snapGuides.verticalLayoutX);
+    }
+    if (snapGuides.horizontalLayoutY != null) {
+      guideHOverlay = layoutScalarToOverlayY(iframeEl, wrapEl, snapGuides.horizontalLayoutY);
+    }
+  }
+  const overlayH = wrapEl?.clientHeight ?? 0;
+  const overlayW = wrapEl?.clientWidth ?? 0;
 
   return (
     <div
@@ -338,6 +487,32 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
         style={{ overflow: 'visible', pointerEvents: 'none' }}
         aria-hidden
       >
+        {guideVOverlay != null && overlayH > 0 && (
+          <line
+            x1={guideVOverlay}
+            y1={0}
+            x2={guideVOverlay}
+            y2={overlayH}
+            stroke="#ff6b9d"
+            strokeWidth={1}
+            strokeDasharray="4 3"
+            opacity={0.95}
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
+        {guideHOverlay != null && overlayW > 0 && (
+          <line
+            x1={0}
+            y1={guideHOverlay}
+            x2={overlayW}
+            y2={guideHOverlay}
+            stroke="#ff6b9d"
+            strokeWidth={1}
+            strokeDasharray="4 3"
+            opacity={0.95}
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
         {/* Bounding box */}
         <rect
           x={box.x}
