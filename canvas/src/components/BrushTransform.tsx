@@ -27,7 +27,7 @@ interface BrushTransformProps {
 
 export function BrushTransform({
   brushSel,
-  brushLabel,
+  brushLabel: _brushLabel,
   assetWidth,
   iframeEl,
   layoutOnly = false,
@@ -152,26 +152,10 @@ export function BrushTransform({
     sendTransform(tx, ty, rot, sx, val);
   };
 
-  const displayName = brushLabel ?? 'element';
   const _ = getIframeScale;
 
   return (
     <div style={styles.container}>
-      <div style={styles.hint}>
-        {layoutOnly ? (
-          <>
-            Move and rotate <span style={styles.chip}>{displayName}</span> here or with the solid blue
-            frame in the preview. Use the dashed box for <strong>width</strong> and <strong>height</strong>{' '}
-            (layout), not scale — scaling would stretch the type.
-          </>
-        ) : (
-          <>
-            Move, scale, and rotate <span style={styles.chip}>{displayName}</span> with the controls below
-            or drag the blue box in the preview (updates apply live).
-          </>
-        )}
-      </div>
-
       <div style={styles.grid}>
         <NumberField
           label="X (px)"
@@ -241,21 +225,6 @@ function NumberField({
 const styles: Record<string, React.CSSProperties> = {
   container: {
     fontSize: '0.8rem',
-  },
-  hint: {
-    fontSize: '0.75rem',
-    color: '#666',
-    marginBottom: '0.75rem',
-    lineHeight: 1.5,
-  },
-  chip: {
-    display: 'inline',
-    backgroundColor: 'rgba(68,178,255,0.12)',
-    color: '#44B2FF',
-    padding: '1px 6px',
-    borderRadius: 3,
-    fontSize: '0.7rem',
-    fontWeight: 600,
   },
   grid: {
     display: 'grid',

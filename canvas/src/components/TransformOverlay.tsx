@@ -513,7 +513,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
             style={{ pointerEvents: 'none' }}
           />
         )}
-        {/* Bounding box */}
+        {/* Bounding box — drag body to move (same for text, image, brush). */}
         <rect
           x={box.x}
           y={box.y}

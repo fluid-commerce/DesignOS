@@ -170,6 +170,17 @@ describe('updateSlotValue', () => {
     );
   });
 
+  it('skipIframeEcho does not postMessage (artboard typing sync)', () => {
+    const mockPostMessage = vi.fn();
+    const mockIframe = {
+      contentWindow: { postMessage: mockPostMessage },
+    } as unknown as HTMLIFrameElement;
+    useEditorStore.getState().setIframeRef(mockIframe);
+    useEditorStore.getState().updateSlotValue('.headline', 'Hi', 'text', { skipIframeEcho: true });
+    expect(mockPostMessage).not.toHaveBeenCalled();
+    expect(useEditorStore.getState().slotValues['.headline']).toBe('Hi');
+  });
+
   it('does not throw when iframeRef is null', () => {
     // iframeRef is null by default after clearSelection
     expect(() => {

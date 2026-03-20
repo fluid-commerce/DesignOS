@@ -12,7 +12,7 @@ interface TextBoxControlsProps {
   iframeEl: HTMLIFrameElement | null;
 }
 
-export function TextBoxControls({ textSel, textLabel, iframeEl }: TextBoxControlsProps) {
+export function TextBoxControls({ textSel, textLabel: _textLabel, iframeEl }: TextBoxControlsProps) {
   const tbKey = `${SLOT_TEXT_BOX_PREFIX}${textSel}`;
   const saved = useEditorStore((s) => s.slotValues[tbKey] ?? '');
   const updateTextBox = useEditorStore((s) => s.updateTextBox);
@@ -98,16 +98,8 @@ export function TextBoxControls({ textSel, textLabel, iframeEl }: TextBoxControl
 
   const fixedW = autoWidth ? null : widthPx;
 
-  const displayName = textLabel ?? 'text';
-
   return (
     <div style={styles.container}>
-      <div style={styles.hint}>
-        <strong>Hug width</strong> keeps the template’s width (from the HTML/CSS) so copy wraps in multiple
-        lines. Turn it off and use a fixed width (sidebar or side handles) to override with an exact pixel
-        width.
-      </div>
-
       <div style={styles.grid}>
         <div style={styles.formGroup}>
           <label style={styles.labelRow}>
@@ -123,7 +115,6 @@ export function TextBoxControls({ textSel, textLabel, iframeEl }: TextBoxControl
             />
             Hug width
           </label>
-          <span style={styles.subtle}>Use template width — normal multi-line wrap</span>
         </div>
         <div style={styles.formGroup}>
           <label style={styles.labelRow}>
@@ -139,7 +130,6 @@ export function TextBoxControls({ textSel, textLabel, iframeEl }: TextBoxControl
             />
             Auto height
           </label>
-          <span style={styles.subtle}>On = full text visible; resizing width won’t lock height</span>
         </div>
         {!autoWidth && (
           <div style={{ ...styles.formGroup, gridColumn: '1 / -1' }}>
@@ -170,10 +160,6 @@ export function TextBoxControls({ textSel, textLabel, iframeEl }: TextBoxControl
           </div>
         )}
       </div>
-
-      <div style={styles.chipRow}>
-        <span style={styles.chip}>{displayName}</span>
-      </div>
     </div>
   );
 }
@@ -181,12 +167,6 @@ export function TextBoxControls({ textSel, textLabel, iframeEl }: TextBoxControl
 const styles: Record<string, React.CSSProperties> = {
   container: {
     fontSize: '0.8rem',
-  },
-  hint: {
-    fontSize: '0.75rem',
-    color: '#666',
-    marginBottom: '0.75rem',
-    lineHeight: 1.5,
   },
   grid: {
     display: 'grid',
@@ -213,10 +193,6 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     cursor: 'pointer',
   },
-  subtle: {
-    fontSize: '0.65rem',
-    color: '#555',
-  },
   numberInput: {
     backgroundColor: '#1a1a1e',
     border: '1px solid #2a2a2e',
@@ -228,17 +204,5 @@ const styles: Record<string, React.CSSProperties> = {
     outline: 'none',
     width: '100%',
     boxSizing: 'border-box',
-  },
-  chipRow: {
-    marginTop: '0.6rem',
-  },
-  chip: {
-    display: 'inline',
-    backgroundColor: 'rgba(68,178,255,0.12)',
-    color: '#44B2FF',
-    padding: '2px 8px',
-    borderRadius: 3,
-    fontSize: '0.7rem',
-    fontWeight: 600,
   },
 };

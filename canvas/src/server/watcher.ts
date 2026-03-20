@@ -1446,6 +1446,22 @@ export function fluidWatcherPlugin(): Plugin {
                 '<script id="__tmpl_listener__">' +
                 'var PICK_TARGETS=' + pickTargetsJson + ';' +
                 'var __fluidLastOutline=null;' +
+                'var __fluidEditingEl=null;' +
+                '(function(){var h=document.head||document.documentElement;var id="__fluid_artboard_css";if(document.getElementById(id))return;var st=document.createElement("style");st.id=id;' +
+                'st.textContent=' +
+                '".fluid-artboard-editing{' +
+                'caret-color:#fff!important;' +
+                '-webkit-user-select:text!important;user-select:text!important;' +
+                'outline:1px solid rgba(255,255,255,.35)!important;' +
+                'outline-offset:3px!important;' +
+                'box-shadow:inset 0 0 0 1px rgba(68,178,255,.45),0 0 0 1px rgba(68,178,255,.25)!important;' +
+                'cursor:text!important;' +
+                '}' +
+                '.fluid-artboard-editing::selection{' +
+                'background:rgba(68,178,255,.45)!important;color:#fff!important;' +
+                '}' +
+                '.fluid-artboard-editing[data-fluid-text-mode=\\"pre\\"]{white-space:pre-wrap!important}";' +
+                'h.appendChild(st);})();' +
                 'function __fluidApplyPickOutline(el){' +
                 'if(__fluidLastOutline){__fluidLastOutline.style.outline="";__fluidLastOutline.style.outlineOffset="";__fluidLastOutline=null;}' +
                 'if(el){el.style.outline="2px solid #44B2FF";el.style.outlineOffset="2px";__fluidLastOutline=el;}' +
@@ -1470,6 +1486,42 @@ export function fluidWatcherPlugin(): Plugin {
                 'else{el.style.height=o.h+"px";el.style.maxHeight="";el.style.overflowY="auto";}' +
                 'if(o.l!=null)el.style.left=o.l+"px";' +
                 'if(o.t!=null)el.style.top=o.t+"px";' +
+                '}' +
+                'function __fluidPlaceCaretFromPoint(x,y){' +
+                'try{' +
+                'if(typeof x==="number"&&typeof y==="number"&&x>=0&&y>=0&&document.caretRangeFromPoint){' +
+                'var r=document.caretRangeFromPoint(x,y);' +
+                'if(r){var s=window.getSelection();s.removeAllRanges();s.addRange(r);return;}' +
+                '}' +
+                'var el=__fluidEditingEl;if(el){var rng=document.createRange();rng.selectNodeContents(el);rng.collapse(false);var s2=window.getSelection();s2.removeAllRanges();s2.addRange(rng);}' +
+                '}catch(_pc){}' +
+                '}' +
+                'function __fluidEndArtboardEdit(el){' +
+                'if(!el||!el.classList||!el.classList.contains("fluid-artboard-editing"))return;' +
+                'try{' +
+                'var sel=el.getAttribute("data-fluid-slot-sel");' +
+                'var mode=el.getAttribute("data-fluid-text-mode")||"text";' +
+                'var val=(el.innerText||"").replace(/\\r\\n/g,"\\n").replace(/\\r/g,"\\n");' +
+                'if(sel)window.parent.postMessage({type:"fluidArtboardTextInput",sel:sel,value:val,mode:mode},"*");' +
+                '}catch(_e2){}' +
+                'el.removeAttribute("contenteditable");el.classList.remove("fluid-artboard-editing");' +
+                'el.removeAttribute("data-fluid-slot-sel");el.removeAttribute("data-fluid-text-mode");' +
+                'try{el.style.caretColor="";el.style.removeProperty("-webkit-user-select");el.style.removeProperty("user-select");el.style.cursor="";}catch(_st2){}' +
+                'if(__fluidEditingEl===el)__fluidEditingEl=null;' +
+                '}' +
+                'function __fluidStartArtboardEdit(el,p,e){' +
+                'if(__fluidEditingEl&&__fluidEditingEl!==el)__fluidEndArtboardEdit(__fluidEditingEl);' +
+                'el.setAttribute("contenteditable","true");' +
+                'el.classList.add("fluid-artboard-editing");' +
+                'el.setAttribute("data-fluid-slot-sel",p.sel);' +
+                'el.setAttribute("data-fluid-text-mode",p.mode||"text");' +
+                'try{el.style.caretColor="#fff";el.style.setProperty("-webkit-user-select","text");el.style.setProperty("user-select","text");el.style.cursor="text";}catch(_st){}' +
+                '__fluidEditingEl=el;' +
+                '__fluidApplyPickOutline(el);' +
+                'window.parent.postMessage({type:"fluidPickElement",sel:p.sel,label:p.label||"",kind:"text"},"*");' +
+                'el.focus({preventScroll:true});' +
+                'if(e&&typeof e.clientX==="number"&&typeof e.clientY==="number")__fluidPlaceCaretFromPoint(e.clientX,e.clientY);' +
+                'else __fluidPlaceCaretFromPoint(-1,-1);' +
                 '}' +
                 '(function(){' +
                 'var initial=' + initialValuesJson + ';' +
@@ -1515,6 +1567,7 @@ export function fluidWatcherPlugin(): Plugin {
                 'var raw=e.target;' +
                 'var t=(raw&&raw.nodeType===3)?raw.parentElement:raw;' +
                 'if(!t||t.nodeType!==1)return;' +
+                'if(__fluidEditingEl&&__fluidEditingEl.contains(t))return;' +
                 'var tag=(t.tagName||"").toUpperCase();' +
                 'if(tag==="INPUT"||tag==="TEXTAREA"||tag==="BUTTON"||tag==="SELECT")return;' +
                 'var cur=t;' +
@@ -1529,9 +1582,57 @@ export function fluidWatcherPlugin(): Plugin {
                 '}' +
                 'cur=cur.parentElement;}' +
                 '},true);' +
+                'document.addEventListener("dblclick",function(e){' +
+                'if(!PICK_TARGETS||!PICK_TARGETS.length)return;' +
+                'var raw=e.target;' +
+                'var t=(raw&&raw.nodeType===3)?raw.parentElement:raw;' +
+                'if(!t||t.nodeType!==1)return;' +
+                'var tag=(t.tagName||"").toUpperCase();' +
+                'if(tag==="INPUT"||tag==="TEXTAREA"||tag==="BUTTON"||tag==="SELECT")return;' +
+                'var cur=t;' +
+                'while(cur&&cur!==document.documentElement){' +
+                'for(var pi=0;pi<PICK_TARGETS.length;pi++){' +
+                'var p=PICK_TARGETS[pi];' +
+                'if(p.kind==="text"&&cur.matches&&p.sel&&cur.matches(p.sel)){' +
+                'e.preventDefault();e.stopPropagation();' +
+                '__fluidStartArtboardEdit(cur,p,e);' +
+                'return;}' +
+                '}' +
+                'cur=cur.parentElement;}' +
+                '},true);' +
+                'document.addEventListener("input",function(e){' +
+                'var el=e.target;' +
+                'if(!el||el.nodeType!==1||!el.classList||!el.classList.contains("fluid-artboard-editing"))return;' +
+                'var sel=el.getAttribute("data-fluid-slot-sel");' +
+                'if(!sel)return;' +
+                'var mode=el.getAttribute("data-fluid-text-mode")||"text";' +
+                'var val=(el.innerText||"").replace(/\\r\\n/g,"\\n").replace(/\\r/g,"\\n");' +
+                'window.parent.postMessage({type:"fluidArtboardTextInput",sel:sel,value:val,mode:mode},"*");' +
+                '},true);' +
+                'document.addEventListener("focusout",function(e){' +
+                'var el=e.target;' +
+                'if(!el||!el.classList||!el.classList.contains("fluid-artboard-editing"))return;' +
+                'var rt=e.relatedTarget;' +
+                'if(rt&&el.contains(rt))return;' +
+                '__fluidEndArtboardEdit(el);' +
+                '},true);' +
+                'document.addEventListener("keydown",function(e){' +
+                'if(e.key!=="Escape")return;' +
+                'var el=__fluidEditingEl;' +
+                'if(!el)return;' +
+                'e.preventDefault();e.stopPropagation();' +
+                '__fluidEndArtboardEdit(el);' +
+                '},true);' +
                 'window.addEventListener("message",function(e){' +
                 'var d=e.data;if(!d)return;' +
                 'if(d.type==="fluidClearPick"){__fluidApplyPickOutline(null);return;}' +
+                'if(d.type==="fluidStartArtboardEdit"&&d.sel){' +
+                'var elEdit=document.querySelector(d.sel);if(!elEdit)return;' +
+                'for(var pj=0;pj<PICK_TARGETS.length;pj++){' +
+                'var pEdit=PICK_TARGETS[pj];' +
+                'if(pEdit.kind==="text"&&pEdit.sel===d.sel){__fluidStartArtboardEdit(elEdit,pEdit,null);return;}' +
+                '}' +
+                'return;}' +
                 'if(d.type==="readValues"){' +
                 'var sel=d.selectors||[],vals={};' +
                 'for(var i=0;i<sel.length;i++){' +
@@ -1543,6 +1644,8 @@ export function fluidWatcherPlugin(): Plugin {
                 '}' +
                 'if(d.type!=="tmpl")return;' +
                 'var el=document.querySelector(d.sel);if(!el)return;' +
+                'var ae=document.activeElement;' +
+                'if(el.getAttribute("contenteditable")==="true"&&ae&&(el===ae||el.contains(ae)))return;' +
                 'if(d.action==="img"){el.src=d.value;}' +
                 'else if(d.action==="textBox"){' +
                 'if(el.style){' +

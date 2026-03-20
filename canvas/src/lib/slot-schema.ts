@@ -77,6 +77,8 @@ export interface TransformTarget {
   sel: string;
   label: string;
   kind: TransformTargetKind;
+  /** When `kind === 'text'`, how the parent applies updates (matches slot field `mode`). */
+  mode?: FieldMode;
 }
 
 /**
@@ -89,7 +91,7 @@ export function collectTransformTargets(schema: SlotSchema): TransformTarget[] {
     if (f.type === 'text') {
       if (!seen.has(f.sel)) {
         seen.add(f.sel);
-        out.push({ sel: f.sel, label: f.label, kind: 'text' });
+        out.push({ sel: f.sel, label: f.label, kind: 'text', mode: f.mode });
       }
       continue;
     }
@@ -110,4 +112,33 @@ export function collectTransformTargets(schema: SlotSchema): TransformTarget[] {
     });
   }
   return out;
+}
+
+/** Pick payload from the preview iframe (same shape as editor `pickedTransform`). */
+export interface LayoutPickRef {
+  sel: string;
+  kind: TransformTargetKind;
+}
+
+/**
+ * Map a preview click pick to the sidebar slot key (`field.sel` in slotValues).
+ * Text uses the picked selector directly; image picks use the frame selector (e.g. `.photo`) → img `sel`.
+ */
+export function slotFieldSelFromLayoutPick(
+  schema: SlotSchema | null,
+  picked: LayoutPickRef | null
+): string | null {
+  if (!schema || !picked) return null;
+  if (picked.kind === 'text') {
+    const f = schema.fields.find(
+      (x): x is TextField => x.type === 'text' && x.sel === picked.sel
+    );
+    return f ? f.sel : null;
+  }
+  if (picked.kind === 'image') {
+    for (const x of schema.fields) {
+      if (x.type === 'image' && imageLayoutSel(x) === picked.sel) return x.sel;
+    }
+  }
+  return null;
 }

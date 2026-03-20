@@ -85,6 +85,31 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [goPrev, goNext]);
 
+  /** Enter — start artboard inline text edit when a text slot is selected (overlay blocks dblclick on text). */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      const t = e.target as HTMLElement | null;
+      if (
+        t &&
+        (t.tagName === 'INPUT' ||
+          t.tagName === 'TEXTAREA' ||
+          t.tagName === 'SELECT' ||
+          t.tagName === 'BUTTON' ||
+          t.isContentEditable)
+      ) {
+        return;
+      }
+      if (!iframeEl?.contentWindow || !activeIterationId) return;
+      const picked = useEditorStore.getState().pickedTransform;
+      if (!picked || picked.kind !== 'text') return;
+      e.preventDefault();
+      iframeEl.contentWindow.postMessage({ type: 'fluidStartArtboardEdit', sel: picked.sel }, '*');
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [iframeEl, activeIterationId]);
+
   // Undo / redo — avoid stealing native Cmd+Z from inputs
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

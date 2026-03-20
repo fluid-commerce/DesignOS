@@ -7,10 +7,11 @@
  * On mount, sends a 'readValues' request to extract current template values.
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import type { Iteration } from '../lib/campaign-types';
 import {
   collectTransformTargets,
+  slotFieldSelFromLayoutPick,
   type ImageField,
   type TextField,
   type TransformTargetKind,
@@ -52,6 +53,36 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
   } = useEditorStore();
 
   const hasInitialized = useRef(false);
+  /** Bumps on each preview pick so the same text field can refocus on repeat clicks. */
+  const [contentPickEpoch, setContentPickEpoch] = useState(0);
+
+  const contentTargetSel = useMemo(
+    () => slotFieldSelFromLayoutPick(slotSchema, pickedTransform),
+    [slotSchema, pickedTransform]
+  );
+
+  /** Slot schema field that matches the current artboard pick (text or image content). */
+  const selectedSlotField = useMemo(() => {
+    if (!slotSchema || !contentTargetSel) return null;
+    const f = slotSchema.fields.find(
+      (x): x is TextField | ImageField =>
+        (x.type === 'text' || x.type === 'image') && x.sel === contentTargetSel
+    );
+    return f ?? null;
+  }, [slotSchema, contentTargetSel]);
+
+  const hasLayoutPicks =
+    slotSchema != null && collectTransformTargets(slotSchema).length > 0;
+
+  /** Artboard has an active pick — sidebar shows only that layer’s controls (not the full slot list). */
+  const artboardSelectionActive = Boolean(pickedTransform && hasLayoutPicks);
+
+  const propertiesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!pickedTransform || !propertiesRef.current) return;
+    propertiesRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [pickedTransform?.sel, pickedTransform?.kind]);
 
   // Register the iframe with the editor store so postMessage works
   useEffect(() => {
@@ -80,11 +111,23 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
       if (d.type === 'fluidPickElement' && typeof d.sel === 'string') {
         if (!iframeEl?.contentWindow || e.source !== iframeEl.contentWindow) return;
         const label = typeof d.label === 'string' && d.label ? d.label : d.sel;
+        const kind = parsePickKind(d.kind);
         setPickedTransform({
           sel: d.sel,
           label,
-          kind: parsePickKind(d.kind),
+          kind,
         });
+        const sch = useEditorStore.getState().slotSchema;
+        const fk = slotFieldSelFromLayoutPick(sch, { sel: d.sel, kind });
+        if (fk) setContentPickEpoch((n) => n + 1);
+        return;
+      }
+
+      /** Live text typed directly on the preview (contenteditable); keeps sidebar in sync. */
+      if (d.type === 'fluidArtboardTextInput' && typeof d.sel === 'string' && typeof d.value === 'string') {
+        if (!iframeEl?.contentWindow || e.source !== iframeEl.contentWindow) return;
+        const mode = typeof d.mode === 'string' ? d.mode : 'text';
+        updateSlotValue(d.sel, d.value, mode, { skipIframeEcho: true });
         return;
       }
 
@@ -149,12 +192,15 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={artboardSelectionActive ? { ...styles.header, ...styles.headerCompact } : styles.header}>
         <div style={styles.headerInfo}>
           <span style={styles.iterationLabel}>
             {iteration.source === 'template' ? 'Template' : 'AI Generated'}
+            {artboardSelectionActive && iteration.templateId
+              ? ` · ${iteration.templateId}`
+              : null}
           </span>
-          {iteration.templateId && (
+          {!artboardSelectionActive && iteration.templateId && (
             <span style={styles.templateId}>{iteration.templateId}</span>
           )}
         </div>
@@ -178,87 +224,109 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
         </div>
       )}
 
-      {/* Slot fields */}
-      <div style={styles.fieldsContainer}>
-        {slotSchema == null ? (
-          <div style={styles.noSchema}>
-            No editable slots available for this asset.
-          </div>
-        ) : slotSchema.fields.length === 0 ? (
-          <div style={styles.noSchema}>
-            No editable fields defined in the slot schema.
-          </div>
-        ) : (
-          slotSchema.fields.map((field, index) => (
-            <SlotField
-              key={field.type === 'divider' ? `divider-${index}` : field.sel}
-              field={field}
-            />
-          ))
-        )}
-      </div>
-
-      {/* Position / scale / rotate — click text or image in the preview to select */}
-      {slotSchema && collectTransformTargets(slotSchema).length > 0 && (
-        <div style={styles.section}>
-          <div style={styles.sectionLabel}>Layout in preview</div>
-          <p style={styles.pickHint}>
-            Click any editable text or image in the preview. A blue outline shows the selection.
-            <strong> Text:</strong> drag the filled frame to move (snaps when edges line up with other edges,
-            or centers with centers — including artboard center; hold <strong>Shift</strong> to disable) or
-            use the top handle to rotate; use the
-            dashed box edges for width (fixed width wraps copy; Hug width grows to fit) and bottom for
-            height — those snaps match other slots’ widths/heights and edges (hold <strong>Shift</strong> to
-            disable). Corner scaling
-            would stretch type — use the dashed box instead.
-            <strong> Image / photo:</strong> click the picture in the preview, then drag the blue frame to
-            move — edge-to-edge and center-to-center snapping vs other slots and the artboard (hold{' '}
-            <strong>Shift</strong> to move freely). Corner scaling snaps to the same sizes and edges when
-            axis-aligned. Use the top handle to rotate (or use the fields below).{' '}
-            <strong> Brush:</strong> same as image.
-          </p>
-          {pickedTransform && (
-            <div style={{ marginBottom: '0.75rem' }}>
-              <div style={styles.pickedRow}>
-                <span style={styles.pickedLabel}>Selected:</span>
-                <span style={styles.pickedName}>{pickedTransform.label}</span>
+      {/* Selection / properties — when a layer is picked, this is the only field block (see Content below). */}
+      {slotSchema && (
+        <div
+          ref={propertiesRef}
+          style={artboardSelectionActive ? { ...styles.section, ...styles.sectionFocus } : styles.section}
+        >
+          {!(artboardSelectionActive && pickedTransform) && (
+            <div style={styles.sectionLabel}>Properties</div>
+          )}
+          {!hasLayoutPicks ? (
+            <div style={styles.panelMutedLine}>No artboard layers — use Content below.</div>
+          ) : !pickedTransform ? (
+            <div style={styles.panelMutedLine}>Select a layer on the artboard.</div>
+          ) : (
+            <div style={styles.propertiesCard}>
+              <div style={styles.selectionInputsHeader}>
+                <span style={styles.selectionInputsTitle}>{pickedTransform.label}</span>
                 <button
                   type="button"
                   onClick={() => setPickedTransform(null)}
                   style={styles.clearPickBtn}
+                  title="Show all content fields again"
                 >
-                  Clear
+                  All fields
                 </button>
               </div>
-              {pickedTransform.kind === 'text' ? (
-                <div key={pickedTransform.sel}>
-                  <TextBoxControls
-                    textSel={pickedTransform.sel}
-                    textLabel={pickedTransform.label}
-                    iframeEl={iframeEl}
-                  />
-                  <div style={{ marginTop: '0.85rem' }}>
+
+              <div style={styles.selectionInputsColumn}>
+                {selectedSlotField && (
+                  <div>
+                    <div style={styles.panelSectionLabel}>
+                      {selectedSlotField.type === 'text' ? 'Text' : 'Image'}
+                    </div>
+                    <SlotField
+                      field={selectedSlotField}
+                      contentTargetSel={contentTargetSel}
+                      contentPickEpoch={contentPickEpoch}
+                    />
+                  </div>
+                )}
+                {pickedTransform.kind === 'text' ? (
+                  <div key={pickedTransform.sel} style={styles.selectionTextLayoutStack}>
+                    <div>
+                      <div style={styles.panelSectionLabel}>Text frame</div>
+                      <TextBoxControls
+                        textSel={pickedTransform.sel}
+                        textLabel={pickedTransform.label}
+                        iframeEl={iframeEl}
+                      />
+                    </div>
+                    <div>
+                      <div style={styles.panelSectionLabel}>Position</div>
+                      <BrushTransform
+                        brushSel={pickedTransform.sel}
+                        brushLabel={pickedTransform.label}
+                        assetWidth={slotSchema.width}
+                        assetHeight={slotSchema.height}
+                        iframeEl={iframeEl}
+                        layoutOnly
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div key={pickedTransform.sel}>
+                    <div style={styles.panelSectionLabel}>Position</div>
                     <BrushTransform
                       brushSel={pickedTransform.sel}
                       brushLabel={pickedTransform.label}
                       assetWidth={slotSchema.width}
                       assetHeight={slotSchema.height}
                       iframeEl={iframeEl}
-                      layoutOnly
                     />
                   </div>
-                </div>
-              ) : (
-                <BrushTransform
-                  key={pickedTransform.sel}
-                  brushSel={pickedTransform.sel}
-                  brushLabel={pickedTransform.label}
-                  assetWidth={slotSchema.width}
-                  assetHeight={slotSchema.height}
-                  iframeEl={iframeEl}
-                />
-              )}
+                )}
+              </div>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Full slot list — hidden while a layer is selected so the sidebar is only that object’s inspector. */}
+      {!artboardSelectionActive && (
+        <div style={styles.fieldsContainer}>
+          {slotSchema == null ? (
+            <div style={styles.noSchema}>
+              No editable slots available for this asset.
+            </div>
+          ) : slotSchema.fields.length === 0 ? (
+            <div style={styles.noSchema}>
+              No editable fields defined in the slot schema.
+            </div>
+          ) : (
+            <>
+              <div style={styles.sectionLabel}>Content</div>
+              {slotSchema.fields.map((field, index) => (
+                <SlotField
+                  key={field.type === 'divider' ? `divider-${index}` : field.sel}
+                  field={field}
+                  contentTargetSel={contentTargetSel}
+                  contentPickEpoch={contentPickEpoch}
+                />
+              ))}
+            </>
           )}
         </div>
       )}
@@ -301,6 +369,8 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
     flexDirection: 'column',
+    flex: 1,
+    minHeight: 0,
     height: '100%',
     overflowY: 'auto',
     padding: '0.75rem',
@@ -314,6 +384,10 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '1rem',
     paddingBottom: '0.75rem',
     borderBottom: '1px solid #1e1e1e',
+  },
+  headerCompact: {
+    marginBottom: '0.65rem',
+    paddingBottom: '0.5rem',
   },
   headerInfo: {
     display: 'flex',
@@ -345,6 +419,12 @@ const styles: Record<string, React.CSSProperties> = {
     paddingBottom: '1rem',
     borderBottom: '1px solid #1e1e1e',
   },
+  /** Less separator noise when the sidebar is only the active layer. */
+  sectionFocus: {
+    borderBottom: 'none',
+    marginBottom: '0.65rem',
+    paddingBottom: '0.35rem',
+  },
   sectionLabel: {
     fontSize: '0.65rem',
     fontWeight: 600,
@@ -352,6 +432,53 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase',
     color: '#888',
     marginBottom: '0.5rem',
+  },
+  panelMutedLine: {
+    fontSize: '0.72rem',
+    color: '#666',
+    padding: '0.35rem 0',
+  },
+  panelSectionLabel: {
+    fontSize: '0.65rem',
+    fontWeight: 600,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    color: '#888',
+    marginBottom: '0.45rem',
+  },
+  propertiesCard: {
+    borderRadius: 6,
+    border: '1px solid #2a2a2e',
+    backgroundColor: '#161618',
+    padding: '0.6rem 0.7rem',
+  },
+  selectionInputsHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '0.5rem',
+    marginBottom: '0.65rem',
+    paddingBottom: '0.5rem',
+    borderBottom: '1px solid #222226',
+  },
+  selectionInputsTitle: {
+    fontSize: '0.82rem',
+    fontWeight: 600,
+    color: '#e8e8e8',
+    lineHeight: 1.25,
+    wordBreak: 'break-word',
+    flex: 1,
+    minWidth: 0,
+  },
+  selectionInputsColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+  },
+  selectionTextLayoutStack: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
   },
   pickHint: {
     fontSize: '0.75rem',

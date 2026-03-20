@@ -62,8 +62,17 @@ interface EditorStore {
 
   /** Load an iteration from the API, parse its slot schema and current values */
   selectIteration: (id: string) => Promise<void>;
-  /** Update a single slot value locally and send postMessage to iframe */
-  updateSlotValue: (sel: string, value: string, mode?: string) => void;
+  /**
+   * Update a single slot value locally and echo to iframe via `tmpl` postMessage.
+   * Use `skipIframeEcho` when the iframe is already the source of truth (e.g. artboard contenteditable)
+   * so we don’t reset the DOM and break selection / replace-on-type.
+   */
+  updateSlotValue: (
+    sel: string,
+    value: string,
+    mode?: string,
+    options?: { skipIframeEcho?: boolean }
+  ) => void;
   /**
    * Persist CSS transform for a template element (same postMessage as legacy brush).
    * Stored under `${SLOT_TRANSFORM_PREFIX}${sel}` so it saves with user-state.
@@ -159,7 +168,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     }
   },
 
-  updateSlotValue: (sel: string, value: string, mode?: string) => {
+  updateSlotValue: (sel, value, mode, options) => {
     const before = structuredClone(get().slotValues);
     set((state) => ({
       slotValues: { ...state.slotValues, [sel]: value },
@@ -175,13 +184,14 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       }
     });
 
-    // Send postMessage to iframe for live preview
-    const { iframeRef } = get();
-    if (iframeRef?.contentWindow) {
-      iframeRef.contentWindow.postMessage(
-        { type: 'tmpl', sel, value, mode: mode ?? 'text' },
-        '*'
-      );
+    if (!options?.skipIframeEcho) {
+      const { iframeRef } = get();
+      if (iframeRef?.contentWindow) {
+        iframeRef.contentWindow.postMessage(
+          { type: 'tmpl', sel, value, mode: mode ?? 'text' },
+          '*'
+        );
+      }
     }
   },
 
