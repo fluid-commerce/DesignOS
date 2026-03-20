@@ -1,17 +1,11 @@
 /**
- * BrushTransform — SVG overlay for drag/rotate/scale of one movable element.
- * Port of Jonathan's transform box from editor.js.
- *
- * Renders an SVG overlay on top of the iframe with corner handles (scale),
- * a center drag handle (translate), and a rotation handle.
- * All operations send postMessage({ type: 'tmpl', sel, action: 'transform', transform: '...' }).
- *
- * Coordinate math mirrors Jonathan's computeScale() approach — the iframe is
- * CSS-scaled, so mouse events in screen pixels must be divided by scale factor.
+ * BrushTransform — numeric fields for translate / rotate / scale of one template element.
+ * Interactive dragging is handled by TransformOverlay on the preview; this stays in sync.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useEditorStore } from '../store/editor';
+import { useState, useCallback, useEffect } from 'react';
+import { useEditorStore, SLOT_TRANSFORM_PREFIX } from '../store/editor';
+import { buildTransformString, parseTransform } from '../lib/transform-format';
 
 interface BrushTransformProps {
   /** CSS selector for the movable element (e.g. '.circle-brush') */
@@ -24,37 +18,11 @@ interface BrushTransformProps {
   assetHeight: number;
   /** The scaled iframe element */
   iframeEl: HTMLIFrameElement | null;
-}
-
-interface TransformState {
-  translateX: number;
-  translateY: number;
-  rotateDeg: number;
-  scaleX: number;
-  scaleY: number;
-}
-
-/** Parse a CSS transform string into components */
-function parseTransform(transform: string): TransformState {
-  const result: TransformState = { translateX: 0, translateY: 0, rotateDeg: 0, scaleX: 1, scaleY: 1 };
-  if (!transform || transform === 'none') return result;
-  const tx = transform.match(/translate\(([^,)]+),\s*([^)]+)\)/);
-  if (tx) {
-    result.translateX = parseFloat(tx[1]) || 0;
-    result.translateY = parseFloat(tx[2]) || 0;
-  }
-  const rot = transform.match(/rotate\(([^)]+)deg\)/);
-  if (rot) result.rotateDeg = parseFloat(rot[1]) || 0;
-  const sc = transform.match(/scale\(([^,)]+)(?:,\s*([^)]+))?\)/);
-  if (sc) {
-    result.scaleX = parseFloat(sc[1]) || 1;
-    result.scaleY = sc[2] != null ? parseFloat(sc[2]) || 1 : result.scaleX;
-  }
-  return result;
-}
-
-function buildTransformString(tx: number, ty: number, rot: number, sx: number, sy: number): string {
-  return `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${sx}, ${sy})`;
+  /**
+   * Text: only translate + rotate — CSS scale stretches glyphs.
+   * Scale fields hidden and persisted transform uses scale 1,1.
+   */
+  layoutOnly?: boolean;
 }
 
 export function BrushTransform({
@@ -62,15 +30,16 @@ export function BrushTransform({
   brushLabel,
   assetWidth,
   iframeEl,
+  layoutOnly = false,
 }: BrushTransformProps) {
-  const { iframeRef } = useEditorStore();
+  const transformKey = `${SLOT_TRANSFORM_PREFIX}${brushSel}`;
+  const savedTransform = useEditorStore((s) => s.slotValues[transformKey] ?? '');
+
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
   const [rot, setRot] = useState(0);
   const [sx, setSx] = useState(1);
   const [sy, setSy] = useState(1);
-
-  const hasReadEl = useRef(false);
 
   /** Get the current CSS scale factor of the iframe */
   const getIframeScale = useCallback((): number => {
@@ -79,43 +48,84 @@ export function BrushTransform({
     return containerWidth / assetWidth;
   }, [iframeEl, assetWidth]);
 
-  /** Read current transform from the element inside iframe */
+  /** Load from saved user-state, or from DOM once iframe is ready */
   useEffect(() => {
-    if (hasReadEl.current || !iframeEl) return;
-    try {
-      const iDoc = iframeEl.contentDocument;
-      if (!iDoc) return;
-      const el = iDoc.querySelector(brushSel) as HTMLElement | null;
-      if (!el) return;
-      const cs = iDoc.defaultView?.getComputedStyle(el);
-      if (!cs) return;
-      const parsed = parseTransform(cs.transform);
-      const left = parseFloat(cs.left) || 0;
-      const top = parseFloat(cs.top) || 0;
-      setTx(parsed.translateX || left);
-      setTy(parsed.translateY || top);
-      setRot(parsed.rotateDeg);
-      setSx(parsed.scaleX);
-      setSy(parsed.scaleY);
-      hasReadEl.current = true;
-    } catch {
-      // Ignore cross-origin errors
-    }
-  }, [iframeEl, brushSel]);
+    if (!iframeEl) return;
 
-  /** Send the current transform to the iframe via postMessage */
+    const applyParsed = (parsed: ReturnType<typeof parseTransform>, cs: CSSStyleDeclaration | null) => {
+      const left = cs ? parseFloat(cs.left) : NaN;
+      const top = cs ? parseFloat(cs.top) : NaN;
+      const lx = Number.isFinite(left) ? left : 0;
+      const ly = Number.isFinite(top) ? top : 0;
+      const tx0 = parsed.translateX + lx;
+      const ty0 = parsed.translateY + ly;
+      setTx(tx0);
+      setTy(ty0);
+      setRot(parsed.rotateDeg);
+      if (layoutOnly) {
+        setSx(1);
+        setSy(1);
+        const badScale =
+          Math.abs(parsed.scaleX - 1) > 0.001 || Math.abs(parsed.scaleY - 1) > 0.001;
+        if (badScale) {
+          useEditorStore
+            .getState()
+            .updateElementTransform(
+              brushSel,
+              buildTransformString(tx0, ty0, parsed.rotateDeg, 1, 1)
+            );
+        }
+      } else {
+        setSx(parsed.scaleX);
+        setSy(parsed.scaleY);
+      }
+    };
+
+    const tryRead = (): boolean => {
+      try {
+        const iDoc = iframeEl.contentDocument;
+        if (!iDoc?.body) return false;
+        const el = iDoc.querySelector(brushSel) as HTMLElement | null;
+        if (!el) return false;
+        const cs = iDoc.defaultView?.getComputedStyle(el);
+        if (!cs) return false;
+        const saved = useEditorStore.getState().slotValues[transformKey];
+        if (saved) {
+          applyParsed(parseTransform(saved), cs);
+        } else {
+          applyParsed(parseTransform(cs.transform), cs);
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    if (savedTransform) {
+      tryRead();
+      return;
+    }
+
+    if (tryRead()) return undefined;
+
+    const id = window.setInterval(() => {
+      if (tryRead()) window.clearInterval(id);
+    }, 50);
+    const timeout = window.setTimeout(() => window.clearInterval(id), 4000);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(timeout);
+    };
+  }, [iframeEl, brushSel, transformKey, savedTransform, layoutOnly]);
+
   const sendTransform = useCallback(
     (newTx: number, newTy: number, newRot: number, newSx: number, newSy: number) => {
-      const transformStr = buildTransformString(newTx, newTy, newRot, newSx, newSy);
-      const targetWindow = (iframeRef ?? iframeEl)?.contentWindow;
-      if (targetWindow) {
-        targetWindow.postMessage(
-          { type: 'tmpl', sel: brushSel, action: 'transform', transform: transformStr },
-          '*'
-        );
-      }
+      const sxF = layoutOnly ? 1 : newSx;
+      const syF = layoutOnly ? 1 : newSy;
+      const transformStr = buildTransformString(newTx, newTy, newRot, sxF, syF);
+      useEditorStore.getState().updateElementTransform(brushSel, transformStr);
     },
-    [iframeRef, iframeEl, brushSel]
+    [brushSel, layoutOnly]
   );
 
   const handleTxChange = (val: number) => {
@@ -140,13 +150,23 @@ export function BrushTransform({
   };
 
   const displayName = brushLabel ?? 'element';
-  const _ = getIframeScale; // used for future SVG overlay expansion
+  const _ = getIframeScale;
 
   return (
     <div style={styles.container}>
       <div style={styles.hint}>
-        Drag the <span style={styles.chip}>{displayName}</span> directly in the preview —
-        or use the controls below:
+        {layoutOnly ? (
+          <>
+            Move and rotate <span style={styles.chip}>{displayName}</span> here or with the solid blue
+            frame in the preview. Use the dashed box for <strong>width</strong> and <strong>height</strong>{' '}
+            (layout), not scale — scaling would stretch the type.
+          </>
+        ) : (
+          <>
+            Move, scale, and rotate <span style={styles.chip}>{displayName}</span> with the controls below
+            or drag the blue box in the preview (updates apply live).
+          </>
+        )}
       </div>
 
       <div style={styles.grid}>
@@ -168,25 +188,28 @@ export function BrushTransform({
           step={0.5}
           onChange={handleRotChange}
         />
-        <div /> {/* spacer */}
-        <NumberField
-          label="Scale W %"
-          value={Math.round(sx * 100)}
-          step={1}
-          onChange={(v) => handleSxChange(v / 100)}
-        />
-        <NumberField
-          label="Scale H %"
-          value={Math.round(sy * 100)}
-          step={1}
-          onChange={(v) => handleSyChange(v / 100)}
-        />
+        <div />
+        {!layoutOnly && (
+          <>
+            <NumberField
+              label="Scale W %"
+              value={Math.round(sx * 100)}
+              step={1}
+              onChange={(v) => handleSxChange(v / 100)}
+            />
+            <NumberField
+              label="Scale H %"
+              value={Math.round(sy * 100)}
+              step={1}
+              onChange={(v) => handleSyChange(v / 100)}
+            />
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-/* ── NumberField helper ─────────────────────────────────────────────────── */
 function NumberField({
   label,
   value,

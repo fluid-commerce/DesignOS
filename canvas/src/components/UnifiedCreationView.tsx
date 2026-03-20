@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCampaignStore } from '../store/campaign';
+import { useEditorStore } from '../store/editor';
 import { getCreationDimensions } from '../lib/preview-utils';
+import { slotMapsEqual } from '../lib/editor-history';
 import { Breadcrumb } from './Breadcrumb';
 import { VersionBar } from './VersionBar';
+import { TransformOverlay } from './TransformOverlay';
+import { TextBoxOverlay } from './TextBoxOverlay';
 
 interface UnifiedCreationViewProps {
   onIframeRef: (el: HTMLIFrameElement | null) => void;
@@ -23,6 +27,8 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
   const setActiveSlide = useCampaignStore((s) => s.setActiveSlide);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const previewWrapRef = useRef<HTMLDivElement>(null);
+  const [iframeEl, setIframeEl] = useState<HTMLIFrameElement | null>(null);
   const [scale, setScale] = useState(0.5);
   const [hoverArrow, setHoverArrow] = useState<'left' | 'right' | null>(null);
 
@@ -78,6 +84,27 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [goPrev, goNext]);
 
+  // Undo / redo — avoid stealing native Cmd+Z from inputs
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'z') return;
+      const t = e.target as HTMLElement | null;
+      if (
+        t &&
+        (t.tagName === 'INPUT' ||
+          t.tagName === 'TEXTAREA' ||
+          (t as HTMLElement).isContentEditable)
+      ) {
+        return;
+      }
+      e.preventDefault();
+      if (e.shiftKey) useEditorStore.getState().redo();
+      else useEditorStore.getState().undo();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   return (
     <div style={{
       display: 'flex',
@@ -86,15 +113,18 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
       overflow: 'hidden',
       fontFamily: "'Inter', sans-serif",
     }}>
-      {/* Top: Breadcrumb bar */}
+      {/* Top: Breadcrumb bar + edit history */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
         padding: '0.75rem 1.25rem',
         flexShrink: 0,
         borderBottom: '1px solid #1e1e1e',
       }}>
         <Breadcrumb />
+        <CreationEditHistoryToolbar />
       </div>
 
       {/* Middle: Main preview area */}
@@ -177,16 +207,22 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
           }}
         >
           {activeIterationId ? (
-            <div style={{
+            <div
+              ref={previewWrapRef}
+              style={{
               width: dims.width * scale,
               height: dims.height * scale,
               position: 'relative',
               overflow: 'hidden',
               borderRadius: 4,
               boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
-            }}>
+            }}
+            >
               <iframe
-                ref={(el) => onIframeRef(el)}
+                ref={(el) => {
+                  setIframeEl(el);
+                  onIframeRef(el);
+                }}
                 src={`/api/iterations/${activeIterationId}/html`}
                 sandbox="allow-same-origin allow-scripts"
                 style={{
@@ -198,6 +234,12 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
                 }}
                 title="Creation preview"
               />
+              <TransformOverlay
+                iframeEl={iframeEl}
+                previewScale={scale}
+                wrapRef={previewWrapRef}
+              />
+              <TextBoxOverlay iframeEl={iframeEl} wrapRef={previewWrapRef} />
             </div>
           ) : (
             <div style={{
@@ -254,6 +296,93 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
         iterations={slideIterations}
         activeIterationId={activeIterationId}
       />
+    </div>
+  );
+}
+
+/** Undo / redo / reset — mirrors editor slotValues; iteration must be selected in editor */
+function CreationEditHistoryToolbar() {
+  const selectedIterationId = useEditorStore((s) => s.selectedIterationId);
+  const undoStackLen = useEditorStore((s) => s.undoStack.length);
+  const redoStackLen = useEditorStore((s) => s.redoStack.length);
+  const slotValues = useEditorStore((s) => s.slotValues);
+  const baselineSlotValues = useEditorStore((s) => s.baselineSlotValues);
+  const undo = useEditorStore((s) => s.undo);
+  const redo = useEditorStore((s) => s.redo);
+  const resetToBaseline = useEditorStore((s) => s.resetToBaseline);
+
+  const canUndo = undoStackLen > 0;
+  const canRedo = redoStackLen > 0;
+  const canReset =
+    selectedIterationId != null && !slotMapsEqual(slotValues, baselineSlotValues);
+  const disabled = !selectedIterationId;
+
+  const btnBase: React.CSSProperties = {
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    padding: '6px 12px',
+    borderRadius: 6,
+    border: '1px solid #2a2a2e',
+    background: '#1a1a1e',
+    color: '#ccc',
+    cursor: 'pointer',
+    fontFamily: "'Inter', sans-serif",
+    opacity: disabled ? 0.45 : 1,
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        flexShrink: 0,
+      }}
+      aria-label="Edit history"
+    >
+      <button
+        type="button"
+        style={{
+          ...btnBase,
+          opacity: disabled || !canUndo ? 0.45 : 1,
+          cursor: disabled || !canUndo ? 'not-allowed' : 'pointer',
+        }}
+        disabled={disabled || !canUndo}
+        onClick={() => undo()}
+        title="Undo (⌘Z)"
+      >
+        Undo
+      </button>
+      <button
+        type="button"
+        style={{
+          ...btnBase,
+          opacity: disabled || !canRedo ? 0.45 : 1,
+          cursor: disabled || !canRedo ? 'not-allowed' : 'pointer',
+        }}
+        disabled={disabled || !canRedo}
+        onClick={() => redo()}
+        title="Redo (⇧⌘Z)"
+      >
+        Redo
+      </button>
+      <button
+        type="button"
+        style={{
+          ...btnBase,
+          borderColor: '#3d3a2a',
+          color: '#ddb',
+          opacity: disabled || !canReset ? 0.45 : 1,
+          cursor: disabled || !canReset ? 'not-allowed' : 'pointer',
+        }}
+        disabled={disabled || !canReset}
+        onClick={() => resetToBaseline()}
+        title="Discard unsaved edits since load or last save"
+      >
+        Reset
+      </button>
     </div>
   );
 }

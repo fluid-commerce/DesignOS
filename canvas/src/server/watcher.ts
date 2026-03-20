@@ -52,6 +52,11 @@ import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
 import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
+import {
+  collectTransformTargets,
+  type SlotSchema,
+  type TransformTarget,
+} from '../lib/slot-schema';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -1288,7 +1293,11 @@ export function fluidWatcherPlugin(): Plugin {
             const iterationId = iterHtmlMatch[1];
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterationId) as { html_path: string; user_state: string | null } | undefined;
+            const row = db.prepare('SELECT html_path, user_state, slot_schema FROM iterations WHERE id = ?').get(iterationId) as {
+              html_path: string;
+              user_state: string | null;
+              slot_schema: string | null;
+            } | undefined;
             if (!row?.html_path) {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('Not found');
@@ -1416,14 +1425,72 @@ export function fluidWatcherPlugin(): Plugin {
               }
 
               const initialValuesJson = JSON.stringify(userState).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+              let pickTargets: TransformTarget[] = [];
+              try {
+                if (row.slot_schema) {
+                  const schema = JSON.parse(row.slot_schema) as SlotSchema;
+                  pickTargets = collectTransformTargets(schema);
+                }
+              } catch {
+                pickTargets = [];
+              }
+              const pickTargetsJson = JSON.stringify(pickTargets).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
               // Apply saved slot values on load, then add postMessage listener for live edits
               const listenerScript =
                 '<script id="__tmpl_listener__">' +
+                'var PICK_TARGETS=' + pickTargetsJson + ';' +
+                'var __fluidLastOutline=null;' +
+                'function __fluidApplyPickOutline(el){' +
+                'if(__fluidLastOutline){__fluidLastOutline.style.outline="";__fluidLastOutline.style.outlineOffset="";__fluidLastOutline=null;}' +
+                'if(el){el.style.outline="2px solid #44B2FF";el.style.outlineOffset="2px";__fluidLastOutline=el;}' +
+                '}' +
+                'function __fluidApplyTextBoxObj(el,o){' +
+                'if(!el||!el.style||!o)return;' +
+                'el.style.boxSizing="border-box";' +
+                'var diTB=window.getComputedStyle(el).display;' +
+                'if(diTB==="inline")el.style.display="inline-block";' +
+                'var fixWo=o.w!=null&&typeof o.w==="number"&&isFinite(o.w)&&o.w>=1;' +
+                'if(fixWo){' +
+                'el.style.whiteSpace="normal";' +
+                'el.style.overflowWrap="anywhere";' +
+                'el.style.wordBreak="break-word";' +
+                'el.style.width=o.w+"px";el.style.maxWidth=o.w+"px";' +
+                '}else{' +
+                'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
+                'el.style.width="";el.style.maxWidth="";' +
+                '}' +
+                'el.style.overflowX="visible";' +
+                'if(o.h==null||o.h===""){el.style.height="auto";el.style.maxHeight="none";el.style.overflowY="visible";}' +
+                'else{el.style.height=o.h+"px";el.style.maxHeight="";el.style.overflowY="auto";}' +
+                'if(o.l!=null)el.style.left=o.l+"px";' +
+                'if(o.t!=null)el.style.top=o.t+"px";' +
+                '}' +
                 '(function(){' +
                 'var initial=' + initialValuesJson + ';' +
+                'var TX_PREFIX="__transform__:";var TB_PREFIX="__textbox__:";' +
                 'for(var sel in initial){' +
-                'var el=document.querySelector(sel);if(!el)continue;' +
                 'var v=initial[sel];' +
+                'if(sel.indexOf(TX_PREFIX)===0){' +
+                'var tsel=sel.substring(TX_PREFIX.length);' +
+                'var tel=document.querySelector(tsel);' +
+                'if(tel&&typeof v==="string"){' +
+                'tel.style.transform=v;tel.style.transformOrigin="50% 50%";' +
+                'var cs0=window.getComputedStyle(tel);' +
+                'var Ls0=cs0.left,Ts0=cs0.top;' +
+                'if((Ls0.indexOf("px")>=0||Ls0==="0px")&&(Ts0.indexOf("px")>=0||Ts0==="0px")){' +
+                'var L0=parseFloat(Ls0)||0,T0=parseFloat(Ts0)||0;' +
+                'if(L0!==0||T0!==0){tel.style.left="0px";tel.style.top="0px";}' +
+                '}' +
+                '}' +
+                'continue;}' +
+                'if(sel.indexOf(TB_PREFIX)===0){' +
+                'var bsel=sel.substring(TB_PREFIX.length);' +
+                'var bel=document.querySelector(bsel);' +
+                'if(bel&&typeof v==="string"){' +
+                'try{__fluidApplyTextBoxObj(bel,JSON.parse(v));}catch(_tb){}' +
+                '}' +
+                'continue;}' +
+                'var el=document.querySelector(sel);if(!el)continue;' +
                 'if(el.tagName==="IMG"&&typeof v==="string"){' +
                 'var src=null;' +
                 'if(v.indexOf("blob:")===0){src=null;}' +
@@ -1437,8 +1504,28 @@ export function fluidWatcherPlugin(): Plugin {
                 'else{el.textContent=v;}' +
                 '}' +
                 '})();' +
+                'document.addEventListener("click",function(e){' +
+                'if(!PICK_TARGETS||!PICK_TARGETS.length)return;' +
+                'var raw=e.target;' +
+                'var t=(raw&&raw.nodeType===3)?raw.parentElement:raw;' +
+                'if(!t||t.nodeType!==1)return;' +
+                'var tag=(t.tagName||"").toUpperCase();' +
+                'if(tag==="INPUT"||tag==="TEXTAREA"||tag==="BUTTON"||tag==="SELECT")return;' +
+                'var cur=t;' +
+                'while(cur&&cur!==document.documentElement){' +
+                'for(var pi=0;pi<PICK_TARGETS.length;pi++){' +
+                'var p=PICK_TARGETS[pi];' +
+                'if(cur.matches&&p.sel&&cur.matches(p.sel)){' +
+                'e.preventDefault();e.stopPropagation();' +
+                '__fluidApplyPickOutline(cur);' +
+                'window.parent.postMessage({type:"fluidPickElement",sel:p.sel,label:p.label||"",kind:p.kind||"image"},"*");' +
+                'return;}' +
+                '}' +
+                'cur=cur.parentElement;}' +
+                '},true);' +
                 'window.addEventListener("message",function(e){' +
                 'var d=e.data;if(!d)return;' +
+                'if(d.type==="fluidClearPick"){__fluidApplyPickOutline(null);return;}' +
                 'if(d.type==="readValues"){' +
                 'var sel=d.selectors||[],vals={};' +
                 'for(var i=0;i<sel.length;i++){' +
@@ -1451,12 +1538,51 @@ export function fluidWatcherPlugin(): Plugin {
                 'if(d.type!=="tmpl")return;' +
                 'var el=document.querySelector(d.sel);if(!el)return;' +
                 'if(d.action==="img"){el.src=d.value;}' +
+                'else if(d.action==="textBox"){' +
+                'if(el.style){' +
+                'el.style.boxSizing="border-box";' +
+                'var diTB2=window.getComputedStyle(el).display;' +
+                'if(diTB2==="inline")el.style.display="inline-block";' +
+                'var hugW=d.widthMode==="hug";' +
+                'var fixW=d.width&&d.width!=="auto";' +
+                'var fullReset=!hugW&&!fixW&&(!d.height||d.height==="auto");' +
+                'if(fullReset){' +
+                'el.style.width="";el.style.maxWidth="";el.style.height="";' +
+                'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
+                'el.style.overflowX="";el.style.overflowY="";' +
+                '}else{' +
+                'if(hugW){' +
+                'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
+                'el.style.width="";el.style.maxWidth="";' +
+                '}else{' +
+                'el.style.whiteSpace="normal";' +
+                'el.style.overflowWrap="anywhere";' +
+                'el.style.wordBreak="break-word";' +
+                'el.style.width=d.width;el.style.maxWidth=d.width;' +
+                '}' +
+                'el.style.overflowX="visible";' +
+                'if(!d.height||d.height==="auto"){el.style.height="auto";el.style.maxHeight="none";el.style.overflowY="visible";}' +
+                'else{el.style.height=d.height;el.style.maxHeight="";el.style.overflowY="auto";}' +
+                '}' +
+                'if("left" in d && d.left)el.style.left=d.left;' +
+                'if("top" in d && d.top)el.style.top=d.top;' +
+                '}' +
+                '}' +
                 'else if(d.action==="imgStyle"){' +
                 'if("objectFit"in d)el.style.objectFit=d.objectFit;' +
                 'if("objectPosition"in d)el.style.objectPosition=d.objectPosition;' +
                 '}else if(d.action==="transform"){' +
-                'if("transform"in d&&el.style)el.style.transform=d.transform||"";' +
-                '}else if(d.mode==="br"){' +
+                'if(("transform"in d)&&el.style){' +
+                'var csT=window.getComputedStyle(el);' +
+                'var Ls=csT.left,Ts=csT.top;' +
+                'if((Ls.indexOf("px")>=0||Ls==="0px")&&(Ts.indexOf("px")>=0||Ts==="0px")){' +
+                'var Lj=parseFloat(Ls)||0,Tj=parseFloat(Ts)||0;' +
+                'if(Lj!==0||Tj!==0){el.style.left="0px";el.style.top="0px";}' +
+                '}' +
+                'el.style.transform=d.transform||"";el.style.transformOrigin="50% 50%";' +
+                '}' +
+                '}' +
+                'else if(d.mode==="br"){' +
                 'var x=document.createElement("div");x.textContent=d.value;' +
                 'el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");' +
                 '}else{el.textContent=d.value;}' +

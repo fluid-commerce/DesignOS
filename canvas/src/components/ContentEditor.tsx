@@ -9,11 +9,26 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import type { Iteration } from '../lib/campaign-types';
+import {
+  collectTransformTargets,
+  type ImageField,
+  type TextField,
+  type TransformTargetKind,
+} from '../lib/slot-schema';
 import { useEditorStore } from '../store/editor';
 import { SlotField } from './SlotField';
 import { BrushTransform } from './BrushTransform';
+import { TextBoxControls } from './TextBoxControls';
 import { CarouselSelector } from './CarouselSelector';
 import { ExportActions } from './ExportActions';
+
+const PICK_KINDS: TransformTargetKind[] = ['text', 'image', 'brush'];
+
+function parsePickKind(v: unknown): TransformTargetKind {
+  return typeof v === 'string' && (PICK_KINDS as string[]).includes(v)
+    ? (v as TransformTargetKind)
+    : 'image';
+}
 
 interface ContentEditorProps {
   iteration: Iteration | null;
@@ -27,9 +42,11 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
     slotSchema,
     slotValues,
     isDirty,
+    pickedTransform,
     selectIteration,
     setIframeRef,
     updateSlotValue,
+    setPickedTransform,
     saveUserState,
     clearSelection,
   } = useEditorStore();
@@ -54,11 +71,25 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
     }
   }, [iteration?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Listen for postMessage responses from iframe (value extraction on first load)
+  // Listen for postMessage from iframe: initial values + click-to-pick targets
   const handleMessage = useCallback(
     (e: MessageEvent) => {
       const d = e.data;
-      if (!d || d.type !== 'readValuesResult') return;
+      if (!d) return;
+
+      if (d.type === 'fluidPickElement' && typeof d.sel === 'string') {
+        if (!iframeEl?.contentWindow || e.source !== iframeEl.contentWindow) return;
+        const label = typeof d.label === 'string' && d.label ? d.label : d.sel;
+        setPickedTransform({
+          sel: d.sel,
+          label,
+          kind: parsePickKind(d.kind),
+        });
+        return;
+      }
+
+      if (iframeEl?.contentWindow && e.source !== iframeEl.contentWindow) return;
+      if (d.type !== 'readValuesResult') return;
       // iframe returns { type: 'readValuesResult', values: Record<string, string> }
       if (d.values && typeof d.values === 'object') {
         for (const [sel, value] of Object.entries(d.values)) {
@@ -71,13 +102,21 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
         useEditorStore.setState({ isDirty: false });
       }
     },
-    [updateSlotValue]
+    [iframeEl, updateSlotValue, setPickedTransform]
   );
 
   useEffect(() => {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [handleMessage]);
+
+  // Clear blue pick outline in iframe when nothing is selected for transform
+  useEffect(() => {
+    if (!iframeEl?.contentWindow) return;
+    if (!pickedTransform) {
+      iframeEl.contentWindow.postMessage({ type: 'fluidClearPick' }, '*');
+    }
+  }, [pickedTransform, iframeEl]);
 
   // On first load: either request current values from iframe (no saved state) or apply saved state is in HTML on load
   useEffect(() => {
@@ -88,7 +127,7 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
     // When we have no stored values, ask iframe for current DOM values (selectors from schema)
     if (Object.keys(slotValues).length === 0) {
       const selectors = slotSchema.fields
-        .filter((f): f is { type: 'text'; sel: string } | { type: 'image'; sel: string } => f.type === 'text' || f.type === 'image')
+        .filter((f): f is TextField | ImageField => f.type === 'text' || f.type === 'image')
         .map((f) => f.sel);
       if (selectors.length) {
         iframeEl.contentWindow.postMessage({ type: 'readValues', selectors }, '*');
@@ -159,21 +198,61 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
         )}
       </div>
 
-      {/* Brush / Transform section */}
-      {slotSchema?.brush && (
+      {/* Position / scale / rotate — click text or image in the preview to select */}
+      {slotSchema && collectTransformTargets(slotSchema).length > 0 && (
         <div style={styles.section}>
-          <div style={styles.sectionLabel}>
-            {slotSchema.brushLabel
-              ? slotSchema.brushLabel.charAt(0).toUpperCase() + slotSchema.brushLabel.slice(1)
-              : 'Transform'}
-          </div>
-          <BrushTransform
-            brushSel={slotSchema.brush}
-            brushLabel={slotSchema.brushLabel}
-            assetWidth={slotSchema.width}
-            assetHeight={slotSchema.height}
-            iframeEl={iframeEl}
-          />
+          <div style={styles.sectionLabel}>Layout in preview</div>
+          <p style={styles.pickHint}>
+            Click any editable text or image in the preview. A blue outline shows the selection.
+            <strong> Text:</strong> drag the filled frame to move or use the top handle to rotate; use the
+            dashed box edges for width (fixed width wraps copy; Hug width grows to fit) and bottom for
+            height. Corner scaling
+            would stretch type — use the dashed box instead.
+            <strong> Image / brush:</strong> drag to move, scale, or rotate, or use the fields below.
+          </p>
+          {pickedTransform && (
+            <div style={{ marginBottom: '0.75rem' }}>
+              <div style={styles.pickedRow}>
+                <span style={styles.pickedLabel}>Selected:</span>
+                <span style={styles.pickedName}>{pickedTransform.label}</span>
+                <button
+                  type="button"
+                  onClick={() => setPickedTransform(null)}
+                  style={styles.clearPickBtn}
+                >
+                  Clear
+                </button>
+              </div>
+              {pickedTransform.kind === 'text' ? (
+                <div key={pickedTransform.sel}>
+                  <TextBoxControls
+                    textSel={pickedTransform.sel}
+                    textLabel={pickedTransform.label}
+                    iframeEl={iframeEl}
+                  />
+                  <div style={{ marginTop: '0.85rem' }}>
+                    <BrushTransform
+                      brushSel={pickedTransform.sel}
+                      brushLabel={pickedTransform.label}
+                      assetWidth={slotSchema.width}
+                      assetHeight={slotSchema.height}
+                      iframeEl={iframeEl}
+                      layoutOnly
+                    />
+                  </div>
+                </div>
+              ) : (
+                <BrushTransform
+                  key={pickedTransform.sel}
+                  brushSel={pickedTransform.sel}
+                  brushLabel={pickedTransform.label}
+                  assetWidth={slotSchema.width}
+                  assetHeight={slotSchema.height}
+                  iframeEl={iframeEl}
+                />
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -266,6 +345,48 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase',
     color: '#888',
     marginBottom: '0.5rem',
+  },
+  pickHint: {
+    fontSize: '0.75rem',
+    color: '#777',
+    lineHeight: 1.5,
+    margin: '0 0 0.75rem 0',
+  },
+  pickedRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    marginBottom: '0.5rem',
+  },
+  pickedLabel: {
+    fontSize: '0.65rem',
+    fontWeight: 600,
+    color: '#666',
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+  },
+  pickedName: {
+    fontSize: '0.78rem',
+    color: '#44B2FF',
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  clearPickBtn: {
+    fontSize: '0.65rem',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    padding: '4px 10px',
+    borderRadius: 4,
+    border: '1px solid #333',
+    background: '#1a1a1e',
+    color: '#aaa',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
   },
   fieldsContainer: {
     flex: 1,
