@@ -67,6 +67,8 @@ export interface SlotSchema {
   fields: SlotField[];          // ordered list of editable fields
   brush?: string | null;        // CSS selector for movable element (one per template)
   brushLabel?: string;          // label for the brush/transform element
+  /** Extra pickable/transform elements (e.g. carousel arrow) with their own persisted transform keys */
+  brushAdditional?: ReadonlyArray<{ sel: string; label: string }>;
   carouselCount?: number;       // number of slides (undefined for single-frame assets)
 }
 
@@ -108,6 +110,15 @@ export function collectTransformTargets(schema: SlotSchema): TransformTarget[] {
     out.push({
       sel: schema.brush,
       label: bl ? bl.charAt(0).toUpperCase() + bl.slice(1) : 'Decorative element',
+      kind: 'brush',
+    });
+  }
+  for (const extra of schema.brushAdditional ?? []) {
+    if (!extra.sel || seen.has(extra.sel)) continue;
+    seen.add(extra.sel);
+    out.push({
+      sel: extra.sel,
+      label: extra.label ? extra.label.charAt(0).toUpperCase() + extra.label.slice(1) : 'Decorative element',
       kind: 'brush',
     });
   }

@@ -1468,6 +1468,12 @@ export function fluidWatcherPlugin(): Plugin {
                 'if(__fluidLastOutline){__fluidLastOutline.style.outline="";__fluidLastOutline.style.outlineOffset="";__fluidLastOutline=null;}' +
                 'if(el){el.style.outline="2px solid #44B2FF";el.style.outlineOffset="2px";__fluidLastOutline=el;}' +
                 '}' +
+                'function __fluidFsPx(fp,fpx){' +
+                'if(!fp||fp==="inherit")return null;' +
+                'if(fp==="custom")return(typeof fpx==="number"&&isFinite(fpx)&&fpx>=8)?Math.round(Math.min(500,Math.max(8,fpx))):null;' +
+                'var M={h1:112,h2:88,h3:64,h4:48,h5:36,h6:28,p1:24,p2:20,p3:16};' +
+                'var n=M[fp];return typeof n==="number"?n:null;' +
+                '}' +
                 'function __fluidApplyTextBoxObj(el,o){' +
                 'if(!el||!el.style||!o)return;' +
                 'el.style.boxSizing="border-box";' +
@@ -1488,6 +1494,9 @@ export function fluidWatcherPlugin(): Plugin {
                 'else{el.style.height=o.h+"px";el.style.maxHeight="";el.style.overflowY="auto";}' +
                 'if(o.l!=null)el.style.left=o.l+"px";' +
                 'if(o.t!=null)el.style.top=o.t+"px";' +
+                'if(o.align==="left"||o.align==="center"||o.align==="right")el.style.textAlign=o.align;' +
+                'var _fsp=__fluidFsPx(o.fontPreset,o.fontSizePx);' +
+                'if(_fsp!=null)el.style.fontSize=_fsp+"px";' +
                 '}' +
                 'function __fluidPlaceCaretFromPoint(x,y){' +
                 'try{' +
@@ -1661,6 +1670,8 @@ export function fluidWatcherPlugin(): Plugin {
                 'el.style.width="";el.style.maxWidth="";el.style.height="";' +
                 'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
                 'el.style.overflowX="";el.style.overflowY="";' +
+                'el.style.textAlign="";' +
+                'el.style.fontSize="";' +
                 '}else{' +
                 'if(hugW){' +
                 'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
@@ -1677,6 +1688,9 @@ export function fluidWatcherPlugin(): Plugin {
                 '}' +
                 'if("left" in d && d.left)el.style.left=d.left;' +
                 'if("top" in d && d.top)el.style.top=d.top;' +
+                'if("textAlign" in d && d.textAlign)el.style.textAlign=d.textAlign;' +
+                'if(d.clearFontSize)el.style.fontSize="";' +
+                'else if(d.fontSize)el.style.fontSize=d.fontSize;' +
                 '}' +
                 '}' +
                 'else if(d.action==="imgStyle"){' +
@@ -1688,7 +1702,10 @@ export function fluidWatcherPlugin(): Plugin {
                 'var Ls=csT.left,Ts=csT.top;' +
                 'if((Ls.indexOf("px")>=0||Ls==="0px")&&(Ts.indexOf("px")>=0||Ts==="0px")){' +
                 'var Lj=parseFloat(Ls)||0,Tj=parseFloat(Ts)||0;' +
-                'if(Lj!==0||Tj!==0){el.style.left="0px";el.style.top="0px";}' +
+                'if(Lj!==0||Tj!==0){' +
+                'el.style.left="0px";el.style.top="0px";' +
+                'el.style.right="auto";el.style.bottom="auto";' +
+                '}' +
                 '}' +
                 'el.style.transform=d.transform||"";el.style.transformOrigin="50% 50%";' +
                 '}' +

@@ -5,7 +5,13 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useEditorStore, SLOT_TRANSFORM_PREFIX } from '../store/editor';
-import { buildTransformString, parseTransform, parseTransformComputed } from '../lib/transform-format';
+import {
+  buildTransformString,
+  parseTransform,
+  parseTransformComputed,
+  roundLayoutRotateDeg,
+  roundLayoutTranslatePx,
+} from '../lib/transform-format';
 
 interface BrushTransformProps {
   /** CSS selector for the movable element (e.g. '.circle-brush') */
@@ -60,11 +66,11 @@ export function BrushTransform({
       const top = cs ? parseFloat(cs.top) : NaN;
       const lx = Number.isFinite(left) ? left : 0;
       const ly = Number.isFinite(top) ? top : 0;
-      const tx0 = parsed.translateX + lx;
-      const ty0 = parsed.translateY + ly;
+      const tx0 = roundLayoutTranslatePx(parsed.translateX + lx);
+      const ty0 = roundLayoutTranslatePx(parsed.translateY + ly);
       setTx(tx0);
       setTy(ty0);
-      setRot(parsed.rotateDeg);
+      setRot(roundLayoutRotateDeg(parsed.rotateDeg));
       if (layoutOnly) {
         setSx(1);
         setSy(1);
@@ -132,16 +138,19 @@ export function BrushTransform({
   );
 
   const handleTxChange = (val: number) => {
-    setTx(val);
-    sendTransform(val, ty, rot, sx, sy);
+    const v = roundLayoutTranslatePx(val);
+    setTx(v);
+    sendTransform(v, ty, rot, sx, sy);
   };
   const handleTyChange = (val: number) => {
-    setTy(val);
-    sendTransform(tx, val, rot, sx, sy);
+    const v = roundLayoutTranslatePx(val);
+    setTy(v);
+    sendTransform(tx, v, rot, sx, sy);
   };
   const handleRotChange = (val: number) => {
-    setRot(val);
-    sendTransform(tx, ty, val, sx, sy);
+    const v = roundLayoutRotateDeg(val);
+    setRot(v);
+    sendTransform(tx, ty, v, sx, sy);
   };
   const handleSxChange = (val: number) => {
     setSx(val);

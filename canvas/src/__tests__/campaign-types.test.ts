@@ -258,4 +258,22 @@ describe('slot-schema', () => {
     });
     expect(targets).toEqual([{ sel: '.photo', label: 'Portrait', kind: 'image' }]);
   });
+
+  it('collectTransformTargets includes brushAdditional selectors', () => {
+    const targets = collectTransformTargets({
+      width: 1080,
+      height: 1080,
+      fields: [
+        { type: 'text', sel: '[data-slide="1"] .slide-counter', label: 'Counter', mode: 'text' },
+      ],
+      brush: '[data-slide="2"] .s2-arrow',
+      brushLabel: 'arrow',
+      brushAdditional: [{ sel: '.extra-brush', label: 'extra' }],
+    });
+    expect(targets.map((t) => t.sel)).toEqual([
+      '[data-slide="1"] .slide-counter',
+      '[data-slide="2"] .s2-arrow',
+      '.extra-brush',
+    ]);
+  });
 });

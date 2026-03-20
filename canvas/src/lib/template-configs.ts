@@ -132,21 +132,29 @@ const t7Carousel: SlotSchema = {
   fields: [
     /* Slide 1 */
     { type: 'divider', label: 'Slide 01 — Cover' },
+    { type: 'text',  sel: '[data-slide="1"] .slide-counter',     label: 'Counter · slide 1',   mode: 'text', rows: 1 },
+    { type: 'text',  sel: '[data-slide="1"] .slide-label span',  label: 'Side label · slide 1', mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="1"] .s1-headline', label: 'Headline',       mode: 'br',   rows: 3 },
     { type: 'text',  sel: '[data-slide="1"] .s1-name',     label: 'Employee Name',  mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="1"] .s1-title',    label: 'Employee Title', mode: 'text', rows: 1 },
     { type: 'image', sel: '[data-slide="1"] .s1-photo img', label: 'Portrait Photo', dims: '263 × 327px' },
     /* Slide 2 */
     { type: 'divider', label: 'Slide 02 — Intro Text' },
+    { type: 'text',  sel: '[data-slide="2"] .slide-counter',     label: 'Counter · slide 2',   mode: 'text', rows: 1 },
+    { type: 'text',  sel: '[data-slide="2"] .slide-label span',  label: 'Side label · slide 2', mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="2"] .s2-body',     label: 'Body Copy',      mode: 'pre',  rows: 6 },
     /* Slide 3 */
     { type: 'divider', label: 'Slide 03 — Tool Feature' },
+    { type: 'text',  sel: '[data-slide="3"] .slide-counter',     label: 'Counter · slide 3',   mode: 'text', rows: 1 },
+    { type: 'text',  sel: '[data-slide="3"] .slide-label span',  label: 'Side label · slide 3', mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="3"] .s3-tool-name',        label: 'Tool Name',    mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="3"] .s3-body',             label: 'Description',  mode: 'pre',  rows: 5 },
     { type: 'text',  sel: '[data-slide="3"] .s3-difficulty-value', label: 'Difficulty',   mode: 'text', rows: 1 },
     { type: 'image', sel: '[data-slide="3"] .s3-screenshot img',   label: 'Screenshot',   dims: '852 × 399px' },
     /* Slide 4 */
     { type: 'divider', label: 'Slide 04 — App Feature' },
+    { type: 'text',  sel: '[data-slide="4"] .slide-counter',     label: 'Counter · slide 4',   mode: 'text', rows: 1 },
+    { type: 'text',  sel: '[data-slide="4"] .slide-label span',  label: 'Side label · slide 4', mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="4"] .s4-feature-name', label: 'Feature Name', mode: 'text', rows: 1 },
     { type: 'text',  sel: '[data-slide="4"] .s4-body-1',       label: 'Paragraph 1',  mode: 'pre',  rows: 4 },
     { type: 'text',  sel: '[data-slide="4"] .s4-body-2',       label: 'Paragraph 2',  mode: 'pre',  rows: 4 },
@@ -164,6 +172,8 @@ const t8QuarterlyStats: SlotSchema = {
   fields: [
     /* Slide 1 */
     { type: 'divider', label: 'Slide 01 — Cover' },
+    { type: 'text', sel: '[data-slide="1"] .slide-counter',     label: 'Counter · slide 1',   mode: 'text', rows: 1 },
+    { type: 'text', sel: '[data-slide="1"] .slide-label span',  label: 'Side label · slide 1', mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="1"] .s1-eyebrow',    label: 'Eyebrow (e.g. Fluid · Q1 2026)', mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="1"] .s1-quarter',    label: 'Quarter (e.g. Q1)',               mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="1"] .s1-year',       label: 'Year',                            mode: 'text', rows: 1 },
@@ -171,6 +181,8 @@ const t8QuarterlyStats: SlotSchema = {
     { type: 'text', sel: '[data-slide="1"] .s1-hero-label', label: 'Hero Label',                      mode: 'text', rows: 1 },
     /* Slide 2 */
     { type: 'divider', label: 'Slide 02 — Three Stats' },
+    { type: 'text', sel: '[data-slide="2"] .slide-counter',     label: 'Counter · slide 2',   mode: 'text', rows: 1 },
+    { type: 'text', sel: '[data-slide="2"] .slide-label span',  label: 'Side label · slide 2', mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="2"] .s2-intro',           label: 'Intro Copy',    mode: 'pre',  rows: 3 },
     { type: 'text', sel: '[data-slide="2"] .s2-col-1 .s2-num',   label: 'Stat 1 Number', mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="2"] .s2-col-1 .s2-lbl',   label: 'Stat 1 Label',  mode: 'text', rows: 1 },
@@ -181,6 +193,8 @@ const t8QuarterlyStats: SlotSchema = {
     { type: 'text', sel: '[data-slide="2"] .s2-footnote',         label: 'Footnote',      mode: 'pre',  rows: 2 },
     /* Slide 3 */
     { type: 'divider', label: 'Slide 03 — AI Efficiency' },
+    { type: 'text', sel: '[data-slide="3"] .slide-counter',     label: 'Counter · slide 3',   mode: 'text', rows: 1 },
+    { type: 'text', sel: '[data-slide="3"] .slide-label span',  label: 'Side label · slide 3', mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="3"] .s3-eyebrow',   label: 'Eyebrow',        mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="3"] .s3-big-num',   label: 'Big Number',     mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="3"] .s3-unit',      label: 'Unit Label',     mode: 'pre',  rows: 2 },
@@ -188,6 +202,8 @@ const t8QuarterlyStats: SlotSchema = {
     { type: 'text', sel: '[data-slide="3"] .s3-secondary', label: 'Secondary Note', mode: 'text', rows: 1 },
     /* Slide 4 */
     { type: 'divider', label: 'Slide 04 — Outlook' },
+    { type: 'text', sel: '[data-slide="4"] .slide-counter',     label: 'Counter · slide 4',   mode: 'text', rows: 1 },
+    { type: 'text', sel: '[data-slide="4"] .slide-label span',  label: 'Side label · slide 4', mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="4"] .s4-eyebrow',              label: "Eyebrow (e.g. What's Next)", mode: 'text', rows: 1 },
     { type: 'text', sel: '[data-slide="4"] .s4-headline',             label: 'Headline',                    mode: 'br',   rows: 3 },
     { type: 'text', sel: '[data-slide="4"] .s4-mini-1 .s4-mini-num',  label: 'Mini Stat 1 Number',          mode: 'text', rows: 1 },
@@ -268,7 +284,7 @@ export const TEMPLATE_METADATA: TemplateMetadata[] = [
   {
     templateId: 't7-carousel',
     name: 'Carousel — Insights',
-    description: '4-slide carousel: cover, intro text, tool feature, app feature. Arrow brush on slide 2.',
+    description: '4-slide carousel: cover, intro text, tool feature, app feature. Movable counter, side label, and arrow on slide 2.',
     thumbnailPath: 'templates/thumbnails/template_7.png',
     platform: 'instagram-square',
     dimensions: { width: 1080, height: 1080 },
@@ -323,12 +339,26 @@ export function resolveSlotSchemaForIteration(
   templateId: string | null | undefined,
   htmlPath: string | null | undefined
 ): SlotSchema | null {
-  if (isUsableStoredSlotSchema(stored)) return stored;
-  const tid = (templateId && String(templateId).trim()) || inferTemplateIdFromHtmlPath(htmlPath ?? undefined);
-  if (tid) {
-    const canonical = getTemplateSchema(tid);
-    if (canonical) return canonical;
+  const tid =
+    (templateId && String(templateId).trim()) || inferTemplateIdFromHtmlPath(htmlPath ?? undefined) || '';
+  const canonical = tid ? getTemplateSchema(tid) : undefined;
+
+  if (isUsableStoredSlotSchema(stored)) {
+    /** Keep editor fields from DB but refresh brush/chrome targets from canonical (template HTML + pick list evolve). */
+    if (canonical && canonical.templateId === tid) {
+      return {
+        ...stored,
+        brush: canonical.brush !== undefined ? canonical.brush : stored.brush,
+        brushLabel: canonical.brushLabel !== undefined ? canonical.brushLabel : stored.brushLabel,
+        brushAdditional:
+          canonical.brushAdditional !== undefined ? canonical.brushAdditional : stored.brushAdditional,
+        carouselCount:
+          canonical.carouselCount !== undefined ? canonical.carouselCount : stored.carouselCount,
+      };
+    }
+    return stored;
   }
+  if (tid && canonical) return canonical;
   return null;
 }
 

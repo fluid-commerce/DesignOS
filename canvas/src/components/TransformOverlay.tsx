@@ -7,7 +7,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useEditorStore, SLOT_TRANSFORM_PREFIX } from '../store/editor';
-import { buildTransformString, parseTransform, parseTransformComputed } from '../lib/transform-format';
+import {
+  buildTransformString,
+  parseTransform,
+  parseTransformComputed,
+  roundLayoutRotateDeg,
+  roundLayoutTranslatePx,
+} from '../lib/transform-format';
 import { elementRectToWrapOverlay } from '../lib/iframe-overlay-geometry';
 import { collectTransformTargets } from '../lib/slot-schema';
 import {
@@ -119,9 +125,9 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
     const ly = Number.isFinite(top) ? top : 0;
     /* CSS combines left/top with transform translate — full offset is sum until we zero left/top on apply */
     return {
-      tx: parsed.translateX + lx,
-      ty: parsed.translateY + ly,
-      rot: parsed.rotateDeg,
+      tx: roundLayoutTranslatePx(parsed.translateX + lx),
+      ty: roundLayoutTranslatePx(parsed.translateY + ly),
+      rot: roundLayoutRotateDeg(parsed.rotateDeg),
       sx: parsed.scaleX,
       sy: parsed.scaleY,
     };

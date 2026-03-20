@@ -3,6 +3,8 @@
  */
 
 import type { SlotSchema, ImageField, TextField } from './slot-schema';
+import type { TextBoxFontPreset } from './textbox-typography';
+import { textBoxFontPostMessage } from './textbox-typography';
 
 /** Keep in sync with store/editor.ts — duplicated here to avoid circular imports */
 const TX_PREFIX = '__transform__:';
@@ -67,8 +69,22 @@ function collectAllKeys(
       s.add(`${TX_PREFIX}${schema.brush}`);
       s.add(`${TB_PREFIX}${schema.brush}`);
     }
+    for (const b of schema.brushAdditional ?? []) {
+      s.add(`${TX_PREFIX}${b.sel}`);
+      s.add(`${TB_PREFIX}${b.sel}`);
+    }
   }
   return [...s];
+}
+
+function textBoxJsonHasActiveFont(raw: string | undefined): boolean {
+  if (!raw) return false;
+  try {
+    const o = JSON.parse(raw) as { fontPreset?: string };
+    return typeof o.fontPreset === 'string' && o.fontPreset !== '' && o.fontPreset !== 'inherit';
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -116,8 +132,27 @@ export function applySlotValuesToIframe(
         continue;
       }
       try {
-        const o = JSON.parse(raw) as { w?: number | null; h?: number | null; l?: number; t?: number };
+        const o = JSON.parse(raw) as {
+          w?: number | null;
+          h?: number | null;
+          l?: number;
+          t?: number;
+          align?: string;
+          fontPreset?: TextBoxFontPreset;
+          fontSizePx?: number;
+        };
         const fixW = typeof o.w === 'number' && Number.isFinite(o.w) && o.w >= 1;
+        const ta =
+          o.align === 'left' || o.align === 'center' || o.align === 'right' ? o.align : undefined;
+        const prevRaw = previous?.[key];
+        const hadFont = textBoxJsonHasActiveFont(prevRaw);
+        const hasFont = textBoxJsonHasActiveFont(raw);
+        const fontExtra =
+          hasFont
+            ? textBoxFontPostMessage(o.fontPreset, o.fontSizePx, false)
+            : hadFont && !hasFont
+              ? { clearFontSize: true as const }
+              : {};
         win.postMessage(
           {
             type: 'tmpl',
@@ -127,6 +162,8 @@ export function applySlotValuesToIframe(
             height: o.h == null ? 'auto' : `${Math.round(Number(o.h))}px`,
             ...(o.l != null && Number.isFinite(o.l) ? { left: `${Math.round(o.l)}px` } : {}),
             ...(o.t != null && Number.isFinite(o.t) ? { top: `${Math.round(o.t)}px` } : {}),
+            ...(ta ? { textAlign: ta } : {}),
+            ...fontExtra,
           },
           '*'
         );

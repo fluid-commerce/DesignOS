@@ -10,16 +10,26 @@ export interface ParsedTransform {
   scaleY: number;
 }
 
+/** Whole layout pixels — avoids 892.478… in sidebar and user-state after drag / matrix parse. */
+export function roundLayoutTranslatePx(n: number): number {
+  return Math.round(n);
+}
+
+/** Enough precision for rotate handle; strips float noise from atan2 / matrix. */
+export function roundLayoutRotateDeg(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
 export function parseTransform(transform: string): ParsedTransform {
   const result: ParsedTransform = { translateX: 0, translateY: 0, rotateDeg: 0, scaleX: 1, scaleY: 1 };
   if (!transform || transform === 'none') return result;
   const tx = transform.match(/translate\(([^,)]+),\s*([^)]+)\)/);
   if (tx) {
-    result.translateX = parseFloat(tx[1]) || 0;
-    result.translateY = parseFloat(tx[2]) || 0;
+    result.translateX = roundLayoutTranslatePx(parseFloat(tx[1]) || 0);
+    result.translateY = roundLayoutTranslatePx(parseFloat(tx[2]) || 0);
   }
   const rot = transform.match(/rotate\(([^)]+)deg\)/);
-  if (rot) result.rotateDeg = parseFloat(rot[1]) || 0;
+  if (rot) result.rotateDeg = roundLayoutRotateDeg(parseFloat(rot[1]) || 0);
   const sc = transform.match(/scale\(([^,)]+)(?:,\s*([^)]+))?\)/);
   if (sc) {
     result.scaleX = parseFloat(sc[1]) || 1;
@@ -53,9 +63,9 @@ export function parseTransformComputed(transform: string, win?: Window | null): 
       const scaleY = Math.hypot(m.c, m.d) || 1;
       const rotateDeg = (Math.atan2(m.b, m.a) * 180) / Math.PI;
       return {
-        translateX: m.e,
-        translateY: m.f,
-        rotateDeg,
+        translateX: roundLayoutTranslatePx(m.e),
+        translateY: roundLayoutTranslatePx(m.f),
+        rotateDeg: roundLayoutRotateDeg(rotateDeg),
         scaleX,
         scaleY,
       };
@@ -68,5 +78,8 @@ export function parseTransformComputed(transform: string, win?: Window | null): 
 }
 
 export function buildTransformString(tx: number, ty: number, rot: number, sx: number, sy: number): string {
-  return `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${sx}, ${sy})`;
+  const rtx = roundLayoutTranslatePx(tx);
+  const rty = roundLayoutTranslatePx(ty);
+  const rrot = roundLayoutRotateDeg(rot);
+  return `translate(${rtx}px, ${rty}px) rotate(${rrot}deg) scale(${sx}, ${sy})`;
 }

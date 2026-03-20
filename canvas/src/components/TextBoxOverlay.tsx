@@ -7,7 +7,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useEditorStore, SLOT_TEXT_BOX_PREFIX } from '../store/editor';
 import { collectTransformTargets } from '../lib/slot-schema';
-import { elementRectToWrapOverlay } from '../lib/iframe-overlay-geometry';
+import {
+  elementLayoutRectInIframe,
+  elementRectToWrapOverlay,
+} from '../lib/iframe-overlay-geometry';
 import {
   collectSnapEdgeLinesX,
   collectSnapEdgeLinesY,
@@ -104,9 +107,15 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
    */
   const readLayoutAtDragStart = useCallback(
     (el: HTMLElement) => {
-      const win = iframeEl!.contentWindow!;
-      const cs = win.getComputedStyle(el);
-      const w = el.offsetWidth;
+      if (!iframeEl) {
+        return { w: MIN_W, h: null as number | null, l: 0, t: 0 };
+      }
+      /**
+       * Use layout rect for l/t — not getComputedStyle left/top. Carousel `.slide-counter` uses
+       * `right: 16px; left: auto`; cs.left is often "auto" → NaN → we wrongly saved l=0 and blew up size.
+       */
+      const layout = elementLayoutRectInIframe(iframeEl, el);
+      const w = Math.max(1, Math.round(layout.w));
       let h: number | null = null;
       const raw = slotValues[textBoxKey];
       if (raw) {
@@ -123,13 +132,11 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
       } else {
         h = inferFixedHeightFromInlineStyle(el);
       }
-      const l = parseFloat(cs.left);
-      const t = parseFloat(cs.top);
       return {
         w,
         h,
-        l: Number.isFinite(l) ? l : 0,
-        t: Number.isFinite(t) ? t : 0,
+        l: Math.round(layout.l),
+        t: Math.round(layout.t),
       };
     },
     [iframeEl, slotValues, textBoxKey]
@@ -208,7 +215,12 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
           }
         }
         setSnapGuides(snapOn ? guides : null);
-        updateTextBox(sel, { w, h: d.startH, l: d.startL, t: d.startT });
+        updateTextBox(sel, {
+          w: Math.round(w),
+          h: d.startH == null ? null : Math.round(d.startH),
+          l: Math.round(d.startL),
+          t: Math.round(d.startT),
+        });
         return;
       }
       if (d.edge === 'w') {
@@ -253,7 +265,12 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
           }
         }
         setSnapGuides(snapOn ? guides : null);
-        updateTextBox(sel, { w, h: d.startH, l, t: d.startT });
+        updateTextBox(sel, {
+          w: Math.round(w),
+          h: d.startH == null ? null : Math.round(d.startH),
+          l: Math.round(l),
+          t: Math.round(d.startT),
+        });
         return;
       }
       if (d.edge === 's') {
@@ -289,7 +306,12 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
           }
         }
         setSnapGuides(snapOn ? guides : null);
-        updateTextBox(sel, { w: d.startW, h: newH, l: d.startL, t: d.startT });
+        updateTextBox(sel, {
+          w: Math.round(d.startW),
+          h: Math.round(newH),
+          l: Math.round(d.startL),
+          t: Math.round(d.startT),
+        });
       }
     },
     [
