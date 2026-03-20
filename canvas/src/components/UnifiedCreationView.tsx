@@ -33,6 +33,8 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
   const [scale, setScale] = useState(0.5);
   const [hoverArrow, setHoverArrow] = useState<'left' | 'right' | null>(null);
 
+  const setEditorIframeRef = useEditorStore((s) => s.setIframeRef);
+
   const creation = creations.find((c) => c.id === activeCreationId);
   const dims = getCreationDimensions(creation?.creationType ?? 'instagram');
   const isMultiSlide = slides.length > 1;
@@ -249,6 +251,8 @@ export function UnifiedCreationView({ onIframeRef }: UnifiedCreationViewProps) {
                 ref={(el) => {
                   setIframeEl(el);
                   onIframeRef(el);
+                  /* Store ref even when the right sidebar is collapsed (ContentEditor unmounts). */
+                  setEditorIframeRef(el);
                 }}
                 onLoad={(e) => clearIframeClientRectModeCache(e.currentTarget)}
                 src={`/api/iterations/${activeIterationId}/html`}

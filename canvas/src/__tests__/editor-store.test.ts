@@ -234,6 +234,50 @@ describe('updateSlotValue', () => {
     expect(mockPostMessage).toHaveBeenCalled();
     vi.useRealTimers();
   });
+
+  it('undo flushes pending snapshot without waiting for debounce timer', () => {
+    vi.useFakeTimers();
+    const mockPostMessage = vi.fn();
+    const mockIframe = {
+      contentWindow: { postMessage: mockPostMessage },
+    } as unknown as HTMLIFrameElement;
+    const schema = {
+      width: 1080,
+      height: 1080,
+      fields: [{ type: 'text' as const, sel: '.h', label: 'H', mode: 'text' as const }],
+      brush: null,
+    };
+    useEditorStore.setState({
+      selectedIterationId: 'iter_x',
+      slotSchema: schema,
+      slotValues: { '.h': 'old' },
+      baselineSlotValues: { '.h': 'old' },
+      iframeRef: mockIframe,
+    });
+    useEditorStore.getState().updateSlotValue('.h', 'new');
+    expect(useEditorStore.getState().undoStack.length).toBe(0);
+    useEditorStore.getState().undo();
+    expect(useEditorStore.getState().slotValues['.h']).toBe('old');
+    vi.useRealTimers();
+  });
+
+  it('undo runs when slotSchema is null but iteration + iframe are set', () => {
+    vi.useFakeTimers();
+    const mockIframe = {
+      contentWindow: { postMessage: vi.fn() },
+    } as unknown as HTMLIFrameElement;
+    useEditorStore.setState({
+      selectedIterationId: 'iter_x',
+      slotSchema: null,
+      slotValues: { '.h': 'a' },
+      baselineSlotValues: {},
+      iframeRef: mockIframe,
+    });
+    useEditorStore.getState().updateSlotValue('.h', 'b');
+    useEditorStore.getState().undo();
+    expect(useEditorStore.getState().slotValues['.h']).toBe('a');
+    vi.useRealTimers();
+  });
 });
 
 /* ── updateElementTransform ─────────────────────────────────────────────── */

@@ -24,6 +24,27 @@ export function clearHistoryDebounceSchedule(): void {
   debounceBefore = null;
 }
 
+/**
+ * If an edit burst is still inside the debounce window, commit its "before" snapshot now.
+ * Must run before undo/redo so Cmd+Z works immediately after a change (not only after 350ms).
+ */
+export function flushPendingUndoSnapshot(
+  getCurrentSlotValues: () => Record<string, string>,
+  commit: (snapshot: Record<string, string>) => void
+): void {
+  if (historyTimer != null) {
+    clearTimeout(historyTimer);
+    historyTimer = null;
+  }
+  const b = debounceBefore;
+  debounceBefore = null;
+  if (!b) return;
+  const after = getCurrentSlotValues();
+  if (!slotMapsEqual(b, after)) {
+    commit(b);
+  }
+}
+
 export function scheduleUndoSnapshot(
   stateBeforeMutation: Record<string, string>,
   commit: (snapshot: Record<string, string>) => void
@@ -77,6 +98,27 @@ function collectAllKeys(
   return [...s];
 }
 
+/**
+ * Apply order for iframe replay (undo/redo/reset).
+ * The transform handler zeroes inline left/top when folding into translate; if __textbox__ runs
+ * before __transform__, those positions are wiped and the preview "jumps" (wrong undo).
+ * Order: slot content → transform → text box (text box wins).
+ */
+function sortKeysForIframeApply(keys: readonly string[]): string[] {
+  const plain: string[] = [];
+  const tx: string[] = [];
+  const tb: string[] = [];
+  for (const k of keys) {
+    if (k.startsWith(TX_PREFIX)) tx.push(k);
+    else if (k.startsWith(TB_PREFIX)) tb.push(k);
+    else plain.push(k);
+  }
+  plain.sort((a, b) => a.localeCompare(b));
+  tx.sort((a, b) => a.localeCompare(b));
+  tb.sort((a, b) => a.localeCompare(b));
+  return [...plain, ...tx, ...tb];
+}
+
 function textBoxJsonHasActiveFont(raw: string | undefined): boolean {
   if (!raw) return false;
   try {
@@ -105,7 +147,7 @@ export function applySlotValuesToIframe(
       []
   );
 
-  const keys = collectAllKeys(target, previous, schema);
+  const keys = sortKeysForIframeApply(collectAllKeys(target, previous, schema));
 
   for (const key of keys) {
     if (key.startsWith(TX_PREFIX)) {

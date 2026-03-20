@@ -11,6 +11,7 @@ import type { Iteration } from '../lib/campaign-types';
 import {
   applySlotValuesToIframe,
   clearHistoryDebounceSchedule,
+  flushPendingUndoSnapshot,
   scheduleUndoSnapshot,
   slotMapsEqual,
   MAX_UNDO,
@@ -465,45 +466,77 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   undo: () => {
     const s = get();
-    if (s.undoStack.length === 0 || !s.slotSchema || !s.iframeRef?.contentWindow) return;
+    if (!s.selectedIterationId || !s.iframeRef?.contentWindow) return;
+
+    flushPendingUndoSnapshot(
+      () => get().slotValues,
+      (snapshot) => {
+        const after = get().slotValues;
+        if (!slotMapsEqual(snapshot, after)) {
+          set((st) => ({
+            undoStack: [...st.undoStack, snapshot].slice(-MAX_UNDO),
+            redoStack: [],
+          }));
+        }
+      }
+    );
+
+    const s2 = get();
+    if (s2.undoStack.length === 0) return;
     clearHistoryDebounceSchedule();
-    const prev = s.undoStack[s.undoStack.length - 1]!;
-    const newPast = s.undoStack.slice(0, -1);
-    const current = structuredClone(s.slotValues);
+    const prev = s2.undoStack[s2.undoStack.length - 1]!;
+    const newPast = s2.undoStack.slice(0, -1);
+    const current = structuredClone(s2.slotValues);
     const next = structuredClone(prev);
     set({
       undoStack: newPast,
-      redoStack: [...s.redoStack, current].slice(-MAX_UNDO),
+      redoStack: [...s2.redoStack, current].slice(-MAX_UNDO),
       slotValues: next,
-      isDirty: !slotMapsEqual(next, s.baselineSlotValues),
+      isDirty: !slotMapsEqual(next, s2.baselineSlotValues),
       pickedTransform: null,
     });
-    applySlotValuesToIframe(next, current, s.slotSchema, s.iframeRef.contentWindow);
-    s.iframeRef.contentWindow.postMessage({ type: 'fluidClearPick' }, '*');
+    applySlotValuesToIframe(next, current, s2.slotSchema, s2.iframeRef.contentWindow);
+    s2.iframeRef.contentWindow.postMessage({ type: 'fluidClearPick' }, '*');
   },
 
   redo: () => {
     const s = get();
-    if (s.redoStack.length === 0 || !s.slotSchema || !s.iframeRef?.contentWindow) return;
+    if (!s.selectedIterationId || !s.iframeRef?.contentWindow) return;
+
+    flushPendingUndoSnapshot(
+      () => get().slotValues,
+      (snapshot) => {
+        const after = get().slotValues;
+        if (!slotMapsEqual(snapshot, after)) {
+          set((st) => ({
+            undoStack: [...st.undoStack, snapshot].slice(-MAX_UNDO),
+            redoStack: [],
+          }));
+        }
+      }
+    );
+
+    const s2 = get();
+    if (s2.redoStack.length === 0) return;
     clearHistoryDebounceSchedule();
-    const forward = s.redoStack[s.redoStack.length - 1]!;
-    const newFut = s.redoStack.slice(0, -1);
-    const current = structuredClone(s.slotValues);
+    const forward = s2.redoStack[s2.redoStack.length - 1]!;
+    const newFut = s2.redoStack.slice(0, -1);
+    const current = structuredClone(s2.slotValues);
     const next = structuredClone(forward);
     set({
       redoStack: newFut,
-      undoStack: [...s.undoStack, current].slice(-MAX_UNDO),
+      undoStack: [...s2.undoStack, current].slice(-MAX_UNDO),
       slotValues: next,
-      isDirty: !slotMapsEqual(next, s.baselineSlotValues),
+      isDirty: !slotMapsEqual(next, s2.baselineSlotValues),
       pickedTransform: null,
     });
-    applySlotValuesToIframe(next, current, s.slotSchema, s.iframeRef.contentWindow);
-    s.iframeRef.contentWindow.postMessage({ type: 'fluidClearPick' }, '*');
+    applySlotValuesToIframe(next, current, s2.slotSchema, s2.iframeRef.contentWindow);
+    s2.iframeRef.contentWindow.postMessage({ type: 'fluidClearPick' }, '*');
   },
 
   resetToBaseline: () => {
     const s = get();
-    if (!s.selectedIterationId || !s.slotSchema || !s.iframeRef?.contentWindow) return;
+    if (!s.selectedIterationId || !s.iframeRef?.contentWindow) return;
     clearHistoryDebounceSchedule();
     const baseline = structuredClone(s.baselineSlotValues);
     const current = structuredClone(s.slotValues);
