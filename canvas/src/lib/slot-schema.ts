@@ -21,9 +21,29 @@ export interface TextField {
 /** An editable image field in the template. */
 export interface ImageField {
   type: 'image';
-  sel: string;         // CSS selector for <img> element
+  /** CSS selector for the `<img>` (src updates, imgStyle, Reposition). */
+  sel: string;
   label: string;
   dims?: string;       // display hint e.g. '353 x 439px'
+  /**
+   * Click-to-move / CSS transform target (e.g. `.photo` wrapper). If omitted, derived from `sel`:
+   * selectors ending with ` img` use the parent token (`.photo img` → `.photo`) so the whole frame moves.
+   */
+  frameSel?: string;
+}
+
+/**
+ * Element that receives layout transform in the preview (usually the visible frame, not the `<img>`).
+ */
+export function imageLayoutSel(field: ImageField): string {
+  const explicit = field.frameSel?.trim();
+  if (explicit) return explicit;
+  const s = field.sel.trim();
+  if (/\s+img$/i.test(s)) {
+    const parent = s.replace(/\s+img$/i, '').trim();
+    return parent || s;
+  }
+  return s;
 }
 
 /** A visual separator between groups of fields (e.g. carousel slide boundaries). */
@@ -66,14 +86,18 @@ export function collectTransformTargets(schema: SlotSchema): TransformTarget[] {
   const out: TransformTarget[] = [];
   const seen = new Set<string>();
   for (const f of schema.fields) {
-    if (f.type === 'text' || f.type === 'image') {
+    if (f.type === 'text') {
       if (!seen.has(f.sel)) {
         seen.add(f.sel);
-        out.push({
-          sel: f.sel,
-          label: f.label,
-          kind: f.type === 'text' ? 'text' : 'image',
-        });
+        out.push({ sel: f.sel, label: f.label, kind: 'text' });
+      }
+      continue;
+    }
+    if (f.type === 'image') {
+      const layoutSel = imageLayoutSel(f);
+      if (!seen.has(layoutSel)) {
+        seen.add(layoutSel);
+        out.push({ sel: layoutSel, label: f.label, kind: 'image' });
       }
     }
   }

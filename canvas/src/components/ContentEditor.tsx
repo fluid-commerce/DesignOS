@@ -208,7 +208,9 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
             dashed box edges for width (fixed width wraps copy; Hug width grows to fit) and bottom for
             height. Corner scaling
             would stretch type — use the dashed box instead.
-            <strong> Image / brush:</strong> drag to move, scale, or rotate, or use the fields below.
+            <strong> Image / photo:</strong> click the picture in the preview, then drag the blue frame to
+            move, use corners to scale, or the top handle to rotate (or use the fields below).{' '}
+            <strong> Brush:</strong> same as image.
           </p>
           {pickedTransform && (
             <div style={{ marginBottom: '0.75rem' }}>
