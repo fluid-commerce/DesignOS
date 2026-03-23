@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 500px;
+      height: 60px;
+      background: #111;
+      position: relative;
+      font-family: sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+    }
+
+    /* SLOT: metric-label */
+    .metric-label {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      width: 120px;
+      flex-shrink: 0;
+      line-height: 1.3;
+    }
+
+    /* SLOT: metric-value */
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    /* SLOT: metric-desc */
+    .metric-desc {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      margin-left: auto;
+      line-height: 1.3;
+    }
+  </style>
+</head>
+<body>
+  <!-- SLOT: metric-label -->
+  <div class="metric-label">Approval Rate</div>
+
+  <!-- SLOT: metric-value -->
+  <div class="metric-value">94.2%</div>
+
+  <!-- SLOT: metric-desc -->
+  <div class="metric-desc">vs 87.1% industry avg</div>
+</body>
+</html>

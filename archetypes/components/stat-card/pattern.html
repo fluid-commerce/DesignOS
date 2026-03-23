@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 400px;
+      height: 300px;
+      background: #111;
+      position: relative;
+      font-family: sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    /* SLOT: stat-number */
+    .stat-number {
+      font-size: 120px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    /* SLOT: stat-label */
+    .stat-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+      margin-top: 8px;
+    }
+
+    /* SLOT: stat-context */
+    .stat-context {
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <!-- SLOT: stat-number -->
+  <div class="stat-number">94%</div>
+
+  <!-- SLOT: stat-label -->
+  <div class="stat-label">Acceptance Rate</div>
+
+  <!-- SLOT: stat-context -->
+  <div class="stat-context">Across all PSP integrations</div>
+</body>
+</html>

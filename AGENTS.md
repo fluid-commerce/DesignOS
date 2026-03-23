@@ -129,11 +129,14 @@ On first startup, if `canvas/seed-data.json` exists and the DB is empty, it auto
 
 Brand data lives in the SQLite database, managed through the app UI. There are NO brand files to read from disk.
 
-**Four pages in the app manage brand data:**
+**Six pages in the app manage brand data and configuration:**
 - **Voice Guide** — voice rules, messaging frameworks, identity docs
-- **Patterns** — design tokens (colors, typography, spacing), visual patterns (brushstrokes, circles, textures)
-- **Assets** — brand assets (fonts, images, logos) served at `/fluid-assets/` URLs
-- **Templates** — reference templates with design rules
+- **Patterns** — two sections: Foundations (colors, typography) and Rules (layout archetypes, brushstroke rendering, circle emphasis, opacity patterns, etc.). Each pattern has a weight and optional `is_core` flag.
+- **Assets** — brand assets in 4 categories: Fonts, Images, Brand Elements, Decorations. Served at `/fluid-assets/` URLs. Optional description field per asset. DAM sync auto-categorizes by mime type.
+- **Templates** — reference templates with per-template design rules (scope: global-social, platform, archetype)
+- **Settings** — context map editor for configuring which brand sections are injected per (creation_type, stage) combination. Shows token budgets and injection priorities.
+
+**Navigation:** LeftNav with Create, My Creations, Assets, Templates, Patterns, Voice Guide, Settings (gear icon at bottom). AI Chat sidebar toggles independently.
 
 **Agents access brand context via pipeline tools:**
 - `list_brand_sections(category?)` — discover available brand docs
@@ -172,7 +175,7 @@ copy → layout → styling → spec-check (→ fix if needed)
 - **Styling:** Sonnet (complex CSS composition)
 - **Spec-check:** Sonnet (holistic brand judgment)
 
-**Smart context injection:** The `context_map` table maps (creation_type, pipeline_stage) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Per-section cap (60% of budget) prevents any single section from monopolizing the injection. Safety caps truncate oversized sections.
+**Smart context injection:** The `context_map` table maps (creation_type, stage, page) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Per-section cap (60% of budget) prevents any single section from monopolizing the injection. Safety caps truncate oversized sections. Wildcard patterns (`voice-guide:*`, `category:*`) expand at runtime. The `context_log` table records what was actually injected per generation (sections, token estimate, gap tool calls) for observability. The Settings page provides a UI for editing the context map.
 
 **Hard rules extraction:** Brand patterns with weight ≥ 81 are automatically parsed and promoted to system prompt directives (injected into layout/styling stages as `## Hard Rules (NON-NEGOTIABLE)`). This ensures the model treats critical brand rules as constraints, not suggestions.
 
@@ -182,7 +185,16 @@ copy → layout → styling → spec-check (→ fix if needed)
 
 **Micro-fix loop:** Before spinning up full API-based fix agents, the pipeline attempts regex-based fixes for simple violations (wrong background color, non-brand font families). Saves ~$0.03 and ~15s per fix.
 
-**Design DNA:** For social posts, layout and styling stages receive Design DNA (visual compositor contract + platform rules + archetype notes + HTML exemplar) in the system prompt. Injected once — not duplicated in the user prompt.
+**Design DNA:** For social posts, layout and styling stages receive Design DNA (visual compositor contract + platform rules + archetype notes + HTML exemplar) in the system prompt. Design DNA is sourced from `brand_patterns` (visual-style category) and `template_design_rules` (scoped by platform and archetype). Injected once — not duplicated in the user prompt.
+
+**Brand-agnostic pipeline:** All stage prompts are generic — no brand name or brand-specific content is hardcoded. Brand identity is runtime data loaded from the DB. The pipeline works for any brand whose data is seeded into the database.
+
+**System-invariant hard rules** (injected into stage system prompts, not stored in DB):
+- **Copy length limits:** IG ~20 words total visible copy, LI ~30 words
+- **Inline styles ban:** all styling must be in `<style>` blocks with CSS classes, never `style=""` attributes
+- **Font enforcement:** only fonts registered in brand assets are allowed; non-brand fonts trigger a full fix loop (not micro-fix)
+- **Decorative elements:** brushstrokes/circles use `<div>` with `background-image: url(); background-size: contain`, never `<img>` tags. Minimum 2 brushstrokes per social post.
+- **Circle emphasis:** CSS mask with proper bounding box calculation
 
 ## API Endpoints
 
@@ -199,6 +211,8 @@ All routes served from Vite middleware (`canvas/src/server/watcher.ts`):
 | `/api/iterations/:id/html` | GET | Serve iteration HTML (with path fallback + slot application) |
 | `/api/iterations/:id/status` | PATCH | Update review status |
 | `/api/generate` | POST | Start generation (SSE stream) |
+| `/api/context-map` | GET, POST, PUT/:id, DELETE/:id | CRUD for smart context injection mappings |
+| `/api/context-log` | GET | Audit trail of injected context per generation |
 | `/api/templates` | GET, POST | List/create templates |
 | `/` | GET | Template library (static HTML) |
 | `/app/*` | GET | React canvas app |

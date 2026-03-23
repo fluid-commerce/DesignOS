@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 600px;
+      height: 200px;
+      background: #111;
+      position: relative;
+      font-family: sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 32px 40px;
+      gap: 12px;
+    }
+
+    /* SLOT: eyebrow */
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.15em;
+      line-height: 1;
+    }
+
+    /* SLOT: headline */
+    .headline {
+      font-size: 48px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+    }
+  </style>
+</head>
+<body>
+  <!-- SLOT: eyebrow -->
+  <div class="eyebrow">Payment Processing</div>
+
+  <!-- SLOT: headline -->
+  <div class="headline">While Competitors Leave Money on the Table</div>
+</body>
+</html>

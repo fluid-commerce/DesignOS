@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 500px;
+      height: 400px;
+      background: #111;
+      position: relative;
+      font-family: sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 32px;
+    }
+
+    /* SLOT: image-frame */
+    .image-frame {
+      width: 100%;
+      flex: 1;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #333;
+    }
+
+    .image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* SLOT: image-caption */
+    .image-caption {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <!-- SLOT: image-frame -->
+  <div class="image-frame">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Product screenshot or photo">
+  </div>
+
+  <!-- SLOT: image-caption -->
+  <div class="image-caption">Product screenshot or photo</div>
+</body>
+</html>

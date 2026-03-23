@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<!-- Interactive editor for stat-hero-single archetype -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Archetype Editor — stat-hero-single</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #222; }
+
+  body {
+    display: flex;
+    min-height: 100vh;
+    font-family: system-ui, sans-serif;
+    color: #ddd;
+  }
+
+  /* --- Canvas --- */
+  #canvas-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #canvas {
+    width: 1080px;
+    height: 1080px;
+    background: #111;
+    position: relative;
+    transform-origin: top left;
+    font-family: sans-serif;
+    overflow: hidden;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* --- Editable elements (draggable) --- */
+  .slot {
+    position: absolute;
+    z-index: 2;
+    cursor: move;
+    outline: 2px dashed transparent;
+    transition: outline-color 0.15s;
+  }
+  .slot:hover, .slot.active {
+    outline-color: rgba(0, 180, 255, 0.6);
+  }
+  .slot.dragging {
+    outline-color: rgba(0, 180, 255, 1);
+  }
+
+  /* Resize handle */
+  .slot .resize-handle {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 12px;
+    height: 12px;
+    background: rgba(0, 180, 255, 0.8);
+    cursor: nwse-resize;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .slot:hover .resize-handle, .slot.active .resize-handle {
+    opacity: 1;
+  }
+
+  /* --- Slot styles (defaults from archetype) --- */
+  #slot-category span {
+    font-weight: 700;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+    transform: rotate(90deg);
+    transform-origin: left top;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  #slot-context-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  #slot-stat-number {
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+    letter-spacing: -0.04em;
+  }
+
+  #slot-headline {
+    font-weight: 900;
+    line-height: 0.95;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+  }
+
+  #slot-body-copy {
+    font-weight: 400;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* --- Side Panel --- */
+  #panel {
+    width: 320px;
+    background: #1a1a1a;
+    border-left: 1px solid #333;
+    padding: 16px;
+    overflow-y: auto;
+    font-size: 13px;
+  }
+  #panel h2 {
+    font-size: 14px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 16px 0 8px;
+  }
+  #panel h2:first-child { margin-top: 0; }
+
+  .prop-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .prop-row label {
+    color: #aaa;
+    font-size: 12px;
+    min-width: 60px;
+  }
+  .prop-row input[type="number"] {
+    width: 70px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 12px;
+    border-radius: 3px;
+  }
+  .prop-row input[type="number"]:focus {
+    border-color: #0bf;
+    outline: none;
+  }
+
+  .slot-section {
+    background: #252525;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .slot-section .slot-name {
+    font-weight: 600;
+    color: #0bf;
+    font-size: 13px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  .checkbox-row {
+    margin-bottom: 6px;
+  }
+  .checkbox-row label {
+    color: #aaa;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .checkbox-row input { margin-right: 6px; }
+
+  #save-btn, #export-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #save-btn {
+    background: #0bf;
+    color: #000;
+  }
+  #save-btn:hover { background: #0ad; }
+  #export-btn {
+    background: #333;
+    color: #ddd;
+  }
+  #export-btn:hover { background: #444; }
+
+  #output {
+    margin-top: 12px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #8f8;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  /* Scale canvas to fit */
+  @media (max-width: 1600px) {
+    #canvas { transform: scale(0.55); }
+    #canvas-wrap { align-items: flex-start; padding-top: 20px; }
+  }
+  @media (min-width: 1601px) and (max-width: 2000px) {
+    #canvas { transform: scale(0.7); }
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-wrap">
+  <div id="canvas">
+    <div class="decorative-zone"></div>
+
+    <div class="slot" id="slot-category" data-slot="category">
+      <span>PAYMENT PROCESSING</span>
+      <div class="resize-handle"></div>
+    </div>
+
+    <div class="slot" id="slot-context-label" data-slot="context-label">
+      APPROVAL RATE ACROSS ALL PSPs
+      <div class="resize-handle"></div>
+    </div>
+
+    <div class="slot" id="slot-stat-number" data-slot="stat-number">
+      94%
+      <div class="resize-handle"></div>
+    </div>
+
+    <div class="slot" id="slot-headline" data-slot="headline">
+      WHILE COMPETITORS LEAVE MONEY ON THE TABLE
+      <div class="resize-handle"></div>
+    </div>
+
+    <div class="slot" id="slot-body-copy" data-slot="body-copy">
+      Seven PSPs. Automatic retry logic. Every transaction gets its best shot at clearing. The difference between 87% and 94% is millions in recovered revenue.
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+</div>
+
+<div id="panel">
+  <h2>Slots</h2>
+  <div id="slot-controls"></div>
+
+  <h2>Actions</h2>
+  <button id="save-btn">Copy CSS to Clipboard</button>
+  <button id="export-btn">Export index.html</button>
+  <div id="output"></div>
+</div>
+
+<script>
+// --- Slot defaults (from current archetype) ---
+const DEFAULTS = {
+  'category':      { left: 1010, top: 45, width: 40, fontSize: 11, rotate: true, removed: false },
+  'context-label': { left: 68,  top: 160, width: 500, fontSize: 14, rotate: false, removed: false },
+  'stat-number':   { left: 68,  top: 190, width: 900, fontSize: 260, rotate: false, removed: false },
+  'headline':      { left: 68,  top: 520, width: 900, fontSize: 82, rotate: false, removed: false },
+  'body-copy':     { left: 68,  top: 740, width: 750, fontSize: 24, rotate: false, removed: false },
+};
+
+// Clone working state
+const state = JSON.parse(JSON.stringify(DEFAULTS));
+
+// --- Initialize positions ---
+function applyState() {
+  for (const [name, s] of Object.entries(state)) {
+    const el = document.getElementById('slot-' + name);
+    if (!el) continue;
+    el.style.left = s.left + 'px';
+    el.style.top = s.top + 'px';
+    el.style.width = s.width + 'px';
+    el.style.fontSize = s.fontSize + 'px';
+    el.style.display = s.removed ? 'none' : '';
+  }
+}
+
+// --- Build control panel ---
+function buildControls() {
+  const container = document.getElementById('slot-controls');
+  container.innerHTML = '';
+
+  for (const [name, s] of Object.entries(state)) {
+    const section = document.createElement('div');
+    section.className = 'slot-section';
+    section.innerHTML = `
+      <div class="slot-name" data-focus="${name}">${name}</div>
+      <div class="checkbox-row">
+        <label><input type="checkbox" data-slot="${name}" data-prop="removed" ${s.removed ? 'checked' : ''}> Remove this slot</label>
+      </div>
+      <div class="prop-row"><label>left</label><input type="number" data-slot="${name}" data-prop="left" value="${s.left}" step="5"></div>
+      <div class="prop-row"><label>top</label><input type="number" data-slot="${name}" data-prop="top" value="${s.top}" step="5"></div>
+      <div class="prop-row"><label>width</label><input type="number" data-slot="${name}" data-prop="width" value="${s.width}" step="10"></div>
+      <div class="prop-row"><label>fontSize</label><input type="number" data-slot="${name}" data-prop="fontSize" value="${s.fontSize}" step="1"></div>
+    `;
+    container.appendChild(section);
+  }
+
+  // Wire inputs
+  container.querySelectorAll('input[type="number"]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const slot = inp.dataset.slot;
+      const prop = inp.dataset.prop;
+      state[slot][prop] = parseInt(inp.value) || 0;
+      applyState();
+    });
+  });
+
+  container.querySelectorAll('input[type="checkbox"]').forEach(inp => {
+    inp.addEventListener('change', () => {
+      state[inp.dataset.slot].removed = inp.checked;
+      applyState();
+    });
+  });
+
+  container.querySelectorAll('.slot-name').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('slot-' + el.dataset.focus);
+      if (target) target.classList.add('active');
+    });
+  });
+}
+
+// --- Drag logic ---
+let dragEl = null, dragOffset = { x: 0, y: 0 };
+let resizeEl = null, resizeStart = { x: 0, w: 0 };
+
+document.getElementById('canvas').addEventListener('mousedown', (e) => {
+  const handle = e.target.closest('.resize-handle');
+  const slot = e.target.closest('.slot');
+  if (!slot) return;
+
+  if (handle) {
+    // Resize
+    resizeEl = slot;
+    resizeStart = { x: e.clientX, w: parseInt(slot.style.width) || 200 };
+    e.preventDefault();
+    return;
+  }
+
+  // Drag
+  dragEl = slot;
+  const canvas = document.getElementById('canvas');
+  const canvasRect = canvas.getBoundingClientRect();
+  const scale = canvasRect.width / 1080;
+  dragOffset.x = e.clientX - parseInt(slot.style.left || 0) * scale - canvasRect.left;
+  dragOffset.y = e.clientY - parseInt(slot.style.top || 0) * scale - canvasRect.top;
+  slot.classList.add('dragging');
+  e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+  const canvas = document.getElementById('canvas');
+  const canvasRect = canvas.getBoundingClientRect();
+  const scale = canvasRect.width / 1080;
+
+  if (dragEl) {
+    const name = dragEl.dataset.slot;
+    const newLeft = Math.round((e.clientX - dragOffset.x - canvasRect.left) / scale);
+    const newTop = Math.round((e.clientY - dragOffset.y - canvasRect.top) / scale);
+    state[name].left = newLeft;
+    state[name].top = newTop;
+    applyState();
+    syncPanel(name);
+  }
+
+  if (resizeEl) {
+    const name = resizeEl.dataset.slot;
+    const dx = (e.clientX - resizeStart.x) / scale;
+    state[name].width = Math.max(30, Math.round(resizeStart.w + dx));
+    applyState();
+    syncPanel(name);
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (dragEl) dragEl.classList.remove('dragging');
+  dragEl = null;
+  resizeEl = null;
+});
+
+function syncPanel(name) {
+  const s = state[name];
+  document.querySelectorAll(`input[data-slot="${name}"]`).forEach(inp => {
+    if (inp.type === 'checkbox') return;
+    inp.value = s[inp.dataset.prop];
+  });
+}
+
+// --- Export ---
+function generateCSS() {
+  let css = '';
+  for (const [name, s] of Object.entries(state)) {
+    if (s.removed) {
+      css += `  /* .${name === 'stat-number' ? 'stat-number' : name} — REMOVED */\n\n`;
+      continue;
+    }
+    const sel = '.' + name;
+    css += `  ${sel} {\n`;
+    css += `    position: absolute;\n`;
+    css += `    left: ${s.left}px;\n`;
+    css += `    top: ${s.top}px;\n`;
+    css += `    width: ${s.width}px;\n`;
+    css += `    font-size: ${s.fontSize}px;\n`;
+    css += `  }\n\n`;
+  }
+  return css;
+}
+
+function generateHTML() {
+  const slots = [];
+  const cssBlocks = [];
+
+  for (const [name, s] of Object.entries(state)) {
+    if (s.removed) continue;
+
+    const el = document.getElementById('slot-' + name);
+    const text = el.childNodes[0].textContent.trim();
+
+    // Build CSS
+    let extra = '';
+    if (name === 'category') {
+      extra = `    font-weight: 700;\n    color: rgba(255,255,255,0.5);\n    white-space: nowrap;\n    text-transform: uppercase;\n    letter-spacing: 0.15em;\n`;
+      if (s.rotate) extra += `    transform: rotate(90deg);\n    transform-origin: left top;\n`;
+    } else if (name === 'context-label') {
+      extra = `    font-weight: 500;\n    color: rgba(255,255,255,0.5);\n    text-transform: uppercase;\n    letter-spacing: 0.1em;\n`;
+    } else if (name === 'stat-number') {
+      extra = `    font-weight: 900;\n    line-height: 0.85;\n    color: #ffffff;\n    letter-spacing: -0.04em;\n`;
+    } else if (name === 'headline') {
+      extra = `    font-weight: 900;\n    line-height: 0.95;\n    color: #ffffff;\n    text-transform: uppercase;\n    letter-spacing: -0.03em;\n`;
+    } else if (name === 'body-copy') {
+      extra = `    font-weight: 400;\n    line-height: 1.45;\n    color: rgba(255,255,255,0.45);\n`;
+    }
+
+    cssBlocks.push(`  .${name} {\n    position: absolute;\n    left: ${s.left}px;\n    top: ${s.top}px;\n    width: ${s.width}px;\n    font-size: ${s.fontSize}px;\n${extra}    z-index: 2;\n  }`);
+
+    // Build HTML
+    if (name === 'category') {
+      slots.push(`  <!-- SLOT: category -->\n  <div class="category"><span>${text}</span></div>`);
+    } else if (name === 'stat-number') {
+      slots.push(`  <!-- SLOT: stat-number -->\n  <div class="stat-number">${text}</div>`);
+    } else {
+      const tag = name === 'headline' ? 'p' : 'p';
+      slots.push(`  <!-- SLOT: ${name} -->\n  <${tag} class="${name}">${text}</${tag}>`);
+    }
+  }
+
+  return `<!DOCTYPE html>
+<!-- archetype: stat-hero-single | target: 1080x1080 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+${cssBlocks.join('\n\n')}
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+${slots.join('\n\n')}
+</body>
+</html>`;
+}
+
+document.getElementById('save-btn').addEventListener('click', () => {
+  const css = generateCSS();
+  navigator.clipboard.writeText(css).then(() => {
+    const out = document.getElementById('output');
+    out.style.display = 'block';
+    out.textContent = '✓ Copied to clipboard!\n\n' + css;
+  });
+});
+
+document.getElementById('export-btn').addEventListener('click', () => {
+  const html = generateHTML();
+  const out = document.getElementById('output');
+  out.style.display = 'block';
+  out.textContent = html;
+  navigator.clipboard.writeText(html);
+});
+
+// --- Init ---
+buildControls();
+applyState();
+</script>
+</body>
+</html>

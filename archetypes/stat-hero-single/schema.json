@@ -1,0 +1,12 @@
+{
+  "archetypeId": "stat-hero-single",
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".context-label",  "label": "Context Label", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".stat-number",    "label": "Stat Value",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".headline",       "label": "Headline",      "mode": "text", "rows": 2 },
+    { "type": "text", "sel": ".body-copy",      "label": "Body Copy",     "mode": "pre",  "rows": 4 }
+  ],
+  "brush": null
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- archetype: stat-hero-single | target: 1080x1080 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .context-label {
+    position: absolute;
+    left: 68px;
+    top: 161px;
+    width: 944px;
+    font-size: 32px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.1em;
+    z-index: 2;
+  }
+
+  .stat-number {
+    position: absolute;
+    left: 68px;
+    top: 199px;
+    width: 944px;
+    font-size: 360px;
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+    letter-spacing: -0.04em;
+    z-index: 2;
+  }
+
+  .headline {
+    position: absolute;
+    left: 68px;
+    top: 513px;
+    width: 944px;
+    font-size: 82px;
+    font-weight: 900;
+    line-height: 0.95;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    z-index: 2;
+  }
+
+  .body-copy {
+    position: absolute;
+    left: 68px;
+    top: 767px;
+    width: 944px;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.45);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: context-label -->
+  <p class="context-label">Approval rate across all PSPs</p>
+
+  <!-- SLOT: stat-number -->
+  <div class="stat-number">94%</div>
+
+  <!-- SLOT: headline -->
+  <p class="headline">While competitors leave money on the table</p>
+
+  <!-- SLOT: body-copy -->
+  <p class="body-copy">Seven PSPs with automatic retry logic. The gap between 87% and 94% is millions in recovered revenue.</p>
+</body>
+</html>
