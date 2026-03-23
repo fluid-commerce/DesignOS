@@ -256,6 +256,24 @@ export function fluidWatcherPlugin(): Plugin {
         });
       }
 
+      // SPA fallback: rewrite /app/* navigation routes to /app/ so Vite serves index.html
+      // Skip Vite internals, source files, node_modules, and static assets
+      srv.middlewares.use((req, _res, next) => {
+        if (req.method !== 'GET' || !req.url) return next();
+        const pathname = req.url.split('?')[0];
+        if (
+          pathname.startsWith('/app/') &&
+          !pathname.startsWith('/app/@') &&
+          !pathname.startsWith('/app/src/') &&
+          !pathname.startsWith('/app/node_modules/') &&
+          !pathname.startsWith('/app/assets/') &&
+          !path.extname(pathname)
+        ) {
+          req.url = '/app/';
+        }
+        next();
+      });
+
       // Home page: serve Template Library at / and its static assets (run first)
       srv.middlewares.use(async (req, res, next) => {
         if (req.method !== 'GET' || !req.url) return next();
@@ -274,9 +292,9 @@ export function fluidWatcherPlugin(): Plugin {
           return next();
         }
         try {
-          // Home/index: redirect to React app at /app/
+          // Home/index: redirect to React app at /app/create
           if (pathname === '/') {
-            res.writeHead(302, { Location: '/app/' });
+            res.writeHead(302, { Location: '/app/create' });
             res.end();
             return;
           }

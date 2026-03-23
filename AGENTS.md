@@ -172,7 +172,15 @@ copy → layout → styling → spec-check (→ fix if needed)
 - **Styling:** Sonnet (complex CSS composition)
 - **Spec-check:** Sonnet (holistic brand judgment)
 
-**Smart context injection:** The `context_map` table maps (creation_type, pipeline_stage) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Safety caps truncate any single section exceeding its budget.
+**Smart context injection:** The `context_map` table maps (creation_type, pipeline_stage) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Per-section cap (60% of budget) prevents any single section from monopolizing the injection. Safety caps truncate oversized sections.
+
+**Hard rules extraction:** Brand patterns with weight ≥ 81 are automatically parsed and promoted to system prompt directives (injected into layout/styling stages as `## Hard Rules (NON-NEGOTIABLE)`). This ensures the model treats critical brand rules as constraints, not suggestions.
+
+**Asset manifest pre-injection:** The styling stage receives a pre-built manifest of all brand asset URLs (fonts, brushstrokes, logos) in the system prompt. Eliminates the need for agents to call `list_brand_assets` and prevents wrong URL format guessing.
+
+**Campaign copy accumulator:** In-memory tracker prevents headline/tagline repetition across creations within the same campaign. Each copy agent receives prior creations' headlines and taglines as negative examples.
+
+**Micro-fix loop:** Before spinning up full API-based fix agents, the pipeline attempts regex-based fixes for simple violations (wrong background color, non-brand font families). Saves ~$0.03 and ~15s per fix.
 
 **Design DNA:** For social posts, layout and styling stages receive Design DNA (visual compositor contract + platform rules + archetype notes + HTML exemplar) in the system prompt. Injected once — not duplicated in the user prompt.
 
@@ -232,9 +240,91 @@ node tools/db-export.cjs                             # Export DB to canvas/seed-
 node tools/db-import.cjs [--merge] [--force]         # Import seed-data.json into DB
 node tools/verify-context-sizes.cjs                  # Check pattern sizes + simulate pipeline token usage
 node tools/feedback-ingest.cjs [--dry-run]           # Analyze feedback, generate proposals
+node tools/simulate-pipeline.cjs "<prompt>"           # Build pipeline prompts + context for agent simulation
+node tools/simulate-pipeline.cjs --live "<prompt>"    # Run real Anthropic API pipeline from CLI
+node tools/simulate-pipeline.cjs --dry-run "<prompt>" # DB records + filesystem only (fastest)
+node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json  # Batch mode
 ```
 
 Note: Validation tools read from the SQLite database. The app must run at least once to seed the DB.
+
+## Pipeline Simulation
+
+To test the generation pipeline at scale without the browser UI, use `simulate-pipeline.cjs` or run manual agent-based simulations.
+
+### Using the CLI harness
+
+```bash
+# Default: set up DB + filesystem + dump exact pipeline prompts/context per stage
+# Ready for a Claude Code agent to simulate each stage
+node tools/simulate-pipeline.cjs "Create an Instagram post about Fluid Connect"
+
+# Live: run the real Anthropic API pipeline (requires ANTHROPIC_API_KEY)
+node tools/simulate-pipeline.cjs --live "Launch a campaign for Payments"
+
+# Dry-run: DB records + filesystem only (no prompt building)
+node tools/simulate-pipeline.cjs --dry-run "Just a linkedin post about FairShare"
+
+# Batch: read prompts from file, run each, output JSON report
+node tools/simulate-pipeline.cjs --batch test-prompts.txt --report results.json
+```
+
+The CLI harness uses the **exact same code paths** as the app: `parseChannelHints()` for routing, `createCampaign/Creation/Slide/Iteration` for DB records. In default mode, it also calls the real `buildSystemPrompt()`, `buildCopyPrompt()`, `buildStylingPrompt()` etc. from `api-pipeline.ts` to dump the exact prompts and injected context each stage would receive.
+
+Each creation gets a `working/_pipeline/` directory containing:
+- `copy-system.txt` / `copy-user.txt` — exact prompts for the copy stage
+- `layout-system.txt` / `layout-user.txt` — exact prompts for layout
+- `styling-system.txt` / `styling-user.txt` — exact prompts for styling
+- `asset-manifest.json` — all brand asset URLs (what `list_brand_assets` returns)
+- `voice-guide-list.json`, `brand-patterns-list.json` — discoverable content catalogs
+- `context.json` — creation metadata, model assignments, file paths
+
+A Claude Code agent can read these files and execute each stage with identical context to what the real API pipeline would provide.
+
+### Agent-based simulation (manual)
+
+When simulating without API calls (spawning subagents as the pipeline stages), follow these rules:
+
+1. **File paths:** HTML output goes to `{PROJECT_ROOT}/.fluid/campaigns/{campaignId}/{creationId}/{slideId}/{iterationId}.html` — NOT inside `canvas/`. The app resolves `html_path` relative to the project root.
+
+2. **DB records:** Use the `--dry-run` mode of simulate-pipeline.cjs to create proper DB records, or create them manually with nanoid IDs, millisecond timestamps, and correct foreign keys (campaign → creation → slide → iteration).
+
+3. **Brand context:** Agents in the real pipeline access brand data via tools (`list_brand_assets`, `read_brand_section`, etc.) that return exact URLs and formatted content. When simulating, either:
+   - Query the SQLite DB directly (`sqlite3 canvas/fluid.db "SELECT ..."`)
+   - Or use the `--dry-run` output which lists working directories where you can dump context files
+
+4. **Spec-check:** Run `node tools/brand-compliance.cjs <file> --context social|website` after each generation. Social posts must use context `social` (enforces #000 bg). One-pagers use `website` (allows #050505).
+
+5. **DB finalization:** After generation, update `iterations.generation_status` from `pending` to `complete`.
+
+### What to evaluate
+
+When reviewing simulation output, check:
+
+- **Brand compliance** — run the validator, track pass/fail rates by creation type
+- **Copy quality** — voice guide adherence, body length (IG: 1-2 sentences, LI: 2-3), tagline variety within campaigns, stat-proof headlines (must be numbers not sentences)
+- **Styling quality** — background color (#000 for social), asset URL format (/api/brand-assets/serve/{name} with no subdirs/extensions), font fallbacks (sans-serif only), position:absolute for social layout
+- **Routing accuracy** — single vs campaign detection, channel inference, DB record correctness
+- **Campaign coherence** — tagline/headline diversity across posts, accent color variety, archetype variety
+
+### Test prompt battery
+
+Good prompts for comprehensive testing (covers all products, platforms, archetypes, and edge cases):
+
+```
+Create an Instagram post about Fluid Connect — how it eliminates the 3am integration fire drills
+Launch a campaign for Fluid Payments — emphasize the 6x retry logic
+Make me a one-pager about FairShare
+just a linkedin post about why WeCommerce exists
+Instagram post for Checkout
+Create a series of posts about Blitz Week for both Instagram and LinkedIn
+Generate multiple posts about Droplets across Instagram
+an instagram post with an employee spotlight format
+posts about Builder
+Create an Instagram post about the competitive advantage of direct selling over D2C brands
+3 instagram posts and a one-pager for Corporate Tools
+just make something cool about Fluid
+```
 
 ## Testing
 

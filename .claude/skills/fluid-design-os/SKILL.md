@@ -62,7 +62,7 @@ fi
 echo ""
 echo "Fluid Design OS canvas ready."
 echo ""
-echo "  Generate assets:  /fluid-social \"your topic\" --variations 3"
+echo "  Generate assets:  /generate-social \"your topic\" --variations 3"
 echo "  Stop:             /fluid-design-os stop"
 ```
 
