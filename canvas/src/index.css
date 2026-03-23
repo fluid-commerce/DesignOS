@@ -67,6 +67,20 @@ button {
   cursor: pointer;
 }
 
+/* ─── Slot sidebar text fields: visible caret + text selection ───────────── */
+.slot-field-editable {
+  caret-color: var(--accent);
+}
+
+.slot-field-editable::selection {
+  background-color: rgba(68, 178, 255, 0.38);
+  color: var(--text-white);
+}
+
+.slot-field-editable:focus {
+  border-color: var(--accent);
+}
+
 /* ─── Scrollbar (WebKit) ────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;

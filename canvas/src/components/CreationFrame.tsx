@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { CREATION_DIMENSIONS } from '../lib/types';
+import { PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
 import type { Annotation, VersionStatus } from '../lib/types';
 import { AnnotationPin } from './AnnotationPin';
 import { AnnotationThread } from './AnnotationThread';
@@ -45,8 +46,11 @@ export function CreationFrame({
   onStatusChange,
 }: CreationFrameProps) {
   const dims = CREATION_DIMENSIONS[platform] ?? { width: 1080, height: 1080 };
-  const scale = displayWidth / dims.width;
-  const displayHeight = dims.height * scale;
+  const m = PREVIEW_CHROME_PADDING_PX;
+  const innerW = Math.max(1, displayWidth - 2 * m);
+  const scale = innerW / dims.width;
+  const innerH = dims.height * scale;
+  const displayHeight = innerH + 2 * m;
 
   // Determine rendering mode: prefer iterationId (src), fallback to html (srcDoc)
   const useSrcMode = !!iterationId;
@@ -106,7 +110,19 @@ export function CreationFrame({
         borderRadius: '6px',
         border: status === 'winner' ? '2px solid #22c55e' : '1px solid #333',
         position: 'relative',
+        padding: m,
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}>
+        <div style={{
+          width: innerW,
+          height: innerH,
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 4,
+        }}>
         {!hasContent ? (
           <div style={{
             width: dims.width,
@@ -238,6 +254,7 @@ export function CreationFrame({
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

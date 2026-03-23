@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { TemplateMetadata } from '../lib/template-configs';
 import { getTemplateSchema } from '../lib/template-configs';
+import { PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
 
 interface TemplateCustomizerProps {
   template: TemplateMetadata;
@@ -256,8 +257,11 @@ function TemplatePreviewIframe({ template }: { template: TemplateMetadata }) {
   const containerHeight = template.platform === 'linkedin-landscape' ? 132 : 200;
 
   useEffect(() => {
-    const scaleX = containerWidth / width;
-    const scaleY = containerHeight / height;
+    const m = PREVIEW_CHROME_PADDING_PX;
+    const innerW = Math.max(1, containerWidth - 2 * m);
+    const innerH = Math.max(1, containerHeight - 2 * m);
+    const scaleX = innerW / width;
+    const scaleY = innerH / height;
     setScale(Math.min(scaleX, scaleY) * 0.95);
   }, [width, height, containerWidth, containerHeight]);
 
@@ -274,6 +278,8 @@ function TemplatePreviewIframe({ template }: { template: TemplateMetadata }) {
         border: '1px solid #2a2a2e',
         backgroundColor: '#0d0d0d',
         position: 'relative',
+        padding: PREVIEW_CHROME_PADDING_PX,
+        boxSizing: 'border-box',
       }}
     >
       <div style={{
@@ -284,6 +290,7 @@ function TemplatePreviewIframe({ template }: { template: TemplateMetadata }) {
         transformOrigin: 'center center',
         width,
         height,
+        borderRadius: 4,
       }}>
         <iframe
           src={previewSrc}

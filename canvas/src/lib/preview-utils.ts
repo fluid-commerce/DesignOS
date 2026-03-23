@@ -5,6 +5,34 @@
 
 import type { Iteration, Creation, Slide } from './campaign-types';
 
+/**
+ * Padding between the app chrome and the preview iframe (outside the creative).
+ * The **design** safe margin is {@link ARTBOARD_SAFE_MARGIN_PX} inside the HTML.
+ */
+export const PREVIEW_CHROME_PADDING_PX = 24;
+
+/**
+ * Safe margin **inside** the artboard document: dashed guide is inset this many px from
+ * each edge; smart guides snap to these lines so content can align 36px from the trim.
+ */
+export const ARTBOARD_SAFE_MARGIN_PX = 36;
+
+/**
+ * Injects a non-interactive dashed rectangle inset {@link ARTBOARD_SAFE_MARGIN_PX} from
+ * the iframe viewport (before `</body>`).
+ * Use only for **creation/iteration edit** HTML (`/api/iterations/:id/html`), not static
+ * `/templates/...` previews. Omit from zip exports.
+ */
+export function injectArtboardMarginGuide(html: string): string {
+  if (html.includes('id="__fluid_safe_margin"')) return html;
+  const m = ARTBOARD_SAFE_MARGIN_PX;
+  const guide =
+    `<div id="__fluid_safe_margin" aria-hidden="true" style="position:fixed;inset:${m}px;border:1px dashed rgba(198,198,206,0.55);pointer-events:none;z-index:2147483646;box-sizing:border-box"></div>`;
+  if (/<\/body>/i.test(html)) return html.replace(/<\/body>/i, `${guide}</body>`);
+  if (/<\/html>/i.test(html)) return html.replace(/<\/html>/i, `${guide}</html>`);
+  return html + guide;
+}
+
 /** Minimal shape needed for preview descriptor (matches DrillDownGrid.PreviewDescriptor). */
 export interface PreviewDescriptorBasic {
   src?: string;

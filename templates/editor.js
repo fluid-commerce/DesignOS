@@ -14,6 +14,7 @@ var TEMPLATES = {
       { type: 'text',  sel: '.name',    label: 'Name',   mode: 'pre',  rows: 2 },
       { type: 'text',  sel: '.title',   label: 'Title',  mode: 'pre',  rows: 2 },
       { type: 'text',  sel: '.handle',  label: 'Handle', mode: 'text', rows: 1 },
+      { type: 'text',  sel: '.category span', label: 'Side label', mode: 'text', rows: 1 },
       { type: 'text',  sel: '.quote',   label: 'Quote',  mode: 'pre',  rows: 5 },
       { type: 'image', sel: '.photo img', label: 'Portrait Photo', dims: '353 × 439px' }
     ],
@@ -26,6 +27,7 @@ var TEMPLATES = {
     w: 1080, h: 1080,
     fields: [
       { type: 'text',  sel: '.headline',       label: 'Headline',     mode: 'text', rows: 2 },
+      { type: 'text',  sel: '.category span',  label: 'Side label',   mode: 'text', rows: 1 },
       { type: 'text',  sel: '.accent-label p', label: 'Accent Label', mode: 'pre',  rows: 2 },
       { type: 'image', sel: '.mockup img',      label: 'App / Product Mockup', dims: '1105 × 829px' }
     ],
@@ -84,6 +86,7 @@ var TEMPLATES = {
     w: 1080, h: 1080,
     fields: [
       { type: 'text',  sel: '.headline',       label: 'Headline',        mode: 'br',   rows: 3 },
+      { type: 'text',  sel: '.category span',  label: 'Side label',      mode: 'text', rows: 1 },
       { type: 'text',  sel: '.employee-name',  label: 'Employee Name',   mode: 'text', rows: 1 },
       { type: 'text',  sel: '.employee-title', label: 'Employee Title',  mode: 'text', rows: 1 },
       { type: 'image', sel: '.employee-photo img', label: 'Employee Portrait', dims: '263 \u00d7 327px' }

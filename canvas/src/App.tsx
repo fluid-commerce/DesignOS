@@ -14,7 +14,7 @@ import { useEditorStore } from './store/editor';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import type { Creation, Slide, Iteration } from './lib/campaign-types';
 import { TEMPLATE_METADATA, getTemplateSchema, type TemplateMetadata } from './lib/template-configs';
-import { buildCreationPreview, buildSlidePreview } from './lib/preview-utils';
+import { PREVIEW_CHROME_PADDING_PX, buildCreationPreview, buildSlidePreview } from './lib/preview-utils';
 // Note: iteration previews always try the API — the server handles path resolution with multiple fallback strategies
 import { StatusBadge } from './components/StatusBadge';
 
@@ -136,21 +136,38 @@ function StandaloneCreationsView() {
           onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#44B2FF')}
           onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2a2a2e')}
         >
-          <div style={{ aspectRatio: '1', backgroundColor: '#111', position: 'relative', overflow: 'hidden' }}>
+          <div style={{
+            aspectRatio: '1',
+            backgroundColor: '#111',
+            position: 'relative',
+            overflow: 'hidden',
+            padding: PREVIEW_CHROME_PADDING_PX,
+            boxSizing: 'border-box',
+          }}>
             {previews[cr.id] ? (
-              <iframe
-                src={`/api/iterations/${previews[cr.id]}/html`}
+              <div
                 style={{
-                  transform: 'scale(0.2)',
-                  transformOrigin: 'top left',
-                  width: '500%',
-                  height: '500%',
-                  pointerEvents: 'none',
-                  border: 'none',
+                  width: '100%',
+                  height: '100%',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: 4,
                 }}
-                sandbox="allow-same-origin"
-                title={cr.title}
-              />
+              >
+                <iframe
+                  src={`/api/iterations/${previews[cr.id]}/html`}
+                  style={{
+                    transform: 'scale(0.2)',
+                    transformOrigin: 'top left',
+                    width: '500%',
+                    height: '500%',
+                    pointerEvents: 'none',
+                    border: 'none',
+                  }}
+                  sandbox="allow-same-origin"
+                  title={cr.title}
+                />
+              </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#444', fontSize: '0.75rem' }}>
                 No preview
@@ -1214,35 +1231,57 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 20,
+          padding: PREVIEW_CHROME_PADDING_PX,
           position: 'relative',
           overflow: 'hidden',
         }}>
           {previewUrl ? (
+            (() => {
+              const m = PREVIEW_CHROME_PADDING_PX;
+              const boxW = 280;
+              const boxH = isLandscape ? 132 : 280;
+              const innerW = Math.max(1, boxW - 2 * m);
+              const innerH = Math.max(1, boxH - 2 * m);
+              const tw = localTemplate!.dimensions.width;
+              const th = localTemplate!.dimensions.height;
+              const scale = isLandscape
+                ? Math.min(innerW / tw, innerH / th)
+                : innerW / tw;
+              return (
             <div style={{
-              width: 280,
-              height: isLandscape ? 132 : 280,
+              width: boxW,
+              height: boxH,
               background: '#000',
               position: 'relative',
               overflow: 'hidden',
               borderRadius: 3,
               transition: 'height 0.3s',
+              padding: m,
+              boxSizing: 'border-box',
             }}>
+              <div style={{
+                width: innerW,
+                height: innerH,
+                overflow: 'hidden',
+                position: 'relative',
+                borderRadius: 2,
+              }}>
               <iframe
                 src={previewUrl}
-                width={localTemplate!.dimensions.width}
-                height={localTemplate!.dimensions.height}
+                width={tw}
+                height={th}
                 style={{
                   border: 'none',
-                  transform: isLandscape
-                    ? 'scale(0.2090)'
-                    : `scale(${280 / localTemplate!.dimensions.width})`,
+                  transform: `scale(${scale})`,
                   transformOrigin: 'top left',
                   pointerEvents: 'none',
                 }}
                 title="Template preview"
               />
+              </div>
             </div>
+              );
+            })()
           ) : (
             <div style={{
               display: 'flex',
@@ -1293,8 +1332,9 @@ function IterationEditFrame({
   useEffect(() => {
     const update = () => {
       if (!containerRef.current) return;
-      const cw = containerRef.current.clientWidth;
-      const ch = containerRef.current.clientHeight;
+      const m = PREVIEW_CHROME_PADDING_PX;
+      const cw = containerRef.current.clientWidth - 2 * m;
+      const ch = containerRef.current.clientHeight - 2 * m;
       const scaleX = cw / width;
       const scaleY = ch / height;
       setScale(Math.min(scaleX, scaleY, 1));
@@ -1306,7 +1346,7 @@ function IterationEditFrame({
   }, [width, height]);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: PREVIEW_CHROME_PADDING_PX, boxSizing: 'border-box' }}>
       <div style={{
         position: 'relative',
         width,

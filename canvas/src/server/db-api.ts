@@ -10,6 +10,7 @@
 import { nanoid } from 'nanoid';
 import { getDb } from '../lib/db';
 import type { Campaign, Creation, Slide, Iteration, CampaignAnnotation } from '../lib/campaign-types';
+import { resolveSlotSchemaForIteration } from '../lib/template-configs';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -59,12 +60,17 @@ function safeJsonParse(value: unknown): object | null {
 
 /** Deserialize an Iteration row from SQLite (JSON fields parsed). Tolerates missing generation_status (legacy DB). */
 function rowToIteration(row: Record<string, unknown>): Iteration {
+  const storedSlotSchema = row.slot_schema ? JSON.parse(row.slot_schema as string) : null;
   return {
     id: row.id as string,
     slideId: row.slide_id as string,
     iterationIndex: Number(row.iteration_index) ?? 0,
     htmlPath: row.html_path as string,
-    slotSchema: safeJsonParse(row.slot_schema),
+    slotSchema: resolveSlotSchemaForIteration(
+      storedSlotSchema,
+      (row.template_id as string | null) ?? null,
+      row.html_path as string
+    ),
     aiBaseline: safeJsonParse(row.ai_baseline),
     userState: safeJsonParse(row.user_state),
     status: (row.status as Iteration['status']) ?? 'unmarked',

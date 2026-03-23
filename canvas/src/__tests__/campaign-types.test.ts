@@ -25,6 +25,7 @@ import type {
   SlotField,
   SlotSchema,
 } from '../lib/slot-schema';
+import { imageLayoutSel, collectTransformTargets } from '../lib/slot-schema';
 
 describe('campaign-types', () => {
   it('Campaign interface has required fields', () => {
@@ -228,5 +229,51 @@ describe('slot-schema', () => {
     expect(minimal.templateId).toBeUndefined();
     expect(minimal.brush).toBeUndefined();
     expect(minimal.carouselCount).toBeUndefined();
+  });
+
+  it('imageLayoutSel uses frameSel when set', () => {
+    expect(
+      imageLayoutSel({
+        type: 'image',
+        sel: '.photo img',
+        label: 'P',
+        frameSel: '.portrait-frame',
+      })
+    ).toBe('.portrait-frame');
+  });
+
+  it('imageLayoutSel derives wrapper from "... img" selector', () => {
+    expect(imageLayoutSel({ type: 'image', sel: '.photo img', label: 'P' })).toBe('.photo');
+  });
+
+  it('imageLayoutSel leaves non-img selectors unchanged', () => {
+    expect(imageLayoutSel({ type: 'image', sel: '.hero-image', label: 'H' })).toBe('.hero-image');
+  });
+
+  it('collectTransformTargets uses layout wrapper for image fields', () => {
+    const targets = collectTransformTargets({
+      width: 1080,
+      height: 1080,
+      fields: [{ type: 'image', sel: '.photo img', label: 'Portrait' }],
+    });
+    expect(targets).toEqual([{ sel: '.photo', label: 'Portrait', kind: 'image' }]);
+  });
+
+  it('collectTransformTargets includes brushAdditional selectors', () => {
+    const targets = collectTransformTargets({
+      width: 1080,
+      height: 1080,
+      fields: [
+        { type: 'text', sel: '[data-slide="1"] .slide-counter', label: 'Counter', mode: 'text' },
+      ],
+      brush: '[data-slide="2"] .s2-arrow',
+      brushLabel: 'arrow',
+      brushAdditional: [{ sel: '.extra-brush', label: 'extra' }],
+    });
+    expect(targets.map((t) => t.sel)).toEqual([
+      '[data-slide="1"] .slide-counter',
+      '[data-slide="2"] .s2-arrow',
+      '.extra-brush',
+    ]);
   });
 });

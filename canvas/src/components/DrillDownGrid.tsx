@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Breadcrumb } from './Breadcrumb';
+import { PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
 
 /**
  * Preview descriptor returned by the `renderPreview` prop.
@@ -61,8 +62,11 @@ function ItemCard<T>({
 }) {
   const preview = renderPreview(item);
   const hasIframe = preview && (preview.html || preview.src);
-  const scale = hasIframe ? PREVIEW_DISPLAY_WIDTH / preview.width : 1;
-  const displayHeight = hasIframe ? preview.height * scale : 180;
+  const m = PREVIEW_CHROME_PADDING_PX;
+  const innerW = Math.max(1, PREVIEW_DISPLAY_WIDTH - 2 * m);
+  const scale = hasIframe ? innerW / preview!.width : 1;
+  const innerH = hasIframe ? preview!.height * scale : Math.max(1, 180 - 2 * m);
+  const displayHeight = hasIframe ? innerH + 2 * m : 180;
 
   return (
     <div
@@ -94,21 +98,31 @@ function ItemCard<T>({
         position: 'relative',
         backgroundColor: '#111111',
         flexShrink: 0,
+        padding: m,
+        boxSizing: 'border-box',
       }}>
         {hasIframe ? (
-          <iframe
-            {...(preview.html ? { srcDoc: preview.html } : { src: preview.src })}
-            sandbox="allow-same-origin"
-            style={{
-              width: preview.width,
-              height: preview.height,
-              border: 'none',
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-              pointerEvents: 'none',
-            }}
-            title={item.title}
-          />
+          <div style={{
+            width: innerW,
+            height: innerH,
+            overflow: 'hidden',
+            position: 'relative',
+            borderRadius: 4,
+          }}>
+            <iframe
+              {...(preview.html ? { srcDoc: preview.html } : { src: preview.src })}
+              sandbox="allow-same-origin"
+              style={{
+                width: preview.width,
+                height: preview.height,
+                border: 'none',
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+                pointerEvents: 'none',
+              }}
+              title={item.title}
+            />
+          </div>
         ) : preview?.meta ? (
           <div style={{
             display: 'flex',

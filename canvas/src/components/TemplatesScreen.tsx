@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -221,11 +222,16 @@ function TemplatePreview({
     return () => document.removeEventListener('mousedown', handler);
   }, [dropdownOpen]);
 
-  const dims = {
-    square: { w: 480, h: 480, iw: 1080, ih: 1080, scale: 0.4444 },
-    landscape: { w: 480, h: 226, iw: 1340, ih: 630, scale: 0.3582 },
-    letter: { w: 425, h: 550, iw: 816, ih: 1056, scale: 0.5208 },
-  }[layout] || { w: 480, h: 480, iw: 1080, ih: 1080, scale: 0.4444 };
+  const layoutDims = {
+    square: { w: 480, h: 480, iw: 1080, ih: 1080 },
+    landscape: { w: 480, h: 226, iw: 1340, ih: 630 },
+    letter: { w: 425, h: 550, iw: 816, ih: 1056 },
+  }[layout] || { w: 480, h: 480, iw: 1080, ih: 1080 };
+
+  const m = PREVIEW_CHROME_PADDING_PX;
+  const innerW = Math.max(1, layoutDims.w - 2 * m);
+  const innerH = Math.max(1, layoutDims.h - 2 * m);
+  const previewScale = Math.min(innerW / layoutDims.iw, innerH / layoutDims.ih);
 
   const handleEditTemplate = () => {
     // Post to same window so App's message listener receives it (TemplatesScreen is in main viewport, not an iframe)
@@ -246,30 +252,40 @@ function TemplatePreview({
   return (
     <div
       style={{
-        width: dims.w,
-        height: dims.h,
+        width: layoutDims.w,
+        height: layoutDims.h,
         overflow: 'hidden',
         position: 'relative',
         background: '#000',
         flexShrink: 0,
         cursor: 'pointer',
+        padding: m,
+        boxSizing: 'border-box',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setDropdownOpen(false); }}
     >
+      <div style={{
+        width: innerW,
+        height: innerH,
+        overflow: 'hidden',
+        position: 'relative',
+        borderRadius: 2,
+      }}>
       <iframe
         src={`/templates/${templatePath}`}
         style={{
-          width: dims.iw,
-          height: dims.ih,
+          width: layoutDims.iw,
+          height: layoutDims.ih,
           border: 'none',
-          transform: `scale(${dims.scale})`,
+          transform: `scale(${previewScale})`,
           transformOrigin: 'top left',
           pointerEvents: 'none',
         }}
         title={templateName}
         loading="lazy"
       />
+      </div>
       {/* Overlay */}
       <div
         style={{

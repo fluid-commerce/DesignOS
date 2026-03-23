@@ -53,6 +53,9 @@ import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
 import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
+import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
+import { resolveSlotSchemaForIteration } from '../lib/template-configs';
+import { injectArtboardMarginGuide, PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -568,7 +571,7 @@ export function fluidWatcherPlugin(): Plugin {
       position: fixed; inset: 52px 0 56px 0; z-index: 10;
       height: calc(100vh - 108px);
       display: flex; align-items: center; justify-content: center;
-      padding: 24px;
+      padding: ${PREVIEW_CHROME_PADDING_PX}px;
       overflow: hidden;
     }
     .preview-stage {
@@ -1265,18 +1268,21 @@ export function fluidWatcherPlugin(): Plugin {
               res.end(JSON.stringify({ error: 'Iteration not found' }));
               return;
             }
+            const storedSlotSchema = row.slot_schema ? JSON.parse(row.slot_schema as string) : null;
+            const tmplId = (row.template_id as string | null) ?? null;
+            const htmlPath = row.html_path as string;
             const iteration = {
               id: row.id as string,
               slideId: row.slide_id as string,
               iterationIndex: row.iteration_index as number,
-              htmlPath: row.html_path as string,
-              slotSchema: row.slot_schema ? JSON.parse(row.slot_schema as string) : null,
+              htmlPath,
+              slotSchema: resolveSlotSchemaForIteration(storedSlotSchema, tmplId, htmlPath),
               aiBaseline: row.ai_baseline ? JSON.parse(row.ai_baseline as string) : null,
               userState: row.user_state ? JSON.parse(row.user_state as string) : null,
               status: row.status as string,
               source: row.source as string,
               generationStatus: (row.generation_status as string) ?? 'complete',
-              templateId: (row.template_id as string | null) ?? null,
+              templateId: tmplId,
               createdAt: row.created_at as number,
             };
             // Load HTML content from disk
@@ -1300,7 +1306,14 @@ export function fluidWatcherPlugin(): Plugin {
             const iterationId = iterHtmlMatch[1];
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare('SELECT html_path, user_state FROM iterations WHERE id = ?').get(iterationId) as { html_path: string; user_state: string | null } | undefined;
+            const row = db.prepare(
+              'SELECT html_path, user_state, slot_schema, template_id FROM iterations WHERE id = ?'
+            ).get(iterationId) as {
+              html_path: string;
+              user_state: string | null;
+              slot_schema: string | null;
+              template_id: string | null;
+            } | undefined;
             if (!row?.html_path) {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('Not found');
@@ -1427,22 +1440,136 @@ export function fluidWatcherPlugin(): Plugin {
                 return;
               }
 
+              html = injectArtboardMarginGuide(html);
               const initialValuesJson = JSON.stringify(userState).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+              let pickTargets: TransformTarget[] = [];
+              try {
+                const storedSchema = row.slot_schema ? JSON.parse(row.slot_schema) : null;
+                const schema = resolveSlotSchemaForIteration(
+                  storedSchema,
+                  row.template_id,
+                  row.html_path
+                );
+                if (schema) pickTargets = collectTransformTargets(schema);
+              } catch {
+                pickTargets = [];
+              }
+              const pickTargetsJson = JSON.stringify(pickTargets).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
               // Apply saved slot values on load, then add postMessage listener for live edits
               const listenerScript =
                 '<script id="__tmpl_listener__">' +
+                'var PICK_TARGETS=' + pickTargetsJson + ';' +
+                'var __fluidLastOutline=null;' +
+                'var __fluidEditingEl=null;' +
+                '(function(){var h=document.head||document.documentElement;var id="__fluid_artboard_css";if(document.getElementById(id))return;var st=document.createElement("style");st.id=id;' +
+                'st.textContent=' +
+                '".fluid-artboard-editing{' +
+                'caret-color:#fff!important;' +
+                '-webkit-user-select:text!important;user-select:text!important;' +
+                'outline:1px solid rgba(255,255,255,.35)!important;' +
+                'outline-offset:3px!important;' +
+                'box-shadow:inset 0 0 0 1px rgba(68,178,255,.45),0 0 0 1px rgba(68,178,255,.25)!important;' +
+                'cursor:text!important;' +
+                '}' +
+                '.fluid-artboard-editing::selection{' +
+                'background:rgba(68,178,255,.45)!important;color:#fff!important;' +
+                '}' +
+                '.fluid-artboard-editing[data-fluid-text-mode=\\"pre\\"]{white-space:pre-wrap!important}";' +
+                'h.appendChild(st);})();' +
+                'function __fluidApplyPickOutline(el){' +
+                'if(__fluidLastOutline){__fluidLastOutline.style.outline="";__fluidLastOutline.style.outlineOffset="";__fluidLastOutline=null;}' +
+                'if(el){el.style.outline="2px solid #44B2FF";el.style.outlineOffset="2px";__fluidLastOutline=el;}' +
+                '}' +
+                'function __fluidFsPx(fp,fpx){' +
+                'if(!fp||fp==="inherit")return null;' +
+                'if(fp==="custom")return(typeof fpx==="number"&&isFinite(fpx)&&fpx>=8)?Math.round(Math.min(500,Math.max(8,fpx))):null;' +
+                'var M={h1:112,h2:88,h3:64,h4:48,h5:36,h6:28,p1:24,p2:20,p3:16};' +
+                'var n=M[fp];return typeof n==="number"?n:null;' +
+                '}' +
+                'function __fluidApplyTextBoxObj(el,o){' +
+                'if(!el||!el.style||!o)return;' +
+                'el.style.boxSizing="border-box";' +
+                'var diTB=window.getComputedStyle(el).display;' +
+                'if(diTB==="inline")el.style.display="inline-block";' +
+                'var fixWo=o.w!=null&&typeof o.w==="number"&&isFinite(o.w)&&o.w>=1;' +
+                'if(fixWo){' +
+                'el.style.whiteSpace="normal";' +
+                'el.style.overflowWrap="anywhere";' +
+                'el.style.wordBreak="break-word";' +
+                'el.style.width=o.w+"px";el.style.maxWidth=o.w+"px";' +
+                '}else{' +
+                'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
+                'el.style.width="";el.style.maxWidth="";' +
+                '}' +
+                'el.style.overflowX="visible";' +
+                'if(o.h==null||o.h===""){el.style.height="auto";el.style.maxHeight="none";el.style.overflowY="visible";}' +
+                'else{el.style.height=o.h+"px";el.style.maxHeight="";el.style.overflowY="auto";}' +
+                'if(o.l!=null)el.style.left=o.l+"px";' +
+                'if(o.t!=null)el.style.top=o.t+"px";' +
+                'if(o.align==="left"||o.align==="center"||o.align==="right")el.style.textAlign=o.align;' +
+                'var _fsp=__fluidFsPx(o.fontPreset,o.fontSizePx);' +
+                'if(_fsp!=null)el.style.fontSize=_fsp+"px";' +
+                '}' +
+                'function __fluidPlaceCaretFromPoint(x,y){' +
+                'try{' +
+                'if(typeof x==="number"&&typeof y==="number"&&x>=0&&y>=0&&document.caretRangeFromPoint){' +
+                'var r=document.caretRangeFromPoint(x,y);' +
+                'if(r){var s=window.getSelection();s.removeAllRanges();s.addRange(r);return;}' +
+                '}' +
+                'var el=__fluidEditingEl;if(el){var rng=document.createRange();rng.selectNodeContents(el);rng.collapse(false);var s2=window.getSelection();s2.removeAllRanges();s2.addRange(rng);}' +
+                '}catch(_pc){}' +
+                '}' +
+                'function __fluidEndArtboardEdit(el){' +
+                'if(!el||!el.classList||!el.classList.contains("fluid-artboard-editing"))return;' +
+                'try{' +
+                'var sel=el.getAttribute("data-fluid-slot-sel");' +
+                'var mode=el.getAttribute("data-fluid-text-mode")||"text";' +
+                'var val=(el.innerText||"").replace(/\\r\\n/g,"\\n").replace(/\\r/g,"\\n");' +
+                'if(sel)window.parent.postMessage({type:"fluidArtboardTextInput",sel:sel,value:val,mode:mode},"*");' +
+                '}catch(_e2){}' +
+                'el.removeAttribute("contenteditable");el.classList.remove("fluid-artboard-editing");' +
+                'el.removeAttribute("data-fluid-slot-sel");el.removeAttribute("data-fluid-text-mode");' +
+                'try{el.style.caretColor="";el.style.removeProperty("-webkit-user-select");el.style.removeProperty("user-select");el.style.cursor="";}catch(_st2){}' +
+                'if(__fluidEditingEl===el)__fluidEditingEl=null;' +
+                '}' +
+                'function __fluidStartArtboardEdit(el,p,e){' +
+                'if(__fluidEditingEl&&__fluidEditingEl!==el)__fluidEndArtboardEdit(__fluidEditingEl);' +
+                'el.setAttribute("contenteditable","true");' +
+                'el.classList.add("fluid-artboard-editing");' +
+                'el.setAttribute("data-fluid-slot-sel",p.sel);' +
+                'el.setAttribute("data-fluid-text-mode",p.mode||"text");' +
+                'try{el.style.caretColor="#fff";el.style.setProperty("-webkit-user-select","text");el.style.setProperty("user-select","text");el.style.cursor="text";}catch(_st){}' +
+                '__fluidEditingEl=el;' +
+                '__fluidApplyPickOutline(el);' +
+                'window.parent.postMessage({type:"fluidPickElement",sel:p.sel,label:p.label||"",kind:"text"},"*");' +
+                'el.focus({preventScroll:true});' +
+                'if(e&&typeof e.clientX==="number"&&typeof e.clientY==="number")__fluidPlaceCaretFromPoint(e.clientX,e.clientY);' +
+                'else __fluidPlaceCaretFromPoint(-1,-1);' +
+                '}' +
                 '(function(){' +
                 'var initial=' + initialValuesJson + ';' +
+                'var TX_PREFIX="__transform__:";var TB_PREFIX="__textbox__:";' +
                 'for(var sel in initial){' +
                 'var v=initial[sel];' +
-                'if(sel==="__brushTransform__"){' +
-                'try{' +
-                'var tmap=typeof v==="string"?JSON.parse(v):v;' +
-                'for(var bsel in tmap){' +
-                'var bel=document.querySelector(bsel);' +
-                'if(bel&&bel.style){bel.style.transformOrigin="50% 50%";bel.style.transform=tmap[bsel]||"";}' +
+                'if(sel.indexOf(TX_PREFIX)===0){' +
+                'var tsel=sel.substring(TX_PREFIX.length);' +
+                'var tel=document.querySelector(tsel);' +
+                'if(tel&&typeof v==="string"){' +
+                'tel.style.transform=v;tel.style.transformOrigin="50% 50%";' +
+                'var cs0=window.getComputedStyle(tel);' +
+                'var Ls0=cs0.left,Ts0=cs0.top;' +
+                'if((Ls0.indexOf("px")>=0||Ls0==="0px")&&(Ts0.indexOf("px")>=0||Ts0==="0px")){' +
+                'var L0=parseFloat(Ls0)||0,T0=parseFloat(Ts0)||0;' +
+                'if(L0!==0||T0!==0){tel.style.left="0px";tel.style.top="0px";}' +
                 '}' +
-                '}catch(_){}' +
+                '}' +
+                'continue;}' +
+                'if(sel.indexOf(TB_PREFIX)===0){' +
+                'var bsel=sel.substring(TB_PREFIX.length);' +
+                'var bel=document.querySelector(bsel);' +
+                'if(bel&&typeof v==="string"){' +
+                'try{__fluidApplyTextBoxObj(bel,JSON.parse(v));}catch(_tb){}' +
+                '}' +
                 'continue;}' +
                 'var el=document.querySelector(sel);if(!el)continue;' +
                 'if(el.tagName==="IMG"&&typeof v==="string"){' +
@@ -1458,8 +1585,77 @@ export function fluidWatcherPlugin(): Plugin {
                 'else{el.textContent=v;}' +
                 '}' +
                 '})();' +
+                'document.addEventListener("click",function(e){' +
+                'if(!PICK_TARGETS||!PICK_TARGETS.length)return;' +
+                'var raw=e.target;' +
+                'var t=(raw&&raw.nodeType===3)?raw.parentElement:raw;' +
+                'if(!t||t.nodeType!==1)return;' +
+                'if(__fluidEditingEl&&__fluidEditingEl.contains(t))return;' +
+                'var tag=(t.tagName||"").toUpperCase();' +
+                'if(tag==="INPUT"||tag==="TEXTAREA"||tag==="BUTTON"||tag==="SELECT")return;' +
+                'var cur=t;' +
+                'while(cur&&cur!==document.documentElement){' +
+                'for(var pi=0;pi<PICK_TARGETS.length;pi++){' +
+                'var p=PICK_TARGETS[pi];' +
+                'if(cur.matches&&p.sel&&cur.matches(p.sel)){' +
+                'e.preventDefault();e.stopPropagation();' +
+                '__fluidApplyPickOutline(cur);' +
+                'window.parent.postMessage({type:"fluidPickElement",sel:p.sel,label:p.label||"",kind:p.kind||"image"},"*");' +
+                'return;}' +
+                '}' +
+                'cur=cur.parentElement;}' +
+                '},true);' +
+                'document.addEventListener("dblclick",function(e){' +
+                'if(!PICK_TARGETS||!PICK_TARGETS.length)return;' +
+                'var raw=e.target;' +
+                'var t=(raw&&raw.nodeType===3)?raw.parentElement:raw;' +
+                'if(!t||t.nodeType!==1)return;' +
+                'var tag=(t.tagName||"").toUpperCase();' +
+                'if(tag==="INPUT"||tag==="TEXTAREA"||tag==="BUTTON"||tag==="SELECT")return;' +
+                'var cur=t;' +
+                'while(cur&&cur!==document.documentElement){' +
+                'for(var pi=0;pi<PICK_TARGETS.length;pi++){' +
+                'var p=PICK_TARGETS[pi];' +
+                'if(p.kind==="text"&&cur.matches&&p.sel&&cur.matches(p.sel)){' +
+                'e.preventDefault();e.stopPropagation();' +
+                '__fluidStartArtboardEdit(cur,p,e);' +
+                'return;}' +
+                '}' +
+                'cur=cur.parentElement;}' +
+                '},true);' +
+                'document.addEventListener("input",function(e){' +
+                'var el=e.target;' +
+                'if(!el||el.nodeType!==1||!el.classList||!el.classList.contains("fluid-artboard-editing"))return;' +
+                'var sel=el.getAttribute("data-fluid-slot-sel");' +
+                'if(!sel)return;' +
+                'var mode=el.getAttribute("data-fluid-text-mode")||"text";' +
+                'var val=(el.innerText||"").replace(/\\r\\n/g,"\\n").replace(/\\r/g,"\\n");' +
+                'window.parent.postMessage({type:"fluidArtboardTextInput",sel:sel,value:val,mode:mode},"*");' +
+                '},true);' +
+                'document.addEventListener("focusout",function(e){' +
+                'var el=e.target;' +
+                'if(!el||!el.classList||!el.classList.contains("fluid-artboard-editing"))return;' +
+                'var rt=e.relatedTarget;' +
+                'if(rt&&el.contains(rt))return;' +
+                '__fluidEndArtboardEdit(el);' +
+                '},true);' +
+                'document.addEventListener("keydown",function(e){' +
+                'if(e.key!=="Escape")return;' +
+                'var el=__fluidEditingEl;' +
+                'if(!el)return;' +
+                'e.preventDefault();e.stopPropagation();' +
+                '__fluidEndArtboardEdit(el);' +
+                '},true);' +
                 'window.addEventListener("message",function(e){' +
                 'var d=e.data;if(!d)return;' +
+                'if(d.type==="fluidClearPick"){__fluidApplyPickOutline(null);return;}' +
+                'if(d.type==="fluidStartArtboardEdit"&&d.sel){' +
+                'var elEdit=document.querySelector(d.sel);if(!elEdit)return;' +
+                'for(var pj=0;pj<PICK_TARGETS.length;pj++){' +
+                'var pEdit=PICK_TARGETS[pj];' +
+                'if(pEdit.kind==="text"&&pEdit.sel===d.sel){__fluidStartArtboardEdit(elEdit,pEdit,null);return;}' +
+                '}' +
+                'return;}' +
                 'if(d.type==="readValues"){' +
                 'var sel=d.selectors||[],vals={};' +
                 'for(var i=0;i<sel.length;i++){' +
@@ -1471,13 +1667,62 @@ export function fluidWatcherPlugin(): Plugin {
                 '}' +
                 'if(d.type!=="tmpl")return;' +
                 'var el=document.querySelector(d.sel);if(!el)return;' +
+                'var ae=document.activeElement;' +
+                'if(el.getAttribute("contenteditable")==="true"&&ae&&(el===ae||el.contains(ae)))return;' +
                 'if(d.action==="img"){el.src=d.value;}' +
+                'else if(d.action==="textBox"){' +
+                'if(el.style){' +
+                'el.style.boxSizing="border-box";' +
+                'var diTB2=window.getComputedStyle(el).display;' +
+                'if(diTB2==="inline")el.style.display="inline-block";' +
+                'var hugW=d.widthMode==="hug";' +
+                'var fixW=d.width&&d.width!=="auto";' +
+                'var fullReset=!hugW&&!fixW&&(!d.height||d.height==="auto");' +
+                'if(fullReset){' +
+                'el.style.width="";el.style.maxWidth="";el.style.height="";' +
+                'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
+                'el.style.overflowX="";el.style.overflowY="";' +
+                'el.style.textAlign="";' +
+                'el.style.fontSize="";' +
+                '}else{' +
+                'if(hugW){' +
+                'el.style.whiteSpace="";el.style.overflowWrap="";el.style.wordBreak="";' +
+                'el.style.width="";el.style.maxWidth="";' +
+                '}else{' +
+                'el.style.whiteSpace="normal";' +
+                'el.style.overflowWrap="anywhere";' +
+                'el.style.wordBreak="break-word";' +
+                'el.style.width=d.width;el.style.maxWidth=d.width;' +
+                '}' +
+                'el.style.overflowX="visible";' +
+                'if(!d.height||d.height==="auto"){el.style.height="auto";el.style.maxHeight="none";el.style.overflowY="visible";}' +
+                'else{el.style.height=d.height;el.style.maxHeight="";el.style.overflowY="auto";}' +
+                '}' +
+                'if("left" in d && d.left)el.style.left=d.left;' +
+                'if("top" in d && d.top)el.style.top=d.top;' +
+                'if("textAlign" in d && d.textAlign)el.style.textAlign=d.textAlign;' +
+                'if(d.clearFontSize)el.style.fontSize="";' +
+                'else if(d.fontSize)el.style.fontSize=d.fontSize;' +
+                '}' +
+                '}' +
                 'else if(d.action==="imgStyle"){' +
                 'if("objectFit"in d)el.style.objectFit=d.objectFit;' +
                 'if("objectPosition"in d)el.style.objectPosition=d.objectPosition;' +
                 '}else if(d.action==="transform"){' +
-                'if("transform"in d&&el.style){el.style.transformOrigin="50% 50%";el.style.transform=d.transform||"";}' +
-                '}else if(d.mode==="br"){' +
+                'if(("transform"in d)&&el.style){' +
+                'var csT=window.getComputedStyle(el);' +
+                'var Ls=csT.left,Ts=csT.top;' +
+                'if((Ls.indexOf("px")>=0||Ls==="0px")&&(Ts.indexOf("px")>=0||Ts==="0px")){' +
+                'var Lj=parseFloat(Ls)||0,Tj=parseFloat(Ts)||0;' +
+                'if(Lj!==0||Tj!==0){' +
+                'el.style.left="0px";el.style.top="0px";' +
+                'el.style.right="auto";el.style.bottom="auto";' +
+                '}' +
+                '}' +
+                'el.style.transform=d.transform||"";el.style.transformOrigin="50% 50%";' +
+                '}' +
+                '}' +
+                'else if(d.mode==="br"){' +
                 'var x=document.createElement("div");x.textContent=d.value;' +
                 'el.innerHTML=x.innerHTML.replace(/\\n/g,"<br>");' +
                 '}else{el.textContent=d.value;}' +
