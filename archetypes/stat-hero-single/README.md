@@ -27,18 +27,22 @@ Data-driven proof point, performance metric, achievement milestone
 ## Components used
 
 - stat-card (stat-number, context-label)
-- eyebrow-headline (category, headline)
+- eyebrow-headline (headline)
 - body-text (body-copy)
 
 ## Slots
 
 | Slot | Type | Selector | Description |
 |------|------|----------|-------------|
-| Side Label | text | .category span | Category/topic label (e.g., "PAYMENT PROCESSING") |
-| Context Label | text | .context-label | Descriptor above stat (e.g., "APPROVAL RATE") |
+| Context Label | text | .context-label | Descriptor above stat (e.g., "Approval rate across all PSPs") |
 | Stat Value | text | .stat-number | The giant metric (e.g., "94%") |
 | Headline | text | .headline | Supporting statement about the stat's meaning |
 | Body Copy | text | .body-copy | 1-2 sentences of supporting explanation |
+
+## Design notes
+
+- The vertical side category label (present in the branded stat-proof template) is omitted here — it is a Fluid brand convention, not a structural layout element. The brand layer applies it at generation time.
+- Casing (uppercase vs sentence case) is a brand decision, not an archetype decision. No `text-transform: uppercase` is applied in the skeleton.
 
 ## Reference
 

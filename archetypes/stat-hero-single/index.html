@@ -22,41 +22,25 @@
     z-index: 0;
   }
 
-  .category {
-    position: absolute;
-    right: 28px;
-    top: 45px;
-    z-index: 5;
-  }
-  .category span {
-    font-weight: 700;
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    white-space: nowrap;
-    transform: rotate(90deg);
-    display: block;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-  }
-
   .context-label {
     position: absolute;
-    left: 68px;
-    top: 160px;
+    left: 72px;
+    top: 161px;
+    width: 888px;
+    font-size: 32px;
     font-weight: 500;
-    font-size: 14px;
     color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
     letter-spacing: 0.1em;
     z-index: 2;
   }
 
   .stat-number {
     position: absolute;
-    left: 68px;
-    top: 190px;
+    left: 60px;
+    top: 199px;
+    width: 900px;
+    font-size: 360px;
     font-weight: 900;
-    font-size: 260px;
     line-height: 0.85;
     color: #ffffff;
     letter-spacing: -0.04em;
@@ -65,25 +49,24 @@
 
   .headline {
     position: absolute;
-    left: 68px;
-    top: 520px;
-    width: 900px;
-    font-weight: 900;
+    left: 74px;
+    top: 513px;
+    width: 920px;
     font-size: 82px;
+    font-weight: 900;
     line-height: 0.95;
     color: #ffffff;
-    text-transform: uppercase;
     letter-spacing: -0.03em;
     z-index: 2;
   }
 
   .body-copy {
     position: absolute;
-    left: 68px;
-    top: 740px;
+    left: 69px;
+    top: 767px;
     width: 750px;
+    font-size: 28px;
     font-weight: 400;
-    font-size: 24px;
     line-height: 1.45;
     color: rgba(255,255,255,0.45);
     z-index: 2;
@@ -93,21 +76,16 @@
 <body>
   <div class="decorative-zone"></div>
 
-  <!-- SLOT: category -->
-  <div class="category">
-    <span>PAYMENT PROCESSING</span>
-  </div>
-
   <!-- SLOT: context-label -->
-  <p class="context-label">APPROVAL RATE ACROSS ALL PSPs</p>
+  <p class="context-label">Approval rate across all PSPs</p>
 
   <!-- SLOT: stat-number -->
   <div class="stat-number">94%</div>
 
   <!-- SLOT: headline -->
-  <p class="headline">WHILE COMPETITORS LEAVE MONEY ON THE TABLE</p>
+  <p class="headline">While competitors leave money on the table</p>
 
   <!-- SLOT: body-copy -->
-  <p class="body-copy">Seven PSPs. Automatic retry logic. Every transaction gets its best shot at clearing. The difference between 87% and 94% is millions in recovered revenue.</p>
+  <p class="body-copy">Seven PSPs with automatic retry logic. The gap between 87% and 94% is millions in recovered revenue.</p>
 </body>
 </html>
