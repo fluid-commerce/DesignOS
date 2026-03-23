@@ -289,6 +289,230 @@ function checkSocialBackground(lines, rules, context) {
   return violations;
 }
 
+function checkInlineStyles(lines, rules, context) {
+  const violations = [];
+  let insideStyleBlock = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/<style[\s>]/i.test(line)) insideStyleBlock = true;
+    if (/<\/style>/i.test(line)) { insideStyleBlock = false; continue; }
+    if (insideStyleBlock) continue;
+    if (/\bstyle\s*=\s*["'][^"']+["']/i.test(line)) {
+      violations.push({
+        line: i + 1, column: 1,
+        rule: 'style-no-inline',
+        severity: severityFromWeight(90, rules.thresholds),
+        weight: 90,
+        message: 'Inline style attribute found. All styling must be in <style> blocks using CSS classes.',
+        found: line.trim().slice(0, 80),
+      });
+    }
+  }
+  return violations;
+}
+
+function checkDecorativeImgTags(lines, rules, context) {
+  const violations = [];
+  const decorativeClassPattern = /brush|texture|decorative|circle|sketch|overlay/i;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const imgMatches = line.matchAll(/<img\b[^>]*>/gi);
+    for (const m of imgMatches) {
+      const tag = m[0];
+      const hasEmptyAlt = /alt\s*=\s*["']\s*["']/i.test(tag);
+      const hasNoAlt = !/alt\s*=/i.test(tag);
+      const hasDecorativeClass = decorativeClassPattern.test(tag);
+      if (hasEmptyAlt || hasNoAlt || hasDecorativeClass) {
+        violations.push({
+          line: i + 1, column: m.index + 1,
+          rule: 'img-no-decorative',
+          severity: severityFromWeight(85, rules.thresholds),
+          weight: 85,
+          message: 'Decorative element uses <img> tag. Use <div> with background-image + background-size: contain instead.',
+          found: tag.slice(0, 100),
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+function checkHeadlineLetterSpacing(lines, rules, context) {
+  const violations = [];
+  const joined = lines.join('\n');
+  // Find CSS rules for headline-like classes
+  const ruleRegex = /\.(headline|title|heading|hero-text|main-text)[^{]*\{[^}]*letter-spacing\s*:\s*([^;}\s]+)/gi;
+  let match;
+  while ((match = ruleRegex.exec(joined)) !== null) {
+    const value = match[2].trim();
+    const numericValue = parseFloat(value);
+    // Flag if letter-spacing is positive or zero (should be negative like -0.03em)
+    if (!isNaN(numericValue) && numericValue >= 0) {
+      // Find line number
+      const beforeMatch = joined.slice(0, match.index);
+      const lineNum = (beforeMatch.match(/\n/g) || []).length + 1;
+      violations.push({
+        line: lineNum, column: 1,
+        rule: 'typography-headline-letter-spacing',
+        severity: severityFromWeight(85, rules.thresholds),
+        weight: 85,
+        message: `Headline letter-spacing should be negative (e.g., -0.03em). Found: ${value}`,
+        found: value,
+      });
+    }
+  }
+  return violations;
+}
+
+function checkTitleTag(lines, rules, context) {
+  const joined = lines.join('\n');
+  if (/<title[^>]*>.*<\/title>/is.test(joined)) return [];
+  return [{
+    line: 1, column: 1,
+    rule: 'html-title-missing',
+    severity: severityFromWeight(70, rules.thresholds),
+    weight: 70,
+    message: 'HTML document is missing a <title> tag.',
+    found: null,
+  }];
+}
+
+function checkMinimumElementGap(lines, rules, context) {
+  const violations = [];
+  const joined = lines.join('\n');
+  // Extract top: Npx values from CSS rules targeting text-like elements
+  const topRegex = /\.(headline|title|body|subtext|tagline|text|copy|description)[^{]*\{[^}]*top\s*:\s*(\d+)px/gi;
+  const tops = [];
+  let match;
+  while ((match = topRegex.exec(joined)) !== null) {
+    const beforeMatch = joined.slice(0, match.index);
+    const lineNum = (beforeMatch.match(/\n/g) || []).length + 1;
+    tops.push({ className: match[1], top: parseInt(match[2]), line: lineNum });
+  }
+  tops.sort((a, b) => a.top - b.top);
+  for (let i = 1; i < tops.length; i++) {
+    const gap = tops[i].top - tops[i - 1].top;
+    if (gap > 0 && gap < 20) {
+      violations.push({
+        line: tops[i].line, column: 1,
+        rule: 'layout-minimum-gap',
+        severity: severityFromWeight(65, rules.thresholds),
+        weight: 65,
+        message: `Text elements .${tops[i - 1].className} and .${tops[i].className} are only ${gap}px apart (minimum: 20px).`,
+        found: `${gap}px`,
+      });
+    }
+  }
+  return violations;
+}
+
+function checkMultilingualAccents(lines, rules, context) {
+  const violations = [];
+  // Common words where accents are frequently dropped in uppercase
+  const accentPairs = [
+    [/\bTECNOLOGIA\b/, 'TECNOLOGIA', 'TECNOLOGIA (should be TECNOLOGIA with accent if applicable)'],
+    [/\bCAFE\b(?![\w-])/, 'CAFE', 'CAFE (should be CAFE with accent if applicable)'],
+    [/\bRESUME\b/, 'RESUME', 'RESUME (should be RESUME with accent if applicable)'],
+  ];
+  // More general: check if text-transform: uppercase is used on content containing accented chars
+  const joined = lines.join('\n');
+  const uppercaseBlocks = /text-transform\s*:\s*uppercase/gi;
+  if (uppercaseBlocks.test(joined)) {
+    // Advisory: uppercase transform preserves accents in modern browsers, just flag for awareness
+    // No violation — modern CSS handles this correctly
+  }
+  // Check for HTML entities that suggest accent was manually removed
+  for (let i = 0; i < lines.length; i++) {
+    if (/[A-Z]{4,}/.test(lines[i])) {
+      // Check if adjacent to a known accent-prone word pattern
+      for (const [pattern, word, msg] of accentPairs) {
+        if (pattern.test(lines[i])) {
+          violations.push({
+            line: i + 1, column: 1,
+            rule: 'text-multilingual-accent',
+            severity: severityFromWeight(55, rules.thresholds),
+            weight: 55,
+            message: msg,
+            found: word,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+function checkCopyWordCount(lines, rules, context) {
+  if (context === 'website') return [];
+  const violations = [];
+  const joined = lines.join('\n');
+  // Strip everything inside <style> tags
+  let textContent = joined.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+  // Strip footer content (class containing "footer" or "brand-bar")
+  textContent = textContent.replace(/<[^>]*class="[^"]*(?:footer|brand-bar|brand-logo)[^"]*"[^>]*>[\s\S]*?<\/[^>]+>/gi, '');
+  // Strip all HTML tags
+  textContent = textContent.replace(/<[^>]+>/g, ' ');
+  // Strip HTML entities
+  textContent = textContent.replace(/&[a-z]+;/gi, ' ');
+  // Count words (non-empty tokens)
+  const words = textContent.trim().split(/\s+/).filter(w => w.length > 0);
+  const wordCount = words.length;
+
+  const isInstagram = /1080\s*x?\s*1080|width:\s*1080px/i.test(joined);
+  const isLinkedIn = /1200\s*x?\s*627|1340\s*x?\s*630|width:\s*1200px|width:\s*1340px/i.test(joined);
+
+  const limit = isInstagram ? 20 : isLinkedIn ? 30 : 0;
+  if (limit > 0 && wordCount > limit * 1.5) {
+    // Only flag if significantly over (1.5x) to avoid false positives from HTML artifacts
+    violations.push({
+      line: 1, column: 1,
+      rule: 'copy-word-count',
+      severity: severityFromWeight(75, rules.thresholds),
+      weight: 75,
+      message: `Total visible copy is ~${wordCount} words (limit: ${limit} for ${isInstagram ? 'Instagram' : 'LinkedIn'}). Reduce headline + body + tagline.`,
+      found: `${wordCount} words`,
+    });
+  }
+  return violations;
+}
+
+function checkBodyCopyColor(lines, rules, context) {
+  if (context === 'website') return [];
+  const violations = [];
+  const joined = lines.join('\n');
+  // Find CSS rules for body-copy-like classes
+  const bodyClassRegex = /\.(body|copy|description|subtext|body-text|body-copy|sub-copy)[^{]*\{([^}]*)\}/gi;
+  let match;
+  while ((match = bodyClassRegex.exec(joined)) !== null) {
+    const block = match[2];
+    const colorMatch = block.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
+    if (!colorMatch) continue;
+    const colorValue = colorMatch[1].trim();
+    // Check if it's approximately white at 45% opacity
+    // Accept: rgba(255,255,255,0.45), rgba(255,255,255,0.4-0.5), #ffffff73 (hex+alpha ~45%)
+    const isRgbaWhite = /rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*(0\.4[0-9]?|0\.5)\s*\)/i.test(colorValue);
+    // #ffffff73 = white at ~45% opacity (0x73/0xFF = 0.45)
+    const isHexWhiteAlpha = /^#(?:fff|ffffff)(?:70|71|72|73|74|75|76|77|78|79|7a|7b|7c|7d|80)$/i.test(colorValue);
+    // Also accept color: white with separate opacity
+    const hasOpacity = block.match(/opacity\s*:\s*(0\.4[0-9]?|0\.5)\s*;?/i);
+    const isWhiteWithOpacity = /^(?:#fff(?:fff)?|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))$/i.test(colorValue) && hasOpacity;
+
+    if (!isRgbaWhite && !isHexWhiteAlpha && !isWhiteWithOpacity) {
+      const beforeMatch = joined.slice(0, match.index);
+      const lineNum = (beforeMatch.match(/\n/g) || []).length + 1;
+      violations.push({
+        line: lineNum, column: 1,
+        rule: 'color-body-copy',
+        severity: severityFromWeight(80, rules.thresholds),
+        weight: 80,
+        message: `Body copy color should be approximately white at 45% opacity (e.g., rgba(255,255,255,0.45)). Found: ${colorValue}`,
+        found: colorValue,
+      });
+    }
+  }
+  return violations;
+}
+
 // --- Main ---
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   process.stderr.write(`brand-compliance.cjs (CLI-02) — Validate HTML/CSS against brand tokens
@@ -345,6 +569,14 @@ const violations = [
   ...checkFontFamilies(lines, rules, context),
   ...checkMultipleAccentColors(lines, rules, context),
   ...checkSocialBackground(lines, rules, context),
+  ...checkInlineStyles(lines, rules, context),
+  ...checkDecorativeImgTags(lines, rules, context),
+  ...checkHeadlineLetterSpacing(lines, rules, context),
+  ...checkTitleTag(lines, rules, context),
+  ...checkMinimumElementGap(lines, rules, context),
+  ...checkMultilingualAccents(lines, rules, context),
+  ...checkCopyWordCount(lines, rules, context),
+  ...checkBodyCopyColor(lines, rules, context),
 ];
 
 // Add file to each violation
