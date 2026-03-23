@@ -4,11 +4,11 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: Phase 18 context gathered
-last_updated: "2026-03-23T21:17:05.633Z"
-last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
+last_updated: "2026-03-23T21:24:10.184Z"
+last_activity: 2026-03-23 -- Phase 17 complete (pipeline quick fixes — prompt rules, compliance validators, watcher path resolution)
 progress:
   total_phases: 26
-  completed_phases: 19
+  completed_phases: 20
   total_plans: 67
   completed_plans: 64
   percent: 100
@@ -102,6 +102,7 @@ Progress: [████████████████████] 100% (1
 | Phase 15-brand-data-architecture P02 | 5min | 2 tasks | 6 files |
 | Phase 16-smart-context-pipeline P01 | 4min | 2 tasks | 6 files |
 | Phase 16-smart-context-pipeline P02 | 4min | 2 tasks | 5 files |
+| Phase 17-pipeline-quick-fixes P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -269,6 +270,9 @@ Recent decisions affecting current work:
 - [Phase 16-02]: loadContextMap() in db-api.ts: DB access centralized, pipeline only orchestrates
 - [Phase 16-02]: Gap signals tracked as gapToolCalls array per stage, written to context_log after stage end — not per-call DB writes
 - [Phase 16-02]: buildSystemPrompt injectedContext injected between base instructions and tool section — context is part of agent identity
+- [Phase 17-pipeline-quick-fixes]: System-invariant rules (word limits, inline styles ban, decorative elements, circle emphasis, font fallbacks) live in prompt builders in code, not DB — avoids extractHardRules cache invalidation issues
+- [Phase 17-pipeline-quick-fixes]: font-non-brand-family removed from MICRO_FIXABLE_RULES — font violations escalate to full fix loop (styling agent), not regex replacement
+- [Phase 17-pipeline-quick-fixes]: Font enforcement seeded as brand pattern (weight: 90, slug: font-enforcement) so extractHardRules picks it up at runtime
 
 ### Parallel Development Note
 
@@ -308,6 +312,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-23T21:17:05.628Z
+Last session: 2026-03-23T21:24:10.184Z
 Stopped at: Phase 18 context gathered
 Resume file: .planning/phases/18-archetype-system-research-and-component-design/18-CONTEXT.md

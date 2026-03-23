@@ -1080,6 +1080,9 @@ export function buildCopyPrompt(ctx: PipelineContext, campaignContext?: string):
     `RULES:`,
     `- For Instagram: body copy MUST be 1-2 sentences maximum. Do NOT exceed this.`,
     `- For LinkedIn: body copy may be 2-3 sentences.`,
+    `- WORD LIMITS (total visible copy = headline + body + tagline combined, footer/brand elements excluded):`,
+    `  Instagram: 20 words maximum total`,
+    `  LinkedIn: 30 words maximum total`,
     `- For stat-proof archetype: the HEADLINE must be a giant number or short stat phrase (e.g., "6X", "4 DAYS", "82%", "$75,000"). NOT a full sentence.`,
     `- Accent color options: orange=#FF8B58 (urgency/pain), blue=#42b1ff (trust/tech), green=#44b574 (success/proof), purple=#c985e5 (premium/analytical). Pick ONE.`,
     `- If this is part of a campaign with multiple creations, ensure your tagline is DISTINCT from other posts — do not reuse similar phrasing.`,
@@ -1127,6 +1130,10 @@ export function buildStylingPrompt(ctx: PipelineContext, designDna?: string): st
     `  WRONG: /api/brand-assets/serve/brushstrokes/brush-texture-01.png, /api/brand-assets/serve/fonts/flfontbold.ttf`,
     `- CSS FONT FALLBACKS: Always use "sans-serif" as the fallback. NEVER use Georgia, Times New Roman, serif, or cursive.`,
     `- POSITIONING: Social posts use position:absolute for ALL major layout elements (not flexbox/grid for the main composition).`,
+    `- CSS CLASSES: ALL styling MUST be in <style> blocks using CSS class selectors. Inline style="" attributes are PROHIBITED. No exceptions.`,
+    `- DECORATIVE ELEMENTS: Decorative/background image assets (brushstrokes, textures, circles) MUST use <div> elements with background-image + background-size: contain + background-repeat: no-repeat. NEVER use <img> tags for decorative elements.`,
+    `- CIRCLE EMPHASIS: The ::before pseudo-element on circle-target elements must use percentage sizing relative to the target text. Use width: 110%; height: 130%; left: -5%; top: -15% instead of fixed pixel values. This prevents mask bounding box clipping on varying text widths.`,
+    `- FONT FALLBACKS: Never use Georgia, Times New Roman, Times, serif, or cursive as font-family values or fallbacks. Always use sans-serif as the generic fallback.`,
     ...(designDna ? [
       '',
       designDna,
@@ -1320,19 +1327,7 @@ interface SpecViolation {
 
 const MICRO_FIXABLE_RULES = new Set([
   'color-bg-pure-black',
-  'font-non-brand-family',
 ]);
-
-// Map of non-brand fonts to their brand replacements
-const FONT_REPLACEMENTS: Record<string, string> = {
-  'Georgia': "'NeueHaas', sans-serif",
-  'Times New Roman': "'NeueHaas', sans-serif",
-  'Times': "'NeueHaas', sans-serif",
-  'Helvetica': "'NeueHaas', sans-serif",
-  'Arial': "'NeueHaas', sans-serif",
-  'serif': 'sans-serif',
-  'cursive': 'sans-serif',
-};
 
 /**
  * Attempt regex-based fixes for simple brand violations.
@@ -1360,21 +1355,6 @@ async function tryMicroFix(htmlPath: string, violations: SpecViolation[]): Promi
         }
       }
 
-      if (v.rule === 'font-non-brand-family' && v.found) {
-        const fontName = v.found.trim();
-        const replacement = FONT_REPLACEMENTS[fontName];
-        if (replacement) {
-          // Replace font-family declarations containing the non-brand font
-          // Match patterns like: 'Georgia', serif  or  "Georgia", serif  or  Georgia, serif
-          const escaped = fontName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const pattern = new RegExp(`(['"]?)${escaped}\\1(?:\\s*,\\s*[^;}"']+)?`, 'gi');
-          const newHtml = html.replace(pattern, replacement);
-          if (newHtml !== html) {
-            html = newHtml;
-            modified = true;
-          }
-        }
-      }
     }
 
     if (modified) {

@@ -53,7 +53,7 @@ import {
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, splitPatternEntries, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, splitPatternEntries, seedGlobalVisualStyleIfEmpty, seedFontEnforcementIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
@@ -239,6 +239,9 @@ export function fluidWatcherPlugin(): Plugin {
       seedGlobalVisualStyleIfEmpty().catch(err =>
         console.warn('[watcher] Global visual style seeding failed:', err)
       );
+      seedFontEnforcementIfEmpty().catch(err =>
+        console.warn('[watcher] Font enforcement seeding failed:', err)
+      );
       seedDesignRulesIfEmpty().catch(err =>
         console.warn('[watcher] Design rules seeding failed:', err)
       );
@@ -365,6 +368,7 @@ export function fluidWatcherPlugin(): Plugin {
           });
           res.end(data);
         } catch {
+          console.error(`[watcher] Brand asset file not found: ${fullPath} (DB file_path: ${asset.file_path})`);
           res.writeHead(404, { 'Content-Type': 'text/plain' });
           res.end('Asset file not found on disk');
         }
@@ -1403,18 +1407,17 @@ export function fluidWatcherPlugin(): Plugin {
             }
 
             // Strategy 3: canonical path .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
-            if (!found) {
-              const hierarchy = db.prepare(`
-                SELECT c.campaign_id, s.creation_id, i.slide_id
-                FROM iterations i
-                JOIN slides s ON s.id = i.slide_id
-                JOIN creations c ON c.id = s.creation_id
-                WHERE i.id = ?
-              `).get(iterationId) as { campaign_id: string; creation_id: string; slide_id: string } | undefined;
-              if (hierarchy) {
-                const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, hierarchy.slide_id, `${iterationId}.html`);
-                try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
-              }
+            // Hierarchy is hoisted so Strategy 7 can also use it
+            const hierarchy = !found ? db.prepare(`
+              SELECT c.campaign_id, s.creation_id, i.slide_id
+              FROM iterations i
+              JOIN slides s ON s.id = i.slide_id
+              JOIN creations c ON c.id = s.creation_id
+              WHERE i.id = ?
+            `).get(iterationId) as { campaign_id: string; creation_id: string; slide_id: string } | undefined : undefined;
+            if (!found && hierarchy) {
+              const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, hierarchy.slide_id, `${iterationId}.html`);
+              try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
             }
 
             // Strategy 4: fallback to templates/social/ by basename
@@ -1423,7 +1426,35 @@ export function fluidWatcherPlugin(): Plugin {
               try { await fs.access(fallbackPath); templatePath = fallbackPath; found = true; } catch { /* noop */ }
             }
 
+            // Strategy 5: strip leading .fluid/ prefix and resolve from fluidDir
+            if (!found && row.html_path.startsWith('.fluid/')) {
+              const strippedPath = row.html_path.replace(/^\.fluid\//, '');
+              const stripped = path.resolve(fluidDir, strippedPath);
+              try { await fs.access(stripped); templatePath = stripped; found = true; } catch { /* noop */ }
+            }
+
+            // Strategy 6: strip leading .fluid/ and resolve from projectRoot/.fluid/
+            if (!found && row.html_path.startsWith('.fluid/')) {
+              const fromRoot = path.resolve(projectRoot, row.html_path);
+              try { await fs.access(fromRoot); templatePath = fromRoot; found = true; } catch { /* noop */ }
+            }
+
+            // Strategy 7: skip slide directory level — some iterations were written
+            // at campaign/creation/iter.html instead of campaign/creation/slide/iter.html
+            if (!found && hierarchy) {
+              const noSlidePath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, `${iterationId}.html`);
+              try { await fs.access(noSlidePath); templatePath = noSlidePath; found = true; } catch { /* noop */ }
+            }
+
             if (!found) {
+              const tried = [
+                `stored: ${path.resolve(projectRoot, row.html_path)}`,
+                `fluid: ${path.resolve(fluidDir, row.html_path)}`,
+                `canonical: .fluid/campaigns/.../${iterationId}.html`,
+                `template: ${path.join(socialTemplatesDir, path.basename(row.html_path))}`,
+                ...(row.html_path.startsWith('.fluid/') ? [`stripped: ${path.resolve(fluidDir, row.html_path.replace(/^\.fluid\//, ''))}`] : []),
+              ];
+              console.error(`[watcher] Iteration ${iterationId} html_path="${row.html_path}" — tried ${tried.length} strategies, none found:\n  ${tried.join('\n  ')}`);
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end(`HTML file not found on disk (tried: stored="${row.html_path}", canonical=.fluid/campaigns/.../${iterationId}.html)`);
               return;
@@ -1795,7 +1826,8 @@ export function fluidWatcherPlugin(): Plugin {
               html = html.replace('</body>', listenerScript + '</body>');
               res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
               res.end(html);
-            } catch {
+            } catch (err) {
+              console.error(`[watcher] fs.readFile failed for iteration ${iterationId} at ${templatePath}:`, err);
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('HTML file not found on disk');
             }
