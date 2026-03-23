@@ -4,19 +4,21 @@
  *
  * Usage:
  *   node tools/simulate-pipeline.cjs "Create an Instagram post about Fluid Connect"
+ *   node tools/simulate-pipeline.cjs --pipeline "Create an Instagram post about Fluid Connect"
  *   node tools/simulate-pipeline.cjs --live "Launch a campaign for Payments"
  *   node tools/simulate-pipeline.cjs --dry-run "Just a linkedin post about FairShare"
  *   node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json
  *
  * Modes:
- *   (default)   Set up DB records + filesystem + dump exact pipeline prompts/context
- *               for each stage. Ready for a Claude Code agent to pick up and simulate.
+ *   (default)   Build pipeline prompts, then output a JSON manifest for Claude Code
+ *               subagent execution (copy → layout → styling → spec-check).
+ *   --pipeline  Dump pipeline prompts/context to _pipeline/ for manual inspection.
  *   --live      Run the full pipeline with real Anthropic API calls (requires API key)
  *   --dry-run   DB records + filesystem only (no prompt building, no API calls)
  *   --batch     Read prompts from file (one per line), run sequentially
  *   --report    Write JSON report to file
  *
- * Default mode creates a _pipeline/ directory in each creation's working dir with:
+ * Both default and --pipeline modes create a _pipeline/ directory in each creation's working dir with:
  *   _pipeline/copy-system.txt          — exact system prompt for copy stage
  *   _pipeline/copy-user.txt            — exact user prompt for copy stage
  *   _pipeline/copy-injected-context.txt — pre-injected brand context
@@ -48,12 +50,14 @@ const args = process.argv.slice(2);
 let prompt = '';
 let liveMode = false;
 let dryRun = false;
+let pipelineOnly = false;
 let batchFile = null;
 let reportFile = null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--live') { liveMode = true; continue; }
   if (args[i] === '--dry-run') { dryRun = true; continue; }
+  if (args[i] === '--pipeline') { pipelineOnly = true; continue; }
   if (args[i] === '--prompt' && args[i + 1]) { prompt = args[++i]; continue; }
   if (args[i] === '--batch' && args[i + 1]) { batchFile = args[++i]; continue; }
   if (args[i] === '--report' && args[i + 1]) { reportFile = args[++i]; continue; }
@@ -65,12 +69,14 @@ if (!prompt && !batchFile) {
 
 Usage:
   node tools/simulate-pipeline.cjs "Your prompt here"
+  node tools/simulate-pipeline.cjs --pipeline "Your prompt here"
   node tools/simulate-pipeline.cjs --live "Your prompt here"
   node tools/simulate-pipeline.cjs --dry-run "Your prompt here"
   node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json
 
 Modes:
-  (default)   Build prompts + context for agent simulation (no API calls)
+  (default)   Build prompts + spawn Claude Code subagents to generate assets
+  --pipeline  Dump pipeline prompts/context to _pipeline/ for inspection only
   --live      Run the real Anthropic API pipeline
   --dry-run   DB records + filesystem only (fastest)
 `);
@@ -397,29 +403,120 @@ async function runSimulation(promptText) {
     return { prompt: promptText, campaignId, isSingleCreation, mode: 'live', results, summary: { total: results.length, passed, failed } };
   }
 
-  // Default mode: build pipeline prompts + context
+  // --pipeline mode: build pipeline prompts + context for inspection only
+  if (pipelineOnly) {
+    console.log('\nBuilding pipeline prompts and context...\n');
+    const promptResults = buildPipelinePrompts(promptText, creationMap, campaignId);
+
+    if (promptResults) {
+      for (const r of promptResults) {
+        console.log(`  [${r.creationType}] Pipeline context → ${r.pipelineDir}`);
+      }
+      console.log(`\nPipeline prompts ready. Each creation's working/_pipeline/ contains:`);
+      console.log(`  copy-system.txt, copy-user.txt         — Copy stage prompts`);
+      console.log(`  layout-system.txt, layout-user.txt     — Layout stage prompts`);
+      console.log(`  styling-system.txt, styling-user.txt   — Styling stage prompts`);
+      console.log(`  spec-check-user.txt                    — Spec-check prompt`);
+      console.log(`  asset-manifest.json                    — All brand asset URLs`);
+      console.log(`  voice-guide-list.json                  — Available voice guide docs`);
+      console.log(`  brand-patterns-list.json               — Available brand patterns`);
+      console.log(`  context.json                           — Creation metadata + model assignments`);
+      console.log(`\nA Claude Code agent can now read these files and execute each stage.`);
+    } else {
+      console.log('  (prompt building failed — working dirs ready for manual setup)');
+    }
+
+    return { prompt: promptText, campaignId, isSingleCreation, mode: 'pipeline', creations: creationMap.length, promptsBuilt: !!promptResults };
+  }
+
+  // Default mode: build pipeline prompts, then output JSON manifest for subagent execution
   console.log('\nBuilding pipeline prompts and context...\n');
   const promptResults = buildPipelinePrompts(promptText, creationMap, campaignId);
 
-  if (promptResults) {
-    for (const r of promptResults) {
-      console.log(`  [${r.creationType}] Pipeline context → ${r.pipelineDir}`);
-    }
-    console.log(`\nPipeline prompts ready. Each creation's working/_pipeline/ contains:`);
-    console.log(`  copy-system.txt, copy-user.txt         — Copy stage prompts`);
-    console.log(`  layout-system.txt, layout-user.txt     — Layout stage prompts`);
-    console.log(`  styling-system.txt, styling-user.txt   — Styling stage prompts`);
-    console.log(`  spec-check-user.txt                    — Spec-check prompt`);
-    console.log(`  asset-manifest.json                    — All brand asset URLs`);
-    console.log(`  voice-guide-list.json                  — Available voice guide docs`);
-    console.log(`  brand-patterns-list.json               — Available brand patterns`);
-    console.log(`  context.json                           — Creation metadata + model assignments`);
-    console.log(`\nA Claude Code agent can now read these files and execute each stage.`);
-  } else {
-    console.log('  (prompt building failed — working dirs ready for manual setup)');
+  if (!promptResults) {
+    console.error('ERROR: Failed to build pipeline prompts. Cannot proceed with subagent mode.');
+    console.error('Try --pipeline or --dry-run mode instead.');
+    return { prompt: promptText, campaignId, isSingleCreation, mode: 'error', creations: creationMap.length };
   }
 
-  return { prompt: promptText, campaignId, isSingleCreation, mode: 'simulate', creations: creationMap.length, promptsBuilt: !!promptResults };
+  // Build the subagent manifest — one entry per creation with all stage details
+  const manifest = {
+    prompt: promptText,
+    campaignId,
+    isSingleCreation,
+    creations: creationMap.map((c, i) => {
+      const pipelineDir = promptResults[i].pipelineDir;
+      return {
+        creationId: c.creation.id,
+        creationType: c.creation.creationType,
+        title: c.creation.title,
+        iterationId: c.iterationId,
+        workingDir: c.workingDir,
+        htmlOutputPath: c.absHtmlPath,
+        pipelineDir,
+        stages: [
+          {
+            name: 'copy',
+            model: 'sonnet',
+            systemPrompt: path.join(pipelineDir, 'copy-system.txt'),
+            userPrompt: path.join(pipelineDir, 'copy-user.txt'),
+            output: path.join(c.workingDir, 'copy.md'),
+            description: `Generate marketing copy for ${c.creation.creationType}: "${promptText}"`,
+          },
+          {
+            name: 'layout',
+            model: 'haiku',
+            systemPrompt: path.join(pipelineDir, 'layout-system.txt'),
+            userPrompt: path.join(pipelineDir, 'layout-user.txt'),
+            dependsOn: 'copy',
+            output: path.join(c.workingDir, 'layout.html'),
+            description: `Create structural HTML layout from copy.md for ${c.creation.creationType}`,
+          },
+          {
+            name: 'styling',
+            model: 'sonnet',
+            systemPrompt: path.join(pipelineDir, 'styling-system.txt'),
+            userPrompt: path.join(pipelineDir, 'styling-user.txt'),
+            dependsOn: 'layout',
+            output: c.absHtmlPath,
+            description: `Apply brand styling to produce final HTML for ${c.creation.creationType}`,
+          },
+          {
+            name: 'spec-check',
+            model: 'sonnet',
+            userPrompt: path.join(pipelineDir, 'spec-check-user.txt'),
+            dependsOn: 'styling',
+            output: path.join(c.workingDir, 'spec-report.json'),
+            description: `Run brand compliance check on final HTML for ${c.creation.creationType}`,
+          },
+        ],
+        brandContext: {
+          assetManifest: path.join(pipelineDir, 'asset-manifest.json'),
+          voiceGuides: path.join(pipelineDir, 'voice-guide-list.json'),
+          brandPatterns: path.join(pipelineDir, 'brand-patterns-list.json'),
+        },
+      };
+    }),
+  };
+
+  // Write manifest to each creation's pipeline dir and to a top-level location
+  const manifestPath = path.join(PROJECT_ROOT, '.fluid', '_simulate-manifest.json');
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+  for (const c of manifest.creations) {
+    fs.writeFileSync(path.join(c.pipelineDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
+    console.log(`  [${c.creationType}] Pipeline context → ${c.pipelineDir}`);
+  }
+
+  console.log(`\nManifest written to: ${manifestPath}`);
+  console.log(`\nReady for subagent execution. ${manifest.creations.length} creation(s), 4 stages each.`);
+  console.log(`Stages per creation: copy → layout → styling → spec-check`);
+
+  // Output manifest as last line of stdout for programmatic consumption
+  console.log('\n__MANIFEST__');
+  console.log(JSON.stringify(manifest));
+
+  return { prompt: promptText, campaignId, isSingleCreation, mode: 'simulate', creations: creationMap.length, manifestPath };
 }
 
 // ---------------------------------------------------------------------------

@@ -8,8 +8,14 @@ import Anthropic from '@anthropic-ai/sdk';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import type { ServerResponse } from 'node:http';
 import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline, getTemplates, getTemplate, getDesignRulesByArchetype, loadContextMap, insertContextLog } from './db-api';
+
+// ESM-safe __dirname (works in both Vite middleware and tsx/node ESM)
+const __dirname = typeof globalThis.__dirname !== 'undefined'
+  ? globalThis.__dirname
+  : path.dirname(fileURLToPath(import.meta.url));
 
 // ---------------------------------------------------------------------------
 // Campaign copy accumulator — prevents tagline/headline repetition across creations
@@ -151,15 +157,15 @@ const listBrandSectionsTool: Anthropic.Tool = {
   name: 'list_brand_sections',
   description:
     'List available brand sections from the DB. Returns slug, label, and category for each section. ' +
-    'Categories: "voice-guide" (brand voice docs), "design-tokens" (colors, typography, opacity), ' +
-    '"layout-archetype" (layout types), "pattern" (brushstrokes, circles, textures, footer, etc.). ' +
+    'Categories: "voice-guide" (brand voice docs), "colors" (palette, overlays), "typography" (fonts, scales), ' +
+    '"logos" (logo usage rules), "images" (photo/mockup rules), "decorations" (textures, brushstrokes), "archetypes" (layout templates). ' +
     'Use this to discover what brand content is available, then read_brand_section to load specific ones.',
   input_schema: {
     type: 'object' as const,
     properties: {
       category: {
         type: 'string',
-        description: 'Optional filter: "voice-guide", "design-tokens", "layout-archetype", or "pattern".',
+        description: 'Optional filter: "voice-guide", "colors", "typography", "logos", "images", "decorations", or "archetypes".',
       },
     },
     required: [],
@@ -205,15 +211,16 @@ const listBrandAssetsTool: Anthropic.Tool = {
 const listBrandPatternsTool: Anthropic.Tool = {
   name: 'list_brand_patterns',
   description:
-    'List available brand patterns (design tokens, brushstrokes, circles, textures, etc.) from the DB. ' +
-    'Returns slug, label, category, and a short description for each pattern. ' +
+    'List available brand patterns from the DB. ' +
+    'Returns slug, label, category, and weight for each pattern. ' +
+    'Categories: "colors", "typography", "logos", "images", "decorations", "archetypes". ' +
     'Use read_brand_pattern to load full content by slug.',
   input_schema: {
     type: 'object' as const,
     properties: {
       category: {
         type: 'string',
-        description: 'Optional filter: "design-tokens", "brushstrokes", "circles", "textures", etc.',
+        description: 'Optional filter: "colors", "typography", "logos", "images", "decorations", or "archetypes".',
       },
     },
     required: [],
@@ -1085,7 +1092,7 @@ export function buildLayoutPrompt(ctx: PipelineContext, designDna?: string): str
     `Create structural HTML layout for a ${ctx.creationType} creation.`,
     `Read copy from ${ctx.workingDir}/copy.md using the read_file tool.`,
     ``,
-    `Use list_brand_sections(category="layout-archetype") to discover layout types, then read_brand_section to load details.`,
+    `Use list_brand_sections(category="archetypes") to discover layout types, then read_brand_section to load details.`,
     ...(designDna ? [
       '',
       designDna,
