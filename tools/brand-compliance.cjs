@@ -97,9 +97,12 @@ function loadRulesFromDb() {
       allowed_rgba_patterns: BASE_RULES.colors.allowed_rgba_patterns,
     },
     fonts: {
-      allowed_families: dbFontNames.length > 0 ? dbFontNames : BASE_RULES.fonts.allowed_families,
-      social_families: dbFontNames.length > 0 ? dbFontNames : BASE_RULES.fonts.social_families,
-      website_families: dbFontNames.length > 0 ? [...dbFontNames, 'Syne', 'DM Sans', 'Space Mono'] : BASE_RULES.fonts.website_families,
+      // DB font names extend the hardcoded base (not replace) — DB asset names
+      // like "Inter-VariableFont" don't match CSS font-family names, and primary
+      // brand fonts (NeueHaasDisplay) may not be in brand_assets at all.
+      allowed_families: [...new Set([...BASE_RULES.fonts.allowed_families, ...dbFontNames])],
+      social_families: [...new Set([...BASE_RULES.fonts.social_families, ...dbFontNames])],
+      website_families: [...new Set([...BASE_RULES.fonts.website_families, ...dbFontNames])],
     },
     thresholds: BASE_RULES.thresholds,
   };
