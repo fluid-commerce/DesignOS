@@ -271,7 +271,6 @@ Plans:
 - [ ] 13-01-PLAN.md — DB migration + DAM client + sync engine + tests
 - [ ] 13-02-PLAN.md — API endpoint + watcher startup integration + AssetsScreen UI
 
-
 ## Progress
 
 **Execution Order:**
@@ -325,82 +324,18 @@ Plans:
   1. Zero occurrences of "Fluid" brand references in api-pipeline.ts stage prompts (platform dimension constants excluded)
   2. Stage prompts are brand-agnostic process instructions that tell agents to query DB tools for brand context
   3. CLI orchestrator skills (/fluid-social, /fluid-one-pager, /fluid-theme-section) are thin wrappers that POST to /api/generate — no brand file reads, no duplicate pipeline logic
-  4. brand-intelligence/SKILL.md routes agents to DB tools, not brand/*.md files
-  5. CLAUDE.md contains zero brand/*.md file routing
-  6. brand/ directory archived to Reference/brand-seed-archive/ — no runtime code reads from it
-**Plans:** 3/3 plans complete
-
-Plans:
-- [ ] 14.1-01-PLAN.md — Brand-agnostic stage prompts in api-pipeline.ts (delete SKILL_FILES/loadStagePrompt, rewrite prompt builders)
-- [ ] 14.1-02-PLAN.md — CLI orchestrators → thin API wrappers (rewrite 3 skill files to POST /api/generate)
-- [ ] 14.1-03-PLAN.md — Cleanup: brand-intelligence rewrite, CLAUDE.md update, brand/ archive, skill-map.json retirement
-
-### Phase 15: Brand Data Architecture
-
-**Goal:** Reorganize how brand data is structured in the DB and presented in the UI. Users understand what each page is for and can intuitively find/edit brand data. Data is structured for optimal agent consumption. Asset categories align between app, DB, and DAM.
-**Depends on:** Phase 14.1
-**Success Criteria** (what must be TRUE):
-  1. Patterns page organized into Foundations (colors, typography, spacing/opacity) and Rules (asset usage, visual techniques) — layout archetypes removed
-  2. Assets page uses new categories (Fonts, Images, Brand Elements, Decorations) with optional short descriptions per asset — categories match DAM folder structure
-  3. Templates page shows each template as unified card: text header (purpose, characteristics) + HTML preview — "archetype" nomenclature retired
-  4. All brand pages have subtitles explaining their purpose and internal grouping where applicable
-**Plans:** 3/4 plans executed
-
-Plans:
-- [ ] 15-01-PLAN.md — Patterns page: remove archetypes, Foundations/Rules grouping, DB recategorization
-- [ ] 15-02-PLAN.md — Assets page: new categories, description field, asset-scanner + DAM sync alignment
-- [ ] 15-03-PLAN.md — Templates page: unified template + header cards, drop archetype nomenclature
-- [ ] 15-04-PLAN.md — UI communication: page subtitles, internal grouping, empty state guidance
-
-### Phase 16: Smart Context Pipeline
-
-**Goal:** Replace agent self-discovery of brand context with deterministic, creation-type-aware pre-injection. Each pipeline stage receives exactly the brand data it needs. The context mapping is configurable and observable for iterative refinement.
-**Depends on:** Phase 15
-**Success Criteria** (what must be TRUE):
-  1. A dev-editable context map defines (creation type, stage) → exact brand sections to inject
-  2. Pipeline pre-loads brand context from DB per the context map and injects it into stage system prompts — agents receive brand context without calling discovery tools
-  3. Each generation logs what brand context was loaded per stage (token count, sections used, any fallback discovery tool calls)
-  4. Discovery tool usage during pre-injected stages is tracked as "context gap" signals for mapping refinement
-**Plans:** 2/3 plans executed
-
-Plans:
-- [ ] 16-01-PLAN.md — DB schema (context_map/context_log), db-api CRUD functions, seeder defaults, API endpoints, unit tests
-- [ ] 16-02-PLAN.md — Pipeline pre-injection: loadContextForStage(), buildSystemPrompt extension, wildcard expansion, token budget, gap signal logging, SSE context_injected event
-- [ ] 16-03-PLAN.md — Settings page (context map editor), ContextPanel in chat sidebar, LeftNav settings tab
-
-### Phase 17: Pipeline Quick Fixes
-
-**Goal:** Fix the immediate quality issues identified in the 11-run pipeline simulation audit (.fluid/pipeline-audit-2026-03-23.md) and user video review. Ships first to improve output quality while the bigger archetype system is built. Scope: (1) Fix broken file paths — "HTML file not found on disk" in canvas UI. (2) Social copy length limits — hard caps: IG ~20 words, LI ~30 words (brand-agnostic system rule). (3) Font enforcement — NeueHaas + flfontbold ONLY, kill Syne/DM Sans/Google Fonts. (4) Brushstroke standardization — div + background-image:contain always, never img tags, 2 minimum per social post. (5) Circle emphasis positioning — fix CSS mask bounding box calculation. (6) Ban inline styles — hard rule: all styling in style blocks with CSS classes. (7) Spec-check gaps — add rules for body copy color, letter-spacing, title tag, minimum element gap.
-**Requirements**: PQF-01, PQF-02, PQF-03, PQF-04, PQF-05, PQF-06, PQF-07, PQF-08, PQF-09, PQF-10, PQF-11, PQF-12, PQF-13, PQF-14
-**Depends on:** Phase 16
-**Plans:** 3 plans
-
-Plans:
-- [ ] 17-01-PLAN.md — System-level prompt rules (word limits, inline styles ban, decorative div rule, circle emphasis, font fallbacks) + FONT_REPLACEMENTS removal + DB font enforcement seeder
-- [ ] 17-02-PLAN.md — 7 new spec-check rules in brand-compliance.cjs (inline styles, decorative img, letter-spacing, title tag, element gap, multilingual accents, word count) + DB-driven font allowlist
-- [ ] 17-03-PLAN.md — watcher.ts path resolution fix (Strategy 5/6 for .fluid/ prefix mismatch) + diagnostic logging at all 3 error sites
-
-### Phase 18: Archetype System Research and Component Design
-
-**Goal:** Collaborative research phase. User curates high-performing real social posts as references; we deconstruct them into structural patterns and design a brandless archetype system. Deliverables: (1) Define the archetype format spec — HTML with CSS-class-based slots + schema.json (SlotSchema format matching canvas/src/lib/slot-schema.ts) + README documentation. CRITICAL: must check Jonathan's latest merged element-repositioning changes to ensure schema parity with current template system. (2) Define the design component library — brandless reusable primitives (stat-card, image-block, quote-block, chart-bar, metric-row, CTA-pill, event-details, avatar-attribution, etc.), each with HTML structure + partial schema. (3) Document each component and archetype with usage guidance (what it's for, what content fits, when to use it). (4) Research-based: archetypes derived from real high-performing posts, not invented. User drives curation, agent deconstructs structure.
-**Requirements**: TBD
-**Depends on:** Phase 17
-**Plans:** 3 plans
-
-Plans:
-- [ ] 18-01-PLAN.md — Directory scaffolding, archetype format spec (SPEC.md), research framework setup
-- [ ] 18-02-PLAN.md — Design component library (8 functional blocks with HTML patterns and documentation)
-- [ ] 18-03-PLAN.md — Proof-of-concept archetype (stat-hero-single) end-to-end + visual checkpoint
 
 ### Phase 19: Build Design Components and Instagram Archetypes
 
-**Goal:** Implement the design component library and 6-8 Instagram archetypes (1080x1080). Components: stat-card, image-block, quote-block, chart-bar, metric-row, CTA-pill, event-details, avatar-attribution, divider, badge, logo-lockup, side-label, product-shot-frame. Each component is brandless HTML + partial SlotSchema. Instagram archetypes compose components into full layouts — e.g., Hero Stat (giant number + supporting text), Photo Background + Text Overlay, Photo Left / Text Right (split), Quote/Testimonial (with portrait + attribution), Minimal (single statement), Data Dashboard (stats grid + chart). Each archetype ships with layout.html, schema.json, and README.md. Test: load an archetype in the canvas editor and verify the right sidebar shows editable fields for all slots.
+**Goal:** Implement the design component library (13 brandless functional blocks documented as inline HTML/CSS patterns) and 6 Instagram archetypes (1080x1080). Each archetype ships with index.html (brandless wireframe), schema.json (SlotSchema for editor sidebar parity), and README.md. Validated by CLI tool (tools/validate-archetypes.cjs) and Playwright E2E tests verifying editor sidebar integration.
 **Requirements**: TBD
 **Depends on:** Phase 18
 **Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 19 to break down)
+- [ ] 19-01-PLAN.md — Validator script (tools/validate-archetypes.cjs) + component library README + directory structure
+- [ ] 19-02-PLAN.md — Build all 6 Instagram archetypes (hero-stat, photo-bg-overlay, split-photo-text, quote-testimonial, minimal-statement, data-dashboard)
+- [ ] 19-03-PLAN.md — Playwright E2E tests for editor integration + final validation checkpoint
 
 ### Phase 20: Pipeline Integration — Archetype Selection and SlotSchema Attachment
 
