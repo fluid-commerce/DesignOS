@@ -280,6 +280,34 @@ function initSchema(db: Database.Database): void {
   db.exec("UPDATE brand_assets SET category = 'brand-elements' WHERE category = 'logos'");
   db.exec("UPDATE brand_assets SET category = 'decorations' WHERE category IN ('brushstrokes','circles','lines','scribbles','underlines','xs')");
 
+  // Migration: add weight and is_core columns to brand_patterns
+  try { db.exec("ALTER TABLE brand_patterns ADD COLUMN weight INTEGER NOT NULL DEFAULT 50"); } catch {}
+  try { db.exec("ALTER TABLE brand_patterns ADD COLUMN is_core INTEGER NOT NULL DEFAULT 0"); } catch {}
+
+  // Migration: recategorize brand_patterns from old taxonomy to 6-category system
+  // Idempotent: WHERE clauses match only old category values
+  db.exec("UPDATE brand_patterns SET category = 'colors' WHERE category = 'design-tokens' AND slug IN ('color-palette','opacity-patterns')");
+  db.exec("UPDATE brand_patterns SET category = 'colors', is_core = 1 WHERE slug = 'color-palette' AND is_core = 0");
+  db.exec("UPDATE brand_patterns SET category = 'typography' WHERE category = 'design-tokens' AND slug = 'typography'");
+  db.exec("UPDATE brand_patterns SET category = 'typography', is_core = 1 WHERE slug = 'typography' AND is_core = 0");
+  db.exec("UPDATE brand_patterns SET category = 'typography' WHERE category = 'pattern' AND slug = 'flfont-tagline-patterns'");
+  db.exec("UPDATE brand_patterns SET category = 'decorations' WHERE category = 'pattern' AND slug IN ('brushstroke-textures','circles-underlines','line-textures','scribble-textures','x-mark-textures')");
+  db.exec("UPDATE brand_patterns SET category = 'images' WHERE category = 'pattern' AND slug = 'photos-mockups'");
+  db.exec("UPDATE brand_patterns SET category = 'logos' WHERE category = 'pattern' AND slug = 'footer-structure'");
+  db.exec("UPDATE brand_patterns SET category = 'archetypes' WHERE category = 'layout-archetype'");
+  db.exec("UPDATE brand_patterns SET category = 'archetypes', is_core = 1 WHERE slug = 'layout-archetypes' AND is_core = 0");
+
+  // Set initial weights for existing patterns
+  db.exec("UPDATE brand_patterns SET weight = 90 WHERE slug IN ('color-palette','typography','layout-archetypes') AND weight = 50");
+  db.exec("UPDATE brand_patterns SET weight = 85 WHERE slug IN ('footer-structure','brushstroke-textures','circles-underlines') AND weight = 50");
+  db.exec("UPDATE brand_patterns SET weight = 80 WHERE slug IN ('flfont-tagline-patterns','opacity-patterns') AND weight = 50");
+  db.exec("UPDATE brand_patterns SET weight = 70 WHERE slug IN ('line-textures','scribble-textures','x-mark-textures','photos-mockups') AND weight = 50");
+
+  // Migration: update context_map wildcards to match new pattern categories
+  db.exec(`UPDATE context_map SET sections = '["colors:*","typography:*","archetypes:*"]' WHERE stage = 'layout' AND sections LIKE '%design-tokens%' AND sections LIKE '%layout-archetype%'`);
+  db.exec(`UPDATE context_map SET sections = '["colors:*","typography:*","decorations:*","images:*","logos:*"]' WHERE stage = 'styling' AND sections LIKE '%design-tokens%' AND sections LIKE '%pattern:%'`);
+  db.exec(`UPDATE context_map SET sections = '["colors:*","typography:*"]' WHERE stage = 'styling' AND creation_type = 'one-pager' AND sections = '["design-tokens:*"]'`);
+
   // FK integrity check: clean up orphaned records that break FK chains
   const fkViolations = db.pragma('foreign_key_check') as Array<{ table: string; rowid: number; parent: string; fkid: number }>;
   if (fkViolations.length > 0) {

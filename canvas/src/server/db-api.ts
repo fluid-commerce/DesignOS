@@ -687,6 +687,8 @@ export interface BrandPattern {
   label: string;
   category: string;
   content: string;
+  weight: number;
+  isCore: boolean;
   sortOrder: number;
   updatedAt: number;
 }
@@ -698,6 +700,8 @@ function rowToBrandPattern(row: Record<string, unknown>): BrandPattern {
     label: row.label as string,
     category: row.category as string,
     content: row.content as string,
+    weight: (row.weight as number) ?? 50,
+    isCore: (row.is_core as number) === 1,
     sortOrder: row.sort_order as number,
     updatedAt: row.updated_at as number,
   };
@@ -717,11 +721,43 @@ export function getBrandPatternBySlug(slug: string): BrandPattern | undefined {
   return row ? rowToBrandPattern(row) : undefined;
 }
 
-export function updateBrandPattern(slug: string, content: string): void {
+export function updateBrandPattern(slug: string, updates: { content?: string; weight?: number; label?: string }): void {
   const db = getDb();
+  const sets: string[] = [];
+  const params: unknown[] = [];
+  if (updates.content !== undefined) { sets.push('content = ?'); params.push(updates.content); }
+  if (updates.weight !== undefined) { sets.push('weight = ?'); params.push(updates.weight); }
+  if (updates.label !== undefined) { sets.push('label = ?'); params.push(updates.label); }
+  if (sets.length === 0) return;
+  sets.push('updated_at = ?');
+  params.push(Date.now());
+  params.push(slug);
+  db.prepare(`UPDATE brand_patterns SET ${sets.join(', ')} WHERE slug = ?`).run(...params);
+}
+
+function slugify(label: string): string {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+export function createBrandPattern(input: { label: string; category: string; content: string; weight?: number }): BrandPattern {
+  const db = getDb();
+  const id = nanoid();
+  const slug = slugify(input.label);
+  const now = Date.now();
+  const maxOrder = (db.prepare('SELECT MAX(sort_order) as m FROM brand_patterns WHERE category = ?').get(input.category) as { m: number | null })?.m ?? 0;
   db.prepare(
-    'UPDATE brand_patterns SET content = ?, updated_at = ? WHERE slug = ?'
-  ).run(content, Date.now(), slug);
+    'INSERT INTO brand_patterns (id, slug, label, category, content, weight, is_core, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)'
+  ).run(id, slug, input.label, input.category, input.content, input.weight ?? 50, maxOrder + 1, now);
+  return { id, slug, label: input.label, category: input.category, content: input.content, weight: input.weight ?? 50, isCore: false, sortOrder: maxOrder + 1, updatedAt: now };
+}
+
+export function deleteBrandPattern(slug: string): 'deleted' | 'is_core' | 'not_found' {
+  const db = getDb();
+  const row = db.prepare('SELECT is_core FROM brand_patterns WHERE slug = ?').get(slug) as { is_core: number } | undefined;
+  if (!row) return 'not_found';
+  if (row.is_core === 1) return 'is_core';
+  db.prepare('DELETE FROM brand_patterns WHERE slug = ?').run(slug);
+  return 'deleted';
 }
 
 // ─── Design Rules (template_design_rules) ────────────────────────────────────

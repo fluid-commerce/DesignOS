@@ -37,6 +37,8 @@ import {
   updateVoiceGuideDoc,
   getBrandPatterns,
   updateBrandPattern,
+  createBrandPattern,
+  deleteBrandPattern,
   getDesignRules,
   getDesignRule,
   updateDesignRule,
@@ -51,7 +53,7 @@ import {
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, splitPatternEntries, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
@@ -221,6 +223,9 @@ export function fluidWatcherPlugin(): Plugin {
         // Migrate existing HTML patterns to clean markdown (safe to call multiple times)
         const migrated = await migratePatternsToMarkdown(patternSeedsDir);
         if (migrated > 0) console.log(`[watcher] Migrated ${migrated} patterns to markdown`);
+        // Split large pattern entries into individual rules (idempotent)
+        const split = await splitPatternEntries(patternSeedsDir);
+        if (split > 0) console.log(`[watcher] Split ${split} pattern entries into individual rules`);
       }).catch(err =>
         console.error('[asset-scan] Failed:', err)
       );
@@ -886,16 +891,58 @@ export function fluidWatcherPlugin(): Plugin {
             return;
           }
 
+          // POST /api/brand-patterns — create a new rule
+          if (url === '/api/brand-patterns' && method === 'POST') {
+            const body = JSON.parse(await readBody(req));
+            if (!body.label || !body.category || typeof body.content !== 'string') {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'label, category, and content are required' }));
+              return;
+            }
+            const pattern = createBrandPattern({
+              label: body.label,
+              category: body.category,
+              content: body.content,
+              weight: typeof body.weight === 'number' ? body.weight : undefined,
+            });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(pattern));
+            return;
+          }
+
           // PUT /api/brand-patterns/:slug
           const brandPatternSlugMatch = url.match(/^\/api\/brand-patterns\/([^/?]+)$/);
           if (brandPatternSlugMatch && method === 'PUT') {
             const body = JSON.parse(await readBody(req));
-            if (typeof body.content !== 'string') {
+            const updates: { content?: string; weight?: number; label?: string } = {};
+            if (typeof body.content === 'string') updates.content = body.content;
+            if (typeof body.weight === 'number') updates.weight = body.weight;
+            if (typeof body.label === 'string') updates.label = body.label;
+            if (Object.keys(updates).length === 0) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'content is required' }));
+              res.end(JSON.stringify({ error: 'at least one of content, weight, or label is required' }));
               return;
             }
-            updateBrandPattern(brandPatternSlugMatch[1], body.content);
+            updateBrandPattern(brandPatternSlugMatch[1], updates);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+
+          // DELETE /api/brand-patterns/:slug
+          const brandPatternDeleteMatch = url.match(/^\/api\/brand-patterns\/([^/?]+)$/);
+          if (brandPatternDeleteMatch && method === 'DELETE') {
+            const result = deleteBrandPattern(brandPatternDeleteMatch[1]);
+            if (result === 'not_found') {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Pattern not found' }));
+              return;
+            }
+            if (result === 'is_core') {
+              res.writeHead(403, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Cannot delete core patterns' }));
+              return;
+            }
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ok: true }));
             return;

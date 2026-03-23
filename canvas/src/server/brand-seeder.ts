@@ -60,19 +60,30 @@ export async function seedVoiceGuideIfEmpty(voiceGuideDir: string): Promise<numb
 
 // ─── Brand Patterns ──────────────────────────────────────────────────────────
 
-const PATTERN_SOURCES: Array<{ slug: string; label: string; category: string; file: string }> = [
-  { slug: 'color-palette', label: 'Color Palette', category: 'design-tokens', file: 'color-palette.md' },
-  { slug: 'typography', label: 'Typography', category: 'design-tokens', file: 'typography.md' },
-  { slug: 'opacity-patterns', label: 'Opacity Patterns', category: 'design-tokens', file: 'opacity-patterns.md' },
-  { slug: 'brushstroke-textures', label: 'Brushstroke Textures', category: 'pattern', file: 'brushstroke-textures.md' },
-  { slug: 'circles-underlines', label: 'Circles & Underlines', category: 'pattern', file: 'circles-underlines.md' },
-  { slug: 'line-textures', label: 'Line Textures', category: 'pattern', file: 'line-textures.md' },
-  { slug: 'scribble-textures', label: 'Scribble Textures', category: 'pattern', file: 'scribble-textures.md' },
-  { slug: 'x-mark-textures', label: 'X-Mark Textures', category: 'pattern', file: 'x-mark-textures.md' },
-  { slug: 'photos-mockups', label: 'Photos & Mockups', category: 'pattern', file: 'photos-mockups.md' },
-  { slug: 'footer-structure', label: 'Footer Structure', category: 'pattern', file: 'footer-structure.md' },
-  { slug: 'flfont-tagline-patterns', label: 'FLFont Tagline Patterns', category: 'pattern', file: 'flfont-tagline-patterns.md' },
-  { slug: 'layout-archetypes', label: 'Layout Archetypes', category: 'layout-archetype', file: 'layout-archetypes.md' },
+interface PatternSource { slug: string; label: string; category: string; file: string; weight: number; isCore: boolean }
+
+const PATTERN_SOURCES: PatternSource[] = [
+  // Colors
+  { slug: 'color-palette', label: 'Color Palette', category: 'colors', file: 'color-palette.md', weight: 90, isCore: true },
+  { slug: 'rgba-overlay-patterns', label: 'RGBA Overlay Patterns', category: 'colors', file: 'rgba-overlay-patterns.md', weight: 80, isCore: false },
+  { slug: 'opacity-patterns', label: 'Opacity Patterns', category: 'colors', file: 'opacity-patterns.md', weight: 80, isCore: false },
+  // Typography
+  { slug: 'typography', label: 'Typography', category: 'typography', file: 'typography.md', weight: 90, isCore: true },
+  { slug: 'social-typography-scale', label: 'Social Typography Scale', category: 'typography', file: 'social-typography-scale.md', weight: 85, isCore: false },
+  { slug: 'flfont-tagline-patterns', label: 'FLFont Tagline Patterns', category: 'typography', file: 'flfont-tagline-patterns.md', weight: 80, isCore: false },
+  { slug: 'uppercase-patterns', label: 'Uppercase Patterns', category: 'typography', file: 'uppercase-patterns.md', weight: 80, isCore: false },
+  // Logos
+  { slug: 'footer-structure', label: 'Footer Structure', category: 'logos', file: 'footer-structure.md', weight: 85, isCore: false },
+  // Images
+  { slug: 'photos-mockups', label: 'Photos & Mockups', category: 'images', file: 'photos-mockups.md', weight: 70, isCore: false },
+  // Decorations
+  { slug: 'brushstroke-textures', label: 'Brushstroke Textures', category: 'decorations', file: 'brushstroke-textures.md', weight: 85, isCore: false },
+  { slug: 'circles-underlines', label: 'Circles & Underlines', category: 'decorations', file: 'circles-underlines.md', weight: 85, isCore: false },
+  { slug: 'line-textures', label: 'Line Textures', category: 'decorations', file: 'line-textures.md', weight: 70, isCore: false },
+  { slug: 'scribble-textures', label: 'Scribble Textures', category: 'decorations', file: 'scribble-textures.md', weight: 70, isCore: false },
+  { slug: 'x-mark-textures', label: 'X-Mark Textures', category: 'decorations', file: 'x-mark-textures.md', weight: 70, isCore: false },
+  // Archetypes
+  { slug: 'layout-archetypes', label: 'Layout Archetypes', category: 'archetypes', file: 'layout-archetypes.md', weight: 90, isCore: true },
 ];
 
 /**
@@ -86,14 +97,14 @@ export async function seedBrandPatternsIfEmpty(patternSeedsDir: string): Promise
   if (htmlPatternCount > 0) return htmlPatternCount;
 
   const insert = db.prepare(
-    'INSERT OR IGNORE INTO brand_patterns (id, slug, label, category, content, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    'INSERT OR IGNORE INTO brand_patterns (id, slug, label, category, content, weight, is_core, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
   );
   let order = 0;
   let inserted = 0;
   for (const source of PATTERN_SOURCES) {
     try {
       const content = await fs.readFile(path.join(patternSeedsDir, source.file), 'utf-8');
-      insert.run(nanoid(), source.slug, source.label, source.category, content, order++, Date.now());
+      insert.run(nanoid(), source.slug, source.label, source.category, content, source.weight, source.isCore ? 1 : 0, order++, Date.now());
       inserted++;
     } catch {
       order++;
@@ -124,6 +135,58 @@ export async function migratePatternsToMarkdown(patternSeedsDir: string): Promis
     }
   }
   return migrated;
+}
+
+/**
+ * Split large pattern entries into separate rules for existing databases.
+ * Creates new rows from sections extracted from color-palette and typography.
+ * Idempotent: checks if target slugs already exist before splitting.
+ */
+export async function splitPatternEntries(patternSeedsDir: string): Promise<number> {
+  const db = getDb();
+  let created = 0;
+  const now = Date.now();
+  const insert = db.prepare(
+    'INSERT OR IGNORE INTO brand_patterns (id, slug, label, category, content, weight, is_core, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)'
+  );
+
+  // Only split if the new slugs don't exist yet
+  const newSlugs = ['rgba-overlay-patterns', 'social-typography-scale', 'uppercase-patterns'];
+  const existing = db.prepare(
+    `SELECT slug FROM brand_patterns WHERE slug IN (${newSlugs.map(() => '?').join(',')})`
+  ).all(...newSlugs) as Array<{ slug: string }>;
+
+  if (existing.length >= newSlugs.length) return 0; // already split
+
+  const maxOrder = (db.prepare('SELECT MAX(sort_order) as m FROM brand_patterns').get() as { m: number })?.m ?? 20;
+  let order = maxOrder + 1;
+
+  for (const source of PATTERN_SOURCES) {
+    if (!newSlugs.includes(source.slug)) continue;
+    if (existing.some(e => e.slug === source.slug)) continue;
+    try {
+      const content = await fs.readFile(path.join(patternSeedsDir, source.file), 'utf-8');
+      insert.run(nanoid(), source.slug, source.label, source.category, content, source.weight, order++, now);
+      created++;
+    } catch {
+      // Seed file not found — skip
+    }
+  }
+
+  // Update the core entries to trimmed versions from seed files
+  if (created > 0) {
+    const update = db.prepare('UPDATE brand_patterns SET content = ?, updated_at = ? WHERE slug = ?');
+    for (const slug of ['color-palette', 'typography']) {
+      const source = PATTERN_SOURCES.find(s => s.slug === slug);
+      if (!source) continue;
+      try {
+        const content = await fs.readFile(path.join(patternSeedsDir, source.file), 'utf-8');
+        update.run(content, now, slug);
+      } catch {}
+    }
+  }
+
+  return created;
 }
 
 // ─── Global Visual Style ─────────────────────────────────────────────────────
