@@ -306,7 +306,7 @@ function checkInlineStyles(lines, rules, context) {
     if (/<style[\s>]/i.test(line)) insideStyleBlock = true;
     if (/<\/style>/i.test(line)) { insideStyleBlock = false; continue; }
     if (insideStyleBlock) continue;
-    if (/\bstyle\s*=\s*["'][^"']+["']/i.test(line)) {
+    if (/(?<![a-zA-Z-])style\s*=\s*["'][^"']+["']/i.test(line)) {
       violations.push({
         line: i + 1, column: 1,
         rule: 'style-no-inline',
@@ -499,11 +499,11 @@ function checkBodyCopyColor(lines, rules, context) {
     const colorValue = colorMatch[1].trim();
     // Check if it's approximately white at 45% opacity
     // Accept: rgba(255,255,255,0.45), rgba(255,255,255,0.4-0.5), #ffffff73 (hex+alpha ~45%)
-    const isRgbaWhite = /rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*(0\.4[0-9]?|0\.5)\s*\)/i.test(colorValue);
+    const isRgbaWhite = /rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*(0\.4[0-9]*|0\.50?)\s*\)/i.test(colorValue);
     // #ffffff73 = white at ~45% opacity (0x73/0xFF = 0.45)
     const isHexWhiteAlpha = /^#(?:fff|ffffff)(?:70|71|72|73|74|75|76|77|78|79|7a|7b|7c|7d|80)$/i.test(colorValue);
     // Also accept color: white with separate opacity
-    const hasOpacity = block.match(/opacity\s*:\s*(0\.4[0-9]?|0\.5)\s*;?/i);
+    const hasOpacity = block.match(/opacity\s*:\s*(0\.4[0-9]*|0\.50?)\s*;?/i);
     const isWhiteWithOpacity = /^(?:#fff(?:fff)?|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))$/i.test(colorValue) && hasOpacity;
 
     if (!isRgbaWhite && !isHexWhiteAlpha && !isWhiteWithOpacity) {
