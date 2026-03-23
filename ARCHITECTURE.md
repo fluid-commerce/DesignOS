@@ -9,7 +9,14 @@
 │  Weight system (1-100)  •  Smart context injection       │
 │  context_map routes sections per (type, stage, page)     │
 └────────────────────────┬────────────────────────────────┘
-                         │ pre-injected by
+                         │ brand context pre-injected by
+┌────────────────────────▼────────────────────────────────┐
+│  Archetype Layer (brandless structural patterns)         │
+│  Filesystem: archetypes/{slug}/index.html + schema.json  │
+│  Content/decorative split  •  Components as patterns     │
+│  archetypeId (not templateId)  •  brush: null always     │
+└────────────────────────┬────────────────────────────────┘
+                         │ selected + branded by
 ┌────────────────────────▼────────────────────────────────┐
 │  Pipeline Layer (brand-agnostic)                         │
 │  Anthropic SDK (api-pipeline.ts)                         │
@@ -198,6 +205,49 @@ Templates use Jonathan's standard format:
 
 8 social templates have been ported to TypeScript configs in `canvas/src/lib/template-configs.ts` for programmatic access via the template gallery UI.
 
+## Archetype System
+
+Archetypes are **brandless structural layout patterns** — content skeletons stored on the filesystem (`archetypes/`), not in the database. They define spatial hierarchy and content slots without any brand expression.
+
+### Archetypes vs Templates
+
+| | Templates | Archetypes |
+|---|---|---|
+| **Storage** | Database (SQLite) | Filesystem (`archetypes/`) |
+| **Brand** | Fully styled, brand-specific | Brandless, neutral placeholder |
+| **Selection** | Exact match on `templateId` | Best structural fit for content type |
+| **Output** | Renderable HTML + SlotSchema | Renderable HTML + SlotSchema (identical shape) |
+
+Both produce the same output format. The pipeline can select either; the editor sidebar works with both.
+
+### Content/Decorative Split
+
+Archetypes enforce a strict separation:
+- **Content (archetype-defined):** text blocks, image zones, layout structure, positioning
+- **Decorative (brand-defined, injected at generation):** brushstrokes, textures, circles, gradients, logos
+
+Each archetype includes a `.decorative-zone` div where the pipeline injects brand decorative elements. The archetype `schema.json` sets `brush: null` — the brand layer provides all decorative transform targets.
+
+### Brand Neutrality Rules
+
+Archetypes must contain zero brand expression:
+- No brand fonts, colors, or asset URLs
+- No `text-transform: uppercase` (casing is a brand decision)
+- No rotated side labels or other brand-specific layout conventions
+- Placeholder text in sentence case, concise and neutral
+- All styling: grayscale, `font-family: sans-serif`
+
+### Design Components
+
+Reusable mid-level functional blocks in `archetypes/components/`. Each component has `pattern.html` + `README.md`. Components are **reference patterns, not runtime includes** — when building an archetype, copy the markup and SlotSchema fields directly. There is no partial/import system.
+
+### Key Schema Rules
+
+- Use `archetypeId` (not `templateId`) to avoid collision with `TEMPLATE_SCHEMAS` in `template-configs.ts`
+- `brush` is always `null` — brand layer merges decorative fields at generation time
+- Every `sel` in `fields` must match a CSS class in `index.html`
+- Authoritative spec: `archetypes/SPEC.md`
+
 ## Testing
 
 Vitest with real SQLite (no mocking):
@@ -233,3 +283,7 @@ beforeAll(() => {
 | Hard rules extraction | Weight ≥ 81 patterns auto-promoted to NON-NEGOTIABLE system prompt directives |
 | HMR push on data changes | Server sends custom Vite HMR event after writes; `useFileWatcher` refreshes UI |
 | Parallel subagents per asset | Each asset gets fresh context; no cross-contamination between assets |
+| Archetypes on filesystem, not DB | Structural patterns are code artifacts; version-controlled, not user-editable data |
+| `archetypeId` not `templateId` | Avoids collision with `TEMPLATE_SCHEMAS` lookup in `resolveSlotSchemaForIteration()` |
+| Content/decorative split | Archetypes define layout only; `.decorative-zone` + `brush: null` defers all brand decoration to pipeline |
+| Components as patterns | No runtime include/partial system; components are reference HTML for copy-paste composition |

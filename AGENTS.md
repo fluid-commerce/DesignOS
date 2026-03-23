@@ -54,12 +54,17 @@ canvas/                        # The app (React + Vite + SQLite)
 
 tools/                         # CLI validation + verification tools (Node.js CommonJS)
 assets/                        # Brand assets (SVGs, fonts, textures, logos, photos)
+archetypes/                    # Brandless structural layout patterns (filesystem, not DB)
+  SPEC.md                      # Authoritative format specification
+  components/                  # Reusable design component patterns (pattern.html + README)
+  {archetype-slug}/            # One dir per archetype (index.html + schema.json + README)
 templates/                     # Template library (social/, gold-standard/, one-pagers/)
 pattern-seeds/                 # Clean markdown pattern files (seeded into DB)
 patterns/                      # Legacy visual pattern page (archival — DB is source of truth)
 voice-guide/                   # Brand voice docs (13 .md files, seeded into DB)
 feedback/                      # Agent-written usage data for learning loop
 Reference/                     # Archival source material (NEVER load directly)
+  Archetype Research/          # Reference post curation + deconstruction framework
 skills/marketing/              # 30+ marketing domain skills for subagent use
 
 .agents/skills/                # Project-scoped agent skills (fluid-campaign orchestrator)
@@ -152,6 +157,19 @@ Brand rules carry weights 1-100:
 - **51-80** = should follow (strong preference)
 - **21-50** = recommended (flexible)
 - **1-20** = nice-to-have (optional)
+
+## Archetype System
+
+Archetypes are **brandless structural layout patterns** — content skeletons that define spatial hierarchy without any brand expression. They live on the filesystem (`archetypes/`), not in the database.
+
+**Key architectural norms:**
+- **Brand-neutral:** No brand fonts, colors, assets, `text-transform: uppercase`, vertical side labels, or any brand convention. Casing, decoration, and styling are brand-layer decisions applied at generation time.
+- **Content/decorative split:** Archetypes define content layout only. A `.decorative-zone` div in each archetype receives brand decorative elements (brushstrokes, textures, circles) at generation time.
+- **`archetypeId`, not `templateId`:** Archetype schemas use `archetypeId` to avoid collision with `TEMPLATE_SCHEMAS` resolution in `template-configs.ts`. `brush` is always `null` — the brand layer provides decorative transform targets.
+- **Identical output shape:** Both templates and archetypes produce renderable HTML + SlotSchema. The pipeline can select either; the editor sidebar works with both.
+- **Components are patterns, not runtime includes:** Design components (`archetypes/components/`) are reference HTML/CSS patterns. When building an archetype, copy the markup structure and SlotSchema fields — there is no partial/import system.
+
+See `archetypes/SPEC.md` for the authoritative format specification.
 
 ## Generation Pipeline
 
@@ -376,6 +394,8 @@ npm run test:watch          # Watch mode
 - Do NOT read from `brand/` files — that directory does not exist. All brand data is in the DB.
 - Do NOT duplicate brand doc content in prompts; use DB tools to load brand data.
 - `Reference/` is archival only — never load directly.
+- `archetypes/SPEC.md` is the authoritative format reference for building archetypes. Do not invent format conventions — follow the spec.
+- Archetypes must be 100% brand-neutral: no `text-transform: uppercase`, no rotated side labels, no brand fonts/colors/assets. Casing and decoration are brand-layer decisions.
 - `feedback/` is for agents to write usage data back (learning loop).
 - `voice-guide/*.md` and `pattern-seeds/*.md` are seed sources — the DB is the live copy.
 - Pattern content is clean markdown with code snippets — never raw HTML or base64. All assets referenced via `/api/brand-assets/serve/` URLs.
