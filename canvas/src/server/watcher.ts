@@ -1360,18 +1360,17 @@ export function fluidWatcherPlugin(): Plugin {
             }
 
             // Strategy 3: canonical path .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
-            if (!found) {
-              const hierarchy = db.prepare(`
-                SELECT c.campaign_id, s.creation_id, i.slide_id
-                FROM iterations i
-                JOIN slides s ON s.id = i.slide_id
-                JOIN creations c ON c.id = s.creation_id
-                WHERE i.id = ?
-              `).get(iterationId) as { campaign_id: string; creation_id: string; slide_id: string } | undefined;
-              if (hierarchy) {
-                const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, hierarchy.slide_id, `${iterationId}.html`);
-                try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
-              }
+            // Hierarchy is hoisted so Strategy 7 can also use it
+            const hierarchy = !found ? db.prepare(`
+              SELECT c.campaign_id, s.creation_id, i.slide_id
+              FROM iterations i
+              JOIN slides s ON s.id = i.slide_id
+              JOIN creations c ON c.id = s.creation_id
+              WHERE i.id = ?
+            `).get(iterationId) as { campaign_id: string; creation_id: string; slide_id: string } | undefined : undefined;
+            if (!found && hierarchy) {
+              const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, hierarchy.slide_id, `${iterationId}.html`);
+              try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
             }
 
             // Strategy 4: fallback to templates/social/ by basename
@@ -1391,6 +1390,13 @@ export function fluidWatcherPlugin(): Plugin {
             if (!found && row.html_path.startsWith('.fluid/')) {
               const fromRoot = path.resolve(projectRoot, row.html_path);
               try { await fs.access(fromRoot); templatePath = fromRoot; found = true; } catch { /* noop */ }
+            }
+
+            // Strategy 7: skip slide directory level — some iterations were written
+            // at campaign/creation/iter.html instead of campaign/creation/slide/iter.html
+            if (!found && hierarchy) {
+              const noSlidePath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, `${iterationId}.html`);
+              try { await fs.access(noSlidePath); templatePath = noSlidePath; found = true; } catch { /* noop */ }
             }
 
             if (!found) {
