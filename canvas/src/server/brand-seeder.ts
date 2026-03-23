@@ -189,6 +189,41 @@ export async function seedGlobalVisualStyleIfEmpty(): Promise<void> {
   );
 }
 
+// ─── Font Enforcement ────────────────────────────────────────────────────────
+
+const FONT_ENFORCEMENT_PATTERN = `# Font Enforcement (weight: 90)
+
+Only fonts registered in the brand's asset library may be used. Any font-family declaration referencing a font NOT in brand_assets is a violation.
+
+For this brand: NeueHaas (NeueHaasDisplay) and flfontbold (FLFont) are the ONLY allowed fonts.
+- NeueHaas / NeueHaasDisplay — all body text, headlines, subtext
+- flfontbold / FLFont — brand taglines only
+- sans-serif — allowed ONLY as a generic fallback
+
+Prohibited fonts include but are not limited to: Syne, DM Sans, Inter, Georgia, Times New Roman, Arial, Helvetica, any Google Fonts.
+
+(weight: 90)
+`;
+
+/**
+ * Seeds the Font Enforcement pattern into brand_patterns (category: pattern) if not present.
+ * Idempotent: uses INSERT OR IGNORE, slug uniqueness guard.
+ */
+export async function seedFontEnforcementIfEmpty(): Promise<void> {
+  const db = getDb();
+  db.prepare(
+    'INSERT OR IGNORE INTO brand_patterns (id, slug, label, category, content, sort_order, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(
+    nanoid(),
+    'font-enforcement',
+    'Font Enforcement',
+    'pattern',
+    FONT_ENFORCEMENT_PATTERN,
+    100,
+    Date.now()
+  );
+}
+
 // ─── Design Rules ─────────────────────────────────────────────────────────────
 
 interface DesignRuleInput {

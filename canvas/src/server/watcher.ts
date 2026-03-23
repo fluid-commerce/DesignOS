@@ -51,7 +51,7 @@ import {
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, seedGlobalVisualStyleIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
+import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, seedGlobalVisualStyleIfEmpty, seedFontEnforcementIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
@@ -233,6 +233,9 @@ export function fluidWatcherPlugin(): Plugin {
       // Seed Design DNA: global visual style contract + per-deliverable design rules
       seedGlobalVisualStyleIfEmpty().catch(err =>
         console.warn('[watcher] Global visual style seeding failed:', err)
+      );
+      seedFontEnforcementIfEmpty().catch(err =>
+        console.warn('[watcher] Font enforcement seeding failed:', err)
       );
       seedDesignRulesIfEmpty().catch(err =>
         console.warn('[watcher] Design rules seeding failed:', err)

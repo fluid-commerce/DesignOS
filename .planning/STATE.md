@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 16-02-PLAN.md
-last_updated: "2026-03-18T16:42:44.101Z"
+stopped_at: Phase 17 context gathered
+last_updated: "2026-03-23T20:45:53.338Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
-  total_phases: 20
-  completed_phases: 17
-  total_plans: 61
+  total_phases: 26
+  completed_phases: 19
+  total_plans: 64
   completed_plans: 62
   percent: 100
 ---
@@ -293,6 +293,12 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 - Phase 12: Post-API Migration Cleanup & Audit — migrate validation tools from rules.json to SQLite DB, delete orphaned directories, verify infrastructure coherence (completed 2026-03-17)
 - Phase 13: DAM Sync — Fluid DAM as upstream source of truth (completed 2026-03-17)
 - Phase 14 added: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
+- Phase 17 added: Pipeline Quick Fixes — immediate quality fixes from 11-run simulation audit + user video review (broken paths, copy limits, font enforcement, brushstroke standardization, circle positioning, inline styles ban, spec-check gaps)
+- Phase 18 added: Archetype System Research and Component Design — collaborative research phase to design brandless archetype format + design component library, derived from real high-performing social posts
+- Phase 19 added: Build Design Components and Instagram Archetypes — implement component primitives + 6-8 Instagram archetypes with SlotSchema for editor sidebar parity
+- Phase 20 added: Pipeline Integration — Archetype Selection and SlotSchema Attachment — rewire pipeline to select archetypes instead of freestyling HTML, attach SlotSchema to iterations
+- Phase 21 added: LinkedIn and One-Pager Archetypes — extend archetype library to LinkedIn (1200x627) and One-Pager (US Letter, printable, single-page)
+- Phase 22 added: Image Integration and Template-vs-Archetype Routing — wire DAM photos to image slots, build agent decision layer (template match vs archetype adaptation)
 
 ### Blockers/Concerns
 
@@ -302,6 +308,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-18T16:42:44.098Z
-Stopped at: Completed 16-02-PLAN.md
-Resume file: None
+Last session: 2026-03-23T20:45:53.330Z
+Stopped at: Phase 17 context gathered
+Resume file: .planning/phases/17-pipeline-quick-fixes/17-CONTEXT.md

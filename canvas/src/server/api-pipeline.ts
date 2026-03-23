@@ -1320,19 +1320,7 @@ interface SpecViolation {
 
 const MICRO_FIXABLE_RULES = new Set([
   'color-bg-pure-black',
-  'font-non-brand-family',
 ]);
-
-// Map of non-brand fonts to their brand replacements
-const FONT_REPLACEMENTS: Record<string, string> = {
-  'Georgia': "'NeueHaas', sans-serif",
-  'Times New Roman': "'NeueHaas', sans-serif",
-  'Times': "'NeueHaas', sans-serif",
-  'Helvetica': "'NeueHaas', sans-serif",
-  'Arial': "'NeueHaas', sans-serif",
-  'serif': 'sans-serif',
-  'cursive': 'sans-serif',
-};
 
 /**
  * Attempt regex-based fixes for simple brand violations.
@@ -1360,21 +1348,6 @@ async function tryMicroFix(htmlPath: string, violations: SpecViolation[]): Promi
         }
       }
 
-      if (v.rule === 'font-non-brand-family' && v.found) {
-        const fontName = v.found.trim();
-        const replacement = FONT_REPLACEMENTS[fontName];
-        if (replacement) {
-          // Replace font-family declarations containing the non-brand font
-          // Match patterns like: 'Georgia', serif  or  "Georgia", serif  or  Georgia, serif
-          const escaped = fontName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const pattern = new RegExp(`(['"]?)${escaped}\\1(?:\\s*,\\s*[^;}"']+)?`, 'gi');
-          const newHtml = html.replace(pattern, replacement);
-          if (newHtml !== html) {
-            html = newHtml;
-            modified = true;
-          }
-        }
-      }
     }
 
     if (modified) {
