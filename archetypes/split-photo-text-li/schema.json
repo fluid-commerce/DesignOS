@@ -1,0 +1,13 @@
+{
+  "archetypeId": "split-photo-text-li",
+  "platform": "linkedin-landscape",
+  "width": 1200,
+  "height": 627,
+  "fields": [
+    { "type": "image", "sel": ".photo img", "label": "Photo", "dims": "560 x 627px" },
+    { "type": "text", "sel": ".headline", "label": "Headline", "mode": "pre", "rows": 3 },
+    { "type": "text", "sel": ".body-copy", "label": "Body Copy", "mode": "pre", "rows": 4 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

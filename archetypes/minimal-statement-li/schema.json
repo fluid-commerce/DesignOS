@@ -1,0 +1,12 @@
+{
+  "archetypeId": "minimal-statement-li",
+  "platform": "linkedin-landscape",
+  "width": 1200,
+  "height": 627,
+  "fields": [
+    { "type": "text", "sel": ".headline", "label": "Statement", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".supporting-text", "label": "Supporting Line", "mode": "pre", "rows": 2 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -1,0 +1,14 @@
+{
+  "archetypeId": "article-preview-li",
+  "platform": "linkedin-landscape",
+  "width": 1200,
+  "height": 627,
+  "fields": [
+    { "type": "text", "sel": ".category-label", "label": "Category", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".article-title", "label": "Article Title", "mode": "pre", "rows": 3 },
+    { "type": "text", "sel": ".article-excerpt", "label": "Excerpt", "mode": "pre", "rows": 4 },
+    { "type": "text", "sel": ".author-name", "label": "Author Name", "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

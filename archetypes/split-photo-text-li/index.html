@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- archetype: split-photo-text-li | target: 1200x627 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1200px;
+    height: 627px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SLOT: .photo img */
+  .photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 560px;
+    height: 627px;
+    overflow: hidden;
+    z-index: 1;
+    background: #2a2a2a;
+  }
+
+  .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .text-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 640px;
+    height: 627px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 72px 72px 72px 64px;
+    z-index: 1;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    font-size: 60px;
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 24px;
+  }
+
+  /* SLOT: .body-copy */
+  .body-copy {
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.45);
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: photo -->
+  <div class="photo">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Photo"/>
+  </div>
+
+  <div class="text-panel">
+    <!-- SLOT: headline -->
+    <p class="headline">Real results from real brands</p>
+
+    <!-- SLOT: body-copy -->
+    <p class="body-copy">We stopped guessing what works and started measuring it. The difference was immediate and the numbers prove it.</p>
+  </div>
+</body>
+</html>

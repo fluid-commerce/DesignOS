@@ -1,0 +1,14 @@
+{
+  "archetypeId": "quote-testimonial-li",
+  "platform": "linkedin-landscape",
+  "width": 1200,
+  "height": 627,
+  "fields": [
+    { "type": "image", "sel": ".portrait img", "label": "Portrait Photo", "dims": "400 x 627px" },
+    { "type": "text", "sel": ".quote-text", "label": "Quote", "mode": "pre", "rows": 5 },
+    { "type": "text", "sel": ".attribution-name", "label": "Name", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".attribution-title", "label": "Title", "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

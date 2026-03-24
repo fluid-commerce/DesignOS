@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- archetype: hero-stat-li | target: 1200x627 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1200px;
+    height: 627px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SLOT: .eyebrow */
+  .eyebrow {
+    position: absolute;
+    left: 72px;
+    top: 72px;
+    width: 580px;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    position: absolute;
+    left: 72px;
+    top: 108px;
+    width: 580px;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .body-copy */
+  .body-copy {
+    position: absolute;
+    left: 72px;
+    bottom: 100px;
+    width: 520px;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+
+  .stat-row {
+    position: absolute;
+    right: 72px;
+    top: 72px;
+    bottom: 72px;
+    width: 460px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    z-index: 2;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* SLOT: .stat-1-num */
+  .stat-1-num,
+  .stat-2-num,
+  .stat-3-num {
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-1-label */
+  .stat-1-label,
+  .stat-2-label,
+  .stat-3-label {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.5);
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: eyebrow -->
+  <p class="eyebrow">Annual report highlights</p>
+
+  <!-- SLOT: headline -->
+  <p class="headline">The numbers speak</p>
+
+  <!-- SLOT: body-copy -->
+  <p class="body-copy">Three metrics that defined the quarter and set the trajectory for what comes next.</p>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <!-- SLOT: stat-1-num -->
+      <div class="stat-1-num">94%</div>
+      <!-- SLOT: stat-1-label -->
+      <div class="stat-1-label">Approval rate</div>
+    </div>
+    <div class="stat-item">
+      <!-- SLOT: stat-2-num -->
+      <div class="stat-2-num">2.4x</div>
+      <!-- SLOT: stat-2-label -->
+      <div class="stat-2-label">Revenue growth</div>
+    </div>
+    <div class="stat-item">
+      <!-- SLOT: stat-3-num -->
+      <div class="stat-3-num">47ms</div>
+      <!-- SLOT: stat-3-label -->
+      <div class="stat-3-label">Response time</div>
+    </div>
+  </div>
+</body>
+</html>
