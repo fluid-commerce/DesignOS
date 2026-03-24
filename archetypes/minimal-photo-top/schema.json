@@ -1,4 +1,6 @@
 {
+  "archetypeId": "minimal-photo-top",
+  "platform": "instagram-square",
   "width": 1080,
   "height": 1080,
   "fields": [

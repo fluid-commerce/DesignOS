@@ -21,7 +21,7 @@ export interface TemplateMetadata {
   description: string;
   /** Path to thumbnail image, relative to canvas/public/ */
   thumbnailPath: string;
-  platform: 'instagram-square' | 'linkedin-landscape' | 'unknown';
+  platform: 'instagram-square' | 'linkedin-landscape' | 'one-pager' | 'unknown';
   dimensions: { width: number; height: number };
 }
 
@@ -30,6 +30,7 @@ export interface TemplateMetadata {
 /** t1-quote — Client Testimonial / Quote (1080×1080) */
 const t1Quote: SlotSchema = {
   templateId: 't1-quote',
+  platform: 'instagram-square',
   width: 1080,
   height: 1080,
   fields: [
@@ -46,6 +47,7 @@ const t1Quote: SlotSchema = {
 /** t2-app-highlight — App Feature / Product Highlight (1080×1080) */
 const t2AppHighlight: SlotSchema = {
   templateId: 't2-app-highlight',
+  platform: 'instagram-square',
   width: 1080,
   height: 1080,
   fields: [
@@ -59,6 +61,7 @@ const t2AppHighlight: SlotSchema = {
 /** t3-partner-alert — Partner Alert (Landscape 1340×630) */
 const t3PartnerAlert: SlotSchema = {
   templateId: 't3-partner-alert',
+  platform: 'linkedin-landscape',
   width: 1340,
   height: 630,
   fields: [
@@ -73,6 +76,7 @@ const t3PartnerAlert: SlotSchema = {
 /** t4-fluid-ad — Fluid Capabilities — Instagram Ad (1080×1080) */
 const t4FluidAd: SlotSchema = {
   templateId: 't4-fluid-ad',
+  platform: 'instagram-square',
   width: 1080,
   height: 1080,
   fields: [
@@ -96,6 +100,7 @@ const t4FluidAd: SlotSchema = {
 /** t5-partner-announcement — Partner Announcement (Landscape 1340×630) */
 const t5PartnerAnnouncement: SlotSchema = {
   templateId: 't5-partner-announcement',
+  platform: 'linkedin-landscape',
   width: 1340,
   height: 630,
   fields: [
@@ -111,6 +116,7 @@ const t5PartnerAnnouncement: SlotSchema = {
 /** t6-employee-spotlight — Employee Spotlight (1080×1080) */
 const t6EmployeeSpotlight: SlotSchema = {
   templateId: 't6-employee-spotlight',
+  platform: 'instagram-square',
   width: 1080,
   height: 1080,
   fields: [
@@ -126,6 +132,7 @@ const t6EmployeeSpotlight: SlotSchema = {
 /** t7-carousel — Carousel: Insights (1080×1080, 4 slides) */
 const t7Carousel: SlotSchema = {
   templateId: 't7-carousel',
+  platform: 'instagram-square',
   width: 1080,
   height: 1080,
   carouselCount: 4,
@@ -166,6 +173,7 @@ const t7Carousel: SlotSchema = {
 /** t8-quarterly-stats — Quarterly Stats: Carousel (1080×1080, 4 slides) */
 const t8QuarterlyStats: SlotSchema = {
   templateId: 't8-quarterly-stats',
+  platform: 'instagram-square',
   width: 1080,
   height: 1080,
   carouselCount: 4,

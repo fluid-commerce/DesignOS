@@ -62,6 +62,8 @@ export type SlotField = TextField | ImageField | DividerField;
  */
 export interface SlotSchema {
   templateId?: string;          // set for template-based assets
+  archetypeId?: string;         // set for archetype-based assets (added Phase 20)
+  platform?: 'instagram-square' | 'linkedin-landscape' | 'one-pager';  // added Phase 21
   width: number;                // asset width in pixels
   height: number;               // asset height in pixels
   fields: SlotField[];          // ordered list of editable fields

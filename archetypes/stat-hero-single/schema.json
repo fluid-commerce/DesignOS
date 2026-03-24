@@ -1,5 +1,6 @@
 {
   "archetypeId": "stat-hero-single",
+  "platform": "instagram-square",
   "width": 1080,
   "height": 1080,
   "fields": [
@@ -8,5 +9,6 @@
     { "type": "text", "sel": ".headline",       "label": "Headline",      "mode": "text", "rows": 2 },
     { "type": "text", "sel": ".body-copy",      "label": "Body Copy",     "mode": "pre",  "rows": 4 }
   ],
-  "brush": null
+  "brush": null,
+  "brushAdditional": []
 }
