@@ -12,26 +12,34 @@ const __dirname = path.dirname(__filename);
 
 const ARCHETYPES_DIR = path.resolve(__dirname, '../../archetypes');
 
-// All 6 archetype slugs from Phase 19-02
+// All 10 archetype slugs (6 original + 4 added during user review)
 const ARCHETYPE_SLUGS = [
   'hero-stat',
+  'hero-stat-split',
   'photo-bg-overlay',
   'split-photo-text',
+  'split-photo-quote',
   'quote-testimonial',
   'minimal-statement',
+  'minimal-photo-top',
   'data-dashboard',
+  'stat-hero-single',
 ] as const;
 
 type ArchetypeSlug = typeof ARCHETYPE_SLUGS[number];
 
 // Expected interactive field counts (non-divider fields) per archetype
 const EXPECTED_FIELD_COUNTS: Record<ArchetypeSlug, number> = {
-  'hero-stat':         4,  // stat-number, stat-label, headline, subtext
-  'photo-bg-overlay':  3,  // photo-bg, headline, subtext
-  'split-photo-text':  4,  // photo, eyebrow, headline, body
-  'quote-testimonial': 4,  // portrait, quote, attribution-name, attribution-title
-  'minimal-statement': 3,  // headline, tagline, body (varies per schema)
-  'data-dashboard':    8,  // headline + 6 stat fields + footnote (divider excluded)
+  'hero-stat':           9,  // eyebrow, headline, body-copy, 3x stat num+label
+  'hero-stat-split':     8,  // photo, eyebrow, headline, body-copy, 2x stat num+label
+  'photo-bg-overlay':    3,  // photo, headline, subtext
+  'split-photo-text':    3,  // photo, headline, body-copy
+  'split-photo-quote':   5,  // photo, quote-text, portrait, attribution, title
+  'quote-testimonial':   4,  // quote-text, portrait, attribution, title
+  'minimal-statement':   2,  // headline, subtext
+  'minimal-photo-top':   3,  // photo, headline, subtext
+  'data-dashboard':      9,  // headline + 4x stat num+label
+  'stat-hero-single':    4,  // context-label, stat-number, headline, body-copy
 };
 
 // Helper: read schema.json for an archetype
@@ -77,7 +85,7 @@ async function createTestIteration(
     data: {
       iterationIndex: 0,
       htmlPath: `archetypes/${slug}/index.html`,
-      slotSchema: JSON.stringify(schema),
+      slotSchema: schema,
       source: 'template',
     },
   });
@@ -192,7 +200,7 @@ test.describe('Phase 19: Archetype iteration creation via REST API', () => {
 test.describe('Phase 19: data-dashboard archetype — named stat selectors', () => {
   test.setTimeout(30_000);
 
-  test('data-dashboard: 6 stat fields + divider + footnote verify individually', async ({ request }) => {
+  test('data-dashboard: 4 stat pairs + headline verify individually', async ({ request }) => {
     const slug = 'data-dashboard';
     const schema = loadSchema(slug);
     const { iterationId } = await createTestIteration(request, slug, schema);
@@ -210,7 +218,7 @@ test.describe('Phase 19: data-dashboard archetype — named stat selectors', () 
 
     const fields = resolved.fields;
 
-    // Verify stat fields are present by selector
+    // Verify all 4 stat pairs are present by selector
     const statSelectors = [
       '.stat-1-num',
       '.stat-1-label',
@@ -218,6 +226,8 @@ test.describe('Phase 19: data-dashboard archetype — named stat selectors', () 
       '.stat-2-label',
       '.stat-3-num',
       '.stat-3-label',
+      '.stat-4-num',
+      '.stat-4-label',
     ];
     for (const sel of statSelectors) {
       const found = fields.find((f) => f.sel === sel);
@@ -225,24 +235,13 @@ test.describe('Phase 19: data-dashboard archetype — named stat selectors', () 
       expect(found!.type, `data-dashboard: ${sel} should be text field`).toBe('text');
     }
 
-    // Verify divider renders as separator (not an input field)
-    const dividers = fields.filter((f) => f.type === 'divider');
-    expect(dividers.length, 'data-dashboard: should have 1 divider').toBeGreaterThanOrEqual(1);
-    // Divider has label "---" per plan spec
-    expect(dividers[0].label, 'data-dashboard: divider label is ---').toBe('---');
-
-    // Verify footnote field exists
-    const footnote = fields.find((f) => f.sel === '.footnote');
-    expect(footnote, 'data-dashboard: footnote field should exist').toBeDefined();
-    expect(footnote!.type).toBe('text');
-
     // Verify headline field exists
     const headline = fields.find((f) => f.sel === '.headline');
     expect(headline, 'data-dashboard: headline field should exist').toBeDefined();
 
-    // Total: 8 interactive fields (7 text + 0 image) + 1 divider = 9 total
+    // Total: 9 interactive fields (headline + 4x num + 4x label), no dividers
     const interactiveCount = fields.filter((f) => f.type !== 'divider').length;
-    expect(interactiveCount, 'data-dashboard: 8 interactive fields').toBe(8);
+    expect(interactiveCount, 'data-dashboard: 9 interactive fields').toBe(9);
   });
 });
 
