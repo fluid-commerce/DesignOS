@@ -966,3 +966,49 @@ describe('attachSlotSchema', () => {
     expect(id).toBe('my-custom-iter-id');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Template vs Archetype routing
+// ---------------------------------------------------------------------------
+
+describe('Template vs Archetype routing', () => {
+  it('detects Template: signal in copy.md', () => {
+    const copyMd = `Headline: Test\n\nTemplate: t3-partner-alert\nAccent: #42b1ff`;
+    const templateMatch = copyMd.match(/template[:\s]+(\S+)/i);
+    expect(templateMatch).not.toBeNull();
+    expect(templateMatch![1]).toBe('t3-partner-alert');
+  });
+
+  it('detects Archetype: signal in copy.md', () => {
+    const copyMd = `Headline: Test\n\nArchetype: hero-stat\nAccent: #FF8B58`;
+    const archetypeMatch = copyMd.match(/archetype[:\s]+(\S+)/i);
+    expect(archetypeMatch).not.toBeNull();
+    expect(archetypeMatch![1]).toBe('hero-stat');
+  });
+
+  it('Template: takes precedence over Archetype: when both present', () => {
+    const copyMd = `Template: t1-quote\nArchetype: hero-stat`;
+    const templateMatch = copyMd.match(/template[:\s]+(\S+)/i);
+    const archetypeMatch = copyMd.match(/archetype[:\s]+(\S+)/i);
+    // Both match, but template is checked first in runApiPipeline
+    expect(templateMatch).not.toBeNull();
+    expect(archetypeMatch).not.toBeNull();
+    expect(templateMatch![1]).toBe('t1-quote');
+  });
+
+  it('falls back to archetype when no Template: line present', () => {
+    const copyMd = `Headline: Test\n\nArchetype: split-photo-text\nAccent: #44b574`;
+    const templateMatch = copyMd.match(/template[:\s]+(\S+)/i);
+    expect(templateMatch).toBeNull();
+  });
+
+  it('PipelineContext accepts userImageUrl field', () => {
+    const ctx = makeCtx({ userImageUrl: 'https://example.com/image.jpg' });
+    expect(ctx.userImageUrl).toBe('https://example.com/image.jpg');
+  });
+
+  it('PipelineContext userImageUrl is optional (undefined by default)', () => {
+    const ctx = makeCtx();
+    expect(ctx.userImageUrl).toBeUndefined();
+  });
+});

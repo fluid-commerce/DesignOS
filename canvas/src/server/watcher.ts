@@ -1993,6 +1993,7 @@ export function fluidWatcherPlugin(): Plugin {
           if (req.url === '/api/generate' && req.method === 'POST') {
             const body = JSON.parse(await readBody(req));
             const { prompt, template, customization, skillType } = body;
+            const userImageUrl = body.userImageUrl as string | undefined;
 
             // ── CAMPAIGN MODE: Multi-creation parallel API generation ────────
 
@@ -2120,6 +2121,7 @@ export function fluidWatcherPlugin(): Plugin {
                 creationId: entry.creation.id,
                 campaignId,
                 iterationId: entry.iterationId,  // needed for SlotSchema attachment
+                userImageUrl,  // user-uploaded image URL from chat sidebar
               };
 
               // Fire and forget — each pipeline runs independently in parallel
