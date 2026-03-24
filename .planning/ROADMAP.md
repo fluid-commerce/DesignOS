@@ -342,7 +342,7 @@ Plans:
 **Goal:** Rewire the generation pipeline to use archetypes instead of freestyling HTML. Changes: (1) Layout agent SELECTS an archetype rather than writing HTML from scratch — receives the archetype's HTML template and fills slots with copy. (2) Styling agent applies brand rules (fonts, colors, textures, imagery patterns) to the archetype's CSS classes — no more inventing layouts. (3) When saving an iteration, ATTACH the archetype's SlotSchema to the iteration record (currently saved as slotSchema: null for AI-generated assets). This is what makes the editor sidebar work. (4) Ensure feature parity with template-based creations: all editing, repositioning, and sidebar features that work for templates must also work for archetype-based generations. The pipeline changes from "write HTML from nothing" to "select structure, fill content, apply brand."
 **Requirements**: PIPE-20-01, PIPE-20-02, PIPE-20-03, PIPE-20-04, PIPE-20-05, PIPE-20-06, PIPE-20-07, PIPE-20-08, PIPE-20-09, PIPE-20-10
 **Depends on:** Phase 19
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 20-01-PLAN.md — Foundation: archetype scanning, fuzzy slug matching, PipelineContext.iterationId, updateIterationSlotSchema DB function

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 19-03-PLAN.md
-last_updated: "2026-03-24T03:19:55.392Z"
+stopped_at: Completed 20-02-PLAN.md
+last_updated: "2026-03-24T17:13:37.068Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 21
   completed_phases: 17
-  total_plans: 57
-  completed_plans: 59
+  total_plans: 60
+  completed_plans: 61
   percent: 100
 ---
 
@@ -106,6 +106,7 @@ Progress: [████████████████████] 100% (1
 | Phase 19 P02 | 3min | 2 tasks | 18 files |
 | Phase 19 P03 | 8min | 1 tasks | 1 files |
 | Phase 19 P03 | continuation | 2 tasks | 1 files |
+| Phase 20 P02 | 12 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -284,6 +285,9 @@ Recent decisions affecting current work:
 - [19-02]: data-dashboard uses CSS grid for the 3-stat layout rather than absolute-positioned individual stats — ensures equal column widths without manual math
 - [19-02]: divider type field in data-dashboard schema uses label "---" to match the plan spec exactly
 - [Phase 19]: Archetype count expanded from 6 to 10 during user visual review — hero-stat-split, split-photo-quote, minimal-photo-top, stat-hero-single added; all pass validator with 0 errors
+- [Phase 20]: ARCHETYPE_TEMPLATE_FILES and DEFAULT_ARCHETYPE deleted — new archetypes are filesystem-scanned, not hardcoded
+- [Phase 20]: buildLayoutPrompt has slot-fill mode (archetype HTML + slug) with freestyle fallback for when archetypes are missing
+- [Phase 20]: attachSlotSchema is non-fatal in runApiPipeline — SlotSchema failure does not block HTML generation
 
 ### Parallel Development Note
 
@@ -323,6 +327,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-24T03:19:55.389Z
-Stopped at: Completed 19-03-PLAN.md
+Last session: 2026-03-24T17:13:37.066Z
+Stopped at: Completed 20-02-PLAN.md
 Resume file: None
