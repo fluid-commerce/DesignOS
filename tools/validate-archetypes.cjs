@@ -19,9 +19,21 @@ const path = require('node:path');
 
 const ARCHETYPES_DIR = path.resolve(__dirname, '../archetypes');
 const REQUIRED_FILES = ['index.html', 'schema.json', 'README.md'];
-const REQUIRED_DIMS = { width: 1080, height: 1080 }; // Instagram archetypes
 const KNOWN_FIELD_TYPES = ['text', 'image', 'divider'];
 const KNOWN_TEXT_MODES = ['text', 'pre', 'br'];
+
+// ── Platform dimension lookup ────────────────────────────────────────────────
+function getPlatformForSlug(slug) {
+  if (slug.endsWith('-li')) return 'linkedin-landscape';
+  if (slug.endsWith('-op')) return 'one-pager';
+  return 'instagram-square';
+}
+
+const PLATFORM_DIMS = {
+  'instagram-square':   { width: 1080, height: 1080 },
+  'linkedin-landscape': { width: 1200, height: 627  },
+  'one-pager':          { width: 612,  height: 792  },
+};
 
 // Directories to skip when listing archetype slugs
 const SKIP_DIRS = new Set(['components']);
@@ -107,12 +119,14 @@ function validateArchetype(dir, slug) {
       error('MISSING_FIELDS', 'schema.json must have a "fields" array');
     }
 
-    // ── Check 4: Dimensions must be 1080x1080 (Instagram) ─────────────────────
-    if (typeof schema.width === 'number' && schema.width !== REQUIRED_DIMS.width) {
-      error('WRONG_DIMS', `schema.json width must be ${REQUIRED_DIMS.width}, got ${schema.width}`);
+    // ── Check 4: Dimensions must match platform ─────────────────────────────
+    const platform = getPlatformForSlug(slug);
+    const requiredDims = PLATFORM_DIMS[platform];
+    if (typeof schema.width === 'number' && schema.width !== requiredDims.width) {
+      error('WRONG_DIMS', `schema.json width must be ${requiredDims.width} for ${platform}, got ${schema.width}`);
     }
-    if (typeof schema.height === 'number' && schema.height !== REQUIRED_DIMS.height) {
-      error('WRONG_DIMS', `schema.json height must be ${REQUIRED_DIMS.height}, got ${schema.height}`);
+    if (typeof schema.height === 'number' && schema.height !== requiredDims.height) {
+      error('WRONG_DIMS', `schema.json height must be ${requiredDims.height} for ${platform}, got ${schema.height}`);
     }
 
     // ── Check 5: brush must be null or absent ─────────────────────────────────
@@ -189,6 +203,19 @@ function validateArchetype(dir, slug) {
           }
         }
       }
+    }
+
+    // ── Check 12: One-pager must have @page rule ────────────────────────────
+    if (platform === 'one-pager' && hasHtml) {
+      const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+      if (!/@page\s*\{/.test(htmlContent)) {
+        error('MISSING_PAGE_RULE', 'One-pager archetypes must include @page { ... } rule in <style>');
+      }
+    }
+
+    // ── Check 13: Platform field matches slug suffix ─────────────────────────
+    if (schema.platform && schema.platform !== platform) {
+      error('PLATFORM_MISMATCH', `schema.json "platform" is "${schema.platform}" but slug suffix implies "${platform}"`);
     }
   }
 

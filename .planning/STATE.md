@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
+status: active
 stopped_at: Completed 20-03-PLAN.md
-last_updated: "2026-03-24T19:23:46.218Z"
+last_updated: "2026-03-24T19:28:25.000Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
-  total_phases: 21
-  completed_phases: 18
-  total_plans: 60
+  total_phases: 22
+  completed_phases: 19
+  total_plans: 66
   completed_plans: 62
-  percent: 100
+  percent: 94
 ---
 
 # Project State
@@ -29,7 +29,7 @@ Phase: 12 — Post-API Migration Cleanup & Audit
 Status: Complete (plan 03 of 03 done).
 Last activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 
-Progress: [████████████████████] 100% (16/16 phases, 48/48 plans)
+Progress: [████████████████████] 94% (19/22 phases, 62/66 plans)
 
 ## Performance Metrics
 
@@ -108,6 +108,7 @@ Progress: [████████████████████] 100% (1
 | Phase 19 P03 | continuation | 2 tasks | 1 files |
 | Phase 20 P02 | 12 | 2 tasks | 2 files |
 | Phase 20 P03 | 36min | 2 tasks | 12 files |
+| Phase 20-pipeline-integration-archetype-selection-and-slotschema-attachment P01 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -292,6 +293,12 @@ Recent decisions affecting current work:
 - [Phase 20]: E2E tests use REST API fixture chain for archetype sidebar parity — more reliable than UI automation for CI
 - [Phase 20]: buildStylingPrompt gains isArchetypeBased mode so styling agent understands it is enhancing an archetype skeleton, not freestyling
 - [Phase 20]: Archetype backgrounds standardized to #000000 (not #111 shorthand) across all 10 archetypes for visual consistency
+- [Phase 20-01]: scanArchetypes() gracefully returns empty Map when archetypes/ missing; skips components/ and dot dirs
+- [Phase 20-01]: PipelineContext.iterationId is required (not optional) — watcher.ts passes entry.iterationId at all call sites
+- [Phase 20-01]: resolveArchetypeSlug normalizes input (lowercase, strip non-alphanumeric/dash) before levenshtein matching; edit distance ≤ 2 fuzzy match, else alphabetical first fallback
+- [Phase 21-01]: Validator platform-aware: getPlatformForSlug derives platform from slug suffix (-li=linkedin-landscape, -op=one-pager, else instagram-square); PLATFORM_DIMS replaces hardcoded REQUIRED_DIMS
+- [Phase 21-01]: SlotSchema.platform is optional ('instagram-square' | 'linkedin-landscape' | 'one-pager'); TemplateMetadata.platform union extended with 'one-pager'
+- [Phase 21-01]: All 10 Instagram archetypes backfilled with archetypeId and platform: instagram-square in schema.json
 
 ### Parallel Development Note
 
@@ -331,6 +338,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-24T17:58:41.394Z
-Stopped at: Completed 20-03-PLAN.md
+Last session: 2026-03-24T19:28:25.000Z
+Stopped at: Executing 21-01-PLAN.md
 Resume file: None
