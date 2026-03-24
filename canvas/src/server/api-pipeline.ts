@@ -6,6 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import * as fs from 'node:fs/promises';
+import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -434,6 +435,22 @@ export function resolveArchetypeSlug(
   const fallback = [...available.keys()].sort()[0] ?? '';
   console.warn(`[api-pipeline] Unknown archetype "${raw}", falling back to "${fallback}"`);
   return { slug: fallback, matched: false };
+}
+
+/**
+ * Check if an archetype has image slots by reading its schema.json.
+ * Returns the image field labels (e.g., ["Portrait Photo", "Background Photo"]).
+ */
+function getArchetypeImageSlotLabels(schemaPath: string): string[] {
+  try {
+    const raw = fsSync.readFileSync(schemaPath, 'utf-8');
+    const schema = JSON.parse(raw);
+    return (schema.fields ?? [])
+      .filter((f: { type: string }) => f.type === 'image')
+      .map((f: { label: string }) => f.label);
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -1215,7 +1232,13 @@ export function buildLayoutPrompt(ctx: PipelineContext, archetypeHtml?: string, 
   ].join('\n');
 }
 
-export function buildStylingPrompt(ctx: PipelineContext, designDna?: string, isArchetypeBased?: boolean): string {
+export function buildStylingPrompt(
+  ctx: PipelineContext,
+  designDna?: string,
+  isArchetypeBased?: boolean,
+  imageSlotLabels?: string[],
+  userImageUrl?: string,
+): string {
   return [
     ...(isArchetypeBased ? [
       `Apply brand styling and polish to the archetype-based layout.`,
@@ -1231,6 +1254,26 @@ export function buildStylingPrompt(ctx: PipelineContext, designDna?: string, isA
       `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
     ]),
     ``,
+    ...(imageSlotLabels && imageSlotLabels.length > 0 ? [
+      `## Image Slots to Fill`,
+      `This archetype has ${imageSlotLabels.length} image slot(s): ${imageSlotLabels.join(', ')}`,
+      ...(userImageUrl ? [
+        `The user provided an image. Use this URL for the primary image slot: ${userImageUrl}`,
+        `Set the img src attribute to this URL exactly. User-provided images take priority.`,
+      ] : [
+        `Use list_brand_assets(category='images') to discover available photos in the brand library.`,
+        `Select the most contextually appropriate photo for each slot based on the slot label:`,
+        ...imageSlotLabels.map(label => `  - "${label}" — pick a photo whose name/description suggests ${label.toLowerCase()} content`),
+        `Use the imgSrc field from the asset for img src attributes.`,
+        ``,
+        `If no suitable photo exists for a slot, generate a branded placeholder:`,
+        `  <div style="width:100%;height:100%;background:linear-gradient(135deg, {accent-color}22, #000000);display:flex;align-items:center;justify-content:center;">`,
+        `    <span style="color:{accent-color};opacity:0.3;font-size:14px;">Photo</span>`,
+        `  </div>`,
+        `Replace {accent-color} with the accent color from copy.md. The placeholder MUST be visible and use brand colors.`,
+      ]),
+      ``,
+    ] : []),
     `Use list_brand_patterns to discover available visual patterns, then read_brand_pattern to load what you need:`,
     `- Design tokens: color palette, typography, opacity patterns`,
     `- Visual patterns: brushstrokes, circles, textures, footer structure — load only the ones relevant to this creation`,
@@ -1629,6 +1672,13 @@ export async function runApiPipeline(
   await generateStageNarrative('layout', layoutResult.output, ctx, res);
 
   // ── Stage 3: Styling ───────────────────────────────────────────────────────
+  const imageSlotLabels = archetypeMeta
+    ? getArchetypeImageSlotLabels(archetypeMeta.schemaPath)
+    : [];
+
+  // TODO: Phase 22 Plan 03 will wire userImageUrl from generate request body
+  const userImageUrl: string | undefined = undefined; // Placeholder for now
+
   const stylingCtx = loadContextForStage(contextMap, ctx.creationType, 'styling');
   const assetManifest = buildAssetManifest();
   const stylingParts = [designDna, assetManifest, stylingCtx.injectedContext].filter(Boolean);
@@ -1636,7 +1686,7 @@ export async function runApiPipeline(
   if (stylingCtx.sectionSlugs.length > 0) {
     emitContextInjected(res, ctx.creationId, 'styling', stylingCtx.sectionSlugs, stylingCtx.tokenEstimate);
   }
-  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx, undefined, !!archetypeMeta), ctx, res, stylingInjected);
+  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx, undefined, !!archetypeMeta, imageSlotLabels, userImageUrl), ctx, res, stylingInjected);
   await generateStageNarrative('styling', stylingResult.output, ctx, res);
 
   // Fallback: if agent wrote to styled.html in workingDir instead of htmlOutputPath, copy it
@@ -1742,7 +1792,7 @@ export async function runApiPipeline(
           await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res);
         }
         if (!issuesByTarget.has('styling')) {
-          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna, !!archetypeMeta), ctx, res, stylingInjected);
+          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna, !!archetypeMeta, imageSlotLabels, userImageUrl), ctx, res, stylingInjected);
         }
       }
 
