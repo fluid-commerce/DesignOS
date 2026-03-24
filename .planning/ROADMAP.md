@@ -297,6 +297,7 @@ Phases execute in numeric order: 1 > 2 > 3 > 4 > 4.1 > 4.2 > 5 > 6 > 7 > 8 > 9 >
 | 14.1 Brand-Agnostic Pipeline | 3/3 | Complete    | 2026-03-17 |
 | 15. Brand Data Architecture | 3/4 | In Progress|  |
 | 16. Smart Context Pipeline | 2/3 | In Progress|  |
+| 22. Image Integration + Template Routing | 0/3 | Planned |  |
 
 ### Phase 14: Design DNA — template-extracted style rules, per-deliverable design intelligence, and exemplar-referenced generation pipeline
 
@@ -363,10 +364,20 @@ Plans:
 
 ### Phase 22: Image Integration and Template-vs-Archetype Routing
 
-**Goal:** Two capabilities: (1) Image integration — wire brand asset photos from the DAM to image slots in archetypes. When an archetype has an image-block component, the pipeline selects an appropriate photo (product shot, team photo, lifestyle image) from the brand's uploaded assets based on content type and context. Photos are distinct from decorative assets (brushstrokes, circles) which serve a different purpose. (2) Template-vs-archetype routing — build the agent decision layer: given a prompt, first check /templates for a branded template tagged as a perfect match for this content type; if found, use it directly and fill slots. If no template match, select a brandless archetype, adapt it, and apply brand rules. Both paths produce iterations with SlotSchemas so the editor sidebar works identically. Requires metadata tags on both templates and archetypes (content type, tone, complexity, required components) for matching.
-**Requirements**: TBD
+**Goal:** Two capabilities: (1) Image integration — wire brand asset photos from the DAM to image slots in archetypes, support user-uploaded photos and DAM reference by name, with branded placeholders as fallback. (2) Template-vs-archetype routing — build the agent decision layer in the copy stage: check DB-backed templates first for a strong content-type match, fall back to archetypes when no template fits. Both paths produce iterations with SlotSchemas so the editor sidebar works identically.
+**Requirements**: IMG-22-01, IMG-22-02, IMG-22-03, IMG-22-04, IMG-22-05, IMG-22-06, IMG-22-07, ROUTE-22-01, ROUTE-22-02, ROUTE-22-03, ROUTE-22-04, ROUTE-22-05, ROUTE-22-06
 **Depends on:** Phase 21
+**Success Criteria** (what must be TRUE):
+  1. Copy agent receives photo availability summary and template routing list, making informed template-vs-archetype decisions
+  2. Template path skips styling stage and attaches SlotSchema from TEMPLATE_SCHEMAS
+  3. Archetype path unchanged from Phase 20 (copy -> layout -> styling -> spec-check)
+  4. User-uploaded images persist permanently and flow through to styling prompt
+  5. Styling agent selects contextually appropriate photos from DAM library for image slots
+  6. Branded placeholder generated when no suitable photo exists
+  7. Templates DB table has content_type and tags routing metadata
 **Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 22 to break down)
+- [ ] 22-01-PLAN.md — DB migration (template routing columns), routing metadata seeder, getAgentTemplates(), photo availability summary, copy prompt extension
+- [ ] 22-02-PLAN.md — Image upload endpoint, persistent storage (brand_assets source='upload'), image slot styling prompt extension
+- [ ] 22-03-PLAN.md — Template routing branch in pipeline (skip styling + SlotSchema), userImageUrl wiring, integration tests
