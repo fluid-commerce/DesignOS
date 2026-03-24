@@ -12,6 +12,7 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import type { ServerResponse } from 'node:http';
 import { getVoiceGuideDocs, getVoiceGuideDoc, getBrandPatterns, getBrandPatternBySlug, getBrandAssets, getDesignDnaForPipeline, getTemplates, getTemplate, getDesignRulesByArchetype, loadContextMap, insertContextLog, updateIterationSlotSchema, getAgentTemplates } from './db-api';
+import { getTemplateSchema } from '../lib/template-configs';
 
 // ESM-safe __dirname (works in both Vite middleware and tsx/node ESM)
 const __dirname = typeof globalThis.__dirname !== 'undefined'
@@ -65,6 +66,7 @@ export interface PipelineContext {
   campaignId: string;
   iterationId: string; // DB iteration ID — needed for SlotSchema attachment
   brandName?: string;  // Loaded from DB at pipeline entry; prompts use "the brand" if absent
+  userImageUrl?: string; // URL of user-uploaded image from chat sidebar
 }
 
 export interface ArchetypeMeta {
@@ -1711,93 +1713,185 @@ export async function runApiPipeline(
     recordCampaignCopy(ctx.campaignId, ctx.creationType, copyContent);
   } catch { /* best-effort */ }
 
-  // ── Detect archetype from copy output and resolve ───────────────────────────
+  // ── Detect routing signal from copy output ──────────────────────────────────
   let resolvedArchetypeSlug = '';
   let archetypeMeta: ArchetypeMeta | undefined;
+  let isTemplatePath = false;
+  let resolvedTemplateId = '';
+  let templateHtml: string | undefined;
+
   try {
     const copyMd = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8');
-    const archetypeMatch = copyMd.match(/archetype[:\s]+(\S+)/i);
-    if (archetypeMatch) {
-      const result = resolveArchetypeSlug(archetypeMatch[1], archetypes);
-      resolvedArchetypeSlug = result.slug;
-      archetypeMeta = archetypes.get(resolvedArchetypeSlug);
+
+    // Check for template signal FIRST (template takes precedence per CONTEXT.md)
+    const templateMatch = copyMd.match(/template[:\s]+(\S+)/i);
+    if (templateMatch) {
+      resolvedTemplateId = templateMatch[1].toLowerCase().trim();
+
+      // Verify template HTML exists on disk before committing to template path
+      const templateSubdir = ctx.creationType === 'one-pager' ? 'one-pagers' : 'social';
+      const templateHtmlPath = path.join(PROJECT_ROOT, 'templates', templateSubdir, `${resolvedTemplateId}.html`);
+      try {
+        await fs.access(templateHtmlPath);
+        templateHtml = await fs.readFile(templateHtmlPath, 'utf-8');
+        isTemplatePath = true;
+        console.log(`[api-pipeline] Template path: "${resolvedTemplateId}" (${templateHtmlPath})`);
+      } catch {
+        console.warn(`[api-pipeline] Template HTML not found: ${templateHtmlPath}, falling back to archetype path`);
+        // Fall through to archetype detection
+      }
+    }
+
+    // If not template path, check for archetype signal (existing logic)
+    if (!isTemplatePath) {
+      const archetypeMatch = copyMd.match(/archetype[:\s]+(\S+)/i);
+      if (archetypeMatch) {
+        const result = resolveArchetypeSlug(archetypeMatch[1], archetypes);
+        resolvedArchetypeSlug = result.slug;
+        archetypeMeta = archetypes.get(resolvedArchetypeSlug);
+      }
     }
   } catch { /* copy.md not found */ }
 
-  // Fallback: use first available archetype if none detected
-  if (!archetypeMeta && archetypes.size > 0) {
+  // Fallback: use first available archetype if neither template nor archetype detected
+  if (!isTemplatePath && !archetypeMeta && archetypes.size > 0) {
     resolvedArchetypeSlug = [...archetypes.keys()].sort()[0];
     archetypeMeta = archetypes.get(resolvedArchetypeSlug);
-    console.warn(`[api-pipeline] No archetype in copy.md, falling back to "${resolvedArchetypeSlug}"`);
+    console.warn(`[api-pipeline] No template/archetype in copy.md, falling back to "${resolvedArchetypeSlug}"`);
   }
 
-  const designDna = await loadDesignDna(ctx, resolvedArchetypeSlug);
+  const designDna = isTemplatePath ? undefined : await loadDesignDna(ctx, resolvedArchetypeSlug);
 
-  // ── Stage 2: Layout ────────────────────────────────────────────────────────
+  // Variables needed in fix loop scope — declared here for visibility across both branches
   let archetypeHtml: string | undefined;
-  if (archetypeMeta) {
+  let imageSlotLabels: string[] = [];
+  let stylingInjected = '';
+
+  if (isTemplatePath && templateHtml) {
+    // ════════════════════════════════════════════════════════════════════════
+    // TEMPLATE PATH: copy -> layout (fill slots) -> spec-check (SKIP styling)
+    // ════════════════════════════════════════════════════════════════════════
+
+    // Stage 2: Layout — fill template slots with copy content
+    const layoutCtx = loadContextForStage(contextMap, ctx.creationType, 'layout');
+    if (layoutCtx.sectionSlugs.length > 0) {
+      emitContextInjected(res, ctx.creationId, 'layout', layoutCtx.sectionSlugs, layoutCtx.tokenEstimate);
+    }
+    const layoutResult = await runStageWithTools(
+      'layout',
+      buildLayoutPrompt(ctx, templateHtml, resolvedTemplateId),
+      ctx, res, layoutCtx.injectedContext
+    );
+    await generateStageNarrative('layout', layoutResult.output, ctx, res);
+
+    // SKIP Stage 3: Styling — template is already branded
+    emitStageStatus(res, ctx.creationId, 'styling', 'skipped-template');
+
+    // Fallback: copy output HTML if agent wrote to wrong path
     try {
-      archetypeHtml = await fs.readFile(archetypeMeta.htmlPath, 'utf-8');
+      await fs.access(ctx.htmlOutputPath);
     } catch {
-      console.warn(`[api-pipeline] Failed to read archetype HTML: ${archetypeMeta.htmlPath}`);
+      const fallbackPaths = [
+        path.join(ctx.workingDir, 'layout.html'),
+        path.join(ctx.workingDir, 'styled.html'),
+        path.join(ctx.workingDir, 'output.html'),
+        path.join(ctx.workingDir, 'index.html'),
+      ];
+      for (const fallback of fallbackPaths) {
+        try {
+          await fs.access(fallback);
+          await fs.mkdir(path.dirname(ctx.htmlOutputPath), { recursive: true });
+          await fs.copyFile(fallback, ctx.htmlOutputPath);
+          console.log(`[api-pipeline] Template path fallback: copied ${path.basename(fallback)} to htmlOutputPath`);
+          break;
+        } catch { /* try next */ }
+      }
     }
-  }
 
-  const layoutCtx = loadContextForStage(contextMap, ctx.creationType, 'layout');
-  const layoutInjected = designDna ? `${designDna}\n\n${layoutCtx.injectedContext}` : layoutCtx.injectedContext;
-  if (layoutCtx.sectionSlugs.length > 0) {
-    emitContextInjected(res, ctx.creationId, 'layout', layoutCtx.sectionSlugs, layoutCtx.tokenEstimate);
-  }
-  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res, layoutInjected);
-  await generateStageNarrative('layout', layoutResult.output, ctx, res);
-
-  // ── Stage 3: Styling ───────────────────────────────────────────────────────
-  const imageSlotLabels = archetypeMeta
-    ? getArchetypeImageSlotLabels(archetypeMeta.schemaPath)
-    : [];
-
-  // TODO: Phase 22 Plan 03 will wire userImageUrl from generate request body
-  const userImageUrl: string | undefined = undefined; // Placeholder for now
-
-  const stylingCtx = loadContextForStage(contextMap, ctx.creationType, 'styling');
-  const assetManifest = buildAssetManifest();
-  const stylingParts = [designDna, assetManifest, stylingCtx.injectedContext].filter(Boolean);
-  const stylingInjected = stylingParts.join('\n\n');
-  if (stylingCtx.sectionSlugs.length > 0) {
-    emitContextInjected(res, ctx.creationId, 'styling', stylingCtx.sectionSlugs, stylingCtx.tokenEstimate);
-  }
-  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx, undefined, !!archetypeMeta, imageSlotLabels, userImageUrl), ctx, res, stylingInjected);
-  await generateStageNarrative('styling', stylingResult.output, ctx, res);
-
-  // Fallback: if agent wrote to styled.html in workingDir instead of htmlOutputPath, copy it
-  try {
-    await fs.access(ctx.htmlOutputPath);
-  } catch {
-    // htmlOutputPath doesn't exist — check for common agent mistakes
-    const fallbackPaths = [
-      path.join(ctx.workingDir, 'styled.html'),
-      path.join(ctx.workingDir, 'output.html'),
-      path.join(ctx.workingDir, 'index.html'),
-    ];
-    for (const fallback of fallbackPaths) {
+    // Attach SlotSchema from TEMPLATE_SCHEMAS (NOT archetype schema.json)
+    const templateSchema = getTemplateSchema(resolvedTemplateId);
+    if (templateSchema) {
       try {
-        await fs.access(fallback);
-        await fs.mkdir(path.dirname(ctx.htmlOutputPath), { recursive: true });
-        await fs.copyFile(fallback, ctx.htmlOutputPath);
-        console.log(`[api-pipeline] Fallback: copied ${path.basename(fallback)} to htmlOutputPath`);
-        break;
-      } catch { /* try next */ }
+        updateIterationSlotSchema(ctx.iterationId, templateSchema);
+        console.log(`[api-pipeline] Attached template SlotSchema for "${resolvedTemplateId}" to iteration ${ctx.iterationId}`);
+      } catch (err) {
+        console.error(`[api-pipeline] Failed to attach template SlotSchema:`, err);
+      }
+    } else {
+      console.warn(`[api-pipeline] No SlotSchema found for template "${resolvedTemplateId}" in TEMPLATE_SCHEMAS`);
     }
-  }
 
-  // ── Attach SlotSchema post-styling ──────────────────────────────────────────
-  if (archetypeMeta) {
+  } else {
+    // ════════════════════════════════════════════════════════════════════════
+    // ARCHETYPE PATH: copy -> layout (fill archetype) -> styling -> spec-check
+    // ════════════════════════════════════════════════════════════════════════
+
+    // Stage 2: Layout
+    if (archetypeMeta) {
+      try {
+        archetypeHtml = await fs.readFile(archetypeMeta.htmlPath, 'utf-8');
+      } catch {
+        console.warn(`[api-pipeline] Failed to read archetype HTML: ${archetypeMeta.htmlPath}`);
+      }
+    }
+
+    const layoutCtx = loadContextForStage(contextMap, ctx.creationType, 'layout');
+    const layoutInjected = designDna ? `${designDna}\n\n${layoutCtx.injectedContext}` : layoutCtx.injectedContext;
+    if (layoutCtx.sectionSlugs.length > 0) {
+      emitContextInjected(res, ctx.creationId, 'layout', layoutCtx.sectionSlugs, layoutCtx.tokenEstimate);
+    }
+    const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res, layoutInjected);
+    await generateStageNarrative('layout', layoutResult.output, ctx, res);
+
+    // Stage 3: Styling
+    imageSlotLabels = archetypeMeta
+      ? getArchetypeImageSlotLabels(archetypeMeta.schemaPath)
+      : [];
+
+    const stylingCtx = loadContextForStage(contextMap, ctx.creationType, 'styling');
+    const assetManifest = buildAssetManifest();
+    const stylingParts = [designDna, assetManifest, stylingCtx.injectedContext].filter(Boolean);
+    stylingInjected = stylingParts.join('\n\n');
+    if (stylingCtx.sectionSlugs.length > 0) {
+      emitContextInjected(res, ctx.creationId, 'styling', stylingCtx.sectionSlugs, stylingCtx.tokenEstimate);
+    }
+    const stylingResult = await runStageWithTools(
+      'styling',
+      buildStylingPrompt(ctx, undefined, !!archetypeMeta, imageSlotLabels, ctx.userImageUrl),
+      ctx, res, stylingInjected
+    );
+    await generateStageNarrative('styling', stylingResult.output, ctx, res);
+
+    // Fallback: if agent wrote to styled.html in workingDir instead of htmlOutputPath, copy it
     try {
-      await attachSlotSchema(ctx, resolvedArchetypeSlug, archetypeMeta.schemaPath);
-      console.log(`[api-pipeline] Attached SlotSchema for archetype "${resolvedArchetypeSlug}" to iteration ${ctx.iterationId}`);
-    } catch (err) {
-      console.error(`[api-pipeline] Failed to attach SlotSchema:`, err);
-      // Non-fatal — HTML is already generated, editor sidebar just won't have custom fields
+      await fs.access(ctx.htmlOutputPath);
+    } catch {
+      // htmlOutputPath doesn't exist — check for common agent mistakes
+      const fallbackPaths = [
+        path.join(ctx.workingDir, 'styled.html'),
+        path.join(ctx.workingDir, 'output.html'),
+        path.join(ctx.workingDir, 'index.html'),
+      ];
+      for (const fallback of fallbackPaths) {
+        try {
+          await fs.access(fallback);
+          await fs.mkdir(path.dirname(ctx.htmlOutputPath), { recursive: true });
+          await fs.copyFile(fallback, ctx.htmlOutputPath);
+          console.log(`[api-pipeline] Fallback: copied ${path.basename(fallback)} to htmlOutputPath`);
+          break;
+        } catch { /* try next */ }
+      }
+    }
+
+    // Attach SlotSchema from archetype schema.json
+    if (archetypeMeta) {
+      try {
+        await attachSlotSchema(ctx, resolvedArchetypeSlug, archetypeMeta.schemaPath);
+        console.log(`[api-pipeline] Attached SlotSchema for archetype "${resolvedArchetypeSlug}" to iteration ${ctx.iterationId}`);
+      } catch (err) {
+        console.error(`[api-pipeline] Failed to attach SlotSchema:`, err);
+        // Non-fatal — HTML is already generated, editor sidebar just won't have custom fields
+      }
     }
   }
 
@@ -1866,13 +1960,16 @@ export async function runApiPipeline(
         await runStageWithTools(target, buildFixPrompt(target, issues, ctx), ctx, res);
       }
 
-      // Cascade rule: if copy was fixed, re-run layout and styling too
+      // Cascade rule: if copy was fixed, re-run layout and (on archetype path) styling too
       if (hasCopyFix) {
         if (!issuesByTarget.has('layout')) {
-          await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res);
+          const inputHtml = isTemplatePath ? templateHtml : archetypeHtml;
+          const inputId = isTemplatePath ? resolvedTemplateId : (resolvedArchetypeSlug || undefined);
+          await runStageWithTools('layout', buildLayoutPrompt(ctx, inputHtml, inputId), ctx, res);
         }
-        if (!issuesByTarget.has('styling')) {
-          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna, !!archetypeMeta, imageSlotLabels, userImageUrl), ctx, res, stylingInjected);
+        // Only re-run styling on archetype path — template path skips styling
+        if (!isTemplatePath && !issuesByTarget.has('styling')) {
+          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna, !!archetypeMeta, imageSlotLabels, ctx.userImageUrl), ctx, res, stylingInjected);
         }
       }
 
