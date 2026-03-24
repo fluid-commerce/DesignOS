@@ -1531,13 +1531,24 @@ export async function runApiPipeline(
     contextMap = new Map(); // Graceful fallback — agents self-discover via tools
   }
 
+  // ── Scan available archetypes ───────────────────────────────────────────────
+  const archetypes = await scanArchetypes();
+  let archetypeList = '';
+  if (archetypes.size > 0) {
+    archetypeList = [...archetypes.values()]
+      .map(a => `- ${a.slug}: ${a.description}`)
+      .join('\n');
+  } else {
+    console.warn('[api-pipeline] No archetypes found in archetypes/ directory');
+  }
+
   // ── Stage 1: Copy ──────────────────────────────────────────────────────────
   const copyCtx = loadContextForStage(contextMap, ctx.creationType, 'copy');
   if (copyCtx.sectionSlugs.length > 0) {
     emitContextInjected(res, ctx.creationId, 'copy', copyCtx.sectionSlugs, copyCtx.tokenEstimate);
   }
   const campaignContext = getCampaignCopyContext(ctx.campaignId);
-  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx, campaignContext), ctx, res, copyCtx.injectedContext);
+  const copyResult = await runStageWithTools('copy', buildCopyPrompt(ctx, campaignContext, archetypeList), ctx, res, copyCtx.injectedContext);
   await generateStageNarrative('copy', copyResult.output, ctx, res);
 
   // Record this creation's copy for campaign-level dedup
@@ -1546,28 +1557,44 @@ export async function runApiPipeline(
     recordCampaignCopy(ctx.campaignId, ctx.creationType, copyContent);
   } catch { /* best-effort */ }
 
-  // ── Detect archetype from copy output and load Design DNA ──────────────────
-  let detectedArchetype: string | undefined;
+  // ── Detect archetype from copy output and resolve ───────────────────────────
+  let resolvedArchetypeSlug = '';
+  let archetypeMeta: ArchetypeMeta | undefined;
   try {
     const copyMd = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8');
     const archetypeMatch = copyMd.match(/archetype[:\s]+(\S+)/i);
     if (archetypeMatch) {
-      const slug = archetypeMatch[1].toLowerCase().replace(/[^a-z-]/g, '');
-      if (ARCHETYPE_TEMPLATE_FILES[slug]) {
-        detectedArchetype = slug;
-      }
+      const result = resolveArchetypeSlug(archetypeMatch[1], archetypes);
+      resolvedArchetypeSlug = result.slug;
+      archetypeMeta = archetypes.get(resolvedArchetypeSlug);
     }
-  } catch { /* copy.md not found — use default */ }
+  } catch { /* copy.md not found */ }
 
-  const designDna = await loadDesignDna(ctx, detectedArchetype);
+  // Fallback: use first available archetype if none detected
+  if (!archetypeMeta && archetypes.size > 0) {
+    resolvedArchetypeSlug = [...archetypes.keys()].sort()[0];
+    archetypeMeta = archetypes.get(resolvedArchetypeSlug);
+    console.warn(`[api-pipeline] No archetype in copy.md, falling back to "${resolvedArchetypeSlug}"`);
+  }
+
+  const designDna = await loadDesignDna(ctx, resolvedArchetypeSlug);
 
   // ── Stage 2: Layout ────────────────────────────────────────────────────────
+  let archetypeHtml: string | undefined;
+  if (archetypeMeta) {
+    try {
+      archetypeHtml = await fs.readFile(archetypeMeta.htmlPath, 'utf-8');
+    } catch {
+      console.warn(`[api-pipeline] Failed to read archetype HTML: ${archetypeMeta.htmlPath}`);
+    }
+  }
+
   const layoutCtx = loadContextForStage(contextMap, ctx.creationType, 'layout');
   const layoutInjected = designDna ? `${designDna}\n\n${layoutCtx.injectedContext}` : layoutCtx.injectedContext;
   if (layoutCtx.sectionSlugs.length > 0) {
     emitContextInjected(res, ctx.creationId, 'layout', layoutCtx.sectionSlugs, layoutCtx.tokenEstimate);
   }
-  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx), ctx, res, layoutInjected);
+  const layoutResult = await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res, layoutInjected);
   await generateStageNarrative('layout', layoutResult.output, ctx, res);
 
   // ── Stage 3: Styling ───────────────────────────────────────────────────────
@@ -1599,6 +1626,17 @@ export async function runApiPipeline(
         console.log(`[api-pipeline] Fallback: copied ${path.basename(fallback)} to htmlOutputPath`);
         break;
       } catch { /* try next */ }
+    }
+  }
+
+  // ── Attach SlotSchema post-styling ──────────────────────────────────────────
+  if (archetypeMeta) {
+    try {
+      await attachSlotSchema(ctx, resolvedArchetypeSlug, archetypeMeta.schemaPath);
+      console.log(`[api-pipeline] Attached SlotSchema for archetype "${resolvedArchetypeSlug}" to iteration ${ctx.iterationId}`);
+    } catch (err) {
+      console.error(`[api-pipeline] Failed to attach SlotSchema:`, err);
+      // Non-fatal — HTML is already generated, editor sidebar just won't have custom fields
     }
   }
 
@@ -1670,7 +1708,7 @@ export async function runApiPipeline(
       // Cascade rule: if copy was fixed, re-run layout and styling too
       if (hasCopyFix) {
         if (!issuesByTarget.has('layout')) {
-          await runStageWithTools('layout', buildLayoutPrompt(ctx, designDna), ctx, res);
+          await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res);
         }
         if (!issuesByTarget.has('styling')) {
           await runStageWithTools('styling', buildStylingPrompt(ctx, designDna), ctx, res);
