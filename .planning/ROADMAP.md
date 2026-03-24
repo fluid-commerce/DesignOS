@@ -342,7 +342,7 @@ Plans:
 **Goal:** Rewire the generation pipeline to use archetypes instead of freestyling HTML. Changes: (1) Layout agent SELECTS an archetype rather than writing HTML from scratch — receives the archetype's HTML template and fills slots with copy. (2) Styling agent applies brand rules (fonts, colors, textures, imagery patterns) to the archetype's CSS classes — no more inventing layouts. (3) When saving an iteration, ATTACH the archetype's SlotSchema to the iteration record (currently saved as slotSchema: null for AI-generated assets). This is what makes the editor sidebar work. (4) Ensure feature parity with template-based creations: all editing, repositioning, and sidebar features that work for templates must also work for archetype-based generations. The pipeline changes from "write HTML from nothing" to "select structure, fill content, apply brand."
 **Requirements**: PIPE-20-01, PIPE-20-02, PIPE-20-03, PIPE-20-04, PIPE-20-05, PIPE-20-06, PIPE-20-07, PIPE-20-08, PIPE-20-09, PIPE-20-10
 **Depends on:** Phase 19
-**Plans:** 3 plans
+**Plans:** 0/3 plans executed
 
 Plans:
 - [ ] 20-01-PLAN.md — Foundation: archetype scanning, fuzzy slug matching, PipelineContext.iterationId, updateIterationSlotSchema DB function
@@ -351,13 +351,15 @@ Plans:
 
 ### Phase 21: LinkedIn and One-Pager Archetypes
 
-**Goal:** Extend the archetype library to LinkedIn (1200x627) and One-Pager (US Letter, printable) formats. LinkedIn: adapt 4-6 Instagram archetypes to the wider/shorter canvas, plus LinkedIn-specific layouts (article preview, event announcement). One-Pager: 3-4 archetypes with ACTUAL print spec enforcement — US Letter dimensions (8.5x11in / 612x792pt), proper margins/bleed, single-page constraint (not scrollable web pages). One-pagers must use brand fonts (NeueHaas + flfontbold), not web fonts. All archetypes follow the same format spec from Phase 18 with SlotSchema, editable blocks, and documentation.
-**Requirements**: TBD
+**Goal:** Extend the archetype library to LinkedIn (1200x627) and One-Pager (US Letter 612x792, printable) formats. LinkedIn: 5 adapted Instagram archetypes + 1 LinkedIn-only layout (article-preview-li). One-Pager: 3 archetypes with print spec enforcement (@page rules, flexbox layout, overflow:hidden). Add SlotSchema platform field, extend validator with platform-aware checks, backfill all existing archetypes. Add pipeline filterArchetypesByPlatform for platform-specific archetype selection.
+**Requirements**: ARCH-21-01, ARCH-21-02, ARCH-21-03, ARCH-21-04, ARCH-21-05, ARCH-21-06, ARCH-21-07, ARCH-21-08, ARCH-21-09
 **Depends on:** Phase 20
 **Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 21 to break down)
+- [ ] 21-01-PLAN.md — Validator platform-aware update + SlotSchema platform field + backfill existing archetypes/templates
+- [ ] 21-02-PLAN.md — Build 6 LinkedIn archetypes (5 adapted + 1 LinkedIn-only)
+- [ ] 21-03-PLAN.md — Build 3 one-pager archetypes + pipeline filterArchetypesByPlatform
 
 ### Phase 22: Image Integration and Template-vs-Archetype Routing
 
