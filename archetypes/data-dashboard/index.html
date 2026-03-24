@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!-- archetype: data-dashboard | target: 1080x1080 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    position: absolute;
+    left: 68px;
+    top: 80px;
+    width: 900px;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  .stats-grid {
+    position: absolute;
+    left: 68px;
+    top: 220px;
+    width: 944px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    z-index: 2;
+  }
+
+  .stat-1,
+  .stat-2,
+  .stat-3 {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* SLOT: .stat-1-num */
+  .stat-1-num {
+    font-size: 120px;
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-1-label */
+  .stat-1-label {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 12px;
+  }
+
+  /* SLOT: .stat-2-num */
+  .stat-2-num {
+    font-size: 120px;
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-2-label */
+  .stat-2-label {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 12px;
+  }
+
+  /* SLOT: .stat-3-num */
+  .stat-3-num {
+    font-size: 120px;
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-3-label */
+  .stat-3-label {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 12px;
+  }
+
+  .divider {
+    position: absolute;
+    left: 68px;
+    bottom: 140px;
+    width: 944px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    z-index: 2;
+  }
+
+  /* SLOT: .footnote */
+  .footnote {
+    position: absolute;
+    left: 68px;
+    bottom: 60px;
+    width: 700px;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.4;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: headline -->
+  <p class="headline">Q3 PERFORMANCE AT A GLANCE</p>
+
+  <div class="stats-grid">
+    <div class="stat-1">
+      <!-- SLOT: stat-1-num -->
+      <div class="stat-1-num">2.4x</div>
+      <!-- SLOT: stat-1-label -->
+      <div class="stat-1-label">ROAS IMPROVEMENT</div>
+    </div>
+    <div class="stat-2">
+      <!-- SLOT: stat-2-num -->
+      <div class="stat-2-num">47%</div>
+      <!-- SLOT: stat-2-label -->
+      <div class="stat-2-label">COST REDUCTION</div>
+    </div>
+    <div class="stat-3">
+      <!-- SLOT: stat-3-num -->
+      <div class="stat-3-num">312K</div>
+      <!-- SLOT: stat-3-label -->
+      <div class="stat-3-label">NEW USERS ACQUIRED</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SLOT: footnote -->
+  <p class="footnote">Based on aggregate client data across 47 accounts, July-September 2024</p>
+</body>
+</html>

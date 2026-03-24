@@ -1,0 +1,10 @@
+{
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".headline", "label": "Statement", "mode": "pre", "rows": 3 },
+    { "type": "text", "sel": ".subtext", "label": "Supporting Line", "mode": "pre", "rows": 3 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

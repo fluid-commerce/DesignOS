@@ -1,0 +1,13 @@
+{
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".quote-text", "label": "Quote", "mode": "pre", "rows": 5 },
+    { "type": "text", "sel": ".attribution", "label": "Name", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".title", "label": "Title", "mode": "pre", "rows": 2 },
+    { "type": "image", "sel": ".portrait img", "label": "Portrait Photo", "dims": "200 x 200px" },
+    { "type": "text", "sel": ".category span", "label": "Side Label", "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

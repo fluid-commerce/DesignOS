@@ -1,0 +1,17 @@
+{
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".headline", "label": "Dashboard Title", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".stat-1-num", "label": "Stat 1 Value", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".stat-1-label", "label": "Stat 1 Label", "mode": "text", "rows": 2 },
+    { "type": "text", "sel": ".stat-2-num", "label": "Stat 2 Value", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".stat-2-label", "label": "Stat 2 Label", "mode": "text", "rows": 2 },
+    { "type": "text", "sel": ".stat-3-num", "label": "Stat 3 Value", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".stat-3-label", "label": "Stat 3 Label", "mode": "text", "rows": 2 },
+    { "type": "divider", "label": "---" },
+    { "type": "text", "sel": ".footnote", "label": "Footnote / Context", "mode": "pre", "rows": 2 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

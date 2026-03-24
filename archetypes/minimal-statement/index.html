@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- archetype: minimal-statement | target: 1080x1080 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    position: absolute;
+    left: 100px;
+    top: 50%;
+    transform: translateY(-60%);
+    width: 880px;
+    font-size: 96px;
+    font-weight: 900;
+    line-height: 0.9;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .subtext */
+  .subtext {
+    position: absolute;
+    left: 100px;
+    bottom: 120px;
+    width: 600px;
+    font-size: 24px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: headline -->
+  <p class="headline">STOP OPTIMIZING FOR VANITY METRICS</p>
+
+  <!-- SLOT: subtext -->
+  <p class="subtext">Focus on the numbers that actually move revenue.</p>
+</body>
+</html>

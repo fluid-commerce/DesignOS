@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!-- archetype: quote-testimonial | target: 1080x1080 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SLOT: .portrait img */
+  .portrait {
+    position: absolute;
+    left: 68px;
+    top: 120px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* SLOT: .quote-text */
+  .quote-text {
+    position: absolute;
+    left: 68px;
+    top: 380px;
+    width: 800px;
+    font-size: 48px;
+    font-style: italic;
+    line-height: 1.3;
+    color: #ffffff;
+    z-index: 1;
+  }
+
+  /* SLOT: .attribution */
+  .attribution {
+    position: absolute;
+    left: 68px;
+    bottom: 200px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    z-index: 1;
+  }
+
+  /* SLOT: .title */
+  .title {
+    position: absolute;
+    left: 68px;
+    bottom: 160px;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 1;
+  }
+
+  /* SLOT: .category span */
+  .category {
+    position: absolute;
+    right: 40px;
+    top: 40px;
+    z-index: 1;
+  }
+
+  .category span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: portrait -->
+  <div class="portrait">
+    <img src="" alt="Portrait photo"/>
+  </div>
+
+  <!-- SLOT: quote-text -->
+  <p class="quote-text">"The moment we stopped thinking about marketing as a department and started thinking about it as a system, everything changed."</p>
+
+  <!-- SLOT: attribution -->
+  <p class="attribution">Michael Torres</p>
+
+  <!-- SLOT: title -->
+  <p class="title">VP of Marketing, Acme Corp</p>
+
+  <!-- SLOT: category -->
+  <div class="category"><span>TESTIMONIAL</span></div>
+</body>
+</html>
