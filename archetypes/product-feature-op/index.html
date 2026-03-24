@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<!-- archetype: product-feature-op | target: 612x792 (US Letter) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page { size: 8.5in 11in; margin: 0.5in; }
+
+  body {
+    width: 612px;
+    height: 792px;
+    overflow: hidden;
+    margin: 0;
+    font-family: sans-serif;
+    background: #111;
+    color: #ffffff;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 36px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero section */
+  .hero {
+    flex-shrink: 0;
+    margin-bottom: 24px;
+  }
+
+  /* SLOT: .hero-headline */
+  .hero-headline {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  /* SLOT: .hero-sub */
+  .hero-sub {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.55);
+    white-space: pre-wrap;
+  }
+
+  /* Feature grid */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 20px;
+  }
+
+  .feature-card {
+    background: #111;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* SLOT: .feature-1-title */
+  .feature-1-title,
+  .feature-2-title,
+  .feature-3-title,
+  .feature-4-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+  }
+
+  /* SLOT: .feature-1-desc */
+  .feature-1-desc,
+  .feature-2-desc,
+  .feature-3-desc,
+  .feature-4-desc {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.55);
+    white-space: pre-wrap;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* SLOT: .footer-cta */
+  .footer-cta {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+
+  /* SLOT: .footer-url */
+  .footer-url {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+  <div class="page">
+
+    <div class="hero">
+      <!-- SLOT: hero-headline -->
+      <p class="hero-headline">Every tool your team needs, in one place</p>
+      <!-- SLOT: hero-sub -->
+      <p class="hero-sub">Built for teams that move fast and can't afford downtime. Four core capabilities that eliminate the gap between planning and execution.</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <!-- SLOT: feature-1-title -->
+        <p class="feature-1-title">Real-Time Analytics</p>
+        <!-- SLOT: feature-1-desc -->
+        <p class="feature-1-desc">Live dashboards surface the metrics that matter. No exports, no lag — just the data your team needs to act.</p>
+      </div>
+      <div class="feature-card">
+        <!-- SLOT: feature-2-title -->
+        <p class="feature-2-title">Automated Workflows</p>
+        <!-- SLOT: feature-2-desc -->
+        <p class="feature-2-desc">Replace manual handoffs with logic-driven automation. Set rules once and let the platform handle the rest.</p>
+      </div>
+      <div class="feature-card">
+        <!-- SLOT: feature-3-title -->
+        <p class="feature-3-title">Unified Permissions</p>
+        <!-- SLOT: feature-3-desc -->
+        <p class="feature-3-desc">Role-based access controls keep sensitive data protected while giving every team member exactly what they need.</p>
+      </div>
+      <div class="feature-card">
+        <!-- SLOT: feature-4-title -->
+        <p class="feature-4-title">Instant Integrations</p>
+        <!-- SLOT: feature-4-desc -->
+        <p class="feature-4-desc">Connect your existing stack in minutes. Native support for the tools your team already relies on every day.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <!-- SLOT: footer-cta -->
+      <span class="footer-cta">Learn More</span>
+      <!-- SLOT: footer-url -->
+      <span class="footer-url">example.com</span>
+    </div>
+
+  </div>
+</body>
+</html>

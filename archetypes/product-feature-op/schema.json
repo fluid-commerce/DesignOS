@@ -1,0 +1,22 @@
+{
+  "archetypeId": "product-feature-op",
+  "platform": "one-pager",
+  "width": 612,
+  "height": 792,
+  "fields": [
+    { "type": "text", "sel": ".hero-headline", "label": "Hero Headline", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".hero-sub", "label": "Hero Subheadline", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".feature-1-title", "label": "Feature 1 Title", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".feature-1-desc", "label": "Feature 1 Description", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".feature-2-title", "label": "Feature 2 Title", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".feature-2-desc", "label": "Feature 2 Description", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".feature-3-title", "label": "Feature 3 Title", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".feature-3-desc", "label": "Feature 3 Description", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".feature-4-title", "label": "Feature 4 Title", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".feature-4-desc", "label": "Feature 4 Description", "mode": "pre", "rows": 2 },
+    { "type": "text", "sel": ".footer-cta", "label": "Footer CTA", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".footer-url", "label": "Footer URL", "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!-- archetype: company-overview-op | target: 612x792 (US Letter) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page { size: 8.5in 11in; margin: 0.5in; }
+
+  body {
+    width: 612px;
+    height: 792px;
+    overflow: hidden;
+    margin: 0;
+    font-family: sans-serif;
+    background: #111;
+    color: #ffffff;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 36px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Company header */
+  .company-header {
+    flex-shrink: 0;
+    margin-bottom: 18px;
+  }
+
+  /* SLOT: .company-headline */
+  .company-headline {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 6px;
+    white-space: pre-wrap;
+  }
+
+  /* SLOT: .company-sub */
+  .company-sub {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: pre-wrap;
+  }
+
+  /* Stat strip */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    margin-bottom: 18px;
+  }
+
+  .stat-item {
+    background: #111;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* SLOT: .stat-1-value */
+  .stat-1-value,
+  .stat-2-value,
+  .stat-3-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-1-label */
+  .stat-1-label,
+  .stat-2-label,
+  .stat-3-label {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+  }
+
+  /* Editorial body */
+  .editorial {
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 16px;
+  }
+
+  /* SLOT: .body-text */
+  .body-text {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: pre-wrap;
+  }
+
+  /* Highlights list */
+  .highlights {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* SLOT: .highlight-1 */
+  .highlight-1,
+  .highlight-2,
+  .highlight-3 {
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.65);
+    padding-left: 12px;
+    position: relative;
+  }
+
+  .highlight-1::before,
+  .highlight-2::before,
+  .highlight-3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* SLOT: .footer-cta */
+  .footer-cta {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+  <div class="page">
+
+    <div class="company-header">
+      <!-- SLOT: company-headline -->
+      <p class="company-headline">Built for the way modern teams actually work</p>
+      <!-- SLOT: company-sub -->
+      <p class="company-sub">Operations platform helping distributed teams move faster without sacrificing visibility or control.</p>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <!-- SLOT: stat-1-value -->
+        <div class="stat-1-value">500+</div>
+        <!-- SLOT: stat-1-label -->
+        <div class="stat-1-label">Clients Worldwide</div>
+      </div>
+      <div class="stat-item">
+        <!-- SLOT: stat-2-value -->
+        <div class="stat-2-value">98%</div>
+        <!-- SLOT: stat-2-label -->
+        <div class="stat-2-label">Retention Rate</div>
+      </div>
+      <div class="stat-item">
+        <!-- SLOT: stat-3-value -->
+        <div class="stat-3-value">12yr</div>
+        <!-- SLOT: stat-3-label -->
+        <div class="stat-3-label">In Market</div>
+      </div>
+    </div>
+
+    <div class="editorial">
+      <!-- SLOT: body-text -->
+      <p class="body-text">We started with a simple belief: the best operations software should feel invisible. It should surface the right information at the right moment, handle the tedious work automatically, and get out of the way when teams need to make decisions that matter.
+
+Over twelve years, we have refined that belief into a platform trusted by more than 500 organizations across 40 countries. From five-person startups to enterprise teams with thousands of users, the core promise remains the same: clarity without complexity.</p>
+    </div>
+
+    <div class="highlights">
+      <!-- SLOT: highlight-1 -->
+      <p class="highlight-1">SOC 2 Type II certified with enterprise-grade access controls and audit logging</p>
+      <!-- SLOT: highlight-2 -->
+      <p class="highlight-2">Dedicated onboarding specialist and 24/7 support for every plan tier</p>
+      <!-- SLOT: highlight-3 -->
+      <p class="highlight-3">No per-seat pricing — flat rate scales with usage, not headcount</p>
+    </div>
+
+    <div class="footer">
+      <!-- SLOT: footer-cta -->
+      <span class="footer-cta">Get Started</span>
+    </div>
+
+  </div>
+</body>
+</html>

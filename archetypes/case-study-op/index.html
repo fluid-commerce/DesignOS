@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!-- archetype: case-study-op | target: 612x792 (US Letter) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page { size: 8.5in 11in; margin: 0.5in; }
+
+  body {
+    width: 612px;
+    height: 792px;
+    overflow: hidden;
+    margin: 0;
+    font-family: sans-serif;
+    background: #111;
+    color: #ffffff;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 36px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero section */
+  .hero {
+    flex-shrink: 0;
+    margin-bottom: 16px;
+  }
+
+  /* SLOT: .hero-headline */
+  .hero-headline {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  /* SLOT: .hero-sub */
+  .hero-sub {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.55);
+    max-width: 500px;
+  }
+
+  /* Stat strip */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    margin-bottom: 16px;
+  }
+
+  .stat-item {
+    background: #111;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* SLOT: .stat-1-value */
+  .stat-1-value,
+  .stat-2-value,
+  .stat-3-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-1-label */
+  .stat-1-label,
+  .stat-2-label,
+  .stat-3-label {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+  }
+
+  /* Two-column body */
+  .body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 16px;
+  }
+
+  .body-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* SLOT: .challenge-title */
+  .challenge-title,
+  .solution-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+  }
+
+  /* SLOT: .challenge-body */
+  .challenge-body,
+  .solution-body {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: pre-wrap;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* SLOT: .footer-cta */
+  .footer-cta {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+  <div class="page">
+
+    <div class="hero">
+      <!-- SLOT: hero-headline -->
+      <p class="hero-headline">From six vendors to one platform in 90 days</p>
+      <!-- SLOT: hero-sub -->
+      <p class="hero-sub">A mid-market logistics company consolidated their entire vendor stack into a single operations platform, cutting overhead and accelerating time to launch by half.</p>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <!-- SLOT: stat-1-value -->
+        <div class="stat-1-value">73%</div>
+        <!-- SLOT: stat-1-label -->
+        <div class="stat-1-label">Tech spend reduction</div>
+      </div>
+      <div class="stat-item">
+        <!-- SLOT: stat-2-value -->
+        <div class="stat-2-value">2x</div>
+        <!-- SLOT: stat-2-label -->
+        <div class="stat-2-label">Launch speed</div>
+      </div>
+      <div class="stat-item">
+        <!-- SLOT: stat-3-value -->
+        <div class="stat-3-value">90</div>
+        <!-- SLOT: stat-3-label -->
+        <div class="stat-3-label">Days to migrate</div>
+      </div>
+    </div>
+
+    <div class="body-grid">
+      <div class="body-col">
+        <!-- SLOT: challenge-title -->
+        <p class="challenge-title">The Challenge</p>
+        <!-- SLOT: challenge-body -->
+        <p class="challenge-body">Managing six separate vendors created compounding inefficiencies. Contracts overlapped, data lived in silos, and onboarding a new team member required six separate logins. Costs climbed 40% year over year with no corresponding productivity gain.</p>
+      </div>
+      <div class="body-col">
+        <!-- SLOT: solution-title -->
+        <p class="solution-title">The Solution</p>
+        <!-- SLOT: solution-body -->
+        <p class="solution-body">Migrating to a unified platform gave every team member a single source of truth. Automated workflows replaced manual handoffs. Within 90 days, the company had decommissioned legacy tools and reduced monthly spend by nearly three quarters.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <!-- SLOT: footer-cta -->
+      <span class="footer-cta">Book a Demo</span>
+    </div>
+
+  </div>
+</body>
+</html>
