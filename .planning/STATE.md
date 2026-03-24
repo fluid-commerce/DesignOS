@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: active
-stopped_at: Completed 20-03-PLAN.md
-last_updated: "2026-03-24T19:28:25.000Z"
+status: completed
+stopped_at: Completed 21-01-PLAN.md
+last_updated: "2026-03-24T19:36:57.546Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 22
-  completed_phases: 19
+  completed_phases: 20
   total_plans: 66
-  completed_plans: 62
+  completed_plans: 64
   percent: 94
 ---
 
@@ -109,6 +109,7 @@ Progress: [████████████████████] 94% (19
 | Phase 20 P02 | 12 | 2 tasks | 2 files |
 | Phase 20 P03 | 36min | 2 tasks | 12 files |
 | Phase 20-pipeline-integration-archetype-selection-and-slotschema-attachment P01 | 4min | 2 tasks | 5 files |
+| Phase 21 P01 | 7min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -299,6 +300,7 @@ Recent decisions affecting current work:
 - [Phase 21-01]: Validator platform-aware: getPlatformForSlug derives platform from slug suffix (-li=linkedin-landscape, -op=one-pager, else instagram-square); PLATFORM_DIMS replaces hardcoded REQUIRED_DIMS
 - [Phase 21-01]: SlotSchema.platform is optional ('instagram-square' | 'linkedin-landscape' | 'one-pager'); TemplateMetadata.platform union extended with 'one-pager'
 - [Phase 21-01]: All 10 Instagram archetypes backfilled with archetypeId and platform: instagram-square in schema.json
+- [Phase 21]: Slug suffix convention (-li, -op) chosen for platform detection — validator stays zero-config for new archetypes
 
 ### Parallel Development Note
 
@@ -338,6 +340,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-24T19:28:25.000Z
-Stopped at: Executing 21-01-PLAN.md
+Last session: 2026-03-24T19:36:57.543Z
+Stopped at: Completed 21-01-PLAN.md
 Resume file: None
