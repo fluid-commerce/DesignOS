@@ -31,6 +31,7 @@ import {
   getIterations,
   updateIterationStatus,
   updateIterationUserState,
+  updateIterationSlotSchema,
   createAnnotation,
   getAnnotations,
   createCampaignWithCreations,
@@ -325,5 +326,55 @@ describe('Transaction: createCampaignWithCreations', () => {
     // Campaign should NOT have been created
     const afterCampaigns = getCampaigns();
     expect(afterCampaigns.length).toBe(initialCampaigns.length);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// updateIterationSlotSchema
+// ---------------------------------------------------------------------------
+
+describe('updateIterationSlotSchema', () => {
+  it('persists slot schema JSON and can be read back via getIterations', () => {
+    const campaign = createCampaign({ title: 'SlotSchema Campaign', channels: ['instagram'] });
+    const creation = createCreation({ campaignId: campaign.id, title: 'Post', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+
+    const schema = {
+      archetypeId: 'stat-hero-single',
+      width: 1080,
+      height: 1080,
+      fields: [{ type: 'text', sel: '.headline', label: 'Headline', mode: 'text', rows: 1 }],
+      brush: null,
+    };
+    updateIterationSlotSchema(iteration.id, schema);
+
+    const iterations = getIterations(slide.id);
+    expect(iterations[0].slotSchema).not.toBeNull();
+    // slotSchema is stored and resolved; verify core fields
+    const stored = iterations[0].slotSchema as Record<string, unknown>;
+    expect(stored.archetypeId).toBe('stat-hero-single');
+  });
+
+  it('stores archetypeId field in schema and it can be retrieved', () => {
+    const campaign = createCampaign({ title: 'SlotSchema Campaign 2', channels: ['instagram'] });
+    const creation = createCreation({ campaignId: campaign.id, title: 'Post', creationType: 'instagram', slideCount: 1 });
+    const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
+    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v2.html', source: 'ai' });
+
+    const schema = {
+      archetypeId: 'stat-hero-single',
+      width: 1080,
+      height: 1080,
+      fields: [{ type: 'text', sel: '.headline', label: 'Headline', mode: 'text', rows: 1 }],
+      brush: null,
+    };
+    updateIterationSlotSchema(iteration.id, schema);
+
+    const iterations = getIterations(slide.id);
+    const stored = iterations[0].slotSchema as Record<string, unknown>;
+    expect(stored.archetypeId).toBe('stat-hero-single');
+    expect(Array.isArray(stored.fields)).toBe(true);
+    expect((stored.fields as unknown[]).length).toBe(1);
   });
 });

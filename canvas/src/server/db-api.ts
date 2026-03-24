@@ -256,6 +256,12 @@ export function updateIterationGenerationStatus(
   db.prepare('UPDATE iterations SET generation_status = ? WHERE id = ?').run(status, id);
 }
 
+export function updateIterationSlotSchema(id: string, slotSchema: object): void {
+  const db = getDb();
+  db.prepare('UPDATE iterations SET slot_schema = ? WHERE id = ?')
+    .run(JSON.stringify(slotSchema), id);
+}
+
 export function getLatestIterationBySlide(slideId: string): Iteration | undefined {
   const db = getDb();
   const row = db.prepare(

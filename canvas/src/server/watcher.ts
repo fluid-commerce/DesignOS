@@ -2061,6 +2061,7 @@ export function fluidWatcherPlugin(): Plugin {
                 htmlOutputPath: entry.absHtmlPath,
                 creationId: entry.creation.id,
                 campaignId,
+                iterationId: entry.iterationId,  // needed for SlotSchema attachment
               };
 
               // Fire and forget — each pipeline runs independently in parallel
