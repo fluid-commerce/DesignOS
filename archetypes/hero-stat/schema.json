@@ -1,0 +1,12 @@
+{
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".stat-number", "label": "Stat Value (e.g. 94%)", "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".stat-label", "label": "Stat Label", "mode": "text", "rows": 2 },
+    { "type": "text", "sel": ".headline", "label": "Headline", "mode": "pre", "rows": 3 },
+    { "type": "text", "sel": ".subtext", "label": "Supporting Copy", "mode": "pre", "rows": 4 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

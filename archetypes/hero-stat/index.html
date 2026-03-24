@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- archetype: hero-stat | target: 1080x1080 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    font-family: sans-serif;
+  }
+
+  .decorative-zone {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SLOT: .stat-number */
+  .stat-number {
+    position: absolute;
+    left: 68px;
+    top: 190px;
+    font-size: 260px;
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .stat-label */
+  .stat-label {
+    position: absolute;
+    left: 68px;
+    top: 480px;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 2;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    position: absolute;
+    left: 68px;
+    top: 560px;
+    width: 900px;
+    font-size: 82px;
+    line-height: 0.95;
+    font-weight: 700;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .subtext */
+  .subtext {
+    position: absolute;
+    left: 68px;
+    bottom: 80px;
+    width: 700px;
+    font-size: 24px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="decorative-zone"></div>
+
+  <!-- SLOT: stat-number -->
+  <div class="stat-number">94%</div>
+
+  <!-- SLOT: stat-label -->
+  <div class="stat-label">CONVERSION RATE</div>
+
+  <!-- SLOT: headline -->
+  <p class="headline">WHILE COMPETITORS LEAVE MONEY ON THE TABLE</p>
+
+  <!-- SLOT: subtext -->
+  <p class="subtext">The brands that win aren't guessing. They're measuring what matters.</p>
+</body>
+</html>
