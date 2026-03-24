@@ -1195,10 +1195,21 @@ export function buildLayoutPrompt(ctx: PipelineContext, archetypeHtml?: string, 
   ].join('\n');
 }
 
-export function buildStylingPrompt(ctx: PipelineContext, designDna?: string): string {
+export function buildStylingPrompt(ctx: PipelineContext, designDna?: string, isArchetypeBased?: boolean): string {
   return [
-    `Apply brand styling to create a complete HTML output.`,
-    `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
+    ...(isArchetypeBased ? [
+      `Apply brand styling and polish to the archetype-based layout.`,
+      `Read layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
+      `The layout already has structural CSS from the archetype. Your job is to ENHANCE it with:`,
+      `- Brand fonts (discover via list_brand_assets(category="fonts") and inject @font-face + font-family)`,
+      `- Decorative brand assets (brushstrokes, textures — discover via list_brand_assets)`,
+      `- Brand color enforcement (background MUST be #000000, accent colors per copy.md)`,
+      `- Visual polish (opacity, letter-spacing, subtle animations if appropriate)`,
+      `Do NOT remove or restructure existing HTML elements or CSS positioning. ADD brand layers on top.`,
+    ] : [
+      `Apply brand styling to create a complete HTML output.`,
+      `Read copy from ${ctx.workingDir}/copy.md and layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
+    ]),
     ``,
     `Use list_brand_patterns to discover available visual patterns, then read_brand_pattern to load what you need:`,
     `- Design tokens: color palette, typography, opacity patterns`,
@@ -1605,7 +1616,7 @@ export async function runApiPipeline(
   if (stylingCtx.sectionSlugs.length > 0) {
     emitContextInjected(res, ctx.creationId, 'styling', stylingCtx.sectionSlugs, stylingCtx.tokenEstimate);
   }
-  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx), ctx, res, stylingInjected);
+  const stylingResult = await runStageWithTools('styling', buildStylingPrompt(ctx, undefined, !!archetypeMeta), ctx, res, stylingInjected);
   await generateStageNarrative('styling', stylingResult.output, ctx, res);
 
   // Fallback: if agent wrote to styled.html in workingDir instead of htmlOutputPath, copy it
@@ -1711,7 +1722,7 @@ export async function runApiPipeline(
           await runStageWithTools('layout', buildLayoutPrompt(ctx, archetypeHtml, resolvedArchetypeSlug || undefined), ctx, res);
         }
         if (!issuesByTarget.has('styling')) {
-          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna), ctx, res);
+          await runStageWithTools('styling', buildStylingPrompt(ctx, designDna, !!archetypeMeta), ctx, res, stylingInjected);
         }
       }
 
