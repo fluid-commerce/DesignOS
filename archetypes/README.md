@@ -38,11 +38,20 @@ archetypes/
 └── README.md                       # This file
 ```
 
-Each archetype slug maps to a content layout pattern, e.g.:
-- `stat-hero-single/` — large stat value + headline + body copy
-- `testimonial-portrait/` — portrait photo + quote + attribution
-- `problem-first/` — bold problem statement + solution setup
-- `manifesto-statement/` — values/belief declaration
+Each archetype slug maps to a content layout pattern.
+
+## Instagram Archetypes (1080 × 1080) — Phase 19
+
+| Slug | Description |
+|------|-------------|
+| `hero-stat` | Giant stat number anchors the layout with headline and body copy |
+| `photo-bg-overlay` | Full-bleed photo with text overlay on top |
+| `split-photo-text` | 50/50 split — photo left, text content right |
+| `quote-testimonial` | Pull quote with portrait photo and attribution |
+| `minimal-statement` | Single bold statement with maximum whitespace |
+| `data-dashboard` | 3-stat grid with headline and footnote |
+
+Also included: `stat-hero-single` (PoC archetype from Phase 18 — 1 giant stat + headline + body copy)
 
 ## Content/Decorative Split
 
@@ -71,3 +80,18 @@ Key contract requirements for archetypes:
 - `collectTransformTargets(schema)` must produce a valid `TransformTarget[]` — no broken selectors
 
 See `archetypes/SPEC.md` for the complete format specification.
+
+## Validation
+
+Run `node tools/validate-archetypes.cjs` to check all archetypes against the spec.
+Run `node tools/validate-archetypes.cjs {slug}` to check a single archetype.
+
+The validator checks:
+- All required files exist (`index.html`, `schema.json`, `README.md`)
+- `schema.json` is valid JSON with `width`, `height`, `fields`
+- Dimensions are `1080 × 1080` for Instagram archetypes
+- `brush: null` and no `templateId` field
+- Every `field.sel` class name appears in `index.html` (selector parity)
+- All field types and text modes are valid
+
+Exits 0 on clean pass, 1 on any errors. JSON violations to stdout, human summary to stderr.
