@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 21-01-PLAN.md
-last_updated: "2026-03-24T19:36:57.546Z"
+stopped_at: Completed 21-02-PLAN.md
+last_updated: "2026-03-24T19:43:37.335Z"
 last_activity: 2026-03-17 -- Phase 12 plan 03 complete (coherence verification — tests clean, MCP audit, skill files confirmed embedding-free, CLAUDE.md updated)
 progress:
   total_phases: 22
-  completed_phases: 20
+  completed_phases: 21
   total_plans: 66
-  completed_plans: 64
+  completed_plans: 66
   percent: 94
 ---
 
@@ -110,6 +110,8 @@ Progress: [████████████████████] 94% (19
 | Phase 20 P03 | 36min | 2 tasks | 12 files |
 | Phase 20-pipeline-integration-archetype-selection-and-slotschema-attachment P01 | 4min | 2 tasks | 5 files |
 | Phase 21 P01 | 7min | 2 tasks | 13 files |
+| Phase 21-linkedin-and-one-pager-archetypes P03 | 8min | 2 tasks | 11 files |
+| Phase 21 P02 | 5min | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -301,6 +303,10 @@ Recent decisions affecting current work:
 - [Phase 21-01]: SlotSchema.platform is optional ('instagram-square' | 'linkedin-landscape' | 'one-pager'); TemplateMetadata.platform union extended with 'one-pager'
 - [Phase 21-01]: All 10 Instagram archetypes backfilled with archetypeId and platform: instagram-square in schema.json
 - [Phase 21]: Slug suffix convention (-li, -op) chosen for platform detection — validator stays zero-config for new archetypes
+- [Phase 21-03]: One-pager layout uses display:flex flex-direction:column on .page wrapper — print-safe document flow without coordinate math
+- [Phase 21-03]: filterArchetypesByPlatform() uses endsWith('-li') / endsWith('-op') slug convention — consistent with validator, zero-config for new archetypes
+- [Phase 21]: LinkedIn archetypes use vertical stat column (hero-stat-li) rather than horizontal row — 3 stats stack in right 38% of 1200px canvas
+- [Phase 21]: article-preview-li is LinkedIn-only (no Instagram equivalent) — editorial card pattern native to LinkedIn article sharing
 
 ### Parallel Development Note
 
@@ -340,6 +346,6 @@ Jonathan pushes directly to main via Cursor. His changes are NOT tracked by GSD 
 
 ## Session Continuity
 
-Last session: 2026-03-24T19:36:57.543Z
-Stopped at: Completed 21-01-PLAN.md
+Last session: 2026-03-24T19:43:37.332Z
+Stopped at: Completed 21-02-PLAN.md
 Resume file: None

@@ -354,7 +354,7 @@ Plans:
 **Goal:** Extend the archetype library to LinkedIn (1200x627) and One-Pager (US Letter 612x792, printable) formats. LinkedIn: 5 adapted Instagram archetypes + 1 LinkedIn-only layout (article-preview-li). One-Pager: 3 archetypes with print spec enforcement (@page rules, flexbox layout, overflow:hidden). Add SlotSchema platform field, extend validator with platform-aware checks, backfill all existing archetypes. Add pipeline filterArchetypesByPlatform for platform-specific archetype selection.
 **Requirements**: ARCH-21-01, ARCH-21-02, ARCH-21-03, ARCH-21-04, ARCH-21-05, ARCH-21-06, ARCH-21-07, ARCH-21-08, ARCH-21-09
 **Depends on:** Phase 20
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 21-01-PLAN.md — Validator platform-aware update + SlotSchema platform field + backfill existing archetypes/templates
