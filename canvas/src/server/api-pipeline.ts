@@ -1367,7 +1367,7 @@ export function buildStylingPrompt(
     `NEVER embed base64 data URIs. NEVER hardcode specific asset filenames — always discover them via the tool.`,
     ``,
     `NON-NEGOTIABLE STYLING RULES:`,
-    `- BACKGROUND: Social posts (instagram, linkedin) MUST use pure #000000 black. NOT #111, NOT #1a1a1a, NOT any dark gray. One-pagers use #050505.`,
+    `- BACKGROUND: Social posts (instagram, linkedin) MUST use pure #000000 black on ALL elements — body, panels, photo containers, stat blocks, every element. Check ALL background/background-color declarations and replace #111, #1a1a1a, #2a2a2a, or any dark gray with #000000. The archetype skeleton may contain non-black defaults — override them ALL. One-pagers use #050505.`,
     `- ASSET URLS: Always use /api/brand-assets/serve/{name} with NO subdirectories and NO file extensions.`,
     `  Correct: /api/brand-assets/serve/brush-texture-01, /api/brand-assets/serve/flfontbold, /api/brand-assets/serve/wecommerce-flags`,
     `  WRONG: /api/brand-assets/serve/brushstrokes/brush-texture-01.png, /api/brand-assets/serve/fonts/flfontbold.ttf`,
