@@ -15,11 +15,17 @@
     font-family: sans-serif;
   }
 
-  .decorative-zone {
+  .background-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
+  }
+  .foreground-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
   }
 
   /* SLOT: .photo img */
@@ -73,7 +79,8 @@
 </style>
 </head>
 <body>
-  <div class="decorative-zone"></div>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
 
   <!-- SLOT: photo -->
   <div class="photo">
@@ -87,5 +94,7 @@
     <!-- SLOT: body-copy -->
     <p class="body-copy">We stopped guessing what works and started measuring it. The difference was immediate and the numbers prove it.</p>
   </div>
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
 </body>
 </html>

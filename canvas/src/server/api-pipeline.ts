@@ -417,6 +417,25 @@ function levenshtein(a: string, b: string): number {
  * - Fuzzy match (edit distance ≤ 2): returns { slug: bestMatch, matched: false }
  * - No match: returns { slug: alphabetical first, matched: false }
  */
+// Alias map for legacy/informal archetype names → real filesystem slugs
+const ARCHETYPE_ALIASES: Record<string, string> = {
+  'problem-first': 'minimal-statement',
+  'full-bleed-headline': 'minimal-statement',
+  'full-bleed': 'minimal-statement',
+  'stat-proof': 'hero-stat',
+  'giant-stat-hero': 'stat-hero-single',
+  'giant-stat': 'stat-hero-single',
+  'quote': 'quote-testimonial',
+  'testimonial': 'quote-testimonial',
+  'manifesto': 'minimal-statement',
+  'pull-quote': 'quote-testimonial',
+  'two-column': 'split-photo-text-li',
+  'diagram-card': 'data-dashboard',
+  'partner-alert': 'split-photo-text',
+  'app-highlight': 'minimal-photo-top',
+  'feature-spotlight': 'minimal-photo-top',
+};
+
 export function resolveArchetypeSlug(
   raw: string,
   available: Map<string, ArchetypeMeta>
@@ -424,13 +443,20 @@ export function resolveArchetypeSlug(
   const normalized = raw.toLowerCase().replace(/[^a-z0-9-]/g, '');
   if (available.has(normalized)) return { slug: normalized, matched: true };
 
+  // Check alias map before fuzzy matching
+  const aliased = ARCHETYPE_ALIASES[normalized];
+  if (aliased && available.has(aliased)) {
+    console.warn(`[api-pipeline] Alias matched archetype "${raw}" -> "${aliased}"`);
+    return { slug: aliased, matched: true };
+  }
+
   let best = { slug: '', dist: Infinity };
   for (const slug of available.keys()) {
     const dist = levenshtein(normalized, slug);
     if (dist < best.dist) best = { slug, dist };
   }
-  if (best.dist <= 2 && best.slug) {
-    console.warn(`[api-pipeline] Fuzzy matched archetype "${raw}" -> "${best.slug}"`);
+  if (best.dist <= 3 && best.slug) {
+    console.warn(`[api-pipeline] Fuzzy matched archetype "${raw}" -> "${best.slug}" (dist=${best.dist})`);
     return { slug: best.slug, matched: false };
   }
 
@@ -1252,7 +1278,12 @@ export function buildCopyPrompt(ctx: PipelineContext, campaignContext?: string, 
     `Then read_voice_guide to load the ones relevant to this topic (always include "voice-and-style", plus the product-specific doc if applicable).`,
     ``,
     `Write structured copy (headline, subtext, accent color, archetype selection) to ${ctx.workingDir}/copy.md.`,
-    `Include an "Archetype:" line in your output specifying which layout archetype to use.`,
+    ``,
+    `CRITICAL: Your copy.md MUST contain EXACTLY ONE of these lines:`,
+    `  Archetype: {slug}   (e.g., Archetype: minimal-statement)`,
+    `  OR`,
+    `  Template: {template-id}   (e.g., Template: t1-quote)`,
+    `The slug MUST be one from the Available Archetypes list below. Do NOT invent archetype names — use ONLY the exact slugs listed. Failure to include this line breaks the pipeline.`,
     ``,
     `## Available Archetypes`,
     archetypeList ?? '(no archetypes discovered)',
@@ -1299,6 +1330,8 @@ export function buildLayoutPrompt(ctx: PipelineContext, archetypeHtml?: string, 
       `</archetype-skeleton>`,
       ``,
       `Fill only the text inside content elements. Preserve all class names, positioning, and structure exactly.`,
+      ``,
+      `IMPORTANT: Replace ALL placeholder text. The skeleton contains example text like "Annual report highlights", "The numbers speak for themselves", "94%" — these are PLACEHOLDERS. Replace every text element with content from copy.md. If copy.md has no matching slot, write contextually appropriate copy or remove the placeholder. NEVER leave archetype placeholder text in the output.`,
     ].join('\n');
   }
   // Fallback: no archetype available — use old freestyle mode
@@ -1325,7 +1358,7 @@ export function buildStylingPrompt(
       `Read layout from ${ctx.workingDir}/layout.html using the read_file tool.`,
       `The layout already has structural CSS from the archetype. Your job is to ENHANCE it with:`,
       `- Brand fonts (discover via list_brand_assets(category="fonts") and inject @font-face + font-family)`,
-      `- Decorative brand assets (brushstrokes, textures — discover via list_brand_assets)`,
+      `- Decorative brand assets (brushstrokes, textures — discover via list_brand_assets) into the .background-layer div`,
       `- Brand color enforcement (background MUST be #000000, accent colors per copy.md)`,
       `- Visual polish (opacity, letter-spacing, subtle animations if appropriate)`,
       `Do NOT remove or restructure existing HTML elements or CSS positioning. ADD brand layers on top.`,
@@ -1367,16 +1400,23 @@ export function buildStylingPrompt(
     `NEVER embed base64 data URIs. NEVER hardcode specific asset filenames — always discover them via the tool.`,
     ``,
     `NON-NEGOTIABLE STYLING RULES:`,
-    `- BACKGROUND: Social posts (instagram, linkedin) MUST use pure #000000 black. NOT #111, NOT #1a1a1a, NOT any dark gray. One-pagers use #050505.`,
+    `- BACKGROUND: Social posts (instagram, linkedin) MUST use pure #000000 black on ALL elements — body, panels, photo containers, stat blocks, every element. Check ALL background/background-color declarations and replace #111, #1a1a1a, #2a2a2a, or any dark gray with #000000. The archetype skeleton may contain non-black defaults — override them ALL. One-pagers use #050505.`,
     `- ASSET URLS: Always use /api/brand-assets/serve/{name} with NO subdirectories and NO file extensions.`,
     `  Correct: /api/brand-assets/serve/brush-texture-01, /api/brand-assets/serve/flfontbold, /api/brand-assets/serve/wecommerce-flags`,
     `  WRONG: /api/brand-assets/serve/brushstrokes/brush-texture-01.png, /api/brand-assets/serve/fonts/flfontbold.ttf`,
-    `- CSS FONT FALLBACKS: Always use "sans-serif" as the fallback. NEVER use Georgia, Times New Roman, serif, or cursive.`,
+    `- FONT NAMING: The @font-face family name for the Inter-VariableFont file MUST be "NeueHaas", NOT "Inter". The font file IS NeueHaas — always declare font-family: 'NeueHaas'. Never use "Inter" as a font-family name or fallback anywhere in the CSS.`,
+    `- CSS FONT FALLBACKS: Always use "sans-serif" as the ONLY generic fallback. NEVER use Georgia, Times New Roman, serif, cursive, or "Inter" as fallback values.`,
+    `- BODY COPY OPACITY: Body/subtext color MUST be rgba(255, 255, 255, 0.45). NOT 0.5, NOT 0.55, NOT 0.6 — exactly 0.45. This is a brand-checked value.`,
     `- POSITIONING: Social posts use position:absolute for ALL major layout elements (not flexbox/grid for the main composition).`,
     `- CSS CLASSES: ALL styling MUST be in <style> blocks using CSS class selectors. Inline style="" attributes are PROHIBITED. No exceptions.`,
+    `- PHOTO SLOTS: Photo/image slots in the archetype (e.g., .photo img) MUST keep the <img> tag — set the src attribute to the chosen photo's imgSrc URL. Do NOT replace <img> tags with <div> background-image for photo slots.`,
     `- DECORATIVE ELEMENTS: Decorative/background image assets (brushstrokes, textures, circles) MUST use <div> elements with background-image + background-size: contain + background-repeat: no-repeat. NEVER use <img> tags for decorative elements.`,
     `- CIRCLE EMPHASIS: The ::before pseudo-element on circle-target elements must use percentage sizing relative to the target text. Use width: 110%; height: 130%; left: -5%; top: -15% instead of fixed pixel values. This prevents mask bounding box clipping on varying text widths.`,
     `- FONT FALLBACKS: Never use Georgia, Times New Roman, Times, serif, or cursive as font-family values or fallbacks. Always use sans-serif as the generic fallback.`,
+    `- DECORATIVE MINIMUM: Every social post MUST contain at least 2 brushstroke/texture elements in the .decorative-zone (or .background-layer) AND at least 1 circle or underline emphasis on a keyword. A post with zero decorative elements is a BRAND FAILURE. Brushstrokes: use list_brand_assets(category="brushstrokes") to discover assets like brush-texture-01 through brush-texture-10. Place as <div> elements with background-image + mix-blend-mode: screen + opacity 0.10-0.25. Circles/underlines: use list_brand_assets(category="circles") to discover circle-1 through circle-6 and underline-1 through underline-3. Use as CSS mask-image on a colored div positioned behind a keyword.`,
+    `- TEXT OVERFLOW: All text containers MUST have overflow: hidden or word-break: break-word. No text may extend beyond the canvas edge. If a word might exceed its container, reduce font-size or add word-break.`,
+    `- CANVAS FILL (social posts only): Content must command the canvas. At minimum 60% of the area should contain visual elements (text, images, decoratives). Headline at least 72px on Instagram, 52px on LinkedIn. FLFont tagline at LEAST 36px on Instagram. Archetype font sizes are MINIMUMS for social — scale UP to fill the frame. This rule does NOT apply to one-pagers.`,
+    `- PHOTO SIZING: If the archetype has image slots, photos MUST fill their container (object-fit: cover). In split layouts, the photo panel must be at least 45% of canvas width. Never leave a photo slot empty if brand images are available via list_brand_assets(category="images").`,
     ...(designDna ? [
       '',
       designDna,

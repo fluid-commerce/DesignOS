@@ -4,9 +4,11 @@ The handwritten font for the takeaway line. Confidence and personality. (weight:
 
 | Platform | Size Range | Example |
 |----------|-----------|---------|
-| Instagram primary | 26-32px | "Every transaction matters." |
-| Instagram secondary | 22-26px | "One connection. Zero 3am calls." |
-| LinkedIn | 20-24px | "One platform. Every transaction." |
+| Instagram primary | 36-48px | "Every transaction matters." |
+| Instagram secondary | 28-36px | "One connection. Zero 3am calls." |
+| LinkedIn | 28-32px | "One platform. Every transaction." |
+
+FLFont tagline must be VISUALLY PROMINENT — it is the signature element of the brand. If it reads as fine print, it is too small. (weight: 85)
 
 ## Tagline Sentence Patterns
 
@@ -27,13 +29,13 @@ The handwritten font for the takeaway line. Confidence and personality. (weight:
 /* FLFont Tagline Rules:
    - Taglines and emphasis ONLY, never body/headlines (Weight: 90)
    - Below headline, before footer (Weight: 80)
-   - Instagram: 26-32px, LinkedIn: 20-24px
+   - Instagram: 36-48px, LinkedIn: 28-32px
    - Color: post accent color
 */
 
 .tagline {
   font-family: 'flfontbold', cursive;
-  font-size: 28px;        /* Instagram: 26-32px */
+  font-size: 40px;        /* Instagram: 36-48px */
   color: #FF8B58;          /* Replace with post accent color */
   line-height: 1.3;
   margin-top: 16px;

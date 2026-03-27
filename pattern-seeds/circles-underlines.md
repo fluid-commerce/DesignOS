@@ -2,6 +2,10 @@ Hand-drawn emphasis elements for words and data points. CSS-mask technique — a
 
 **EMPHASIS ONLY, NOT DECORATIVE** — Every circle/underline must wrap a specific word or data point. White PNG masks + backgroundColor = any color. Never use hue-rotate or tinted PNGs. (weight: 90)
 
+**MINIMUM ONE PER POST** — At least one circle (`circle-1` through `circle-6`) or underline (`underline-1` through `underline-3`) emphasis MUST appear on every social post, wrapping a keyword in the headline or a key stat. (weight: 85)
+
+**PLACEMENT** — Every underline MUST sit directly beneath a specific word or phrase. NEVER place an underline floating in empty space or as a decorative border. The underline's horizontal position must MATCH the text it emphasizes. If no specific word to emphasize, use a brushstroke instead. Color must be the post's accent color. (weight: 90)
+
 **STATIC BY DEFAULT** — For social post images, email graphics, one-pagers, and any static output: just use the mask technique with no animation. Animation is optional and only for interactive contexts (web pages, app UIs). (weight: 75)
 
 ## How It Works

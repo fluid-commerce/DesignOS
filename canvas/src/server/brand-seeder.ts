@@ -72,11 +72,13 @@ const PATTERN_SOURCES: PatternSource[] = [
   { slug: 'social-typography-scale', label: 'Social Typography Scale', category: 'typography', file: 'social-typography-scale.md', weight: 85, isCore: false },
   { slug: 'flfont-tagline-patterns', label: 'FLFont Tagline Patterns', category: 'typography', file: 'flfont-tagline-patterns.md', weight: 80, isCore: false },
   { slug: 'uppercase-patterns', label: 'Uppercase Patterns', category: 'typography', file: 'uppercase-patterns.md', weight: 80, isCore: false },
+  { slug: 'typographic-treatments', label: 'Typographic Treatments', category: 'typography', file: 'typographic-treatments.md', weight: 80, isCore: false },
   // Logos
   { slug: 'footer-structure', label: 'Footer Structure', category: 'logos', file: 'footer-structure.md', weight: 85, isCore: false },
   // Images
   { slug: 'photos-mockups', label: 'Photos & Mockups', category: 'images', file: 'photos-mockups.md', weight: 70, isCore: false },
   // Decorations
+  { slug: 'decorative-minimums', label: 'Decorative Minimums', category: 'decorations', file: 'decorative-minimums.md', weight: 90, isCore: false },
   { slug: 'brushstroke-textures', label: 'Brushstroke Textures', category: 'decorations', file: 'brushstroke-textures.md', weight: 85, isCore: false },
   { slug: 'circles-underlines', label: 'Circles & Underlines', category: 'decorations', file: 'circles-underlines.md', weight: 85, isCore: false },
   { slug: 'line-textures', label: 'Line Textures', category: 'decorations', file: 'line-textures.md', weight: 70, isCore: false },

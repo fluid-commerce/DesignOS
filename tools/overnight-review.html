@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overnight Pipeline Review</title>
+<style>
+  :root { --bg: #0a0a0a; --surface: #141414; --surface2: #1c1c1c; --border: #2a2a2a; --text: #e0e0e0; --dim: #777; --accent: #42b1ff; --green: #44b574; --red: #e05555; --orange: #ff8b58; --purple: #c985e5; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
+  .header .stats { font-size: 0.8rem; color: var(--dim); display: flex; gap: 16px; }
+  .progress-bar { height: 3px; background: var(--border); }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .nav { position: sticky; top: 57px; z-index: 99; background: var(--bg); border-bottom: 1px solid var(--border); padding: 8px 32px; display: flex; gap: 6px; overflow-x: auto; }
+  .nav button { background: var(--surface); border: 1px solid var(--border); color: var(--dim); padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
+  .nav button:hover { border-color: var(--accent); color: var(--text); }
+  .nav button.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .nav button.reviewed { border-color: var(--green); }
+  .nav button.reviewed::after { content: ' \2713'; }
+  .card { display: none; padding: 24px 32px; gap: 24px; }
+  .card.visible { display: flex; }
+  .left { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .iframe-wrap { background: #000; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.5); position: relative; }
+  .iframe-wrap iframe { border: none; display: block; }
+  .type-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 3px; }
+  .type-badge.instagram { background: #e1306c22; color: #e1306c; }
+  .type-badge.linkedin { background: #0a66c222; color: #5b9bd5; }
+  .type-badge.one-pager { background: #c985e522; color: var(--purple); }
+  .right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; max-height: calc(100vh - 130px); padding-right: 8px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .section h3 { font-size: 0.75rem; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 0.8rem; }
+  .meta-grid dt { color: var(--dim); font-size: 0.7rem; }
+  .meta-grid dd { font-weight: 500; margin-bottom: 4px; }
+  .prompt-text { font-size: 0.9rem; font-weight: 500; color: var(--accent); padding: 10px 14px; background: #42b1ff0a; border: 1px solid #42b1ff22; border-radius: 6px; margin-bottom: 10px; line-height: 1.4; }
+  .pipeline-stage { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+  .pipeline-stage:last-child { border-bottom: none; }
+  .stage-name { flex: 1; font-weight: 500; }
+  .stage-detail { color: var(--dim); font-size: 0.72rem; flex: 2; }
+  .vote-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .vote-btn:hover { border-color: var(--text); }
+  .vote-btn.up { background: #44b57422; border-color: var(--green); color: var(--green); }
+  .vote-btn.down { background: #e0555522; border-color: var(--red); color: var(--red); }
+  .stars { display: flex; gap: 2px; }
+  .star { width: 24px; height: 24px; cursor: pointer; background: none; border: none; font-size: 1.1rem; color: var(--border); transition: color 0.1s; }
+  .star.filled { color: #fbbf24; }
+  .star:hover { color: #fbbf24; }
+  .rating-row { display: flex; align-items: center; gap: 12px; padding: 4px 0; font-size: 0.8rem; }
+  .rating-label { width: 140px; color: var(--dim); flex-shrink: 0; }
+  textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 10px; font-family: inherit; font-size: 0.8rem; resize: vertical; min-height: 60px; }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  .copy-btn { background: var(--accent); color: #000; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: opacity 0.15s; }
+  .copy-btn:hover { opacity: 0.85; }
+  .copy-btn.copied { background: var(--green); }
+  .spec-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; font-weight: 600; }
+  .spec-tag.pass { background: #44b57422; color: var(--green); }
+  .spec-tag.fail { background: #e0555522; color: var(--red); }
+  .copy-preview { font-size: 0.75rem; color: var(--dim); background: var(--surface2); border-radius: 4px; padding: 8px 10px; max-height: 80px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; border: 1px solid var(--border); }
+  .bottom-bar { display: flex; gap: 8px; align-items: center; justify-content: flex-end; padding-top: 8px; }
+  .prev-next { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+  .prev-next:hover { border-color: var(--accent); }
+  .export-all { position: fixed; bottom: 20px; right: 20px; z-index: 200; background: var(--purple); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+  .export-all:hover { opacity: 0.9; }
+  .toggle-wrap { display: flex; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .toggle-btn { padding: 5px 14px; font-size: 0.7rem; font-weight: 600; cursor: pointer; background: var(--surface2); color: var(--dim); border: none; transition: all 0.15s; }
+  .toggle-btn.active { background: var(--accent); color: #000; }
+  .toggle-btn:hover:not(.active) { color: var(--text); }
+  .iframe-layer { position: absolute; top: 0; left: 0; transition: opacity 0.25s; }
+  .iframe-layer.hidden { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Overnight Pipeline Review</h1>
+  <div class="stats">
+    <span id="reviewed-count">0 / 0 reviewed</span>
+    <span id="avg-score">--</span>
+  </div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+<div class="nav" id="nav"></div>
+<div id="cards"></div>
+<button class="export-all" onclick="exportAll()">Export All Feedback as Markdown</button>
+<script>
+const ASSETS = [{"idx":1,"iterId":"-tu0qhQO5yP93Ug4uBIfS","creationId":"xlMSbTZ_-ZIPE833J5wcI","creationType":"instagram","prompt":"Create an Instagram post about Fluid Connect's real-time payment tracking","archetype":"minimal-photo-top","accentColor":"blue=#42b1ff","headline":"Every payment. Tracked in real time.","subtext":"Know what synced, what failed, and why — before anyone has to ask.","specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/xlMSbTZ_-ZIPE833J5wcI/MBUcLZQO5xkQ-cqXMuKxL/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":"archetypes/minimal-photo-top/index.html"},{"idx":2,"iterId":"WluC39roMrXdbxrInLXTn","creationId":"XujjmHNsf5_OX-d7IcX-O","creationType":"linkedin","prompt":"Just a LinkedIn post about FairShare revenue splitting for platforms","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1200,"h":627},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/XujjmHNsf5_OX-d7IcX-O/NcCP3wWnDiwM0WncVm1ym/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":3,"iterId":"fuxBzABAobDImCrCUG0ml","creationId":"8dkjyj3wfE45tcGicPIWH","creationType":"instagram","prompt":"Create an Instagram post highlighting WeCommerce's 6x conversion rate","archetype":"Archetype: stat-hero-single","accentColor":"green=#44b574","headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/8dkjyj3wfE45tcGicPIWH/ssmxBXkbywkhNtXY-dqUA/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":4,"iterId":"7gK0uRZWq87HE1zGbvP7V","creationId":"AVqNmAc3ac8cOU4ACrwqC","creationType":"one-pager","prompt":"Design a one-pager case study about Fluid Checkout saving merchants 4 days","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":816,"h":1056},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/AVqNmAc3ac8cOU4ACrwqC/dLucPEEwR6I5lRWcxD7Ym/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":5,"iterId":"sXaxW4tRMXmehhyfpkpcs","creationId":"If2TufLQJQSlwrfVoMKJT","creationType":"instagram","prompt":"An Instagram post about Droplets micro-transactions for emerging markets","archetype":null,"accentColor":"purple = #c985e5","headline":"Small transactions.","subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/If2TufLQJQSlwrfVoMKJT/1gQl3AZXuZFc_NVjA0xYK/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":6,"iterId":"lM06i18NjVe0ap_yLau8T","creationId":"EAnJsEtJFfWCjNcEWcZQH","creationType":"linkedin","prompt":"Create a LinkedIn post about Fluid Builder's no-code storefront creation","archetype":"Archetype: minimal-statement-li","accentColor":"blue=#42b1ff (tech/trust)","headline":"Your storefront. No developers needed.","subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1200,"h":627},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/EAnJsEtJFfWCjNcEWcZQH/D3Nb2k4BW3kE4n9c3yUCz/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":7,"iterId":"DSAHENsv_kykPs35JUD5x","creationId":"pS5UDbGjqcdVtkS4-aK5H","creationType":"instagram","prompt":"Just a post about Fluid — keep it premium and abstract","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/pS5UDbGjqcdVtkS4-aK5H/VhIqLls0PV_hqWf-iSO5y/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":8,"iterId":"QK_qNVZd60P3V-S14S1aI","creationId":"ItCLZe9oicCABjJ-OlUHy","creationType":"linkedin","prompt":"LinkedIn post about Stripe partnership","archetype":"Archetype: minimal-statement-li","accentColor":"blue=#42b1ff","headline":"Fluid + Stripe.","subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1200,"h":627},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/ItCLZe9oicCABjJ-OlUHy/BvWjRv0gN4G6BoK1rn6Vr/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":9,"iterId":"fZS_HnEsnXo1MpbxN74hA","creationId":"nBVuU3rcv2zQNXFDHLQeB","creationType":"instagram","prompt":"FairShare's $75,000 average revenue unlock per creator","archetype":null,"accentColor":"green=#44b574 (success/proof)","headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/nBVuU3rcv2zQNXFDHLQeB/EUP6j3fsHxcu6uSOysNvI/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":10,"iterId":"qForeBTF1Z9uuRFE35Brg","creationId":"3ZJtw3rfYExzB_4c9Pk3V","creationType":"instagram","prompt":"Fluid Payments campaign - IG1 (pain/friction)","archetype":"`photo-bg-overlay`","accentColor":"`orange` — #FF8B58","headline":"> Checkout friction is costing you more than a sale.","subtext":null,"specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/3ZJtw3rfYExzB_4c9Pk3V/B-X_kW06gFvF0cqBpHY-f/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":11,"iterId":"S7lQyUzjL3tz-k-R5DCwp","creationId":"uXqIiJCu-PmH7akZ_dPMm","creationType":"instagram","prompt":"Fluid Payments campaign - IG2 (retry solution)","archetype":"hero-stat-split","accentColor":"blue=#42b1ff","headline":"Every declined transaction gets a second chance.","subtext":null,"specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/uXqIiJCu-PmH7akZ_dPMm/qNUoFkf8VYlI53OS0VJz4/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":"archetypes/hero-stat-split/index.html"},{"idx":12,"iterId":"RdOKedzwQeFPgwfwih9Oc","creationId":"Q3pif9f-EIfR5gdlU4BHG","creationType":"instagram","prompt":"Fluid Payments campaign - IG3 (network tokens)","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/Q3pif9f-EIfR5gdlU4BHG/LIqXTIXEyTz6qjLW6iMbE/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":13,"iterId":"0vzdtoDBpg9pREHWXUMVF","creationId":"EDqDJh1dpsT-vVlG2PsfY","creationType":"linkedin","prompt":"Fluid Payments campaign - LI1 (economic cost)","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1200,"h":627},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/EDqDJh1dpsT-vVlG2PsfY/89AIvnE_KydIhL8QiGLpo/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":14,"iterId":"ssP-y_GPkuQFizLwqO4tQ","creationId":"m-uSdFFruxQNOTb5EKR4c","creationType":"linkedin","prompt":"Fluid Payments campaign - LI2 (alt payment methods)","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":true,"specIssues":0,"specReport":{"overall":"pass","blocking_issues":[]},"templateId":null,"dims":{"w":1200,"h":627},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/m-uSdFFruxQNOTb5EKR4c/7gYjGIhaHQ83KlOQeIGBa/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":15,"iterId":"aPl89acIP7zQ9S35HpE6t","creationId":"TjNxLbouZTjvgP4QfScH6","creationType":"linkedin","prompt":"Fluid Payments campaign - LI3 (closing statement)","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1200,"h":627},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/TjNxLbouZTjvgP4QfScH6/HcQ6REPTPUCPrcYoJiYyD/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":16,"iterId":"TpoSRgvgJbnxLQmLfsKy-","creationId":"ku5-bs3sW2UpK3PlG9hJb","creationType":"one-pager","prompt":"Fluid Payments campaign - one-pager","archetype":null,"accentColor":"blue=#42b1ff","headline":"Every checkout moment is a trust test.","subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":816,"h":1056},"originalRelPath":".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/ku5-bs3sW2UpK3PlG9hJb/O851sdjmeSJbOAdZBYBOH/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":17,"iterId":"zhZ7RvE-qyKcyPrkTKZ52","creationId":"bbfx6aiD9stt7pFV9wiVL","creationType":"instagram","prompt":"Instagram post with a client testimonial about Fluid Connect","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/VQ_yWij2olBJOyezMB206/bbfx6aiD9stt7pFV9wiVL/iYwOHSlaP90OGcobqQTYW/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null},{"idx":18,"iterId":"EtV_wJunObJY10sKiGCCT","creationId":"Xtxwi690vfcXfFaOzYeVU","creationType":"instagram","prompt":"Fluid Payments stat-focused campaign - IG1","archetype":null,"accentColor":null,"headline":null,"subtext":null,"specPassed":false,"specIssues":0,"specReport":{"blocking_issues":[]},"templateId":null,"dims":{"w":1080,"h":1080},"originalRelPath":".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/Xtxwi690vfcXfFaOzYeVU/cfNLofEN88l-lyzBPqYs0/working/layout.html","hasLayoutHtml":true,"archetypeHtmlPath":null}];
+
+const feedback = {};
+ASSETS.forEach(a => {
+  feedback[a.iterId] = { stageVotes: {}, ratings: { prompt: 0, layout: 0, brand: 0, overall: 0 }, notes: '' };
+});
+let currentIdx = 0;
+
+function init() {
+  const nav = document.getElementById('nav');
+  const cards = document.getElementById('cards');
+  ASSETS.forEach((a, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = (i+1).toString();
+    btn.title = a.creationType + ' — ' + (a.archetype || 'unknown');
+    btn.onclick = () => goTo(i);
+    btn.id = 'nav-' + i;
+    nav.appendChild(btn);
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + i;
+
+    const scale = a.creationType === 'one-pager' ? 0.38 : a.creationType === 'linkedin' ? 0.42 : 0.4;
+    const dW = Math.round(a.dims.w * scale);
+    const dH = Math.round(a.dims.h * scale);
+
+    const specTag = a.specPassed === true ? '<span class="spec-tag pass">PASS</span>'
+      : a.specPassed === false ? '<span class="spec-tag fail">FAIL (' + a.specIssues + ')</span>'
+      : '<span class="spec-tag" style="background:#333;color:#777">N/A</span>';
+
+    const specDetail = a.specReport && a.specReport.blocking_issues && a.specReport.blocking_issues.length > 0
+      ? a.specReport.blocking_issues.map(b => '<div style="font-size:0.7rem;color:var(--dim);padding:2px 0">&bull; ' + esc(b.description).slice(0, 120) + '</div>').join('')
+      : '';
+
+    const hasOrig = !!a.originalRelPath;
+    const origSrc = hasOrig ? 'http://localhost:8899/' + a.originalRelPath : '';
+    const origLabel = a.archetypeHtmlPath ? 'Archetype' : 'Pre-Styling Layout';
+
+    card.innerHTML = '<div class="left">'
+      + '<div class="iframe-wrap" style="width:'+dW+'px;height:'+dH+'px">'
+      + '<iframe class="iframe-layer" id="iframe-final-'+i+'" src="http://localhost:5174/api/iterations/'+a.iterId+'/html" width="'+a.dims.w+'" height="'+a.dims.h+'" style="transform:scale('+scale+');transform-origin:top left;" sandbox="allow-same-origin" loading="lazy"></iframe>'
+      + (hasOrig ? '<iframe class="iframe-layer hidden" id="iframe-original-'+i+'" src="'+origSrc+'" width="'+a.dims.w+'" height="'+a.dims.h+'" style="transform:scale('+scale+');transform-origin:top left;" sandbox="allow-same-origin" loading="lazy"></iframe>' : '')
+      + '</div>'
+      + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">'
+      + '<span class="type-badge '+a.creationType+'">'+a.creationType+'</span>'
+      + specTag
+      + (hasOrig ? '<div class="toggle-wrap"><button class="toggle-btn active" id="tbtn-final-'+i+'" onclick="toggleView('+i+',\'final\')">Final Design</button><button class="toggle-btn" id="tbtn-original-'+i+'" onclick="toggleView('+i+',\'original\')">'+origLabel+'</button></div>' : '')
+      + '</div></div>'
+      + '<div class="right">'
+      + '<div class="section"><h3>Initial Prompt</h3>'
+      + '<div class="prompt-text">'+esc(a.prompt)+'</div>'
+      + '<dl class="meta-grid">'
+      + '<dt>Creation</dt><dd>'+esc(a.creationType)+' &mdash; '+esc(a.creationId.slice(0,8))+'</dd>'
+      + '<dt>Archetype</dt><dd>'+esc(a.archetype || '(none)')+'</dd>'
+      + '<dt>Accent</dt><dd>'+esc(a.accentColor || '(none)')+'</dd>'
+      + '<dt>Route</dt><dd>'+(a.templateId ? 'Template: '+esc(a.templateId) : 'Archetype path')+'</dd>'
+      + '</dl></div>'
+      + '<div class="section"><h3>Copy Output</h3>'
+      + '<div style="font-size:0.85rem;font-weight:600;margin-bottom:4px">&ldquo;'+esc(a.headline || '(no headline)')+'&rdquo;</div>'
+      + (a.subtext ? '<div class="copy-preview">'+esc(a.subtext)+'</div>' : '')
+      + '</div>'
+      + '<div class="section"><h3>Pipeline Stages</h3>'
+      + renderStage('copy','Copy Agent','Wrote headline + subtext, picked archetype: '+esc(a.archetype||'—'),a.iterId)
+      + renderStage('layout','Layout Agent', a.templateId ? 'Template path' : 'Built skeleton from archetype: '+esc(a.archetype||'—'), a.iterId)
+      + renderStage('styling','Styling Agent', a.templateId ? 'Skipped (template)' : 'Applied brand fonts, colors, assets', a.iterId)
+      + renderStage('specCheck','Spec Check', (a.specPassed?'Passed':'Failed')+' &mdash; '+a.specIssues+' blocking issues', a.iterId)
+      + (specDetail ? '<div style="padding:4px 0 0 0">'+specDetail+'</div>' : '')
+      + '</div>'
+      + '<div class="section"><h3>Ratings</h3>'
+      + renderRating('prompt','Prompt Fulfillment',a.iterId)
+      + renderRating('layout','Layout Quality',a.iterId)
+      + renderRating('brand','Brand Adherence',a.iterId)
+      + renderRating('overall','Overall Quality',a.iterId)
+      + '</div>'
+      + '<div class="section"><h3>Notes</h3>'
+      + '<textarea placeholder="What stands out? What would you change?" oninput="feedback[\''+a.iterId+'\'].notes=this.value;updateStats()"></textarea>'
+      + '</div>'
+      + '<div class="bottom-bar">'
+      + '<button class="copy-btn" onclick="copySingle(\''+a.iterId+'\',this)">Copy This Feedback</button>'
+      + '<span style="flex:1"></span>'
+      + (i > 0 ? '<button class="prev-next" onclick="goTo('+(i-1)+')">Prev</button>' : '')
+      + (i < ASSETS.length-1 ? '<button class="prev-next" onclick="goTo('+(i+1)+')">Next</button>' : '')
+      + '</div></div>';
+    cards.appendChild(card);
+  });
+  goTo(0);
+}
+
+function toggleView(i, view) {
+  var f = document.getElementById('iframe-final-'+i);
+  var o = document.getElementById('iframe-original-'+i);
+  var fb = document.getElementById('tbtn-final-'+i);
+  var ob = document.getElementById('tbtn-original-'+i);
+  if (!o) return;
+  if (view === 'original') { f.classList.add('hidden'); o.classList.remove('hidden'); fb.classList.remove('active'); ob.classList.add('active'); }
+  else { o.classList.add('hidden'); f.classList.remove('hidden'); ob.classList.remove('active'); fb.classList.add('active'); }
+}
+
+function renderStage(key, name, detail, iterId) {
+  return '<div class="pipeline-stage"><span class="stage-name">'+name+'</span><span class="stage-detail">'+detail+'</span>'
+    +'<button class="vote-btn" id="vote-'+iterId+'-'+key+'-up" onclick="vote(\''+iterId+'\',\''+key+'\',\'up\')" title="Pipeline did well">+</button>'
+    +'<button class="vote-btn" id="vote-'+iterId+'-'+key+'-down" onclick="vote(\''+iterId+'\',\''+key+'\',\'down\')" title="Don\&#39;t like this">-</button></div>';
+}
+
+function renderRating(key, label, iterId) {
+  return '<div class="rating-row"><span class="rating-label">'+label+'</span><div class="stars">'
+    +[1,2,3,4,5].map(n => '<button class="star" id="star-'+iterId+'-'+key+'-'+n+'" onclick="rate(\''+iterId+'\',\''+key+'\','+n+')">&#9733;</button>').join('')
+    +'</div></div>';
+}
+
+function vote(iterId, stage, dir) {
+  var fb = feedback[iterId];
+  fb.stageVotes[stage] = fb.stageVotes[stage] === dir ? null : dir;
+  document.getElementById('vote-'+iterId+'-'+stage+'-up').className = 'vote-btn' + (fb.stageVotes[stage]==='up'?' up':'');
+  document.getElementById('vote-'+iterId+'-'+stage+'-down').className = 'vote-btn' + (fb.stageVotes[stage]==='down'?' down':'');
+  updateStats();
+}
+
+function rate(iterId, key, value) {
+  var fb = feedback[iterId];
+  fb.ratings[key] = fb.ratings[key] === value ? 0 : value;
+  for (var n = 1; n <= 5; n++) {
+    document.getElementById('star-'+iterId+'-'+key+'-'+n).className = 'star' + (n <= fb.ratings[key] ? ' filled' : '');
+  }
+  updateStats();
+}
+
+function goTo(i) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('visible'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('card-'+i).classList.add('visible');
+  var nb = document.getElementById('nav-'+i);
+  nb.classList.add('active');
+  nb.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+  currentIdx = i;
+}
+
+function isReviewed(iterId) {
+  var fb = feedback[iterId];
+  return fb.notes.length > 0 || Object.values(fb.ratings).some(v => v > 0) || Object.values(fb.stageVotes).some(v => v != null);
+}
+
+function updateStats() {
+  var reviewed = ASSETS.filter(a => isReviewed(a.iterId)).length;
+  document.getElementById('reviewed-count').textContent = reviewed + ' / ' + ASSETS.length + ' reviewed';
+  document.getElementById('progress').style.width = (reviewed/ASSETS.length*100).toFixed(0) + '%';
+  ASSETS.forEach((a, i) => {
+    var btn = document.getElementById('nav-'+i);
+    if (isReviewed(a.iterId)) btn.classList.add('reviewed'); else btn.classList.remove('reviewed');
+  });
+  var scored = ASSETS.filter(a => feedback[a.iterId].ratings.overall > 0);
+  if (scored.length) {
+    var avg = (scored.reduce((s,a) => s + feedback[a.iterId].ratings.overall, 0) / scored.length).toFixed(1);
+    document.getElementById('avg-score').textContent = 'Avg: '+avg+'/5';
+  }
+}
+
+function buildMarkdown(iterId) {
+  var a = ASSETS.find(x => x.iterId === iterId);
+  var fb = feedback[iterId];
+  var stars = function(n) { return n > 0 ? '\u2605'.repeat(n) + '\u2606'.repeat(5-n) + ' ('+n+'/5)' : 'not rated'; };
+  var vi = function(v) { return v === 'up' ? '+1' : v === 'down' ? '-1' : 'neutral'; };
+  var md = '### ' + a.creationType + ' — ' + (a.archetype||'unknown') + '\n';
+  md += '**Prompt:** ' + a.prompt + '\n';
+  md += '**Headline:** ' + (a.headline||'—') + '\n';
+  md += '**Accent:** ' + (a.accentColor||'—') + ' | **Route:** ' + (a.templateId ? 'template: '+a.templateId : 'archetype path') + '\n';
+  md += '**Spec Check:** ' + (a.specPassed ? 'PASS' : a.specPassed===false ? 'FAIL ('+a.specIssues+')' : 'N/A') + '\n\n';
+  md += '**Stage Feedback:**\n| Stage | Vote |\n|-------|------|\n';
+  ['copy','layout','styling','specCheck'].forEach(s => {
+    var label = {copy:'Copy',layout:'Layout',styling:'Styling',specCheck:'Spec Check'}[s];
+    md += '| '+label+' | '+vi(fb.stageVotes[s])+' |\n';
+  });
+  md += '\n**Ratings:**\n';
+  md += '- Prompt Fulfillment: '+stars(fb.ratings.prompt)+'\n';
+  md += '- Layout Quality: '+stars(fb.ratings.layout)+'\n';
+  md += '- Brand Adherence: '+stars(fb.ratings.brand)+'\n';
+  md += '- Overall Quality: '+stars(fb.ratings.overall)+'\n';
+  if (fb.notes) md += '\n**Notes:** '+fb.notes+'\n';
+  md += '\n---\n\n';
+  return md;
+}
+
+function copySingle(iterId, btn) {
+  navigator.clipboard.writeText(buildMarkdown(iterId));
+  btn.textContent = 'Copied!'; btn.classList.add('copied');
+  setTimeout(function(){ btn.textContent = 'Copy This Feedback'; btn.classList.remove('copied'); }, 1500);
+}
+
+function exportAll() {
+  var reviewed = ASSETS.filter(a => isReviewed(a.iterId));
+  if (!reviewed.length) { alert('No feedback entered yet.'); return; }
+  var md = '# Overnight Pipeline Review — ' + new Date().toISOString().slice(0,10) + '\n\n';
+  md += '**Assets reviewed:** '+reviewed.length+' / '+ASSETS.length+'\n';
+  var scored = reviewed.filter(a => feedback[a.iterId].ratings.overall > 0);
+  if (scored.length) {
+    var avg = (scored.reduce((s,a) => s+feedback[a.iterId].ratings.overall, 0) / scored.length).toFixed(1);
+    md += '**Average overall score:** '+avg+'/5\n';
+  }
+  md += '\n---\n\n';
+  reviewed.forEach(a => { md += buildMarkdown(a.iterId); });
+  navigator.clipboard.writeText(md);
+  var btn = document.querySelector('.export-all');
+  btn.textContent = 'Copied to clipboard!';
+  setTimeout(function(){ btn.textContent = 'Export All Feedback as Markdown'; }, 2000);
+}
+
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight' && currentIdx < ASSETS.length-1) goTo(currentIdx+1);
+  if (e.key === 'ArrowLeft' && currentIdx > 0) goTo(currentIdx-1);
+});
+
+init();
+</script>
+</body>
+</html>

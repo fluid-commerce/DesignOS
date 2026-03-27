@@ -15,11 +15,17 @@
     font-family: sans-serif;
   }
 
-  .decorative-zone {
+  .background-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
+  }
+  .foreground-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
   }
 
   /* SLOT: .photo img */
@@ -72,7 +78,8 @@
 </style>
 </head>
 <body>
-  <div class="decorative-zone"></div>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
 
   <!-- SLOT: photo -->
   <div class="photo">
@@ -86,5 +93,7 @@
 
   <!-- SLOT: subtext -->
   <p class="subtext">And it doesn't look like what you expected.</p>
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
 </body>
 </html>

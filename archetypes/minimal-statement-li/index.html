@@ -15,11 +15,17 @@
     font-family: sans-serif;
   }
 
-  .decorative-zone {
+  .background-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
+  }
+  .foreground-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
   }
 
   .content {
@@ -53,7 +59,8 @@
 </style>
 </head>
 <body>
-  <div class="decorative-zone"></div>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
 
   <div class="content">
     <!-- SLOT: headline -->
@@ -62,5 +69,7 @@
     <!-- SLOT: supporting-text -->
     <p class="supporting-text">Focus on the numbers that actually move revenue.</p>
   </div>
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
 </body>
 </html>

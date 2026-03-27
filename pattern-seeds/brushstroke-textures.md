@@ -4,15 +4,16 @@
 
 | Asset | Description | Weight |
 |-------|-------------|--------|
-| brush-texture-01 through brush-texture-10 | Varied brush stroke textures | 75 |
-| brush-white | Large white brush stroke for bold overlays | 75 |
+| `brush-texture-01` through `brush-texture-10` | Varied brush stroke textures — discover via `list_brand_assets(category="brushstrokes")` | 75 |
+| `brush-white` | Large white brush stroke for bold overlays | 75 |
 
 ## Usage Rules
 
 - **ALWAYS** use `mix-blend-mode: screen` (weight: 95)
 - Opacity: `0.10-0.25` — subtle at 0.10-0.15, dramatic at 0.20-0.25 (weight: 90)
 - Edges must bleed off canvas, never cut mid-frame (weight: 85)
-- 2 per post standard, 3 max for manifesto (weight: 80)
+- Every social post MUST contain at least 2 brushstrokes in the background layer. A post with ZERO brushstrokes is a brand failure. (weight: 95)
+- 2 per post standard, 3 max for manifesto (weight: 90)
 - Slight rotation for organic feel (weight: 50)
 
 ## Placement Strategies

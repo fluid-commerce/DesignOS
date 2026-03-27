@@ -15,11 +15,17 @@
     font-family: sans-serif;
   }
 
-  .decorative-zone {
+  .background-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
+  }
+  .foreground-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
   }
 
   /* SLOT: .quote-text */
@@ -82,7 +88,8 @@
 </style>
 </head>
 <body>
-  <div class="decorative-zone"></div>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
 
   <!-- SLOT: quote-text -->
   <p class="quote-text">"The moment we stopped thinking about marketing as a department and started thinking about it as a system, everything changed."</p>
@@ -101,5 +108,7 @@
       <p class="title">VP of Marketing, Acme Corp</p>
     </div>
   </div>
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
 </body>
 </html>

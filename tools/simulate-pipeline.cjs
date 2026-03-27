@@ -53,6 +53,11 @@ let dryRun = false;
 let pipelineOnly = false;
 let batchFile = null;
 let reportFile = null;
+let stepMode = null;       // --step init|copy|layout|styling|spec-check|micro-fix|fix|attach-schema
+let stepWorkingDir = null;  // --working-dir for --step mode
+let stepCampaignCtx = null; // --campaign-context for --step copy
+let stepTarget = null;      // --target for --step fix
+let stepIssues = null;      // --issues for --step fix
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--live') { liveMode = true; continue; }
@@ -61,10 +66,15 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--prompt' && args[i + 1]) { prompt = args[++i]; continue; }
   if (args[i] === '--batch' && args[i + 1]) { batchFile = args[++i]; continue; }
   if (args[i] === '--report' && args[i + 1]) { reportFile = args[++i]; continue; }
+  if (args[i] === '--step' && args[i + 1]) { stepMode = args[++i]; continue; }
+  if (args[i] === '--working-dir' && args[i + 1]) { stepWorkingDir = args[++i]; continue; }
+  if (args[i] === '--campaign-context' && args[i + 1]) { stepCampaignCtx = args[++i]; continue; }
+  if (args[i] === '--target' && args[i + 1]) { stepTarget = args[++i]; continue; }
+  if (args[i] === '--issues' && args[i + 1]) { stepIssues = args[++i]; continue; }
   if (!prompt && !args[i].startsWith('--')) { prompt = args[i]; }
 }
 
-if (!prompt && !batchFile) {
+if (!prompt && !batchFile && !stepMode) {
   console.error(`simulate-pipeline — Test the generation pipeline from CLI
 
 Usage:
@@ -73,14 +83,455 @@ Usage:
   node tools/simulate-pipeline.cjs --live "Your prompt here"
   node tools/simulate-pipeline.cjs --dry-run "Your prompt here"
   node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json
+  node tools/simulate-pipeline.cjs --step <mode> [--working-dir <dir>] "prompt"
 
 Modes:
   (default)   Build prompts + spawn Claude Code subagents to generate assets
   --pipeline  Dump pipeline prompts/context to _pipeline/ for inspection only
   --live      Run the real Anthropic API pipeline
   --dry-run   DB records + filesystem only (fastest)
+  --step      Build prompts for one stage at a time (init|copy|layout|styling|spec-check|micro-fix|fix|attach-schema)
 `);
   process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// --step mode helper
+// ---------------------------------------------------------------------------
+
+/**
+ * Run a --step command via a temporary tsx script that imports the real
+ * api-pipeline.ts functions. Returns JSON to stdout.
+ */
+function runStepViaTsx(stepName, tsxBody) {
+    const tmpScript = path.join(CANVAS_DIR, `_sim-step-${stepName}-${Date.now()}.mts`);
+    fs.writeFileSync(tmpScript, tsxBody);
+
+    // tsx creates an IPC socket under TMPDIR. The sandbox may set TMPDIR to
+    // a path it can't actually create (e.g. /tmp/claude). Use /tmp/claude-1000
+    // which the sandbox pre-creates and guarantees writable.
+    const safeTmpDir = fs.existsSync('/tmp/claude-1000') ? '/tmp/claude-1000'
+      : (process.env.TMPDIR || '/tmp');
+
+    try {
+      const output = execSync(
+        `cd "${CANVAS_DIR}" && npx tsx "${tmpScript}"`,
+        { encoding: 'utf-8', timeout: 30000, env: { ...process.env, FLUID_DB_PATH: DB_PATH, TMPDIR: safeTmpDir } }
+      );
+      return output.trim().split('\n').pop();
+    } finally {
+      try { fs.unlinkSync(tmpScript); } catch { /* ok */ }
+    }
+  }
+
+function executeStepMode() {
+  if (stepMode === 'init' && !prompt) {
+    console.error('Error: --step init requires a prompt argument.');
+    process.exit(1);
+  }
+  if (stepMode !== 'init' && !stepWorkingDir) {
+    console.error('Error: --step ' + stepMode + ' requires --working-dir <dir>.');
+    process.exit(1);
+  }
+
+  try {
+    if (stepMode === 'init') {
+      // Create DB records for all creations, return manifest
+      const { campaignId, isSingleCreation, creationMap } = preCreateCampaign(prompt);
+      const manifest = {
+        campaignId,
+        isSingleCreation,
+        creations: creationMap.map(c => ({
+          creationId: c.creation.id,
+          creationType: c.creation.creationType,
+          title: c.creation.title,
+          iterationId: c.iterationId,
+          workingDir: c.workingDir,
+          htmlOutputPath: c.absHtmlPath,
+          pipelineDir: path.join(c.workingDir, '_pipeline'),
+        })),
+      };
+      // Create _pipeline dirs and write per-creation manifests
+      for (const c of manifest.creations) {
+        fs.mkdirSync(c.pipelineDir, { recursive: true });
+        fs.writeFileSync(path.join(c.pipelineDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
+      }
+      console.log(JSON.stringify(manifest));
+      db.close();
+      process.exit(0);
+    }
+
+    const pipelineDir = path.join(stepWorkingDir, '_pipeline');
+    fs.mkdirSync(pipelineDir, { recursive: true });
+
+    // Read manifest to get context
+    let manifestData = {};
+    try {
+      manifestData = JSON.parse(fs.readFileSync(path.join(pipelineDir, 'manifest.json'), 'utf-8'));
+    } catch { /* ok — not all steps need it */ }
+
+    // Find this creation in the manifest
+    const thisCreation = (manifestData.creations || []).find(c => c.workingDir === stepWorkingDir) || {};
+    const creationType = thisCreation.creationType || 'instagram';
+    const htmlOutputPath = thisCreation.htmlOutputPath || path.join(stepWorkingDir, 'output.html');
+    const creationId = thisCreation.creationId || '';
+    const iterationId = thisCreation.iterationId || '';
+    const campaignId = manifestData.campaignId || '';
+
+    if (stepMode === 'copy') {
+      const campaignCtxArg = stepCampaignCtx ? JSON.stringify(stepCampaignCtx) : 'undefined';
+      const result = runStepViaTsx('copy', `
+import { buildCopyPrompt, buildSystemPrompt, buildPhotoAvailabilitySummary, scanArchetypes, filterArchetypesByPlatform, STAGE_TOOLS } from './src/server/api-pipeline.js';
+import { loadContextMap } from './src/server/db-api.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+
+const ctx = ${JSON.stringify({ prompt, creationType, workingDir: stepWorkingDir, htmlOutputPath, creationId, campaignId })};
+const pipelineDir = ${JSON.stringify(pipelineDir)};
+const campaignContext = ${campaignCtxArg};
+
+let contextMap; try { contextMap = loadContextMap(); } catch { contextMap = new Map(); }
+
+// Scan archetypes and build list
+const archetypes = await scanArchetypes();
+const platformArchetypes = filterArchetypesByPlatform(archetypes, ctx.creationType);
+const archetypeList = [...platformArchetypes.values()].map(a => '- ' + a.slug + ': ' + a.description).join('\\n');
+const photoSummary = buildPhotoAvailabilitySummary(ctx.creationType, archetypes);
+
+// Build copy prompts
+const copyUser = buildCopyPrompt(ctx, campaignContext, archetypeList, photoSummary);
+const copySystem = buildSystemPrompt('copy', ctx);
+
+await fs.writeFile(path.join(pipelineDir, 'copy-system.txt'), copySystem);
+await fs.writeFile(path.join(pipelineDir, 'copy-user.txt'), copyUser);
+
+// Dump tool schemas
+const tools = STAGE_TOOLS['copy'].map(t => ({ name: t.name, description: t.description, input_schema: t.input_schema }));
+await fs.writeFile(path.join(pipelineDir, 'tools.json'), JSON.stringify(tools, null, 2));
+
+console.log(JSON.stringify({ ok: true }));
+`);
+      console.log(result);
+    }
+
+    else if (stepMode === 'layout') {
+      const result = runStepViaTsx('layout', `
+import { buildLayoutPrompt, buildSystemPrompt, scanArchetypes, filterArchetypesByPlatform, resolveArchetypeSlug, STAGE_TOOLS } from './src/server/api-pipeline.js';
+import { loadContextMap, getDesignDnaForPipeline } from './src/server/db-api.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+
+const ctx = ${JSON.stringify({ prompt, creationType, workingDir: stepWorkingDir, htmlOutputPath, creationId, campaignId })};
+const pipelineDir = ${JSON.stringify(pipelineDir)};
+
+// Read copy.md to detect routing signal
+let copyMd = '';
+try { copyMd = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8'); } catch {}
+
+const archetypes = await scanArchetypes();
+let isTemplatePath = false;
+let resolvedTemplateId = '';
+let resolvedArchetypeSlug = '';
+let archetypeHtml: string | undefined;
+let templateHtml: string | undefined;
+
+// Check template signal first
+const templateMatch = copyMd.match(/template[:\\s]+(\\S+)/i);
+if (templateMatch) {
+  resolvedTemplateId = templateMatch[1].toLowerCase().trim();
+  const templateSubdir = ctx.creationType === 'one-pager' ? 'one-pagers' : 'social';
+  const PROJECT_ROOT = path.resolve(process.cwd(), '..');
+  const templateHtmlPath = path.join(PROJECT_ROOT, 'templates', templateSubdir, resolvedTemplateId + '.html');
+  try {
+    await fs.access(templateHtmlPath);
+    templateHtml = await fs.readFile(templateHtmlPath, 'utf-8');
+    isTemplatePath = true;
+  } catch { /* fall through to archetype */ }
+}
+
+if (!isTemplatePath) {
+  const archetypeMatch = copyMd.match(/archetype[:\\s]+(\\S+)/i);
+  const platformArchetypes = filterArchetypesByPlatform(archetypes, ctx.creationType);
+  if (archetypeMatch) {
+    const result = resolveArchetypeSlug(archetypeMatch[1], platformArchetypes.size > 0 ? platformArchetypes : archetypes);
+    resolvedArchetypeSlug = result.slug;
+  } else if (platformArchetypes.size > 0) {
+    resolvedArchetypeSlug = [...platformArchetypes.keys()].sort()[0];
+  }
+  const meta = archetypes.get(resolvedArchetypeSlug);
+  if (meta) {
+    try { archetypeHtml = await fs.readFile(meta.htmlPath, 'utf-8'); } catch {}
+  }
+}
+
+// Load context + Design DNA
+let contextMap; try { contextMap = loadContextMap(); } catch { contextMap = new Map(); }
+const designDna = isTemplatePath ? '' : (() => {
+  try {
+    const dna = getDesignDnaForPipeline(ctx.creationType, resolvedArchetypeSlug);
+    const parts = ['## Design DNA', dna.globalStyle, dna.socialGeneral, dna.platformRules];
+    if (dna.archetypeNotes) parts.push(dna.archetypeNotes);
+    return parts.join('\\n\\n');
+  } catch { return ''; }
+})();
+
+// Build layout prompts
+const inputHtml = isTemplatePath ? templateHtml : archetypeHtml;
+const inputId = isTemplatePath ? resolvedTemplateId : (resolvedArchetypeSlug || undefined);
+const layoutUser = buildLayoutPrompt(ctx, inputHtml, inputId);
+const layoutSystem = buildSystemPrompt('layout', ctx, designDna || undefined);
+
+await fs.writeFile(path.join(pipelineDir, 'layout-system.txt'), layoutSystem);
+await fs.writeFile(path.join(pipelineDir, 'layout-user.txt'), layoutUser);
+
+const tools = STAGE_TOOLS['layout'].map(t => ({ name: t.name, description: t.description, input_schema: t.input_schema }));
+await fs.writeFile(path.join(pipelineDir, 'tools.json'), JSON.stringify(tools, null, 2));
+
+console.log(JSON.stringify({
+  routing: isTemplatePath ? 'template' : 'archetype',
+  resolvedId: isTemplatePath ? resolvedTemplateId : resolvedArchetypeSlug,
+  isTemplatePath,
+  matched: true,
+}));
+`);
+      console.log(result);
+    }
+
+    else if (stepMode === 'styling') {
+      const result = runStepViaTsx('styling', `
+import { buildStylingPrompt, buildSystemPrompt, scanArchetypes, filterArchetypesByPlatform, resolveArchetypeSlug, STAGE_TOOLS } from './src/server/api-pipeline.js';
+import { loadContextMap, getDesignDnaForPipeline, getBrandAssets, getBrandPatterns } from './src/server/db-api.js';
+import * as fs from 'node:fs/promises';
+import * as fsSync from 'node:fs';
+import * as path from 'node:path';
+
+const ctx = ${JSON.stringify({ prompt, creationType, workingDir: stepWorkingDir, htmlOutputPath, creationId, campaignId })};
+const pipelineDir = ${JSON.stringify(pipelineDir)};
+
+// Check if template path (skip styling)
+let copyMd = '';
+try { copyMd = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8'); } catch {}
+const templateMatch = copyMd.match(/template[:\\s]+(\\S+)/i);
+if (templateMatch) {
+  const templateSubdir = ctx.creationType === 'one-pager' ? 'one-pagers' : 'social';
+  const PROJECT_ROOT = path.resolve(process.cwd(), '..');
+  const templateHtmlPath = path.join(PROJECT_ROOT, 'templates', templateSubdir, templateMatch[1].toLowerCase().trim() + '.html');
+  try {
+    await fs.access(templateHtmlPath);
+    console.log(JSON.stringify({ skipped: true, reason: 'template-path' }));
+    process.exit(0);
+  } catch { /* fall through */ }
+}
+
+// Archetype-based styling
+const archetypes = await scanArchetypes();
+const archetypeMatch = copyMd.match(/archetype[:\\s]+(\\S+)/i);
+const platformArchetypes = filterArchetypesByPlatform(archetypes, ctx.creationType);
+let resolvedSlug = '';
+if (archetypeMatch) {
+  resolvedSlug = resolveArchetypeSlug(archetypeMatch[1], platformArchetypes.size > 0 ? platformArchetypes : archetypes).slug;
+} else if (platformArchetypes.size > 0) {
+  resolvedSlug = [...platformArchetypes.keys()].sort()[0];
+}
+
+const meta = archetypes.get(resolvedSlug);
+let imageSlotLabels: string[] = [];
+if (meta) {
+  try {
+    const raw = fsSync.readFileSync(meta.schemaPath, 'utf-8');
+    const schema = JSON.parse(raw);
+    imageSlotLabels = (schema.fields || []).filter((f: any) => f.type === 'image').map((f: any) => f.label);
+  } catch {}
+}
+
+// Build Design DNA
+let designDna = '';
+try {
+  const dna = getDesignDnaForPipeline(ctx.creationType, resolvedSlug);
+  const parts = ['## Design DNA', dna.globalStyle, dna.socialGeneral, dna.platformRules];
+  if (dna.archetypeNotes) parts.push(dna.archetypeNotes);
+  designDna = parts.join('\\n\\n');
+} catch {}
+
+// Build asset manifest
+const assets = getBrandAssets();
+const manifestLines = ['## Pre-loaded Asset URLs', ''];
+const byCategory = new Map();
+for (const a of assets) {
+  if (!byCategory.has(a.category)) byCategory.set(a.category, []);
+  byCategory.get(a.category).push(a);
+}
+for (const [cat, catAssets] of byCategory) {
+  manifestLines.push('### ' + cat);
+  for (const a of catAssets) {
+    const serveUrl = '/api/brand-assets/serve/' + encodeURIComponent(a.name);
+    if (a.mimeType?.startsWith('font/') || a.name.includes('Font') || a.name.includes('font')) {
+      manifestLines.push('- **' + a.name + '**: fontSrc=\`url(\\'' + serveUrl + '\\') format(\\'truetype\\')\`');
+    } else {
+      manifestLines.push('- **' + a.name + '**: imgSrc=\`' + serveUrl + '\` | cssUrl=\`url(\\'' + serveUrl + '\\')\`');
+    }
+  }
+  manifestLines.push('');
+}
+const assetManifest = manifestLines.join('\\n');
+
+let contextMap; try { contextMap = loadContextMap(); } catch { contextMap = new Map(); }
+
+const stylingUser = buildStylingPrompt(ctx, undefined, !!meta, imageSlotLabels);
+const injected = [designDna, assetManifest].filter(Boolean).join('\\n\\n');
+const stylingSystem = buildSystemPrompt('styling', ctx, injected || undefined);
+
+await fs.writeFile(path.join(pipelineDir, 'styling-system.txt'), stylingSystem);
+await fs.writeFile(path.join(pipelineDir, 'styling-user.txt'), stylingUser);
+
+const tools = STAGE_TOOLS['styling'].map(t => ({ name: t.name, description: t.description, input_schema: t.input_schema }));
+await fs.writeFile(path.join(pipelineDir, 'tools.json'), JSON.stringify(tools, null, 2));
+
+console.log(JSON.stringify({ ok: true, archetypeSlug: resolvedSlug, imageSlotLabels }));
+`);
+      console.log(result);
+    }
+
+    else if (stepMode === 'spec-check') {
+      // Spec-check prompt is simple — no tsx needed
+      const specCheckUser = [
+        `Validate the HTML at ${htmlOutputPath} against the brand's design specs.`,
+        `Use run_brand_check tool on that file.`,
+        `Write a JSON report to ${stepWorkingDir}/spec-report.json with format:`,
+        `{ "overall": "pass" | "fail", "blocking_issues": [{ "description": "...", "severity": "...", "fix_target": "copy" | "layout" | "styling" }] }`,
+        `Use empty blocking_issues array when overall is "pass".`,
+      ].join('\n');
+      fs.writeFileSync(path.join(pipelineDir, 'spec-check-user.txt'), specCheckUser);
+
+      // Spec-check system prompt
+      const specCheckSystem = [
+        `You are a spec-check agent working on a ${creationType} creation for the brand.`,
+        '',
+        '## Context',
+        `- Working directory: ${stepWorkingDir}`,
+        `- HTML output path: ${htmlOutputPath}`,
+        `- Creation type: ${creationType}`,
+        '',
+        '## Available Tools',
+        'read_file, write_file, run_brand_check',
+      ].join('\n');
+      fs.writeFileSync(path.join(pipelineDir, 'spec-check-system.txt'), specCheckSystem);
+
+      const tools = [
+        { name: 'read_file', description: 'Read a file from disk.' },
+        { name: 'write_file', description: 'Write content to a file on disk.' },
+        { name: 'run_brand_check', description: 'Run brand-compliance validation on an HTML file.' },
+      ];
+      fs.writeFileSync(path.join(pipelineDir, 'tools.json'), JSON.stringify(tools, null, 2));
+      console.log(JSON.stringify({ ok: true }));
+    }
+
+    else if (stepMode === 'micro-fix') {
+      // Apply regex-based micro-fixes (same as api-pipeline.ts tryMicroFix)
+      const MICRO_FIXABLE_RULES = new Set(['color-bg-pure-black']);
+      let specReport;
+      try {
+        specReport = JSON.parse(fs.readFileSync(path.join(stepWorkingDir, 'spec-report.json'), 'utf-8'));
+      } catch { console.log(JSON.stringify({ fixed: false, reason: 'no-spec-report' })); db.close(); process.exit(0); }
+
+      const violations = specReport.blocking_issues || [];
+      if (!violations.every(v => MICRO_FIXABLE_RULES.has(v.rule))) {
+        console.log(JSON.stringify({ fixed: false, reason: 'not-all-micro-fixable' }));
+        db.close();
+        process.exit(0);
+      }
+
+      let html = fs.readFileSync(htmlOutputPath, 'utf-8');
+      let modified = false;
+      for (const v of violations) {
+        if (v.rule === 'color-bg-pure-black' && v.found) {
+          const darkGray = v.found.replace('#', '').toLowerCase();
+          const pattern = new RegExp(`#${darkGray}`, 'gi');
+          const newHtml = html.replace(pattern, '#000000');
+          if (newHtml !== html) { html = newHtml; modified = true; }
+        }
+      }
+      if (modified) {
+        fs.writeFileSync(htmlOutputPath, html, 'utf-8');
+      }
+      console.log(JSON.stringify({ fixed: modified }));
+    }
+
+    else if (stepMode === 'fix') {
+      if (!stepTarget) { console.error('Error: --step fix requires --target <copy|layout|styling>'); process.exit(1); }
+      if (!stepIssues) { console.error('Error: --step fix requires --issues "<json>"'); process.exit(1); }
+      const result = runStepViaTsx('fix', `
+import { buildSystemPrompt } from './src/server/api-pipeline.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+
+const ctx = ${JSON.stringify({ prompt, creationType, workingDir: stepWorkingDir, htmlOutputPath, creationId, campaignId })};
+const pipelineDir = ${JSON.stringify(pipelineDir)};
+const target = ${JSON.stringify(stepTarget)};
+const issues = ${stepIssues};
+
+const fixUser = [
+  'FIX: You are the ' + target + ' agent. Re-read and fix the following issues in your domain.',
+  'Issues: ' + JSON.stringify(issues, null, 2),
+  '',
+  'Read the relevant files in ' + ctx.workingDir + '/ and fix only the issues listed above.',
+  'Rewrite the relevant file with the fixes applied.',
+].join('\\n');
+
+const fixSystem = buildSystemPrompt(target as any, ctx);
+
+await fs.writeFile(path.join(pipelineDir, 'fix-' + target + '-system.txt'), fixSystem);
+await fs.writeFile(path.join(pipelineDir, 'fix-' + target + '-user.txt'), fixUser);
+
+console.log(JSON.stringify({ ok: true, target }));
+`);
+      console.log(result);
+    }
+
+    else if (stepMode === 'attach-schema') {
+      const result = runStepViaTsx('attach-schema', `
+import { attachSlotSchema, scanArchetypes, resolveArchetypeSlug, filterArchetypesByPlatform } from './src/server/api-pipeline.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+
+const ctx = ${JSON.stringify({ prompt, creationType, workingDir: stepWorkingDir, htmlOutputPath, creationId, campaignId, iterationId })};
+
+let copyMd = '';
+try { copyMd = await fs.readFile(path.join(ctx.workingDir, 'copy.md'), 'utf-8'); } catch {}
+
+const archetypes = await scanArchetypes();
+const archetypeMatch = copyMd.match(/archetype[:\\s]+(\\S+)/i);
+const platformArchetypes = filterArchetypesByPlatform(archetypes, ctx.creationType);
+let resolvedSlug = '';
+if (archetypeMatch) {
+  resolvedSlug = resolveArchetypeSlug(archetypeMatch[1], platformArchetypes.size > 0 ? platformArchetypes : archetypes).slug;
+} else if (platformArchetypes.size > 0) {
+  resolvedSlug = [...platformArchetypes.keys()].sort()[0];
+}
+
+const meta = archetypes.get(resolvedSlug);
+if (meta) {
+  await attachSlotSchema(ctx, resolvedSlug, meta.schemaPath);
+  console.log(JSON.stringify({ ok: true, archetypeSlug: resolvedSlug }));
+} else {
+  console.log(JSON.stringify({ ok: false, reason: 'no-archetype-found' }));
+}
+`);
+      console.log(result);
+    }
+
+    else {
+      console.error(`Unknown --step mode: ${stepMode}`);
+      console.error('Valid modes: init, copy, layout, styling, spec-check, micro-fix, fix, attach-schema');
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error(`Error in --step ${stepMode}: ${err.message}`);
+    process.exit(1);
+  }
+
+  db.close();
+  process.exit(0);
 }
 
 // ---------------------------------------------------------------------------
@@ -120,6 +571,30 @@ try {
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
+
+// Ensure core tables exist (matches canvas/src/lib/db.ts initSchema)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS campaigns (
+    id TEXT PRIMARY KEY, title TEXT NOT NULL, channels TEXT NOT NULL,
+    created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS creations (
+    id TEXT PRIMARY KEY, campaign_id TEXT NOT NULL, title TEXT NOT NULL,
+    creation_type TEXT NOT NULL, slide_count INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER NOT NULL, FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+  );
+  CREATE TABLE IF NOT EXISTS slides (
+    id TEXT PRIMARY KEY, creation_id TEXT NOT NULL, slide_index INTEGER NOT NULL,
+    created_at INTEGER NOT NULL, FOREIGN KEY (creation_id) REFERENCES creations(id)
+  );
+  CREATE TABLE IF NOT EXISTS iterations (
+    id TEXT PRIMARY KEY, slide_id TEXT NOT NULL, iteration_index INTEGER NOT NULL,
+    html_path TEXT NOT NULL, slot_schema TEXT, ai_baseline TEXT, user_state TEXT,
+    status TEXT NOT NULL DEFAULT 'unmarked', source TEXT NOT NULL DEFAULT 'ai',
+    template_id TEXT, generation_status TEXT NOT NULL DEFAULT 'complete',
+    created_at INTEGER NOT NULL, FOREIGN KEY (slide_id) REFERENCES slides(id)
+  );
+`);
 
 // ---------------------------------------------------------------------------
 // Channel detection (replicated from watcher.ts — must stay in sync)
@@ -325,10 +800,14 @@ console.log(JSON.stringify(results));
 
   fs.writeFileSync(tmpScript, scriptContent);
 
+  // tsx IPC socket: use sandbox-safe temp dir (see runStepViaTsx comment)
+  const _safeTmpDir = fs.existsSync('/tmp/claude-1000') ? '/tmp/claude-1000'
+    : (process.env.TMPDIR || '/tmp');
+
   try {
     const output = execSync(
       `cd "${CANVAS_DIR}" && npx tsx "${tmpScript}"`,
-      { encoding: 'utf-8', timeout: 30000, env: { ...process.env, FLUID_DB_PATH: DB_PATH } }
+      { encoding: 'utf-8', timeout: 30000, env: { ...process.env, FLUID_DB_PATH: DB_PATH, TMPDIR: _safeTmpDir } }
     );
     const lastLine = output.trim().split('\n').pop();
     return JSON.parse(lastLine);
@@ -339,6 +818,13 @@ console.log(JSON.stringify(results));
   } finally {
     try { fs.unlinkSync(tmpScript); } catch { /* ok */ }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Execute --step mode if active (must be after DB + constants are loaded)
+// ---------------------------------------------------------------------------
+if (stepMode) {
+  executeStepMode();
 }
 
 // ---------------------------------------------------------------------------
@@ -379,7 +865,8 @@ async function runSimulation(promptText) {
         catch (e) { console.log(JSON.stringify({ ok: false, error: e.message })); }
       `);
       try {
-        const out = execSync(`cd "${CANVAS_DIR}" && npx tsx "${wrapperScript}"`, { encoding: 'utf-8', timeout: 300000, env: { ...process.env, FLUID_DB_PATH: DB_PATH } });
+        const __safeTmpDir = fs.existsSync('/tmp/claude-1000') ? '/tmp/claude-1000' : (process.env.TMPDIR || '/tmp');
+        const out = execSync(`cd "${CANVAS_DIR}" && npx tsx "${wrapperScript}"`, { encoding: 'utf-8', timeout: 300000, env: { ...process.env, FLUID_DB_PATH: DB_PATH, TMPDIR: __safeTmpDir } });
         const result = JSON.parse(out.trim().split('\n').pop());
         const ctx2 = c.creation.creationType === 'one-pager' ? 'website' : 'social';
         let comp = { summary: { errors: -1 } };

@@ -107,112 +107,136 @@
   ],
   "brand_patterns": [
     {
-      "id": "-srY10J9054LkfjOX74vP",
-      "slug": "color-palette",
-      "label": "Color Palette",
-      "category": "design-tokens",
-      "content": "Two distinct palettes: Social and Website. Never cross-pollinate.\n\n## Accent Colors (weight: 95)\n\nOne accent color per design. Used across all contexts — social, website, presentations.\n\n| Color | Hex | Usage |\n|-------|-----|-------|\n| Orange | #FF8B58 | Urgency, pain, warning, CTAs |\n| Blue | #42b1ff | Technical, intelligence, trust, links |\n| Green | #44b574 | Success, solution, proof |\n| Purple | #c985e5 | Premium, financial, analytical |\n\n```css\n/* Brand Accent Colors — pick ONE per design */\n:root {\n  --clr-orange: #FF8B58;\n  --clr-blue: #42b1ff;\n  --clr-green: #44b574;\n  --clr-purple: #c985e5;\n}\n```\n\n## Neutrals (weight: 90)\n\n| Color | Hex | Usage |\n|-------|-----|-------|\n| Black | #000000 | Social backgrounds (pure black) |\n| Near-black | #050505 | Website backgrounds |\n| Section bg | #111 / #161616 | Section fills |\n| White | #ffffff | Primary text |\n| Warm white | #f5f0e8 | Body text (warm off-white) |\n| Secondary | #888888 | Supporting text |\n\n### RGBA Overlay Patterns\n\n| Value | Usage | Weight |\n|-------|-------|--------|\n| `rgba(255,255,255,0.45)` | Body copy | 85 |\n| `rgba(255,255,255,0.25)` | Dimmed/secondary | 80 |\n| `rgba(255,255,255,0.03)` | Card backgrounds | 80 |\n| `rgba(255,255,255,0.06)` | Card borders | 75 |\n| `#1a1a1a` / `#222` | Borders/dividers | 75 |\n\n```css\n/* Neutrals — backgrounds, text, overlays */\n:root {\n  --clr-bg: #000;             /* Social: pure black */\n  --clr-bg-page: #050505;     /* Website: near-black */\n  --clr-bg-section: #111;     /* Section fills */\n  --clr-text: #ffffff;        /* Primary text */\n  --clr-text-warm: #f5f0e8;   /* Body text (warm) */\n  --clr-text-secondary: #888; /* Supporting text */\n  --clr-border: #1a1a1a;      /* Borders, dividers */\n}\n.body-copy    { color: rgba(255,255,255,0.45); }  /* Weight: 85 */\n.dimmed       { color: rgba(255,255,255,0.25); }  /* Weight: 80 */\n.card         { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }\n```\n",
-      "sort_order": 0,
-      "updated_at": 1773871262015
-    },
-    {
-      "id": "_nN8OIpn-jv9HkUPs_vhJ",
-      "slug": "typography",
-      "label": "Typography",
-      "category": "design-tokens",
-      "content": "Social = NeueHaasDisplay + FLFont. Website = Syne + DM Sans + Space Mono. Never cross-pollinate.\n\n## Font Mapping\n\n| Display Name | CSS font-family | File | Context | Weight |\n|---|---|---|---|---|\n| FLFont Bold | `flfontbold` | flfontbold.ttf | Social — taglines | 95 |\n| NeueHaasDisplay | `NeueHaas` | Inter-VariableFont.ttf (proxy) | Social — headlines, body | 90 |\n| Inter | `Inter` | Inter-VariableFont.ttf | Body, UI text | 80 |\n| Syne | `Syne` | (web font) | Website — display/headline | 90 |\n| DM Sans | `DM Sans` | (web font) | Website — body copy | 80 |\n| Space Mono | `Space Mono` | (web font) | Website — labels, metadata | 75 |\n\n## Social Typography Scale — Instagram\n\n```css\n@font-face {\n  font-family: 'flfontbold';\n  src: url('/api/brand-assets/serve/flfontbold') format('truetype');\n  font-weight: 700;\n  font-style: normal;\n}\n\n@font-face {\n  font-family: 'NeueHaas';\n  src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype');\n  font-weight: 100 900;\n  font-style: normal;\n}\n\n/* Instagram headline */\n.headline-ig {\n  font-family: 'NeueHaas', sans-serif;\n  font-weight: 900;\n  font-size: 82px;       /* Range: 82-100px */\n  line-height: 0.92;\n  letter-spacing: -0.03em;\n  text-transform: uppercase;\n  color: #ffffff;\n}\n\n/* Body copy */\n.body-copy {\n  font-family: 'NeueHaas', sans-serif;\n  font-weight: 300;\n  font-size: 22px;       /* Range: 22-24px */\n  line-height: 1.5;\n  color: rgba(255,255,255,0.45);\n}\n\n/* Side label (vertical) */\n.side-label {\n  font-family: 'NeueHaas', sans-serif;\n  font-size: 11px;\n  text-transform: uppercase;\n  letter-spacing: 0.15em;\n  opacity: 0.35;\n  writing-mode: vertical-rl;\n}\n\n/* LinkedIn headline */\n.headline-li {\n  font-family: 'NeueHaas', sans-serif;\n  font-weight: 900;\n  font-size: 52px;       /* Range: 52-62px */\n  line-height: 0.92;\n  letter-spacing: -0.03em;\n  text-transform: uppercase;\n}\n```\n\n## FLFont Bold Usage\n\nFLFont is for **taglines and emphasis ONLY** — never body text or headlines.\n\n```css\n.flfont-tagline {\n  font-family: 'flfontbold', cursive;\n  font-size: 26px;       /* Instagram: 26-32px, LinkedIn: 20-24px */\n  color: #FF8B58;         /* Replace with post accent color */\n  line-height: 1.3;\n}\n```\n\n## Uppercase Patterns (weight: 90)\n\nAll-caps is used selectively. Letter-spacing inverts based on size: large display text gets tight negative tracking, small functional text gets wide positive tracking.\n\n| Element | Letter-Spacing | Size | Notes |\n|---|---|---|---|\n| Headlines | `-0.03em` (tight) | 82-100px+ | Massive, fills the frame |\n| Side labels | `0.15em` (wide) | 11px | Vertical rotated text, ~35% opacity |\n| Pills / tags | `0.08em` (wide) | 10px | Small tag elements with card bg + border |\n| Context labels | `0.1em` (wide) | 11-18px | Stat descriptions, ~30% opacity |\n\n**NOT uppercase:** Body copy (sentence case), FLFont taglines (sentence case), sub-text callouts (sentence case).\n\n```css\n/* Headlines — tight tracking, massive size */\n.headline {\n  text-transform: uppercase;\n  letter-spacing: -0.03em;\n  font-weight: 900;\n  line-height: 0.92;\n}\n\n/* Pills / tags — wide tracking, tiny size */\n.pill {\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n  font-size: 10px;\n  font-weight: 700;\n}\n\n/* Context labels — wide tracking, dimmed */\n.context-label {\n  text-transform: uppercase;\n  letter-spacing: 0.1em;\n  font-weight: 700;\n  color: rgba(255,255,255,0.3);\n}\n\n/* Side labels — widest tracking, vertical */\n.side-label {\n  text-transform: uppercase;\n  letter-spacing: 0.15em;\n  font-size: 11px;\n  opacity: 0.35;\n  writing-mode: vertical-rl;\n}\n```\n",
-      "sort_order": 1,
-      "updated_at": 1773871262015
-    },
-    {
-      "id": "x8-c8NM7C6UyRBEOakjkA",
-      "slug": "opacity-patterns",
-      "label": "Opacity Patterns",
-      "category": "design-tokens",
-      "content": "Consistent opacity values across all brand elements.\n\n| Element | Opacity | Weight |\n|---------|---------|--------|\n| Brushstrokes | `0.10 - 0.25` | 90 |\n| Circle sketches | `0.5 - 0.7` | 85 |\n| Side labels | `~0.35` | 70 |\n| Slide numbers | `~0.40` | 70 |\n| Ghost background text | `0.04 - 0.06` | 65 |\n\n```css\n/* Opacity system */\n.brushstroke     { opacity: 0.15; }  /* Range: 0.10-0.25 */\n.circle-sketch   { opacity: 0.6; }   /* Range: 0.5-0.7 */\n.side-label      { opacity: 0.35; }\n.slide-number    { opacity: 0.40; }\n.ghost-text      { opacity: 0.05; }  /* Range: 0.04-0.06 */\n```\n",
-      "sort_order": 2,
-      "updated_at": 1773871262015
-    },
-    {
-      "id": "FbLw5BwAzlYQypioQJjhL",
+      "id": "ZkNdm14qfguxPjUZ0RMeK",
       "slug": "brushstroke-textures",
       "label": "Brushstroke Textures",
-      "category": "pattern",
+      "category": "decorations",
       "content": "11 brand brush textures. Always use `mix-blend-mode: screen` and opacity 0.10-0.25. Edges must bleed off canvas — never cut mid-frame.\n\n## Available Assets\n\n| Asset | Description | Weight |\n|-------|-------------|--------|\n| brush-texture-01 through brush-texture-10 | Varied brush stroke textures | 75 |\n| brush-white | Large white brush stroke for bold overlays | 75 |\n\n## Usage Rules\n\n- **ALWAYS** use `mix-blend-mode: screen` (weight: 95)\n- Opacity: `0.10-0.25` — subtle at 0.10-0.15, dramatic at 0.20-0.25 (weight: 90)\n- Edges must bleed off canvas, never cut mid-frame (weight: 85)\n- 2 per post standard, 3 max for manifesto (weight: 80)\n- Slight rotation for organic feel (weight: 50)\n\n## Placement Strategies\n\n| Strategy | Best For | When |\n|----------|----------|------|\n| Top-right + bottom-left | Default for most posts | Standard diagonal framing |\n| Full-height edge framing | Dramatic, editorial posts | Tall vertical brushstrokes |\n| Full-width top sweep | Horizon/sky effect | Wide horizontal brushstrokes |\n| Both sides (curtain) | Manifesto posts only (sparingly) | Any tall verticals |\n| Center-bottom grounding | Under content, stability | Bottom grounding brushstrokes |\n\n```css\n/* Brushstroke positioning pattern */\n.brushstroke {\n  position: absolute;\n  mix-blend-mode: screen;\n  opacity: 0.15;          /* 0.10-0.15 subtle, 0.20-0.25 dramatic */\n  pointer-events: none;\n  z-index: 1;\n}\n\n/* Top-right placement (bleed off edge) */\n.brushstroke-top-right {\n  top: -20px;\n  right: -30px;\n  width: 500px;\n  transform: rotate(5deg);\n}\n\n/* Bottom-left placement (bleed off edge) */\n.brushstroke-bottom-left {\n  bottom: -20px;\n  left: -30px;\n  width: 500px;\n  transform: rotate(-8deg);\n}\n\n/* HTML usage — always reference assets from DB */\n<div class=\"post\" style=\"position: relative; overflow: hidden;\">\n  <img class=\"brushstroke brushstroke-top-right\"\n       src=\"/api/brand-assets/serve/brush-texture-01\"\n       alt=\"\" aria-hidden=\"true\">\n  <img class=\"brushstroke brushstroke-bottom-left\"\n       src=\"/api/brand-assets/serve/brush-texture-03\"\n       alt=\"\" aria-hidden=\"true\">\n  <!-- Content here -->\n</div>\n```\n",
-      "sort_order": 3,
-      "updated_at": 1773871262015
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 95,
+      "is_core": 0
     },
     {
-      "id": "69zXb3qNQNXQj4f5VID-7",
+      "id": "98E5s1okqqFSxpTBYnr17",
       "slug": "circles-underlines",
-      "label": "Circles & Underlines",
-      "category": "pattern",
+      "label": "Circles Underlines",
+      "category": "decorations",
       "content": "Hand-drawn emphasis elements for words and data points. CSS-mask technique — any color. (weight: 90)\n\n**EMPHASIS ONLY, NOT DECORATIVE** — Every circle/underline must wrap a specific word or data point. White PNG masks + backgroundColor = any color. Never use hue-rotate or tinted PNGs. (weight: 90)\n\n**STATIC BY DEFAULT** — For social post images, email graphics, one-pagers, and any static output: just use the mask technique with no animation. Animation is optional and only for interactive contexts (web pages, app UIs). (weight: 75)\n\n## How It Works\n\nWhite PNG used as CSS `mask-image`. A colored `div` behind the text has its shape cut by the mask. Change `backgroundColor` to change the color. Works in any context.\n\n## Circle Variants (6 masks)\n\nAssets: `circle-1` through `circle-6` — white masks, use as mask-image.\n\nEach has a different hand-drawn style ranging from tight clean ovals to loose rough circles.\n\n## Underline Variants (3 masks)\n\nAssets: `underline-1` through `underline-3` — white masks, use as mask-image.\n\n## Circle Sketches (3 variants)\n\nAssets: `circle-sketch-clean`, `circle-sketch-rough`, `circle-sketch-blue`\n\nStandalone decorative circles (not masks). Used as accent elements behind content.\n\n## Numbered Circles (11 variants)\n\nAssets: `circle-001` through `circle-011`\n\nPre-rendered circle textures for direct use.\n\n```css\n/* Circle emphasis — CSS mask technique */\n.circle-emphasis {\n  position: absolute;\n  background-color: #FF8B58;  /* Change to post accent color */\n  -webkit-mask-image: url('/api/brand-assets/serve/circle-1');\n  mask-image: url('/api/brand-assets/serve/circle-1');\n  -webkit-mask-size: contain;\n  mask-size: contain;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n  -webkit-mask-position: center;\n  mask-position: center;\n  z-index: 0;\n  pointer-events: none;\n}\n\n/* Underline emphasis — same technique */\n.underline-emphasis {\n  position: absolute;\n  background-color: #42b1ff;\n  -webkit-mask-image: url('/api/brand-assets/serve/underline-1');\n  mask-image: url('/api/brand-assets/serve/underline-1');\n  -webkit-mask-size: contain;\n  mask-size: contain;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n  height: 20px;\n  bottom: -8px;\n  left: -5%;\n  right: -5%;\n}\n\n/* HTML usage */\n<span style=\"position: relative; display: inline-block;\">\n  <span style=\"position: relative; z-index: 1;\">KEY WORD</span>\n  <div class=\"circle-emphasis\"\n       style=\"inset: -20% -15%; position: absolute;\"></div>\n</span>\n```\n",
-      "sort_order": 4,
-      "updated_at": 1773871262015
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 90,
+      "is_core": 0
     },
     {
-      "id": "TpKaDfAdkQcdQ5Bc9ZAWY",
-      "slug": "line-textures",
-      "label": "Line Textures",
-      "category": "pattern",
-      "content": "Hand-drawn line textures for borders, dividers, and decorative accents.\n\n## Available Assets\n\nAssets: `line-049`, `line-056`, `line-059`, `line-060`, `line-061`, `line-062`, `line-067`, `line-069`, `line-072`, `line-074`, `line-077`, `line-087`, `line-167`, `line-170`, `line-173`, `line-204`, `line-233`, `line-238`, `line-288`\n\n## Usage Rules\n\n- Use as decorative borders or section dividers\n- Apply `mix-blend-mode: screen` and low opacity (0.10-0.25) for subtle effect\n- Can be rotated for horizontal or diagonal placement\n- Reference via `/api/brand-assets/serve/{name}`\n\n```css\n/* Line texture as decorative divider */\n.line-divider {\n  position: absolute;\n  mix-blend-mode: screen;\n  opacity: 0.15;\n  pointer-events: none;\n  width: 100%;\n  height: auto;\n}\n```\n",
-      "sort_order": 5,
-      "updated_at": 1773871262015
+      "id": "4dRucYRGJY8lDjvgRQVZV",
+      "slug": "color-palette",
+      "label": "Color Palette",
+      "category": "colors",
+      "content": "Two distinct palettes: Social and Website. Never cross-pollinate.\n\n## Accent Colors (weight: 95)\n\nOne accent color per design. Used across all contexts — social, website, presentations.\n\n| Color | Hex | Usage |\n|-------|-----|-------|\n| Orange | #FF8B58 | Urgency, pain, warning, CTAs |\n| Blue | #42b1ff | Technical, intelligence, trust, links |\n| Green | #44b574 | Success, solution, proof |\n| Purple | #c985e5 | Premium, financial, analytical |\n\n```css\n/* Brand Accent Colors — pick ONE per design */\n:root {\n  --clr-orange: #FF8B58;\n  --clr-blue: #42b1ff;\n  --clr-green: #44b574;\n  --clr-purple: #c985e5;\n}\n```\n\n## Neutrals (weight: 90)\n\n| Color | Hex | Usage |\n|-------|-----|-------|\n| Black | #000000 | Social backgrounds (pure black) |\n| Near-black | #050505 | Website backgrounds |\n| Section bg | #111 / #161616 | Section fills |\n| White | #ffffff | Primary text |\n| Warm white | #f5f0e8 | Body text (warm off-white) |\n| Secondary | #888888 | Supporting text |\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 95,
+      "is_core": 1
     },
     {
-      "id": "8jCdFH_ZzY3B4dVvnRWpy",
-      "slug": "scribble-textures",
-      "label": "Scribble Textures",
-      "category": "pattern",
-      "content": "Hand-drawn scribble textures for organic, energetic accents.\n\n## Available Assets\n\nAssets: `scribble-017`, `scribble-023`, `scribble-062`, `scribble-063`, `scribble-064`, `scribble-072`, `scribble-104`, `scribble-117`, `scribble-163`, `scribble-224`, `scribble-228`, `scribble-313`, `scribble-344`, `scribble-405`, `scribble-409`, `scribble-438`, `scribble-482`, `scribble-498`, `scribble-499`\n\n## Usage Rules\n\n- Use sparingly as background texture or accent elements\n- Apply `mix-blend-mode: screen` and low opacity (0.10-0.20)\n- Best used at edges of canvas, partially off-frame\n- Reference via `/api/brand-assets/serve/{name}`\n\n```css\n/* Scribble texture as background accent */\n.scribble-accent {\n  position: absolute;\n  mix-blend-mode: screen;\n  opacity: 0.12;\n  pointer-events: none;\n  z-index: 1;\n}\n```\n",
-      "sort_order": 6,
-      "updated_at": 1773871262015
+      "id": "vjPFRl6LuLL9h4XPsiLmh",
+      "slug": "flfont-tagline-patterns",
+      "label": "Flfont Tagline Patterns",
+      "category": "typography",
+      "content": "The handwritten font for the takeaway line. Confidence and personality. (weight: 90)\n\n## Size Guide\n\n| Platform | Size Range | Example |\n|----------|-----------|---------|\n| Instagram primary | 26-32px | \"Every transaction matters.\" |\n| Instagram secondary | 22-26px | \"One connection. Zero 3am calls.\" |\n| LinkedIn | 20-24px | \"One platform. Every transaction.\" |\n\n## Tagline Sentence Patterns\n\n| Pattern | Example |\n|---------|---------|\n| [benefit]. [contrast]. | \"One connection. Zero 3am calls.\" |\n| [declaration]. | \"Every transaction matters.\" |\n| [scope]. [claim]. | \"One platform. Every transaction.\" |\n\n## Placement Rules\n\n- Below headline or bottom of content, before footer (weight: 80)\n- **Never** inside the headline itself\n- Color: always the post's accent color\n- Sentence case (NOT uppercase)\n\n```css\n/* FLFont Tagline Rules:\n   - Taglines and emphasis ONLY, never body/headlines (Weight: 90)\n   - Below headline, before footer (Weight: 80)\n   - Instagram: 26-32px, LinkedIn: 20-24px\n   - Color: post accent color\n*/\n\n.tagline {\n  font-family: 'flfontbold', cursive;\n  font-size: 28px;        /* Instagram: 26-32px */\n  color: #FF8B58;          /* Replace with post accent color */\n  line-height: 1.3;\n  margin-top: 16px;\n}\n```\n\n```html\n<p class=\"tagline\">Every transaction matters.</p>\n```\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 90,
+      "is_core": 0
     },
     {
-      "id": "LU4Ra48P9-p-nlu7SZBva",
-      "slug": "x-mark-textures",
-      "label": "X-Mark Textures",
-      "category": "pattern",
-      "content": "Hand-drawn X-mark textures for emphasis and decorative crosses.\n\n## Available Assets\n\nAssets: `199`, `218`\n\nAdditional cross/X elements: `Coss_004`, `Coss_007`, `Coss_014`\n\n## Usage Rules\n\n- Use as emphasis marks or decorative accents\n- Apply `mix-blend-mode: screen` and low opacity (0.10-0.20)\n- Good for marking rejected/old approaches in comparison posts\n- Reference via `/api/brand-assets/serve/{name}`\n",
-      "sort_order": 7,
-      "updated_at": 1773871262015
-    },
-    {
-      "id": "OX8Vj6673TDmN2LGMlyz1",
-      "slug": "photos-mockups",
-      "label": "Photos & Mockups",
-      "category": "pattern",
-      "content": "Template photography and device mockups for social posts and marketing materials.\n\n## Available Assets\n\n| Asset | Description |\n|-------|-------------|\n| person-photo-t1 | Portrait photo — template 1 testimonial |\n| person-holly | Portrait photo — employee/team member |\n| phone-mockup | Device mockup — app screenshot display |\n| phone-mockup-t2 | Device mockup — alternate angle |\n| screenshot-claude | App screenshot |\n| t8-thumbnail | Quarterly stats thumbnail |\n\n## Usage Rules\n\n- Portraits: use for testimonials, employee spotlights, partner announcements\n- Phone mockups: use for app highlights, feature spotlights\n- Always crop/position with `overflow: hidden` on the container\n- Reference via `/api/brand-assets/serve/{name}`\n",
-      "sort_order": 8,
-      "updated_at": 1773871262015
-    },
-    {
-      "id": "Qai8zldhpdLn7oLd-6jax",
+      "id": "TuOPgJMWQ4x5DXqW3SIz4",
       "slug": "footer-structure",
       "label": "Footer Structure",
-      "category": "pattern",
+      "category": "logos",
       "content": "Standard footer across all social posts. Three elements, always the same. (weight: 95)\n\n## Structure\n\n- **Left:** WeCommerce flag icon + separator bar + WeCommerce wordmark\n- **Right:** Fluid dots mark\n- Footer is subtle, never competing with content\n\n## Platform Sizing\n\n| Platform | Footer Padding | Weight |\n|----------|---------------|--------|\n| Instagram | `padding: 22px 68px` | 85 |\n| LinkedIn | `padding: 18px 72px` | 85 |\n\n## Footer Assets\n\n| Position | Asset | Size |\n|----------|-------|------|\n| Left — flag | `/api/brand-assets/serve/wecommerce-flags` | height: 18px |\n| Left — wordmark | `/api/brand-assets/serve/wecommerce-logos` | height: 18px |\n| Right — dots | `/api/brand-assets/serve/frame-3-fluid-dots` | height: 22px |\n\n```css\n/* Footer Structure (Weight: 95) */\n.footer {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 22px 68px;     /* Instagram. LinkedIn: 18px 72px */\n  z-index: 10;\n}\n.footer-left {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.footer-left img {\n  height: 18px;\n  opacity: 0.8;\n}\n.footer-separator {\n  width: 1px;\n  height: 14px;\n  background: rgba(255,255,255,0.15);\n}\n.footer-right img {\n  height: 22px;\n  opacity: 0.8;\n}\n```\n\n```html\n<footer class=\"footer\">\n  <div class=\"footer-left\">\n    <img src=\"/api/brand-assets/serve/wecommerce-flags\" alt=\"We-Commerce\">\n    <div class=\"footer-separator\"></div>\n    <img src=\"/api/brand-assets/serve/wecommerce-logos\" alt=\"We-Commerce\">\n  </div>\n  <div class=\"footer-right\">\n    <img src=\"/api/brand-assets/serve/frame-3-fluid-dots\" alt=\"Fluid\">\n  </div>\n</footer>\n```\n",
-      "sort_order": 9,
-      "updated_at": 1773871262015
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 95,
+      "is_core": 0
     },
     {
-      "id": "eYwn6aNzbcryF3sTYJFTT",
-      "slug": "flfont-tagline-patterns",
-      "label": "FLFont Tagline Patterns",
-      "category": "pattern",
-      "content": "The handwritten font for the takeaway line. Confidence and personality. (weight: 90)\n\n## Size Guide\n\n| Platform | Size Range | Example |\n|----------|-----------|---------|\n| Instagram primary | 26-32px | \"Every transaction matters.\" |\n| Instagram secondary | 22-26px | \"One connection. Zero 3am calls.\" |\n| LinkedIn | 20-24px | \"One platform. Every transaction.\" |\n\n## Tagline Sentence Patterns\n\n| Pattern | Example |\n|---------|---------|\n| [benefit]. [contrast]. | \"One connection. Zero 3am calls.\" |\n| [declaration]. | \"Every transaction matters.\" |\n| [scope]. [claim]. | \"One platform. Every transaction.\" |\n\n## Placement Rules\n\n- Below headline or bottom of content, before footer (weight: 80)\n- **Never** inside the headline itself\n- Color: always the post's accent color\n- Sentence case (NOT uppercase)\n\n```css\n/* FLFont Tagline Rules:\n   - Taglines and emphasis ONLY, never body/headlines (Weight: 90)\n   - Below headline, before footer (Weight: 80)\n   - Instagram: 26-32px, LinkedIn: 20-24px\n   - Color: post accent color\n*/\n\n.tagline {\n  font-family: 'flfontbold', cursive;\n  font-size: 28px;        /* Instagram: 26-32px */\n  color: #FF8B58;          /* Replace with post accent color */\n  line-height: 1.3;\n  margin-top: 16px;\n}\n```\n\n```html\n<p class=\"tagline\">Every transaction matters.</p>\n```\n",
-      "sort_order": 10,
-      "updated_at": 1773871262015
-    },
-    {
-      "id": "1pAuMZiDAlvKmk7bFuD8b",
+      "id": "CDolQLX4XiYVWJGNeh0O2",
       "slug": "layout-archetypes",
       "label": "Layout Archetypes",
-      "category": "layout-archetype",
+      "category": "archetypes",
       "content": "6 proven layout types for social posts. Each validated through 10+ iterations.\n\n## A. Full-Bleed Headline (weight: 85)\n\n**Best for:** Brand statements, problem declarations, emotional hooks\n\n**Structure:**\n1. HEADLINE (82-100px) — fills top portion, dominates visual weight\n2. FLFont tagline — accent color\n3. Body (1-2 sentences max) — supporting text\n4. Footer — standard brand footer\n5. Brushstrokes: 2\n\n## B. Headline + Diagram Card (weight: 80)\n\n**Best for:** Technical differentiators, before/after, process explanations\n\n**Structure:**\n1. HEADLINE (82px) — top section\n2. Diagram / Terminal / Flow — card with `rgba(255,255,255,0.03)` bg and `rgba(255,255,255,0.06)` border\n3. Footer\n\n## C. Giant Stat Hero (weight: 80)\n\n**Best for:** Proof points, reframes, \"the number you're not tracking\"\n\n**Structure:**\n1. Giant stat number (120px+) — center, largest element\n2. Headline below stat — contextualizes the number\n3. Body context — brief explanation\n4. Circle: around stat — emphasis element\n5. Footer\n\n## D. Pull Quote / Manifesto (weight: 80)\n\n**Best for:** Company voice, emotional storytelling, thought leadership\n\n**Structure:**\n1. Large opening quote mark (decorative, ~10% opacity)\n2. Quote text (50-52px) — the core message\n3. FLFont attribution — speaker/source\n4. Footer\n\n## E. Two-Column — LinkedIn only (weight: 75)\n\n**Best for:** Educational content, comparisons. 1200x627 landscape ONLY.\n\n**Structure:**\n- Left column (55%): Headline + body text\n- Right column (45%): Visual element (diagram, mockup, or illustration)\n- Footer\n\n## F. Centered Manifesto (weight: 75)\n\n**Best for:** Mission statements, campaign anchors. Heavy brush framing both sides.\n\n**Structure:**\n1. Ghost watermark text (~4% opacity, massive, fills background)\n2. Centered headline — on top of watermark\n3. Centered body — supporting text\n4. Footer\n5. Brushstrokes: heavy framing on both sides\n\n## Selection Guide\n\n| Archetype | When to Use | Accent |\n|-----------|-------------|--------|\n| Full-Bleed Headline | Default for most pain/problem posts | Orange |\n| Headline + Diagram | Technical or process content | Blue |\n| Giant Stat Hero | Data-driven proof points | Green |\n| Pull Quote / Manifesto | Thought leadership, storytelling | Any |\n| Two-Column | LinkedIn landscape educational | Blue |\n| Centered Manifesto | Campaign anchors, mission | Purple |\n",
-      "sort_order": 11,
-      "updated_at": 1773871262015
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 85,
+      "is_core": 1
+    },
+    {
+      "id": "cFazYmQQzJQh5D-nfMvpp",
+      "slug": "line-textures",
+      "label": "Line Textures",
+      "category": "decorations",
+      "content": "Hand-drawn line textures for borders, dividers, and decorative accents.\n\n## Available Assets\n\nAssets: `line-049`, `line-056`, `line-059`, `line-060`, `line-061`, `line-062`, `line-067`, `line-069`, `line-072`, `line-074`, `line-077`, `line-087`, `line-167`, `line-170`, `line-173`, `line-204`, `line-233`, `line-238`, `line-288`\n\n## Usage Rules\n\n- Use as decorative borders or section dividers\n- Apply `mix-blend-mode: screen` and low opacity (0.10-0.25) for subtle effect\n- Can be rotated for horizontal or diagonal placement\n- Reference via `/api/brand-assets/serve/{name}`\n\n```css\n/* Line texture as decorative divider */\n.line-divider {\n  position: absolute;\n  mix-blend-mode: screen;\n  opacity: 0.15;\n  pointer-events: none;\n  width: 100%;\n  height: auto;\n}\n```\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 70,
+      "is_core": 0
+    },
+    {
+      "id": "YTqm9YM1ZBpbra0xxgzwE",
+      "slug": "opacity-patterns",
+      "label": "Opacity Patterns",
+      "category": "colors",
+      "content": "Consistent opacity values across all brand elements.\n\n| Element | Opacity | Weight |\n|---------|---------|--------|\n| Brushstrokes | `0.10 - 0.25` | 90 |\n| Circle sketches | `0.5 - 0.7` | 85 |\n| Side labels | `~0.35` | 70 |\n| Slide numbers | `~0.40` | 70 |\n| Ghost background text | `0.04 - 0.06` | 65 |\n\n```css\n/* Opacity system */\n.brushstroke     { opacity: 0.15; }  /* Range: 0.10-0.25 */\n.circle-sketch   { opacity: 0.6; }   /* Range: 0.5-0.7 */\n.side-label      { opacity: 0.35; }\n.slide-number    { opacity: 0.40; }\n.ghost-text      { opacity: 0.05; }  /* Range: 0.04-0.06 */\n```\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 80,
+      "is_core": 0
+    },
+    {
+      "id": "fKawGNvHN5Komahf5uvLK",
+      "slug": "photos-mockups",
+      "label": "Photos Mockups",
+      "category": "images",
+      "content": "Template photography and device mockups for social posts and marketing materials.\n\n## Available Assets\n\n| Asset | Description |\n|-------|-------------|\n| person-photo-t1 | Portrait photo — template 1 testimonial |\n| person-holly | Portrait photo — employee/team member |\n| phone-mockup | Device mockup — app screenshot display |\n| phone-mockup-t2 | Device mockup — alternate angle |\n| screenshot-claude | App screenshot |\n| t8-thumbnail | Quarterly stats thumbnail |\n\n## Usage Rules\n\n- Portraits: use for testimonials, employee spotlights, partner announcements\n- Phone mockups: use for app highlights, feature spotlights\n- Always crop/position with `overflow: hidden` on the container\n- Reference via `/api/brand-assets/serve/{name}`\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 70,
+      "is_core": 0
+    },
+    {
+      "id": "CCS1oI0G1ClwipZG1_Lmu",
+      "slug": "scribble-textures",
+      "label": "Scribble Textures",
+      "category": "decorations",
+      "content": "Hand-drawn scribble textures for organic, energetic accents.\n\n## Available Assets\n\nAssets: `scribble-017`, `scribble-023`, `scribble-062`, `scribble-063`, `scribble-064`, `scribble-072`, `scribble-104`, `scribble-117`, `scribble-163`, `scribble-224`, `scribble-228`, `scribble-313`, `scribble-344`, `scribble-405`, `scribble-409`, `scribble-438`, `scribble-482`, `scribble-498`, `scribble-499`\n\n## Usage Rules\n\n- Use sparingly as background texture or accent elements\n- Apply `mix-blend-mode: screen` and low opacity (0.10-0.20)\n- Best used at edges of canvas, partially off-frame\n- Reference via `/api/brand-assets/serve/{name}`\n\n```css\n/* Scribble texture as background accent */\n.scribble-accent {\n  position: absolute;\n  mix-blend-mode: screen;\n  opacity: 0.12;\n  pointer-events: none;\n  z-index: 1;\n}\n```\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 70,
+      "is_core": 0
+    },
+    {
+      "id": "sNxthoFo68W1sweyfMJfO",
+      "slug": "typography",
+      "label": "Typography",
+      "category": "typography",
+      "content": "Social = NeueHaasDisplay + FLFont. Website = Syne + DM Sans + Space Mono. Never cross-pollinate.\n\n## Font Mapping\n\n| Display Name | CSS font-family | File | Context | Weight |\n|---|---|---|---|---|\n| FLFont Bold | `flfontbold` | flfontbold.ttf | Social — taglines | 95 |\n| NeueHaasDisplay | `NeueHaas` | Inter-VariableFont.ttf (proxy) | Social — headlines, body | 90 |\n| Inter | `Inter` | Inter-VariableFont.ttf | Body, UI text | 80 |\n| Syne | `Syne` | (web font) | Website — display/headline | 90 |\n| DM Sans | `DM Sans` | (web font) | Website — body copy | 80 |\n| Space Mono | `Space Mono` | (web font) | Website — labels, metadata | 75 |\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 90,
+      "is_core": 1
+    },
+    {
+      "id": "x2tQWTti9B8MLRyYG1_L5",
+      "slug": "x-mark-textures",
+      "label": "X Mark Textures",
+      "category": "decorations",
+      "content": "Hand-drawn X-mark textures for emphasis and decorative crosses.\n\n## Available Assets\n\nAssets: `199`, `218`\n\nAdditional cross/X elements: `Coss_004`, `Coss_007`, `Coss_014`\n\n## Usage Rules\n\n- Use as emphasis marks or decorative accents\n- Apply `mix-blend-mode: screen` and low opacity (0.10-0.20)\n- Good for marking rejected/old approaches in comparison posts\n- Reference via `/api/brand-assets/serve/{name}`\n",
+      "sort_order": 0,
+      "updated_at": 1774451492561,
+      "weight": 70,
+      "is_core": 0
     },
     {
       "id": "lGT-xyyy3PqqKstVjHXEM",
@@ -221,7 +245,20 @@
       "category": "visual-style",
       "content": "# Visual Compositor Contract — Fluid Social Posts\n\nThese rules define what makes a Fluid social post look \"designed\" rather than a web page.\n\n## Canvas\n- Fixed canvas with `overflow: hidden` — this is a poster, not a web page\n- No scrolling. Content must fit within the fixed dimensions.\n\n## Required Visual Layers (back to front)\n1. **Background** — solid color or gradient, extends to all edges\n2. **Texture/Brushstroke** — at least one decorative element with `mix-blend-mode: screen` and `opacity: 0.10–0.25`, positioned partially off-canvas (edge-bleed)\n3. **Content** — headline, subtext, positioned via `position: absolute` (not flexbox/grid)\n4. **Footer** — Fluid logo + We-Commerce wordmark left, Fluid dots right\n\n## Typography Scale\n- Headline must be 5–8x larger than body text (e.g., headline 72–120px, body 14–18px)\n- Use only `flfontbold` for brand taglines and `NeueHaas` (Inter) for all other text\n- Maximum 2 font families per post\n\n## Positioning\n- All major elements positioned with `position: absolute` and pixel values\n- Content intentionally inset from edges (40–80px padding from canvas border)\n- Background extends to edges; content does not\n\n## Required Elements\n- Logo (Fluid logo from brand assets)\n- At least one tagline in flfontbold\n- At least one decorative element (brushstroke or circle sketch)\n- At least one `mix-blend-mode` or CSS `filter` effect\n\n## Color\n- Limited palette: one accent color + black (#000) + white (#fff) + opacity variants\n- Accent colors: orange (#FF6B35) for pain, blue (#4A90D9) for trust, green (#7BC67E) for proof, purple (#9B59B6) for premium\n- Use `rgba()` for opacity variants, not separate color definitions\n\n## Anti-Patterns (reframed as positive constraints)\n- Use `position: absolute` for layout, not CSS Grid or Flexbox\n- Use pixel dimensions matching the target canvas (1080x1080 for Instagram)\n- All @font-face declarations must use URLs from list_brand_assets, never base64\n- All image/texture references must use URLs from list_brand_assets, never base64\n",
       "sort_order": 0,
-      "updated_at": 1773781888232
+      "updated_at": 1773781888232,
+      "weight": 50,
+      "is_core": 0
+    },
+    {
+      "id": "-KbNodXMLWpc6B4aXRovD",
+      "slug": "font-enforcement",
+      "label": "Font Enforcement",
+      "category": "pattern",
+      "content": "# Font Enforcement (weight: 90)\n\nOnly fonts registered in the brand's asset library may be used. Any font-family declaration referencing a font NOT in brand_assets is a violation.\n\nFor this brand: NeueHaas (NeueHaasDisplay) and flfontbold (FLFont) are the ONLY allowed fonts.\n- NeueHaas / NeueHaasDisplay — all body text, headlines, subtext\n- flfontbold / FLFont — brand taglines only\n- sans-serif — allowed ONLY as a generic fallback\n\nProhibited fonts include but are not limited to: Syne, DM Sans, Inter, Georgia, Times New Roman, Arial, Helvetica, any Google Fonts.\n\n(weight: 90)\n",
+      "sort_order": 100,
+      "updated_at": 1774420801298,
+      "weight": 50,
+      "is_core": 0
     }
   ],
   "template_design_rules": [
@@ -341,7 +378,9 @@
       "extra_tables": null,
       "preview_path": "social/t1-quote.html",
       "sort_order": 0,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "social-t2-app-highlight",
@@ -357,7 +396,9 @@
       "extra_tables": null,
       "preview_path": "social/t2-app-highlight.html",
       "sort_order": 1,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "social-t3-partner-alert",
@@ -373,7 +414,9 @@
       "extra_tables": null,
       "preview_path": "social/t3-partner-alert.html",
       "sort_order": 2,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "ad-t1-fluid-instagram",
@@ -389,7 +432,9 @@
       "extra_tables": "[{\"label\":\"Ad Copy — Instagram\",\"headers\":[\"Element\",\"Copy\",\"Chars\"],\"rows\":[[\"Primary Text\",\"One app. Every tool your rep business needs. Share referral links, track analytics, manage commissions — all in Fluid.\",\"119\"],[\"Headline\",\"Built for Reps. Made to Win.\",\"28\"],[\"Description\",\"Download the Fluid app\",\"22\"]]}]",
       "preview_path": "social/t4-fluid-ad.html",
       "sort_order": 200,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "social-t5-partner-announcement",
@@ -405,7 +450,9 @@
       "extra_tables": null,
       "preview_path": "social/t5-partner-announcement.html",
       "sort_order": 4,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "social-t6-employee-spotlight",
@@ -421,7 +468,9 @@
       "extra_tables": null,
       "preview_path": "social/t6-employee-spotlight.html",
       "sort_order": 5,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "social-t7-carousel",
@@ -437,7 +486,9 @@
       "extra_tables": "[{\"label\":\"Slide 01 — Cover\",\"headers\":[\"Slot\",\"Spec\",\"Color\"],\"rows\":[[\"{{HEADLINE}}\",\"NeueHaas 900 · 169px · lh 75% · centered · width 936px\",\"White\"],[\"{{PHOTO}}\",\"Portrait · left:408 top:494 · 263×327px · overflow clipped\",\"—\"],[\"{{NAME}}\",\"NeueHaas 900 · 89px · lh 80% · centered\",\"White\"],[\"{{TITLE}}\",\"flfontbold · 68px · centered\",\"Orange\"],[\"{{LOGOS}}\",\"Flag + divider + WeCommerce left · Fluid logo right · bottom bar\",\"—\"]]},{\"label\":\"Slide 02 — Intro\",\"headers\":[\"Slot\",\"Spec\",\"Color\"],\"rows\":[[\"{{BODY}}\",\"NeueHaas 400 · 75px · lh 100% · left:45 top:74 · width 936px\",\"White\"],[\"{{ARROW}}\",\"Blue arrow decoration · left:436 top:640 · 497×94px · rotate 7.76°\",\"Blue\"]]},{\"label\":\"Slide 03 — Tool\",\"headers\":[\"Slot\",\"Spec\",\"Color\"],\"rows\":[[\"{{TOOL_NAME}}\",\"NeueHaas 700 · 124px · lh 75% · left:45 top:132\",\"White\"],[\"{{BODY}}\",\"NeueHaas 400 · 47px · lh 116% · left:45 top:237 · width 780px\",\"White\"],[\"{{SCREENSHOT}}\",\"App screenshot · left:119 top:681 · 852×399px · clipped\",\"—\"],[\"{{DIFFICULTY}}\",\"Label: NeueHaas 700 24px · Value: flfontbold 68px · right:259 top:627\",\"Orange\"]]},{\"label\":\"Slide 04 — Feature\",\"headers\":[\"Slot\",\"Spec\",\"Color\"],\"rows\":[[\"{{FEATURE_NAME}}\",\"NeueHaas 700 · 124px · lh 75% · left:45 top:132\",\"White\"],[\"{{BODY_1}}\",\"NeueHaas 400 · 47px · lh 116% · width 936px · first paragraph\",\"White\"],[\"{{BODY_2}}\",\"NeueHaas 400 · 47px · lh 116% · margin-top 109px · second paragraph\",\"White\"]]}]",
       "preview_path": "social/t7-carousel.html",
       "sort_order": 6,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "onepager-product-feature",
@@ -453,7 +504,9 @@
       "extra_tables": null,
       "preview_path": "one-pagers/product-feature.html",
       "sort_order": 100,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "onepager-partner-integration",
@@ -469,7 +522,9 @@
       "extra_tables": null,
       "preview_path": "one-pagers/partner-integration.html",
       "sort_order": 101,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "onepager-company-overview",
@@ -485,7 +540,9 @@
       "extra_tables": null,
       "preview_path": "one-pagers/company-overview.html",
       "sort_order": 102,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "onepager-case-study",
@@ -501,7 +558,9 @@
       "extra_tables": null,
       "preview_path": "one-pagers/case-study.html",
       "sort_order": 103,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     },
     {
       "id": "onepager-comparison-sheet",
@@ -517,7 +576,9 @@
       "extra_tables": null,
       "preview_path": "one-pagers/comparison-sheet.html",
       "sort_order": 104,
-      "updated_at": 1773851240120
+      "updated_at": 1773851240120,
+      "content_type": null,
+      "tags": "[]"
     }
   ],
   "context_map": [
@@ -559,7 +620,7 @@
       "creation_type": "instagram",
       "stage": "layout",
       "page": "patterns",
-      "sections": "[\"design-tokens:*\",\"layout-archetype:*\"]",
+      "sections": "[\"colors:*\",\"typography:*\",\"archetypes:*\"]",
       "priority": 70,
       "max_tokens": 6000,
       "sort_order": 4,
@@ -570,7 +631,7 @@
       "creation_type": "linkedin",
       "stage": "layout",
       "page": "patterns",
-      "sections": "[\"design-tokens:*\",\"layout-archetype:*\"]",
+      "sections": "[\"colors:*\",\"typography:*\",\"archetypes:*\"]",
       "priority": 70,
       "max_tokens": 6000,
       "sort_order": 5,
@@ -581,7 +642,7 @@
       "creation_type": "one-pager",
       "stage": "layout",
       "page": "patterns",
-      "sections": "[\"design-tokens:*\",\"layout-archetype:*\"]",
+      "sections": "[\"colors:*\",\"typography:*\",\"archetypes:*\"]",
       "priority": 70,
       "max_tokens": 6000,
       "sort_order": 6,
@@ -592,7 +653,7 @@
       "creation_type": "instagram",
       "stage": "styling",
       "page": "patterns",
-      "sections": "[\"design-tokens:*\",\"pattern:*\"]",
+      "sections": "[\"colors:*\",\"typography:*\",\"decorations:*\",\"images:*\",\"logos:*\"]",
       "priority": 60,
       "max_tokens": 10000,
       "sort_order": 7,
@@ -603,7 +664,7 @@
       "creation_type": "linkedin",
       "stage": "styling",
       "page": "patterns",
-      "sections": "[\"design-tokens:*\",\"pattern:*\"]",
+      "sections": "[\"colors:*\",\"typography:*\",\"decorations:*\",\"images:*\",\"logos:*\"]",
       "priority": 60,
       "max_tokens": 10000,
       "sort_order": 8,
@@ -614,11 +675,3161 @@
       "creation_type": "one-pager",
       "stage": "styling",
       "page": "patterns",
-      "sections": "[\"design-tokens:*\"]",
+      "sections": "[\"colors:*\",\"typography:*\"]",
       "priority": 60,
       "max_tokens": 8000,
       "sort_order": 9,
       "updated_at": 1773854282797
     }
-  ]
+  ],
+  "campaigns": [
+    {
+      "id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "__standalone__",
+      "channels": "[\"standalone\"]",
+      "created_at": 1774418275609,
+      "updated_at": 1774418275609
+    },
+    {
+      "id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "Test sandbox fix",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774421211139,
+      "updated_at": 1774421211139
+    },
+    {
+      "id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "Launch a campaign for Fluid Pa",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774422705272,
+      "updated_at": 1774422705272
+    },
+    {
+      "id": "VQ_yWij2olBJOyezMB206",
+      "title": "Instagram post with a client t",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774426034861,
+      "updated_at": 1774426034861
+    },
+    {
+      "id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "Campaign for Fluid Payments — ",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774426546594,
+      "updated_at": 1774426546594
+    },
+    {
+      "id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "Instagram post with a client t",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774430241653,
+      "updated_at": 1774430241653
+    },
+    {
+      "id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "Launch a campaign for Fluid Pa",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774433330836,
+      "updated_at": 1774433330836
+    },
+    {
+      "id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "Instagram post with a client t",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774433331163,
+      "updated_at": 1774433331163
+    },
+    {
+      "id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "Campaign for Fluid Payments — ",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774433331279,
+      "updated_at": 1774433331279
+    },
+    {
+      "id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "Launch a campaign for Fluid Pa",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774436941349,
+      "updated_at": 1774436941349
+    },
+    {
+      "id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "Instagram post with a client t",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774436943290,
+      "updated_at": 1774436943290
+    },
+    {
+      "id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "Instagram post with a client t",
+      "channels": "[\"instagram\",\"linkedin\",\"one-pager\"]",
+      "created_at": 1774444126348,
+      "updated_at": 1774444126348
+    }
+  ],
+  "creations": [
+    {
+      "id": "07zPkTTfEgPiSQhZ2SCji",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774418275609
+    },
+    {
+      "id": "v7MprI1BOiMCUV0a-pYCG",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774419444758
+    },
+    {
+      "id": "Ux6MzaBTJ5xMBBC5w-Kho",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774421211139
+    },
+    {
+      "id": "XOrR7A7BRe5ZrAbHDXj67",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774421211140
+    },
+    {
+      "id": "jGonxPm2dm6RhHVaFj1oT",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774421211140
+    },
+    {
+      "id": "U-j7WE3DiGx3p3hjEKppM",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774421211141
+    },
+    {
+      "id": "vCy8qKh7P7pn2x1N9RXIw",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774421211141
+    },
+    {
+      "id": "ovSR4o8XTlFwUaGcOn5ZX",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774421211142
+    },
+    {
+      "id": "CxgeRwBwz17jXOnapr4kW",
+      "campaign_id": "EVEVFUuwGAUieZyCCO-qv",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774421211142
+    },
+    {
+      "id": "xlMSbTZ_-ZIPE833J5wcI",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774421631384
+    },
+    {
+      "id": "XujjmHNsf5_OX-d7IcX-O",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774422357799
+    },
+    {
+      "id": "3ZJtw3rfYExzB_4c9Pk3V",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774422705274
+    },
+    {
+      "id": "uXqIiJCu-PmH7akZ_dPMm",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774422705274
+    },
+    {
+      "id": "Q3pif9f-EIfR5gdlU4BHG",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774422705275
+    },
+    {
+      "id": "EDqDJh1dpsT-vVlG2PsfY",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774422705275
+    },
+    {
+      "id": "m-uSdFFruxQNOTb5EKR4c",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774422705275
+    },
+    {
+      "id": "TjNxLbouZTjvgP4QfScH6",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774422705276
+    },
+    {
+      "id": "ku5-bs3sW2UpK3PlG9hJb",
+      "campaign_id": "xcEtC8lNbynELzo3BVoEO",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774422705276
+    },
+    {
+      "id": "8dkjyj3wfE45tcGicPIWH",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774424961725
+    },
+    {
+      "id": "AVqNmAc3ac8cOU4ACrwqC",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774425167420
+    },
+    {
+      "id": "If2TufLQJQSlwrfVoMKJT",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774425411049
+    },
+    {
+      "id": "EAnJsEtJFfWCjNcEWcZQH",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774425639856
+    },
+    {
+      "id": "pS5UDbGjqcdVtkS4-aK5H",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774425849971
+    },
+    {
+      "id": "bbfx6aiD9stt7pFV9wiVL",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426034861
+    },
+    {
+      "id": "A_AmH14Od2CFbBuPJ0rqf",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426034862
+    },
+    {
+      "id": "q1El1yJ__DCR6llkm6wVf",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426034862
+    },
+    {
+      "id": "Ha4FIXoGYaiZlg-Cb_r7p",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426034862
+    },
+    {
+      "id": "Ul2p50LqrecAUrUJCU1ZG",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426034863
+    },
+    {
+      "id": "UtquTQqYgi1-q9DPkJih9",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426034863
+    },
+    {
+      "id": "7Tspbt4pnyD1LDc5Bs4aO",
+      "campaign_id": "VQ_yWij2olBJOyezMB206",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774426034863
+    },
+    {
+      "id": "ItCLZe9oicCABjJ-OlUHy",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426303655
+    },
+    {
+      "id": "Xtxwi690vfcXfFaOzYeVU",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426546594
+    },
+    {
+      "id": "26P8RFmcaImlWXcRjjR12",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426546595
+    },
+    {
+      "id": "YTaJkFf8SzdSBJcWkJ1HQ",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426546595
+    },
+    {
+      "id": "xhCNTFUSIOKXXxxPAxgPb",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426546596
+    },
+    {
+      "id": "yibAAL_ZqSRZpj8_fjbju",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426546596
+    },
+    {
+      "id": "12lv5V6A1lk9Dqxe8sGW5",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774426546596
+    },
+    {
+      "id": "FHllDsNOHMs21B2ollSEA",
+      "campaign_id": "p3p5qNoAzeQw8hsMFYlJP",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774426546597
+    },
+    {
+      "id": "nBVuU3rcv2zQNXFDHLQeB",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774426741405
+    },
+    {
+      "id": "B-rARuMZ70-76f-H_M1-G",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774427373451
+    },
+    {
+      "id": "xnoQTsk5fY5LJFh9Mm3T9",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774427672581
+    },
+    {
+      "id": "3nSJzn3FvFv_y3Odf6bv0",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774429750692
+    },
+    {
+      "id": "VGZ-cfFC74ipFFGDCAOLQ",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774429960228
+    },
+    {
+      "id": "R04NMDmfKfD-h-C2GerpD",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774430193406
+    },
+    {
+      "id": "JMPMYhvggu1pqbjxw4S7t",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774430201404
+    },
+    {
+      "id": "qk-4HxU9_GoL-sT_0YNDp",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774430241654
+    },
+    {
+      "id": "d_bi7nkllD2yCXVjxSQfb",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774430241655
+    },
+    {
+      "id": "GGELeNfBvNevKVzw0jTcq",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774430241655
+    },
+    {
+      "id": "CQ9lUVvLboQ1RlDZiEqmT",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774430241656
+    },
+    {
+      "id": "fq2A-8sdVbk07u2r7uSwI",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774430241656
+    },
+    {
+      "id": "THfOwe_4u6_KKSGDooWrN",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774430241657
+    },
+    {
+      "id": "B4IECGwxcwoSQkacr5quI",
+      "campaign_id": "ZSpJGRIALX6oRrwgy76wq",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774430241657
+    },
+    {
+      "id": "FNyiIPiS47xw59QxceCDb",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774430274361
+    },
+    {
+      "id": "M0sbpKCTzF5DXnEgrnI3T",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433330728
+    },
+    {
+      "id": "w7UhyiMgICjR5yO7o21Nf",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433330783
+    },
+    {
+      "id": "QlYtyQwp-ZrlDZ8ie9up6",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433330836
+    },
+    {
+      "id": "D1hf7r_TexKRPE1COLxIP",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433330837
+    },
+    {
+      "id": "CTcPj2XKr5f3z6sC2X8cz",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433330838
+    },
+    {
+      "id": "lKY6u4IjBpJRtD-z668vO",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433330838
+    },
+    {
+      "id": "GzoMq9_asNBzPYIrbqFpy",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433330838
+    },
+    {
+      "id": "9dZefbK0biAMS6UmQXpCN",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433330839
+    },
+    {
+      "id": "MGYHnWssUPrIRNule3Zzn",
+      "campaign_id": "aPon_U-oZjWe6Vy3Mn3DU",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774433330839
+    },
+    {
+      "id": "IlHDulc3cECKl0_HGXYr0",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433330898
+    },
+    {
+      "id": "6gXwI9zeYd__fmjrZMha-",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774433330954
+    },
+    {
+      "id": "NkNyTcoSNyRMULo-Bh2wW",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331005
+    },
+    {
+      "id": "r5n7mmGZQiGg0KCp7QaAk",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331056
+    },
+    {
+      "id": "uvxK0Q3-MIt118iit6JVf",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331109
+    },
+    {
+      "id": "pvQvqifDYJHVU5d3HjTFZ",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331163
+    },
+    {
+      "id": "BXWMfckYTv1zNv7OKx1Zz",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331164
+    },
+    {
+      "id": "Khz2Z2XX5K9bCrW6IMSHd",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331164
+    },
+    {
+      "id": "36Lx-akfNWkkP5X1ll__i",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331165
+    },
+    {
+      "id": "Ui6m_hrY_AbuyCILlV9Hi",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331165
+    },
+    {
+      "id": "dHgl_V5F5gK3-L9dzPzVM",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331165
+    },
+    {
+      "id": "8G9LvkzZue-kdXX4EcrR0",
+      "campaign_id": "BTCAyEdthWCB8M30bz1Zp",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774433331166
+    },
+    {
+      "id": "6mH58Ed8y90TAMFD6zYL9",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331222
+    },
+    {
+      "id": "xH9lt0zx-z8nt7x-QhFJI",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331279
+    },
+    {
+      "id": "4VIxj_DQGpzCRD6FTu5JA",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331280
+    },
+    {
+      "id": "RL6YhsY7ENbVCi5A1xAnC",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331280
+    },
+    {
+      "id": "CAOev2HE1wRFB7YNMVlRH",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331280
+    },
+    {
+      "id": "EKjzhineMwRblSRMBUkfz",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331281
+    },
+    {
+      "id": "sRwLVvi_pHT8HJzEHTSVV",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774433331281
+    },
+    {
+      "id": "R1aE9mBHvJFSmngwuX_13",
+      "campaign_id": "Kv_i3z_FVMwUNdkSCY1ZS",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774433331282
+    },
+    {
+      "id": "vI3jJQYxby-q2cfoFV4Xw",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774433331334
+    },
+    {
+      "id": "eK73wegJk92bEeObDOCJ8",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436941349
+    },
+    {
+      "id": "PF5fIK2X7fyAq9B-0B3yG",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436941375
+    },
+    {
+      "id": "3cgG_dyYcZxLDCjPYvX4y",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436941375
+    },
+    {
+      "id": "ADJaGfLVo3o32g8SLbX94",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436941376
+    },
+    {
+      "id": "J2aFLdYAuE4rzUPoJ4nxf",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436941376
+    },
+    {
+      "id": "JMkKv_RSd5sePgUH_er98",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436941377
+    },
+    {
+      "id": "u3ruuUrgE6-TPhulv56Jt",
+      "campaign_id": "nL_uxFm-uOTslTWb8Lbhk",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774436941377
+    },
+    {
+      "id": "br9MkpueUqkqNowszYM-Q",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436942360
+    },
+    {
+      "id": "bI6N0-wpUi4JLtBnZ6Qbk",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436943290
+    },
+    {
+      "id": "ExSet7XsA2GElIDUpTaoe",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436943291
+    },
+    {
+      "id": "lhoGuV47sqmyN3H5oYDpE",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436943291
+    },
+    {
+      "id": "FidSeN86aXCknYvCPvQxw",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436943292
+    },
+    {
+      "id": "-Lg8woKzxkdVcZe6sqJBs",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436943292
+    },
+    {
+      "id": "N2WIdBRBG9Jl-NP7G3E8l",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774436943293
+    },
+    {
+      "id": "Hn05xan4CkWxBIZsIqR8T",
+      "campaign_id": "-q1afMP_Sq3h5i3-yx1lJ",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774436943293
+    },
+    {
+      "id": "3uECYOuyIcaGlMoz4MCM6",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774436944212
+    },
+    {
+      "id": "k8kZ9O2slanTIGXH45sLu",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774440535997
+    },
+    {
+      "id": "4DdqmcEgZA0jm0New0j8A",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774440536948
+    },
+    {
+      "id": "-qNtUVOc3VP0HGg8wrcv5",
+      "campaign_id": "5MY2ovLVUbs8nI3ErBHvS",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774440537877
+    },
+    {
+      "id": "EpwCp2so3CtV-2cIMHyZm",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "instagram 1",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774444126348
+    },
+    {
+      "id": "LEAq7yVafHa8qfYYcmcdM",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "instagram 2",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774444126350
+    },
+    {
+      "id": "NjAYvevCv7gigt9Vyd0Zz",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "instagram 3",
+      "creation_type": "instagram",
+      "slide_count": 1,
+      "created_at": 1774444126350
+    },
+    {
+      "id": "oaJcMYoraCYBOJLbq-ZPC",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "linkedin 1",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774444126351
+    },
+    {
+      "id": "VBJtMpKBEA_8h2mg1L2_-",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "linkedin 2",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774444126351
+    },
+    {
+      "id": "2g2QlTbFcAruIvPo1T1tw",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "linkedin 3",
+      "creation_type": "linkedin",
+      "slide_count": 1,
+      "created_at": 1774444126352
+    },
+    {
+      "id": "CAYmOb2LzzOmLK__IG_6E",
+      "campaign_id": "X4ceUJAWGc1ruZuggBRwT",
+      "title": "one-pager 1",
+      "creation_type": "one-pager",
+      "slide_count": 1,
+      "created_at": 1774444126352
+    }
+  ],
+  "slides": [
+    {
+      "id": "tu1xFk68J2SloAJ44Y1xy",
+      "creation_id": "07zPkTTfEgPiSQhZ2SCji",
+      "slide_index": 0,
+      "created_at": 1774418275609
+    },
+    {
+      "id": "5_fnMID6ee3JSYy1wQFDL",
+      "creation_id": "v7MprI1BOiMCUV0a-pYCG",
+      "slide_index": 0,
+      "created_at": 1774419444766
+    },
+    {
+      "id": "rkss399JLf4JEcoluLHuH",
+      "creation_id": "Ux6MzaBTJ5xMBBC5w-Kho",
+      "slide_index": 0,
+      "created_at": 1774421211139
+    },
+    {
+      "id": "qHuuq5oDUg8lGlt0U2RKi",
+      "creation_id": "XOrR7A7BRe5ZrAbHDXj67",
+      "slide_index": 0,
+      "created_at": 1774421211140
+    },
+    {
+      "id": "mPP29R3GRB5zJnAO9LDkg",
+      "creation_id": "jGonxPm2dm6RhHVaFj1oT",
+      "slide_index": 0,
+      "created_at": 1774421211140
+    },
+    {
+      "id": "-EXbK-wN4XgBhjXnKFmgj",
+      "creation_id": "U-j7WE3DiGx3p3hjEKppM",
+      "slide_index": 0,
+      "created_at": 1774421211141
+    },
+    {
+      "id": "e8GCfPebEBnk7PzjTHWWy",
+      "creation_id": "vCy8qKh7P7pn2x1N9RXIw",
+      "slide_index": 0,
+      "created_at": 1774421211141
+    },
+    {
+      "id": "Kdq2U8RfQ7JII55n5kdwI",
+      "creation_id": "ovSR4o8XTlFwUaGcOn5ZX",
+      "slide_index": 0,
+      "created_at": 1774421211142
+    },
+    {
+      "id": "EHMeuNrcU8qBzCoRC_1Pg",
+      "creation_id": "CxgeRwBwz17jXOnapr4kW",
+      "slide_index": 0,
+      "created_at": 1774421211142
+    },
+    {
+      "id": "MBUcLZQO5xkQ-cqXMuKxL",
+      "creation_id": "xlMSbTZ_-ZIPE833J5wcI",
+      "slide_index": 0,
+      "created_at": 1774421631384
+    },
+    {
+      "id": "NcCP3wWnDiwM0WncVm1ym",
+      "creation_id": "XujjmHNsf5_OX-d7IcX-O",
+      "slide_index": 0,
+      "created_at": 1774422357800
+    },
+    {
+      "id": "B-X_kW06gFvF0cqBpHY-f",
+      "creation_id": "3ZJtw3rfYExzB_4c9Pk3V",
+      "slide_index": 0,
+      "created_at": 1774422705274
+    },
+    {
+      "id": "qNUoFkf8VYlI53OS0VJz4",
+      "creation_id": "uXqIiJCu-PmH7akZ_dPMm",
+      "slide_index": 0,
+      "created_at": 1774422705274
+    },
+    {
+      "id": "LIqXTIXEyTz6qjLW6iMbE",
+      "creation_id": "Q3pif9f-EIfR5gdlU4BHG",
+      "slide_index": 0,
+      "created_at": 1774422705275
+    },
+    {
+      "id": "89AIvnE_KydIhL8QiGLpo",
+      "creation_id": "EDqDJh1dpsT-vVlG2PsfY",
+      "slide_index": 0,
+      "created_at": 1774422705275
+    },
+    {
+      "id": "7gYjGIhaHQ83KlOQeIGBa",
+      "creation_id": "m-uSdFFruxQNOTb5EKR4c",
+      "slide_index": 0,
+      "created_at": 1774422705275
+    },
+    {
+      "id": "HcQ6REPTPUCPrcYoJiYyD",
+      "creation_id": "TjNxLbouZTjvgP4QfScH6",
+      "slide_index": 0,
+      "created_at": 1774422705276
+    },
+    {
+      "id": "O851sdjmeSJbOAdZBYBOH",
+      "creation_id": "ku5-bs3sW2UpK3PlG9hJb",
+      "slide_index": 0,
+      "created_at": 1774422705276
+    },
+    {
+      "id": "ssmxBXkbywkhNtXY-dqUA",
+      "creation_id": "8dkjyj3wfE45tcGicPIWH",
+      "slide_index": 0,
+      "created_at": 1774424961725
+    },
+    {
+      "id": "dLucPEEwR6I5lRWcxD7Ym",
+      "creation_id": "AVqNmAc3ac8cOU4ACrwqC",
+      "slide_index": 0,
+      "created_at": 1774425167420
+    },
+    {
+      "id": "1gQl3AZXuZFc_NVjA0xYK",
+      "creation_id": "If2TufLQJQSlwrfVoMKJT",
+      "slide_index": 0,
+      "created_at": 1774425411050
+    },
+    {
+      "id": "D3Nb2k4BW3kE4n9c3yUCz",
+      "creation_id": "EAnJsEtJFfWCjNcEWcZQH",
+      "slide_index": 0,
+      "created_at": 1774425639856
+    },
+    {
+      "id": "VhIqLls0PV_hqWf-iSO5y",
+      "creation_id": "pS5UDbGjqcdVtkS4-aK5H",
+      "slide_index": 0,
+      "created_at": 1774425849972
+    },
+    {
+      "id": "iYwOHSlaP90OGcobqQTYW",
+      "creation_id": "bbfx6aiD9stt7pFV9wiVL",
+      "slide_index": 0,
+      "created_at": 1774426034861
+    },
+    {
+      "id": "im7Cn4NqtsjOVFvOnlxqm",
+      "creation_id": "A_AmH14Od2CFbBuPJ0rqf",
+      "slide_index": 0,
+      "created_at": 1774426034862
+    },
+    {
+      "id": "I8gbsDI2bJRoyAcg9x4In",
+      "creation_id": "q1El1yJ__DCR6llkm6wVf",
+      "slide_index": 0,
+      "created_at": 1774426034862
+    },
+    {
+      "id": "ZIsI80PZ_7yvFG5RGhY-0",
+      "creation_id": "Ha4FIXoGYaiZlg-Cb_r7p",
+      "slide_index": 0,
+      "created_at": 1774426034862
+    },
+    {
+      "id": "biYQ5mtYDxAlomR2eX2bM",
+      "creation_id": "Ul2p50LqrecAUrUJCU1ZG",
+      "slide_index": 0,
+      "created_at": 1774426034863
+    },
+    {
+      "id": "aeCT2gBMzoMFxUlCyHHG0",
+      "creation_id": "UtquTQqYgi1-q9DPkJih9",
+      "slide_index": 0,
+      "created_at": 1774426034863
+    },
+    {
+      "id": "_tP75KWygaap6FtjFnTxZ",
+      "creation_id": "7Tspbt4pnyD1LDc5Bs4aO",
+      "slide_index": 0,
+      "created_at": 1774426034863
+    },
+    {
+      "id": "BvWjRv0gN4G6BoK1rn6Vr",
+      "creation_id": "ItCLZe9oicCABjJ-OlUHy",
+      "slide_index": 0,
+      "created_at": 1774426303656
+    },
+    {
+      "id": "cfNLofEN88l-lyzBPqYs0",
+      "creation_id": "Xtxwi690vfcXfFaOzYeVU",
+      "slide_index": 0,
+      "created_at": 1774426546594
+    },
+    {
+      "id": "0WTmCSPAKvGWr7er_peKx",
+      "creation_id": "26P8RFmcaImlWXcRjjR12",
+      "slide_index": 0,
+      "created_at": 1774426546595
+    },
+    {
+      "id": "mcBp1tZmPMLVBpTwwC3JF",
+      "creation_id": "YTaJkFf8SzdSBJcWkJ1HQ",
+      "slide_index": 0,
+      "created_at": 1774426546595
+    },
+    {
+      "id": "ugFnWzRGQpgV5n_kvt_t6",
+      "creation_id": "xhCNTFUSIOKXXxxPAxgPb",
+      "slide_index": 0,
+      "created_at": 1774426546596
+    },
+    {
+      "id": "tCQ1VQbxfjzxO3npk_kZy",
+      "creation_id": "yibAAL_ZqSRZpj8_fjbju",
+      "slide_index": 0,
+      "created_at": 1774426546596
+    },
+    {
+      "id": "789Og3ghDnr8ngDVohHoA",
+      "creation_id": "12lv5V6A1lk9Dqxe8sGW5",
+      "slide_index": 0,
+      "created_at": 1774426546597
+    },
+    {
+      "id": "TjuJ1hmEjssjq6eVjIwtg",
+      "creation_id": "FHllDsNOHMs21B2ollSEA",
+      "slide_index": 0,
+      "created_at": 1774426546597
+    },
+    {
+      "id": "EUP6j3fsHxcu6uSOysNvI",
+      "creation_id": "nBVuU3rcv2zQNXFDHLQeB",
+      "slide_index": 0,
+      "created_at": 1774426741406
+    },
+    {
+      "id": "BkOTib576mZEKvgQTKrvS",
+      "creation_id": "B-rARuMZ70-76f-H_M1-G",
+      "slide_index": 0,
+      "created_at": 1774427373451
+    },
+    {
+      "id": "NLs2-3Txt0rLJbN3MpOzP",
+      "creation_id": "xnoQTsk5fY5LJFh9Mm3T9",
+      "slide_index": 0,
+      "created_at": 1774427672581
+    },
+    {
+      "id": "nJ5IMh-cu-dLHfyBRfwgc",
+      "creation_id": "3nSJzn3FvFv_y3Odf6bv0",
+      "slide_index": 0,
+      "created_at": 1774429750693
+    },
+    {
+      "id": "UYewV95k47hTEVpzf1zZa",
+      "creation_id": "VGZ-cfFC74ipFFGDCAOLQ",
+      "slide_index": 0,
+      "created_at": 1774429960228
+    },
+    {
+      "id": "gRVzZ4Mc8LZ-Rwe6Chuxc",
+      "creation_id": "R04NMDmfKfD-h-C2GerpD",
+      "slide_index": 0,
+      "created_at": 1774430193406
+    },
+    {
+      "id": "_133U3JGaUa6vhXsXiWK1",
+      "creation_id": "JMPMYhvggu1pqbjxw4S7t",
+      "slide_index": 0,
+      "created_at": 1774430201405
+    },
+    {
+      "id": "NvyS_U_yIIFhowbMf9baF",
+      "creation_id": "qk-4HxU9_GoL-sT_0YNDp",
+      "slide_index": 0,
+      "created_at": 1774430241654
+    },
+    {
+      "id": "kB_9WIKQ4sau4UyBmC2PE",
+      "creation_id": "d_bi7nkllD2yCXVjxSQfb",
+      "slide_index": 0,
+      "created_at": 1774430241655
+    },
+    {
+      "id": "27ZirHex2HO8crqhmGm58",
+      "creation_id": "GGELeNfBvNevKVzw0jTcq",
+      "slide_index": 0,
+      "created_at": 1774430241655
+    },
+    {
+      "id": "69a66FsCbbFxaKP3QVDYb",
+      "creation_id": "CQ9lUVvLboQ1RlDZiEqmT",
+      "slide_index": 0,
+      "created_at": 1774430241656
+    },
+    {
+      "id": "62PRdUl7IPQZ06f2mcdQY",
+      "creation_id": "fq2A-8sdVbk07u2r7uSwI",
+      "slide_index": 0,
+      "created_at": 1774430241656
+    },
+    {
+      "id": "ci-AzHMKwrUDsgbOhUnPV",
+      "creation_id": "THfOwe_4u6_KKSGDooWrN",
+      "slide_index": 0,
+      "created_at": 1774430241657
+    },
+    {
+      "id": "vYw7Ovrb5e__ODIMZPABp",
+      "creation_id": "B4IECGwxcwoSQkacr5quI",
+      "slide_index": 0,
+      "created_at": 1774430241658
+    },
+    {
+      "id": "hBuhPp9DzRRwPaFfAtX1D",
+      "creation_id": "FNyiIPiS47xw59QxceCDb",
+      "slide_index": 0,
+      "created_at": 1774430274362
+    },
+    {
+      "id": "dAbnCYsYyjsmoD9DXpQxF",
+      "creation_id": "M0sbpKCTzF5DXnEgrnI3T",
+      "slide_index": 0,
+      "created_at": 1774433330728
+    },
+    {
+      "id": "5jM1mOp7228n8d4VxDJom",
+      "creation_id": "w7UhyiMgICjR5yO7o21Nf",
+      "slide_index": 0,
+      "created_at": 1774433330784
+    },
+    {
+      "id": "lCgGFeL7k1b3hhyAkxmE9",
+      "creation_id": "QlYtyQwp-ZrlDZ8ie9up6",
+      "slide_index": 0,
+      "created_at": 1774433330837
+    },
+    {
+      "id": "McXlpiypd1hXDHE-YwWKp",
+      "creation_id": "D1hf7r_TexKRPE1COLxIP",
+      "slide_index": 0,
+      "created_at": 1774433330837
+    },
+    {
+      "id": "ptdsF8Mv9A_o_7EMv7km9",
+      "creation_id": "CTcPj2XKr5f3z6sC2X8cz",
+      "slide_index": 0,
+      "created_at": 1774433330838
+    },
+    {
+      "id": "Am5W5thN1iuZSaHv3L999",
+      "creation_id": "lKY6u4IjBpJRtD-z668vO",
+      "slide_index": 0,
+      "created_at": 1774433330838
+    },
+    {
+      "id": "wpKDXENqeTavnJ_yWuZUf",
+      "creation_id": "GzoMq9_asNBzPYIrbqFpy",
+      "slide_index": 0,
+      "created_at": 1774433330838
+    },
+    {
+      "id": "QgUcLgXUAc0JHf-RTWtit",
+      "creation_id": "9dZefbK0biAMS6UmQXpCN",
+      "slide_index": 0,
+      "created_at": 1774433330839
+    },
+    {
+      "id": "6bqiTwegQyiDKWXZ_l7U5",
+      "creation_id": "MGYHnWssUPrIRNule3Zzn",
+      "slide_index": 0,
+      "created_at": 1774433330839
+    },
+    {
+      "id": "ssP_zjY0j5adXyKOupf2n",
+      "creation_id": "IlHDulc3cECKl0_HGXYr0",
+      "slide_index": 0,
+      "created_at": 1774433330898
+    },
+    {
+      "id": "Dichx-WTQtilUFWyxAoiA",
+      "creation_id": "6gXwI9zeYd__fmjrZMha-",
+      "slide_index": 0,
+      "created_at": 1774433330954
+    },
+    {
+      "id": "LgM4njOO5U9lCdvhutvQx",
+      "creation_id": "NkNyTcoSNyRMULo-Bh2wW",
+      "slide_index": 0,
+      "created_at": 1774433331005
+    },
+    {
+      "id": "Y05930BZw-Thy9yjT6tjA",
+      "creation_id": "r5n7mmGZQiGg0KCp7QaAk",
+      "slide_index": 0,
+      "created_at": 1774433331057
+    },
+    {
+      "id": "leklRQlXoNOPl1YZXvNQM",
+      "creation_id": "uvxK0Q3-MIt118iit6JVf",
+      "slide_index": 0,
+      "created_at": 1774433331109
+    },
+    {
+      "id": "DdPBbuaI2q3Q3Pj9qN3S3",
+      "creation_id": "pvQvqifDYJHVU5d3HjTFZ",
+      "slide_index": 0,
+      "created_at": 1774433331163
+    },
+    {
+      "id": "0Jq5kG3YMl6Lix6N1bTw-",
+      "creation_id": "BXWMfckYTv1zNv7OKx1Zz",
+      "slide_index": 0,
+      "created_at": 1774433331164
+    },
+    {
+      "id": "1Ntx9mMQfRWkR4HXdtmNA",
+      "creation_id": "Khz2Z2XX5K9bCrW6IMSHd",
+      "slide_index": 0,
+      "created_at": 1774433331164
+    },
+    {
+      "id": "6tnHdS3eo_Ib8OBzK3hyJ",
+      "creation_id": "36Lx-akfNWkkP5X1ll__i",
+      "slide_index": 0,
+      "created_at": 1774433331165
+    },
+    {
+      "id": "ArF4p1PyAm4lAs5CCMRi3",
+      "creation_id": "Ui6m_hrY_AbuyCILlV9Hi",
+      "slide_index": 0,
+      "created_at": 1774433331165
+    },
+    {
+      "id": "8IAGZaMD0ZdaCdG1bbj35",
+      "creation_id": "dHgl_V5F5gK3-L9dzPzVM",
+      "slide_index": 0,
+      "created_at": 1774433331165
+    },
+    {
+      "id": "ahKiHzBPz0GcXeR0ih3nk",
+      "creation_id": "8G9LvkzZue-kdXX4EcrR0",
+      "slide_index": 0,
+      "created_at": 1774433331166
+    },
+    {
+      "id": "oxbkRFJm8O5t6jdZUso77",
+      "creation_id": "6mH58Ed8y90TAMFD6zYL9",
+      "slide_index": 0,
+      "created_at": 1774433331222
+    },
+    {
+      "id": "EnOwX9Kl0f6ihJOcLAdWj",
+      "creation_id": "xH9lt0zx-z8nt7x-QhFJI",
+      "slide_index": 0,
+      "created_at": 1774433331279
+    },
+    {
+      "id": "KWGF15LR7c3StDfabzlPn",
+      "creation_id": "4VIxj_DQGpzCRD6FTu5JA",
+      "slide_index": 0,
+      "created_at": 1774433331280
+    },
+    {
+      "id": "B12nXPwmxejjDsss_FFJK",
+      "creation_id": "RL6YhsY7ENbVCi5A1xAnC",
+      "slide_index": 0,
+      "created_at": 1774433331280
+    },
+    {
+      "id": "SajeMlE46-7ETsP4gvVLr",
+      "creation_id": "CAOev2HE1wRFB7YNMVlRH",
+      "slide_index": 0,
+      "created_at": 1774433331280
+    },
+    {
+      "id": "MN65R23hfXKKIdOidiUya",
+      "creation_id": "EKjzhineMwRblSRMBUkfz",
+      "slide_index": 0,
+      "created_at": 1774433331281
+    },
+    {
+      "id": "CtJ1JzTjPsJgaOCJYSJgA",
+      "creation_id": "sRwLVvi_pHT8HJzEHTSVV",
+      "slide_index": 0,
+      "created_at": 1774433331281
+    },
+    {
+      "id": "fVkeBidChkLBvVFJHavAP",
+      "creation_id": "R1aE9mBHvJFSmngwuX_13",
+      "slide_index": 0,
+      "created_at": 1774433331282
+    },
+    {
+      "id": "YCKob9gNyTy0Dbt2UbKeT",
+      "creation_id": "vI3jJQYxby-q2cfoFV4Xw",
+      "slide_index": 0,
+      "created_at": 1774433331334
+    },
+    {
+      "id": "Ql_RDjdE7TnyrbNXb24U-",
+      "creation_id": "eK73wegJk92bEeObDOCJ8",
+      "slide_index": 0,
+      "created_at": 1774436941349
+    },
+    {
+      "id": "EVfFurjx6BA1LZqK6IvaO",
+      "creation_id": "PF5fIK2X7fyAq9B-0B3yG",
+      "slide_index": 0,
+      "created_at": 1774436941375
+    },
+    {
+      "id": "9ekRli0OmTRadeG8bBG_F",
+      "creation_id": "3cgG_dyYcZxLDCjPYvX4y",
+      "slide_index": 0,
+      "created_at": 1774436941376
+    },
+    {
+      "id": "JmR12VxHoho9MCIBbOj0x",
+      "creation_id": "ADJaGfLVo3o32g8SLbX94",
+      "slide_index": 0,
+      "created_at": 1774436941376
+    },
+    {
+      "id": "XroHW5xN2nSGCY20CmJVq",
+      "creation_id": "J2aFLdYAuE4rzUPoJ4nxf",
+      "slide_index": 0,
+      "created_at": 1774436941376
+    },
+    {
+      "id": "XsjV4vLPTDsWPJEd0kw0e",
+      "creation_id": "JMkKv_RSd5sePgUH_er98",
+      "slide_index": 0,
+      "created_at": 1774436941377
+    },
+    {
+      "id": "_evmulYKneRiss7D1mGSs",
+      "creation_id": "u3ruuUrgE6-TPhulv56Jt",
+      "slide_index": 0,
+      "created_at": 1774436941377
+    },
+    {
+      "id": "7-Xr46iSaRAlmKMxp6V8r",
+      "creation_id": "br9MkpueUqkqNowszYM-Q",
+      "slide_index": 0,
+      "created_at": 1774436942360
+    },
+    {
+      "id": "9xTBvWYxftzKgDN3ptCbY",
+      "creation_id": "bI6N0-wpUi4JLtBnZ6Qbk",
+      "slide_index": 0,
+      "created_at": 1774436943291
+    },
+    {
+      "id": "8XbCOFTW0XOH9TW4fmsw8",
+      "creation_id": "ExSet7XsA2GElIDUpTaoe",
+      "slide_index": 0,
+      "created_at": 1774436943291
+    },
+    {
+      "id": "04MCSpAtzukKm5k28PYAB",
+      "creation_id": "lhoGuV47sqmyN3H5oYDpE",
+      "slide_index": 0,
+      "created_at": 1774436943292
+    },
+    {
+      "id": "spS4-SoYByCW-gzoxkcmL",
+      "creation_id": "FidSeN86aXCknYvCPvQxw",
+      "slide_index": 0,
+      "created_at": 1774436943292
+    },
+    {
+      "id": "ZIQnJg788fCx1R3GdjjNH",
+      "creation_id": "-Lg8woKzxkdVcZe6sqJBs",
+      "slide_index": 0,
+      "created_at": 1774436943292
+    },
+    {
+      "id": "_M0pzNZ4mryUY9LjhRVzv",
+      "creation_id": "N2WIdBRBG9Jl-NP7G3E8l",
+      "slide_index": 0,
+      "created_at": 1774436943293
+    },
+    {
+      "id": "iYFbwnKqdSObiRMlReLd8",
+      "creation_id": "Hn05xan4CkWxBIZsIqR8T",
+      "slide_index": 0,
+      "created_at": 1774436943294
+    },
+    {
+      "id": "OrNx1f6518Gs9AtxRf9Cq",
+      "creation_id": "3uECYOuyIcaGlMoz4MCM6",
+      "slide_index": 0,
+      "created_at": 1774436944213
+    },
+    {
+      "id": "JajC8B_l0qQwbs57zQ9I6",
+      "creation_id": "k8kZ9O2slanTIGXH45sLu",
+      "slide_index": 0,
+      "created_at": 1774440535998
+    },
+    {
+      "id": "I5VvVUUtFdU_stYSj_huN",
+      "creation_id": "4DdqmcEgZA0jm0New0j8A",
+      "slide_index": 0,
+      "created_at": 1774440536948
+    },
+    {
+      "id": "Z0hePF06AMvznuSpqLUVr",
+      "creation_id": "-qNtUVOc3VP0HGg8wrcv5",
+      "slide_index": 0,
+      "created_at": 1774440537877
+    },
+    {
+      "id": "ZqJQS6Vpcn8VpTg4vobKx",
+      "creation_id": "EpwCp2so3CtV-2cIMHyZm",
+      "slide_index": 0,
+      "created_at": 1774444126349
+    },
+    {
+      "id": "yEDPxJZy53zvSqJ309kHq",
+      "creation_id": "LEAq7yVafHa8qfYYcmcdM",
+      "slide_index": 0,
+      "created_at": 1774444126350
+    },
+    {
+      "id": "68VHYKsanVHuLZa7fJ_ax",
+      "creation_id": "NjAYvevCv7gigt9Vyd0Zz",
+      "slide_index": 0,
+      "created_at": 1774444126350
+    },
+    {
+      "id": "3fX9s0VDBKBIfEtxDw49C",
+      "creation_id": "oaJcMYoraCYBOJLbq-ZPC",
+      "slide_index": 0,
+      "created_at": 1774444126351
+    },
+    {
+      "id": "LsfHX19xWUGc--bKGi16I",
+      "creation_id": "VBJtMpKBEA_8h2mg1L2_-",
+      "slide_index": 0,
+      "created_at": 1774444126351
+    },
+    {
+      "id": "0H7v86TXqjGqYRkl3SJWg",
+      "creation_id": "2g2QlTbFcAruIvPo1T1tw",
+      "slide_index": 0,
+      "created_at": 1774444126352
+    },
+    {
+      "id": "FwRnwFNvsPW63vjQFe00-",
+      "creation_id": "CAYmOb2LzzOmLK__IG_6E",
+      "slide_index": 0,
+      "created_at": 1774444126352
+    }
+  ],
+  "iterations": [
+    {
+      "id": "oxK66g3isFRsktq_Xd9gZ",
+      "slide_id": "tu1xFk68J2SloAJ44Y1xy",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/07zPkTTfEgPiSQhZ2SCji/tu1xFk68J2SloAJ44Y1xy/oxK66g3isFRsktq_Xd9gZ.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774418275609
+    },
+    {
+      "id": "jtkgbf4gV24oOJBkU_qxj",
+      "slide_id": "5_fnMID6ee3JSYy1wQFDL",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/v7MprI1BOiMCUV0a-pYCG/5_fnMID6ee3JSYy1wQFDL/jtkgbf4gV24oOJBkU_qxj.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774419444767
+    },
+    {
+      "id": "JUg4Fiq4qFdQYKcnX2oOy",
+      "slide_id": "rkss399JLf4JEcoluLHuH",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/Ux6MzaBTJ5xMBBC5w-Kho/rkss399JLf4JEcoluLHuH/JUg4Fiq4qFdQYKcnX2oOy.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211140
+    },
+    {
+      "id": "btXnkX0wfTts5JBzd_CCE",
+      "slide_id": "qHuuq5oDUg8lGlt0U2RKi",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/XOrR7A7BRe5ZrAbHDXj67/qHuuq5oDUg8lGlt0U2RKi/btXnkX0wfTts5JBzd_CCE.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211140
+    },
+    {
+      "id": "aPuQGTmB2V6t_h96UO8Gb",
+      "slide_id": "mPP29R3GRB5zJnAO9LDkg",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/jGonxPm2dm6RhHVaFj1oT/mPP29R3GRB5zJnAO9LDkg/aPuQGTmB2V6t_h96UO8Gb.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211141
+    },
+    {
+      "id": "iXi48-Xbx6tp23go0I0-v",
+      "slide_id": "-EXbK-wN4XgBhjXnKFmgj",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/U-j7WE3DiGx3p3hjEKppM/-EXbK-wN4XgBhjXnKFmgj/iXi48-Xbx6tp23go0I0-v.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211141
+    },
+    {
+      "id": "I1dbQhxGZ-h5ZEXrKAQqG",
+      "slide_id": "e8GCfPebEBnk7PzjTHWWy",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/vCy8qKh7P7pn2x1N9RXIw/e8GCfPebEBnk7PzjTHWWy/I1dbQhxGZ-h5ZEXrKAQqG.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211142
+    },
+    {
+      "id": "47Qy0LlNArS8oli4qm2nU",
+      "slide_id": "Kdq2U8RfQ7JII55n5kdwI",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/ovSR4o8XTlFwUaGcOn5ZX/Kdq2U8RfQ7JII55n5kdwI/47Qy0LlNArS8oli4qm2nU.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211142
+    },
+    {
+      "id": "-TAmcZnE81bDf-BJYbJy1",
+      "slide_id": "EHMeuNrcU8qBzCoRC_1Pg",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/EVEVFUuwGAUieZyCCO-qv/CxgeRwBwz17jXOnapr4kW/EHMeuNrcU8qBzCoRC_1Pg/-TAmcZnE81bDf-BJYbJy1.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774421211142
+    },
+    {
+      "id": "-tu0qhQO5yP93Ug4uBIfS",
+      "slide_id": "MBUcLZQO5xkQ-cqXMuKxL",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/xlMSbTZ_-ZIPE833J5wcI/MBUcLZQO5xkQ-cqXMuKxL/-tu0qhQO5yP93Ug4uBIfS.html",
+      "slot_schema": "{\"archetypeId\":\"minimal-photo-top\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"image\",\"sel\":\".photo img\",\"label\":\"Photo\",\"dims\":\"1080 x 540px\"},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".subtext\",\"label\":\"Subheader\",\"mode\":\"pre\",\"rows\":2}],\"brush\":\".brushstroke-top-right\",\"brushAdditional\":[{\"sel\":\".brushstroke-bottom-left\",\"label\":\"Decorative element\"}],\"brushLabel\":\"Decorative element\"}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774421631384
+    },
+    {
+      "id": "WluC39roMrXdbxrInLXTn",
+      "slide_id": "NcCP3wWnDiwM0WncVm1ym",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/XujjmHNsf5_OX-d7IcX-O/NcCP3wWnDiwM0WncVm1ym/WluC39roMrXdbxrInLXTn.html",
+      "slot_schema": "{\"archetypeId\":\"hero-stat-li\",\"platform\":\"linkedin-landscape\",\"width\":1200,\"height\":627,\"fields\":[{\"type\":\"text\",\"sel\":\".eyebrow\",\"label\":\"Eyebrow\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".body-copy\",\"label\":\"Body Copy\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".stat-1-num\",\"label\":\"Stat 1 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-1-label\",\"label\":\"Stat 1 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-num\",\"label\":\"Stat 2 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-label\",\"label\":\"Stat 2 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-num\",\"label\":\"Stat 3 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-label\",\"label\":\"Stat 3 Label\",\"mode\":\"text\",\"rows\":1}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422357801
+    },
+    {
+      "id": "qForeBTF1Z9uuRFE35Brg",
+      "slide_id": "B-X_kW06gFvF0cqBpHY-f",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/3ZJtw3rfYExzB_4c9Pk3V/B-X_kW06gFvF0cqBpHY-f/qForeBTF1Z9uuRFE35Brg.html",
+      "slot_schema": "{\"archetypeId\":\"photo-bg-overlay\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"image\",\"sel\":\".photo img\",\"label\":\"Background Photo\",\"dims\":\"1080 x 1080px\"},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".subtext\",\"label\":\"Supporting Copy\",\"mode\":\"pre\",\"rows\":3}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705274
+    },
+    {
+      "id": "S7lQyUzjL3tz-k-R5DCwp",
+      "slide_id": "qNUoFkf8VYlI53OS0VJz4",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/uXqIiJCu-PmH7akZ_dPMm/qNUoFkf8VYlI53OS0VJz4/S7lQyUzjL3tz-k-R5DCwp.html",
+      "slot_schema": "{\"archetypeId\":\"hero-stat-split\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"image\",\"sel\":\".photo img\",\"label\":\"Photo\",\"dims\":\"540 x 1080px\"},{\"type\":\"text\",\"sel\":\".eyebrow\",\"label\":\"Eyebrow\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".body-copy\",\"label\":\"Body Copy\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".stat-1-num\",\"label\":\"Stat 1 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-1-label\",\"label\":\"Stat 1 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-num\",\"label\":\"Stat 2 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-label\",\"label\":\"Stat 2 Label\",\"mode\":\"text\",\"rows\":1}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705274
+    },
+    {
+      "id": "RdOKedzwQeFPgwfwih9Oc",
+      "slide_id": "LIqXTIXEyTz6qjLW6iMbE",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/Q3pif9f-EIfR5gdlU4BHG/LIqXTIXEyTz6qjLW6iMbE/RdOKedzwQeFPgwfwih9Oc.html",
+      "slot_schema": "{\"archetypeId\":\"data-dashboard\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Dashboard Title\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".stat-1-num\",\"label\":\"Stat 1 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-1-label\",\"label\":\"Stat 1 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-num\",\"label\":\"Stat 2 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-label\",\"label\":\"Stat 2 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-num\",\"label\":\"Stat 3 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-label\",\"label\":\"Stat 3 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-4-num\",\"label\":\"Stat 4 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-4-label\",\"label\":\"Stat 4 Label\",\"mode\":\"text\",\"rows\":1}],\"brush\":\"brush-texture-02\",\"brushAdditional\":[{\"sel\":\"brush-texture-05\",\"label\":\"Decorative element\"}],\"brushLabel\":\"Decorative element\"}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705275
+    },
+    {
+      "id": "0vzdtoDBpg9pREHWXUMVF",
+      "slide_id": "89AIvnE_KydIhL8QiGLpo",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/EDqDJh1dpsT-vVlG2PsfY/89AIvnE_KydIhL8QiGLpo/0vzdtoDBpg9pREHWXUMVF.html",
+      "slot_schema": "{\"archetypeId\":\"hero-stat-li\",\"platform\":\"linkedin-landscape\",\"width\":1200,\"height\":627,\"fields\":[{\"type\":\"text\",\"sel\":\".eyebrow\",\"label\":\"Eyebrow\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".body-copy\",\"label\":\"Body Copy\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".stat-1-num\",\"label\":\"Stat 1 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-1-label\",\"label\":\"Stat 1 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-num\",\"label\":\"Stat 2 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-label\",\"label\":\"Stat 2 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-num\",\"label\":\"Stat 3 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-label\",\"label\":\"Stat 3 Label\",\"mode\":\"text\",\"rows\":1}],\"brush\":\"brushstroke-wide\",\"brushAdditional\":[{\"sel\":\"brushstroke-diagonal\",\"label\":\"Decorative element\"},{\"sel\":\"brushstroke-blob\",\"label\":\"Decorative element\"}],\"brushLabel\":\"Decorative element\"}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705275
+    },
+    {
+      "id": "ssP-y_GPkuQFizLwqO4tQ",
+      "slide_id": "7gYjGIhaHQ83KlOQeIGBa",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/m-uSdFFruxQNOTb5EKR4c/7gYjGIhaHQ83KlOQeIGBa/ssP-y_GPkuQFizLwqO4tQ.html",
+      "slot_schema": "{\"archetypeId\":\"split-photo-text-li\",\"platform\":\"linkedin-landscape\",\"width\":1200,\"height\":627,\"fields\":[{\"type\":\"image\",\"sel\":\".photo img\",\"label\":\"Photo\",\"dims\":\"560 x 627px\"},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".body-copy\",\"label\":\"Body Copy\",\"mode\":\"pre\",\"rows\":4}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705276
+    },
+    {
+      "id": "aPl89acIP7zQ9S35HpE6t",
+      "slide_id": "HcQ6REPTPUCPrcYoJiYyD",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/TjNxLbouZTjvgP4QfScH6/HcQ6REPTPUCPrcYoJiYyD/aPl89acIP7zQ9S35HpE6t.html",
+      "slot_schema": "{\"archetypeId\":\"minimal-statement-li\",\"platform\":\"linkedin-landscape\",\"width\":1200,\"height\":627,\"fields\":[{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Statement\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".supporting-text\",\"label\":\"Supporting Line\",\"mode\":\"pre\",\"rows\":2}],\"brush\":\"brush-texture-03\",\"brushAdditional\":[{\"sel\":\"brush-texture-07\",\"label\":\"Decorative element\"}],\"brushLabel\":\"Decorative element\"}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705276
+    },
+    {
+      "id": "TpoSRgvgJbnxLQmLfsKy-",
+      "slide_id": "O851sdjmeSJbOAdZBYBOH",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/xcEtC8lNbynELzo3BVoEO/ku5-bs3sW2UpK3PlG9hJb/O851sdjmeSJbOAdZBYBOH/TpoSRgvgJbnxLQmLfsKy-.html",
+      "slot_schema": "{\"archetypeId\":\"product-feature-op\",\"platform\":\"one-pager\",\"width\":612,\"height\":792,\"fields\":[{\"type\":\"text\",\"sel\":\".hero-headline\",\"label\":\"Hero Headline\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".hero-sub\",\"label\":\"Hero Subheadline\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".feature-1-title\",\"label\":\"Feature 1 Title\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".feature-1-desc\",\"label\":\"Feature 1 Description\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".feature-2-title\",\"label\":\"Feature 2 Title\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".feature-2-desc\",\"label\":\"Feature 2 Description\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".feature-3-title\",\"label\":\"Feature 3 Title\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".feature-3-desc\",\"label\":\"Feature 3 Description\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".feature-4-title\",\"label\":\"Feature 4 Title\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".feature-4-desc\",\"label\":\"Feature 4 Description\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".footer-cta\",\"label\":\"Footer CTA\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".footer-url\",\"label\":\"Footer URL\",\"mode\":\"text\",\"rows\":1}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774422705276
+    },
+    {
+      "id": "fuxBzABAobDImCrCUG0ml",
+      "slide_id": "ssmxBXkbywkhNtXY-dqUA",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/8dkjyj3wfE45tcGicPIWH/ssmxBXkbywkhNtXY-dqUA/fuxBzABAobDImCrCUG0ml.html",
+      "slot_schema": "{\"archetypeId\":\"data-dashboard\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Dashboard Title\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".stat-1-num\",\"label\":\"Stat 1 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-1-label\",\"label\":\"Stat 1 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-num\",\"label\":\"Stat 2 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-label\",\"label\":\"Stat 2 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-num\",\"label\":\"Stat 3 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-label\",\"label\":\"Stat 3 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-4-num\",\"label\":\"Stat 4 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-4-label\",\"label\":\"Stat 4 Label\",\"mode\":\"text\",\"rows\":1}],\"brush\":\"brush-texture-02\",\"brushAdditional\":[{\"sel\":\"brush-texture-07\",\"label\":\"Decorative element\"}],\"brushLabel\":\"Decorative element\"}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774424961726
+    },
+    {
+      "id": "7gK0uRZWq87HE1zGbvP7V",
+      "slide_id": "dLucPEEwR6I5lRWcxD7Ym",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/AVqNmAc3ac8cOU4ACrwqC/dLucPEEwR6I5lRWcxD7Ym/7gK0uRZWq87HE1zGbvP7V.html",
+      "slot_schema": "{\"archetypeId\":\"case-study-op\",\"platform\":\"one-pager\",\"width\":612,\"height\":792,\"fields\":[{\"type\":\"text\",\"sel\":\".hero-headline\",\"label\":\"Hero Headline\",\"mode\":\"pre\",\"rows\":2},{\"type\":\"text\",\"sel\":\".hero-sub\",\"label\":\"Hero Subheadline\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".stat-1-value\",\"label\":\"Stat 1 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-1-label\",\"label\":\"Stat 1 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-value\",\"label\":\"Stat 2 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-2-label\",\"label\":\"Stat 2 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-value\",\"label\":\"Stat 3 Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-3-label\",\"label\":\"Stat 3 Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".challenge-title\",\"label\":\"Challenge Title\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".challenge-body\",\"label\":\"Challenge Body\",\"mode\":\"pre\",\"rows\":4},{\"type\":\"text\",\"sel\":\".solution-title\",\"label\":\"Solution Title\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".solution-body\",\"label\":\"Solution Body\",\"mode\":\"pre\",\"rows\":4},{\"type\":\"text\",\"sel\":\".footer-cta\",\"label\":\"Footer CTA\",\"mode\":\"text\",\"rows\":1}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774425167421
+    },
+    {
+      "id": "sXaxW4tRMXmehhyfpkpcs",
+      "slide_id": "1gQl3AZXuZFc_NVjA0xYK",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/If2TufLQJQSlwrfVoMKJT/1gQl3AZXuZFc_NVjA0xYK/sXaxW4tRMXmehhyfpkpcs.html",
+      "slot_schema": "{\"archetypeId\":\"minimal-statement\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Statement\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".subtext\",\"label\":\"Supporting Line\",\"mode\":\"pre\",\"rows\":3}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774425411050
+    },
+    {
+      "id": "lM06i18NjVe0ap_yLau8T",
+      "slide_id": "D3Nb2k4BW3kE4n9c3yUCz",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/EAnJsEtJFfWCjNcEWcZQH/D3Nb2k4BW3kE4n9c3yUCz/lM06i18NjVe0ap_yLau8T.html",
+      "slot_schema": "{\"archetypeId\":\"article-preview-li\",\"platform\":\"linkedin-landscape\",\"width\":1200,\"height\":627,\"fields\":[{\"type\":\"text\",\"sel\":\".category-label\",\"label\":\"Category\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".article-title\",\"label\":\"Article Title\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".article-excerpt\",\"label\":\"Excerpt\",\"mode\":\"pre\",\"rows\":4},{\"type\":\"text\",\"sel\":\".author-name\",\"label\":\"Author Name\",\"mode\":\"text\",\"rows\":1}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774425639857
+    },
+    {
+      "id": "DSAHENsv_kykPs35JUD5x",
+      "slide_id": "VhIqLls0PV_hqWf-iSO5y",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/pS5UDbGjqcdVtkS4-aK5H/VhIqLls0PV_hqWf-iSO5y/DSAHENsv_kykPs35JUD5x.html",
+      "slot_schema": "{\"archetypeId\":\"minimal-statement\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Statement\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".subtext\",\"label\":\"Supporting Line\",\"mode\":\"pre\",\"rows\":3}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774425849972
+    },
+    {
+      "id": "zhZ7RvE-qyKcyPrkTKZ52",
+      "slide_id": "iYwOHSlaP90OGcobqQTYW",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/bbfx6aiD9stt7pFV9wiVL/iYwOHSlaP90OGcobqQTYW/zhZ7RvE-qyKcyPrkTKZ52.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774426034862
+    },
+    {
+      "id": "ImHPMMaLqKTyGG7ag6t5q",
+      "slide_id": "im7Cn4NqtsjOVFvOnlxqm",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/A_AmH14Od2CFbBuPJ0rqf/im7Cn4NqtsjOVFvOnlxqm/ImHPMMaLqKTyGG7ag6t5q.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426034862
+    },
+    {
+      "id": "_JgLhp3xMGUS2JZrfN3sk",
+      "slide_id": "I8gbsDI2bJRoyAcg9x4In",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/q1El1yJ__DCR6llkm6wVf/I8gbsDI2bJRoyAcg9x4In/_JgLhp3xMGUS2JZrfN3sk.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426034862
+    },
+    {
+      "id": "9bm-qv8feIoQgfF3pgCnp",
+      "slide_id": "ZIsI80PZ_7yvFG5RGhY-0",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/Ha4FIXoGYaiZlg-Cb_r7p/ZIsI80PZ_7yvFG5RGhY-0/9bm-qv8feIoQgfF3pgCnp.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426034863
+    },
+    {
+      "id": "TqR7y6At63WE_dqMOMlAI",
+      "slide_id": "biYQ5mtYDxAlomR2eX2bM",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/Ul2p50LqrecAUrUJCU1ZG/biYQ5mtYDxAlomR2eX2bM/TqR7y6At63WE_dqMOMlAI.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426034863
+    },
+    {
+      "id": "tJoCrH9KJP-woL9SmQl3O",
+      "slide_id": "aeCT2gBMzoMFxUlCyHHG0",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/UtquTQqYgi1-q9DPkJih9/aeCT2gBMzoMFxUlCyHHG0/tJoCrH9KJP-woL9SmQl3O.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426034863
+    },
+    {
+      "id": "xBCl2IVJS5DwvpAdUqKa6",
+      "slide_id": "_tP75KWygaap6FtjFnTxZ",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/VQ_yWij2olBJOyezMB206/7Tspbt4pnyD1LDc5Bs4aO/_tP75KWygaap6FtjFnTxZ/xBCl2IVJS5DwvpAdUqKa6.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426034864
+    },
+    {
+      "id": "QK_qNVZd60P3V-S14S1aI",
+      "slide_id": "BvWjRv0gN4G6BoK1rn6Vr",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/ItCLZe9oicCABjJ-OlUHy/BvWjRv0gN4G6BoK1rn6Vr/QK_qNVZd60P3V-S14S1aI.html",
+      "slot_schema": "{\"archetypeId\":\"article-preview-li\",\"platform\":\"linkedin-landscape\",\"width\":1200,\"height\":627,\"fields\":[{\"type\":\"text\",\"sel\":\".category-label\",\"label\":\"Category\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".article-title\",\"label\":\"Article Title\",\"mode\":\"pre\",\"rows\":3},{\"type\":\"text\",\"sel\":\".article-excerpt\",\"label\":\"Excerpt\",\"mode\":\"pre\",\"rows\":4},{\"type\":\"text\",\"sel\":\".author-name\",\"label\":\"Author Name\",\"mode\":\"text\",\"rows\":1}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774426303656
+    },
+    {
+      "id": "EtV_wJunObJY10sKiGCCT",
+      "slide_id": "cfNLofEN88l-lyzBPqYs0",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/Xtxwi690vfcXfFaOzYeVU/cfNLofEN88l-lyzBPqYs0/EtV_wJunObJY10sKiGCCT.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774426546595
+    },
+    {
+      "id": "cd1EmwWi8jStZeKzB7G4y",
+      "slide_id": "0WTmCSPAKvGWr7er_peKx",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/26P8RFmcaImlWXcRjjR12/0WTmCSPAKvGWr7er_peKx/cd1EmwWi8jStZeKzB7G4y.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426546595
+    },
+    {
+      "id": "zEjjsfCl1LI8Fi3l5Lpu0",
+      "slide_id": "mcBp1tZmPMLVBpTwwC3JF",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/YTaJkFf8SzdSBJcWkJ1HQ/mcBp1tZmPMLVBpTwwC3JF/zEjjsfCl1LI8Fi3l5Lpu0.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426546596
+    },
+    {
+      "id": "MX2oY-d8WePZdnWRRT5A-",
+      "slide_id": "ugFnWzRGQpgV5n_kvt_t6",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/xhCNTFUSIOKXXxxPAxgPb/ugFnWzRGQpgV5n_kvt_t6/MX2oY-d8WePZdnWRRT5A-.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426546596
+    },
+    {
+      "id": "IiF2mpbaPjDcDeQxvisOz",
+      "slide_id": "tCQ1VQbxfjzxO3npk_kZy",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/yibAAL_ZqSRZpj8_fjbju/tCQ1VQbxfjzxO3npk_kZy/IiF2mpbaPjDcDeQxvisOz.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426546596
+    },
+    {
+      "id": "sEyMAdBgxPN65953q4n9N",
+      "slide_id": "789Og3ghDnr8ngDVohHoA",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/12lv5V6A1lk9Dqxe8sGW5/789Og3ghDnr8ngDVohHoA/sEyMAdBgxPN65953q4n9N.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426546597
+    },
+    {
+      "id": "rlUU0z09u-eJsSCaFXMM_",
+      "slide_id": "TjuJ1hmEjssjq6eVjIwtg",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/p3p5qNoAzeQw8hsMFYlJP/FHllDsNOHMs21B2ollSEA/TjuJ1hmEjssjq6eVjIwtg/rlUU0z09u-eJsSCaFXMM_.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774426546597
+    },
+    {
+      "id": "fZS_HnEsnXo1MpbxN74hA",
+      "slide_id": "EUP6j3fsHxcu6uSOysNvI",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/nBVuU3rcv2zQNXFDHLQeB/EUP6j3fsHxcu6uSOysNvI/fZS_HnEsnXo1MpbxN74hA.html",
+      "slot_schema": "{\"archetypeId\":\"stat-hero-single\",\"platform\":\"instagram-square\",\"width\":1080,\"height\":1080,\"fields\":[{\"type\":\"text\",\"sel\":\".context-label\",\"label\":\"Context Label\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".stat-number\",\"label\":\"Stat Value\",\"mode\":\"text\",\"rows\":1},{\"type\":\"text\",\"sel\":\".headline\",\"label\":\"Headline\",\"mode\":\"text\",\"rows\":2},{\"type\":\"text\",\"sel\":\".body-copy\",\"label\":\"Body Copy\",\"mode\":\"pre\",\"rows\":4}],\"brush\":null}",
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "complete",
+      "created_at": 1774426741406
+    },
+    {
+      "id": "2wSBJnskMaZ7p8zqDnO86",
+      "slide_id": "BkOTib576mZEKvgQTKrvS",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/B-rARuMZ70-76f-H_M1-G/BkOTib576mZEKvgQTKrvS/2wSBJnskMaZ7p8zqDnO86.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774427373452
+    },
+    {
+      "id": "RwFthYhKKuWPjGmZMXcXB",
+      "slide_id": "NLs2-3Txt0rLJbN3MpOzP",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/xnoQTsk5fY5LJFh9Mm3T9/NLs2-3Txt0rLJbN3MpOzP/RwFthYhKKuWPjGmZMXcXB.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774427672581
+    },
+    {
+      "id": "vBMupbggKGm1qUGMUy28a",
+      "slide_id": "nJ5IMh-cu-dLHfyBRfwgc",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/3nSJzn3FvFv_y3Odf6bv0/nJ5IMh-cu-dLHfyBRfwgc/vBMupbggKGm1qUGMUy28a.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774429750693
+    },
+    {
+      "id": "9pGAB2Dg8ifMmDlykXk9s",
+      "slide_id": "UYewV95k47hTEVpzf1zZa",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/VGZ-cfFC74ipFFGDCAOLQ/UYewV95k47hTEVpzf1zZa/9pGAB2Dg8ifMmDlykXk9s.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774429960228
+    },
+    {
+      "id": "PtKqnvDGnPPoKLJOKyM63",
+      "slide_id": "gRVzZ4Mc8LZ-Rwe6Chuxc",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/R04NMDmfKfD-h-C2GerpD/gRVzZ4Mc8LZ-Rwe6Chuxc/PtKqnvDGnPPoKLJOKyM63.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430193407
+    },
+    {
+      "id": "Tlabj1DpCdioX4gkof2Oe",
+      "slide_id": "_133U3JGaUa6vhXsXiWK1",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/JMPMYhvggu1pqbjxw4S7t/_133U3JGaUa6vhXsXiWK1/Tlabj1DpCdioX4gkof2Oe.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430201405
+    },
+    {
+      "id": "6fzNSlWoeQJS0XWO4wjeR",
+      "slide_id": "NvyS_U_yIIFhowbMf9baF",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/qk-4HxU9_GoL-sT_0YNDp/NvyS_U_yIIFhowbMf9baF/6fzNSlWoeQJS0XWO4wjeR.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241654
+    },
+    {
+      "id": "Cp25tbjPf5VG7s2jYlf14",
+      "slide_id": "kB_9WIKQ4sau4UyBmC2PE",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/d_bi7nkllD2yCXVjxSQfb/kB_9WIKQ4sau4UyBmC2PE/Cp25tbjPf5VG7s2jYlf14.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241655
+    },
+    {
+      "id": "1-OVOXe0CVeFBO8k9l50O",
+      "slide_id": "27ZirHex2HO8crqhmGm58",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/GGELeNfBvNevKVzw0jTcq/27ZirHex2HO8crqhmGm58/1-OVOXe0CVeFBO8k9l50O.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241656
+    },
+    {
+      "id": "JSnMQJWyTpH5OFDWlG_Hf",
+      "slide_id": "69a66FsCbbFxaKP3QVDYb",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/CQ9lUVvLboQ1RlDZiEqmT/69a66FsCbbFxaKP3QVDYb/JSnMQJWyTpH5OFDWlG_Hf.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241656
+    },
+    {
+      "id": "ryej6aWjXMAhCHzahJrlq",
+      "slide_id": "62PRdUl7IPQZ06f2mcdQY",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/fq2A-8sdVbk07u2r7uSwI/62PRdUl7IPQZ06f2mcdQY/ryej6aWjXMAhCHzahJrlq.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241657
+    },
+    {
+      "id": "lZkBgMVCu0wQPw0SNr41P",
+      "slide_id": "ci-AzHMKwrUDsgbOhUnPV",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/THfOwe_4u6_KKSGDooWrN/ci-AzHMKwrUDsgbOhUnPV/lZkBgMVCu0wQPw0SNr41P.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241657
+    },
+    {
+      "id": "7kHEEhYOcE9I6bj-78Mpr",
+      "slide_id": "vYw7Ovrb5e__ODIMZPABp",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/ZSpJGRIALX6oRrwgy76wq/B4IECGwxcwoSQkacr5quI/vYw7Ovrb5e__ODIMZPABp/7kHEEhYOcE9I6bj-78Mpr.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430241658
+    },
+    {
+      "id": "KjB_AimagVB3Iqhj8L9hx",
+      "slide_id": "hBuhPp9DzRRwPaFfAtX1D",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/FNyiIPiS47xw59QxceCDb/hBuhPp9DzRRwPaFfAtX1D/KjB_AimagVB3Iqhj8L9hx.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774430274362
+    },
+    {
+      "id": "RHCNQU54qDgyBu-jcBNG8",
+      "slide_id": "dAbnCYsYyjsmoD9DXpQxF",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/M0sbpKCTzF5DXnEgrnI3T/dAbnCYsYyjsmoD9DXpQxF/RHCNQU54qDgyBu-jcBNG8.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330728
+    },
+    {
+      "id": "ceEpGPinbBIlWXV4rtGTQ",
+      "slide_id": "5jM1mOp7228n8d4VxDJom",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/w7UhyiMgICjR5yO7o21Nf/5jM1mOp7228n8d4VxDJom/ceEpGPinbBIlWXV4rtGTQ.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330784
+    },
+    {
+      "id": "cH_J9gVefjf7aghOJNLef",
+      "slide_id": "lCgGFeL7k1b3hhyAkxmE9",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/QlYtyQwp-ZrlDZ8ie9up6/lCgGFeL7k1b3hhyAkxmE9/cH_J9gVefjf7aghOJNLef.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330837
+    },
+    {
+      "id": "wBFAviaFG1oezz7sHWTBe",
+      "slide_id": "McXlpiypd1hXDHE-YwWKp",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/D1hf7r_TexKRPE1COLxIP/McXlpiypd1hXDHE-YwWKp/wBFAviaFG1oezz7sHWTBe.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330837
+    },
+    {
+      "id": "LHt4Q6oTXxldLclz2M-H9",
+      "slide_id": "ptdsF8Mv9A_o_7EMv7km9",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/CTcPj2XKr5f3z6sC2X8cz/ptdsF8Mv9A_o_7EMv7km9/LHt4Q6oTXxldLclz2M-H9.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330838
+    },
+    {
+      "id": "4467SOO-9BQcqe_0Ujb2m",
+      "slide_id": "Am5W5thN1iuZSaHv3L999",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/lKY6u4IjBpJRtD-z668vO/Am5W5thN1iuZSaHv3L999/4467SOO-9BQcqe_0Ujb2m.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330838
+    },
+    {
+      "id": "vFaAtWK2xQtPUuXrI1u60",
+      "slide_id": "wpKDXENqeTavnJ_yWuZUf",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/GzoMq9_asNBzPYIrbqFpy/wpKDXENqeTavnJ_yWuZUf/vFaAtWK2xQtPUuXrI1u60.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330839
+    },
+    {
+      "id": "ouMgJ87mN1N9ghq0RyH6H",
+      "slide_id": "QgUcLgXUAc0JHf-RTWtit",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/9dZefbK0biAMS6UmQXpCN/QgUcLgXUAc0JHf-RTWtit/ouMgJ87mN1N9ghq0RyH6H.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330839
+    },
+    {
+      "id": "Qwn0KjAeNJpasJIH0J0AP",
+      "slide_id": "6bqiTwegQyiDKWXZ_l7U5",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/aPon_U-oZjWe6Vy3Mn3DU/MGYHnWssUPrIRNule3Zzn/6bqiTwegQyiDKWXZ_l7U5/Qwn0KjAeNJpasJIH0J0AP.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330839
+    },
+    {
+      "id": "3CqNkL7zl8w5xPloLN2oS",
+      "slide_id": "ssP_zjY0j5adXyKOupf2n",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/IlHDulc3cECKl0_HGXYr0/ssP_zjY0j5adXyKOupf2n/3CqNkL7zl8w5xPloLN2oS.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330899
+    },
+    {
+      "id": "2iBvJ7zJYIwdW1iFsaJ6E",
+      "slide_id": "Dichx-WTQtilUFWyxAoiA",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/6gXwI9zeYd__fmjrZMha-/Dichx-WTQtilUFWyxAoiA/2iBvJ7zJYIwdW1iFsaJ6E.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433330955
+    },
+    {
+      "id": "IFZFVmQNQQUlDLhBIaRLk",
+      "slide_id": "LgM4njOO5U9lCdvhutvQx",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/NkNyTcoSNyRMULo-Bh2wW/LgM4njOO5U9lCdvhutvQx/IFZFVmQNQQUlDLhBIaRLk.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331005
+    },
+    {
+      "id": "1XoGzkV8L8SsF-YqHpmmx",
+      "slide_id": "Y05930BZw-Thy9yjT6tjA",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/r5n7mmGZQiGg0KCp7QaAk/Y05930BZw-Thy9yjT6tjA/1XoGzkV8L8SsF-YqHpmmx.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331057
+    },
+    {
+      "id": "cQm4elhBP54YbVt_vn2jj",
+      "slide_id": "leklRQlXoNOPl1YZXvNQM",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/uvxK0Q3-MIt118iit6JVf/leklRQlXoNOPl1YZXvNQM/cQm4elhBP54YbVt_vn2jj.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331110
+    },
+    {
+      "id": "Idp0bhelm9zx4SAAqalqo",
+      "slide_id": "DdPBbuaI2q3Q3Pj9qN3S3",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/pvQvqifDYJHVU5d3HjTFZ/DdPBbuaI2q3Q3Pj9qN3S3/Idp0bhelm9zx4SAAqalqo.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331164
+    },
+    {
+      "id": "Jj3v3-M5LeMXCUlEtbUbc",
+      "slide_id": "0Jq5kG3YMl6Lix6N1bTw-",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/BXWMfckYTv1zNv7OKx1Zz/0Jq5kG3YMl6Lix6N1bTw-/Jj3v3-M5LeMXCUlEtbUbc.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331164
+    },
+    {
+      "id": "zazCauC5NsDADyRGexD-S",
+      "slide_id": "1Ntx9mMQfRWkR4HXdtmNA",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/Khz2Z2XX5K9bCrW6IMSHd/1Ntx9mMQfRWkR4HXdtmNA/zazCauC5NsDADyRGexD-S.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331164
+    },
+    {
+      "id": "PpdzWd2mspNIcbQnoEIcB",
+      "slide_id": "6tnHdS3eo_Ib8OBzK3hyJ",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/36Lx-akfNWkkP5X1ll__i/6tnHdS3eo_Ib8OBzK3hyJ/PpdzWd2mspNIcbQnoEIcB.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331165
+    },
+    {
+      "id": "p2VvPbM0kE3HHwvVB_DkD",
+      "slide_id": "ArF4p1PyAm4lAs5CCMRi3",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/Ui6m_hrY_AbuyCILlV9Hi/ArF4p1PyAm4lAs5CCMRi3/p2VvPbM0kE3HHwvVB_DkD.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331165
+    },
+    {
+      "id": "CJSRVPA5rhdUB7CH7m5-s",
+      "slide_id": "8IAGZaMD0ZdaCdG1bbj35",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/dHgl_V5F5gK3-L9dzPzVM/8IAGZaMD0ZdaCdG1bbj35/CJSRVPA5rhdUB7CH7m5-s.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331166
+    },
+    {
+      "id": "xb7WL7pltvYhBS_8cBh_a",
+      "slide_id": "ahKiHzBPz0GcXeR0ih3nk",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/BTCAyEdthWCB8M30bz1Zp/8G9LvkzZue-kdXX4EcrR0/ahKiHzBPz0GcXeR0ih3nk/xb7WL7pltvYhBS_8cBh_a.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331166
+    },
+    {
+      "id": "gLL_LwiCLySj_z-vy9z3G",
+      "slide_id": "oxbkRFJm8O5t6jdZUso77",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/6mH58Ed8y90TAMFD6zYL9/oxbkRFJm8O5t6jdZUso77/gLL_LwiCLySj_z-vy9z3G.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331222
+    },
+    {
+      "id": "Yghzj7ovXwP6Yc4O97Ygh",
+      "slide_id": "EnOwX9Kl0f6ihJOcLAdWj",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/xH9lt0zx-z8nt7x-QhFJI/EnOwX9Kl0f6ihJOcLAdWj/Yghzj7ovXwP6Yc4O97Ygh.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331279
+    },
+    {
+      "id": "cEu9-JQ5xXLcwJ50HawMN",
+      "slide_id": "KWGF15LR7c3StDfabzlPn",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/4VIxj_DQGpzCRD6FTu5JA/KWGF15LR7c3StDfabzlPn/cEu9-JQ5xXLcwJ50HawMN.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331280
+    },
+    {
+      "id": "XyOzsfgWxBTVv6k-hIbFH",
+      "slide_id": "B12nXPwmxejjDsss_FFJK",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/RL6YhsY7ENbVCi5A1xAnC/B12nXPwmxejjDsss_FFJK/XyOzsfgWxBTVv6k-hIbFH.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331280
+    },
+    {
+      "id": "GvOy79f4g7a1DyLAiIbQM",
+      "slide_id": "SajeMlE46-7ETsP4gvVLr",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/CAOev2HE1wRFB7YNMVlRH/SajeMlE46-7ETsP4gvVLr/GvOy79f4g7a1DyLAiIbQM.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331281
+    },
+    {
+      "id": "iybXiocy5E46VBNWq5pxS",
+      "slide_id": "MN65R23hfXKKIdOidiUya",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/EKjzhineMwRblSRMBUkfz/MN65R23hfXKKIdOidiUya/iybXiocy5E46VBNWq5pxS.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331281
+    },
+    {
+      "id": "h3A60R-WrnlpXseg7KSYi",
+      "slide_id": "CtJ1JzTjPsJgaOCJYSJgA",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/sRwLVvi_pHT8HJzEHTSVV/CtJ1JzTjPsJgaOCJYSJgA/h3A60R-WrnlpXseg7KSYi.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331281
+    },
+    {
+      "id": "oJvKNU9L30KSKupzZkcwY",
+      "slide_id": "fVkeBidChkLBvVFJHavAP",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/Kv_i3z_FVMwUNdkSCY1ZS/R1aE9mBHvJFSmngwuX_13/fVkeBidChkLBvVFJHavAP/oJvKNU9L30KSKupzZkcwY.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331282
+    },
+    {
+      "id": "6EbX8kLOmtBUIGo4DI2iD",
+      "slide_id": "YCKob9gNyTy0Dbt2UbKeT",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/vI3jJQYxby-q2cfoFV4Xw/YCKob9gNyTy0Dbt2UbKeT/6EbX8kLOmtBUIGo4DI2iD.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774433331335
+    },
+    {
+      "id": "Gn8TsDLuM3ARKarJxGUuq",
+      "slide_id": "Ql_RDjdE7TnyrbNXb24U-",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/eK73wegJk92bEeObDOCJ8/Ql_RDjdE7TnyrbNXb24U-/Gn8TsDLuM3ARKarJxGUuq.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941372
+    },
+    {
+      "id": "xZJZM7XXaIhK0Ji40cvA4",
+      "slide_id": "EVfFurjx6BA1LZqK6IvaO",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/PF5fIK2X7fyAq9B-0B3yG/EVfFurjx6BA1LZqK6IvaO/xZJZM7XXaIhK0Ji40cvA4.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941375
+    },
+    {
+      "id": "sCGO_StROamg0pKU9WbGY",
+      "slide_id": "9ekRli0OmTRadeG8bBG_F",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/3cgG_dyYcZxLDCjPYvX4y/9ekRli0OmTRadeG8bBG_F/sCGO_StROamg0pKU9WbGY.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941376
+    },
+    {
+      "id": "UYHtVDMKorNEeGIabNHvA",
+      "slide_id": "JmR12VxHoho9MCIBbOj0x",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/ADJaGfLVo3o32g8SLbX94/JmR12VxHoho9MCIBbOj0x/UYHtVDMKorNEeGIabNHvA.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941376
+    },
+    {
+      "id": "L3lKj-V2mjqXgTM65Tdd6",
+      "slide_id": "XroHW5xN2nSGCY20CmJVq",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/J2aFLdYAuE4rzUPoJ4nxf/XroHW5xN2nSGCY20CmJVq/L3lKj-V2mjqXgTM65Tdd6.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941377
+    },
+    {
+      "id": "O3T04f1zjaNSiBUpOW8H8",
+      "slide_id": "XsjV4vLPTDsWPJEd0kw0e",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/JMkKv_RSd5sePgUH_er98/XsjV4vLPTDsWPJEd0kw0e/O3T04f1zjaNSiBUpOW8H8.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941377
+    },
+    {
+      "id": "2XAmMDX2ak8eG76N8Fgcw",
+      "slide_id": "_evmulYKneRiss7D1mGSs",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/nL_uxFm-uOTslTWb8Lbhk/u3ruuUrgE6-TPhulv56Jt/_evmulYKneRiss7D1mGSs/2XAmMDX2ak8eG76N8Fgcw.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436941377
+    },
+    {
+      "id": "Z42qYMx-T1EeNgZEYA_s8",
+      "slide_id": "7-Xr46iSaRAlmKMxp6V8r",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/br9MkpueUqkqNowszYM-Q/7-Xr46iSaRAlmKMxp6V8r/Z42qYMx-T1EeNgZEYA_s8.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436942361
+    },
+    {
+      "id": "1eLvosQ6uCtWtJxDfWJ_I",
+      "slide_id": "9xTBvWYxftzKgDN3ptCbY",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/bI6N0-wpUi4JLtBnZ6Qbk/9xTBvWYxftzKgDN3ptCbY/1eLvosQ6uCtWtJxDfWJ_I.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943291
+    },
+    {
+      "id": "lR0BlSt7gWU9Fajv3nrPc",
+      "slide_id": "8XbCOFTW0XOH9TW4fmsw8",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/ExSet7XsA2GElIDUpTaoe/8XbCOFTW0XOH9TW4fmsw8/lR0BlSt7gWU9Fajv3nrPc.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943291
+    },
+    {
+      "id": "l9N4314cVcq1oTnflSC4x",
+      "slide_id": "04MCSpAtzukKm5k28PYAB",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/lhoGuV47sqmyN3H5oYDpE/04MCSpAtzukKm5k28PYAB/l9N4314cVcq1oTnflSC4x.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943292
+    },
+    {
+      "id": "v1EqLgluBLMe2Fd3O8T27",
+      "slide_id": "spS4-SoYByCW-gzoxkcmL",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/FidSeN86aXCknYvCPvQxw/spS4-SoYByCW-gzoxkcmL/v1EqLgluBLMe2Fd3O8T27.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943292
+    },
+    {
+      "id": "DwzPXOCvzsBwzuTI2dRdG",
+      "slide_id": "ZIQnJg788fCx1R3GdjjNH",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/-Lg8woKzxkdVcZe6sqJBs/ZIQnJg788fCx1R3GdjjNH/DwzPXOCvzsBwzuTI2dRdG.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943293
+    },
+    {
+      "id": "gAm_k39dWXXaxZkCu9p4J",
+      "slide_id": "_M0pzNZ4mryUY9LjhRVzv",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/N2WIdBRBG9Jl-NP7G3E8l/_M0pzNZ4mryUY9LjhRVzv/gAm_k39dWXXaxZkCu9p4J.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943293
+    },
+    {
+      "id": "zUoTMxxXSTe1Qy_9yb4-B",
+      "slide_id": "iYFbwnKqdSObiRMlReLd8",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/-q1afMP_Sq3h5i3-yx1lJ/Hn05xan4CkWxBIZsIqR8T/iYFbwnKqdSObiRMlReLd8/zUoTMxxXSTe1Qy_9yb4-B.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436943294
+    },
+    {
+      "id": "nkgtcxOpyE6M4gNXT45IP",
+      "slide_id": "OrNx1f6518Gs9AtxRf9Cq",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/3uECYOuyIcaGlMoz4MCM6/OrNx1f6518Gs9AtxRf9Cq/nkgtcxOpyE6M4gNXT45IP.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774436944213
+    },
+    {
+      "id": "ouTuCWrJ5-5omIaf7OnUL",
+      "slide_id": "JajC8B_l0qQwbs57zQ9I6",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/k8kZ9O2slanTIGXH45sLu/JajC8B_l0qQwbs57zQ9I6/ouTuCWrJ5-5omIaf7OnUL.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774440535998
+    },
+    {
+      "id": "xqSpqZ1ZQjAHKZRC9WLqg",
+      "slide_id": "I5VvVUUtFdU_stYSj_huN",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/4DdqmcEgZA0jm0New0j8A/I5VvVUUtFdU_stYSj_huN/xqSpqZ1ZQjAHKZRC9WLqg.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774440536948
+    },
+    {
+      "id": "1xd3QyhIAzfGnP4msiV9m",
+      "slide_id": "Z0hePF06AMvznuSpqLUVr",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/5MY2ovLVUbs8nI3ErBHvS/-qNtUVOc3VP0HGg8wrcv5/Z0hePF06AMvznuSpqLUVr/1xd3QyhIAzfGnP4msiV9m.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774440537878
+    },
+    {
+      "id": "TCY4Do4cZGxEDsi5bv6rx",
+      "slide_id": "ZqJQS6Vpcn8VpTg4vobKx",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/EpwCp2so3CtV-2cIMHyZm/ZqJQS6Vpcn8VpTg4vobKx/TCY4Do4cZGxEDsi5bv6rx.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126349
+    },
+    {
+      "id": "CzOLxw4Wm3vcc4HLtOUUo",
+      "slide_id": "yEDPxJZy53zvSqJ309kHq",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/LEAq7yVafHa8qfYYcmcdM/yEDPxJZy53zvSqJ309kHq/CzOLxw4Wm3vcc4HLtOUUo.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126350
+    },
+    {
+      "id": "omTKMLh9jdhtW9ojq4qoI",
+      "slide_id": "68VHYKsanVHuLZa7fJ_ax",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/NjAYvevCv7gigt9Vyd0Zz/68VHYKsanVHuLZa7fJ_ax/omTKMLh9jdhtW9ojq4qoI.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126351
+    },
+    {
+      "id": "lCXNr6SZbWFOclhvAPC-L",
+      "slide_id": "3fX9s0VDBKBIfEtxDw49C",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/oaJcMYoraCYBOJLbq-ZPC/3fX9s0VDBKBIfEtxDw49C/lCXNr6SZbWFOclhvAPC-L.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126351
+    },
+    {
+      "id": "XQlTzQJWTMcQ2_Hy6ecRg",
+      "slide_id": "LsfHX19xWUGc--bKGi16I",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/VBJtMpKBEA_8h2mg1L2_-/LsfHX19xWUGc--bKGi16I/XQlTzQJWTMcQ2_Hy6ecRg.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126352
+    },
+    {
+      "id": "njN10z1geG5zeWB8eakXO",
+      "slide_id": "0H7v86TXqjGqYRkl3SJWg",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/2g2QlTbFcAruIvPo1T1tw/0H7v86TXqjGqYRkl3SJWg/njN10z1geG5zeWB8eakXO.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126352
+    },
+    {
+      "id": "gmQKuYdtNGRzbbAzIKkxO",
+      "slide_id": "FwRnwFNvsPW63vjQFe00-",
+      "iteration_index": 0,
+      "html_path": ".fluid/campaigns/X4ceUJAWGc1ruZuggBRwT/CAYmOb2LzzOmLK__IG_6E/FwRnwFNvsPW63vjQFe00-/gmQKuYdtNGRzbbAzIKkxO.html",
+      "slot_schema": null,
+      "ai_baseline": null,
+      "user_state": null,
+      "status": "unmarked",
+      "source": "ai",
+      "template_id": null,
+      "generation_status": "pending",
+      "created_at": 1774444126352
+    }
+  ],
+  "annotations": [],
+  "_meta": {
+    "exported_at": "2026-03-25T15:29:49.620Z",
+    "db_path": "/home/cheyras/Fluid/Fluid-DesignOS/canvas/fluid.db",
+    "version": 1
+  }
 }

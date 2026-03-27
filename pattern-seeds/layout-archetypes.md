@@ -1,73 +1,44 @@
-6 proven layout types for social posts. Each validated through 10+ iterations.
+Brand-agnostic layout skeletons for social posts and one-pagers. Each archetype defines structural positioning only — no brand styling, fonts, or decorative elements. (weight: 90)
 
-## A. Full-Bleed Headline (weight: 85)
+## Instagram Archetypes (1080x1080)
 
-**Best for:** Brand statements, problem declarations, emotional hooks
+| Slug | Structure | Best For |
+|------|-----------|----------|
+| `minimal-statement` | Bold centered headline + subtext, lots of whitespace | Pain points, brand declarations, emotional hooks |
+| `hero-stat` | 3-stat row at bottom + headline + eyebrow | Data proof, quarterly stats, multiple metrics |
+| `stat-hero-single` | One giant stat number dominates + headline + body | Single proof point ("6X", "82%", "$75K") |
+| `hero-stat-split` | Photo left + stat/headline/body right | One big number with context + photo |
+| `photo-bg-overlay` | Full-bleed photo with dark overlay + headline/subtext | Dramatic visual posts, product showcases |
+| `split-photo-text` | 50/50 split: photo left, text right | Case studies, testimonials with photo |
+| `split-photo-quote` | Photo left + large pull quote right | Thought leadership with portrait |
+| `quote-testimonial` | Large quote + portrait photo + name/title | Client testimonials |
+| `minimal-photo-top` | Photo anchored at top, text below | Product showcases, app highlights |
+| `data-dashboard` | 2x2 or 3-4 stat grid with headline | Multiple data points, reports |
 
-**Structure:**
-1. HEADLINE (82-100px) — fills top portion, dominates visual weight
-2. FLFont tagline — accent color
-3. Body (1-2 sentences max) — supporting text
-4. Footer — standard brand footer
-5. Brushstrokes: 2
+## LinkedIn Archetypes (1200x627)
 
-## B. Headline + Diagram Card (weight: 80)
+| Slug | Structure | Best For |
+|------|-----------|----------|
+| `minimal-statement-li` | Bold statement, landscape format | Brand declarations, announcements |
+| `hero-stat-li` | Stats + headline, landscape | Data-driven LinkedIn posts |
+| `quote-testimonial-li` | Quote + attribution, landscape | Client testimonials for LinkedIn |
+| `split-photo-text-li` | Photo left + text right, landscape | Case studies, educational content |
+| `data-dashboard-li` | Multi-stat grid, landscape | Reports, metrics updates |
+| `article-preview-li` | Article card preview layout | Thought leadership, blog promotion |
 
-**Best for:** Technical differentiators, before/after, process explanations
+## One-Pager Archetypes (816x1056)
 
-**Structure:**
-1. HEADLINE (82px) — top section
-2. Diagram / Terminal / Flow — card with `rgba(255,255,255,0.03)` bg and `rgba(255,255,255,0.06)` border
-3. Footer
+| Slug | Structure | Best For |
+|------|-----------|----------|
+| `case-study-op` | Problem → solution → results flow | Client success stories |
+| `product-feature-op` | Feature grid + hero section | Product capability overviews |
+| `company-overview-op` | Mission + stats + team layout | Company introductions |
 
-## C. Giant Stat Hero (weight: 80)
+## Selection Guide (weight: 85)
 
-**Best for:** Proof points, reframes, "the number you're not tracking"
-
-**Structure:**
-1. Giant stat number (120px+) — center, largest element
-2. Headline below stat — contextualizes the number
-3. Body context — brief explanation
-4. Circle: around stat — emphasis element
-5. Footer
-
-## D. Pull Quote / Manifesto (weight: 80)
-
-**Best for:** Company voice, emotional storytelling, thought leadership
-
-**Structure:**
-1. Large opening quote mark (decorative, ~10% opacity)
-2. Quote text (50-52px) — the core message
-3. FLFont attribution — speaker/source
-4. Footer
-
-## E. Two-Column — LinkedIn only (weight: 75)
-
-**Best for:** Educational content, comparisons. 1200x627 landscape ONLY.
-
-**Structure:**
-- Left column (55%): Headline + body text
-- Right column (45%): Visual element (diagram, mockup, or illustration)
-- Footer
-
-## F. Centered Manifesto (weight: 75)
-
-**Best for:** Mission statements, campaign anchors. Heavy brush framing both sides.
-
-**Structure:**
-1. Ghost watermark text (~4% opacity, massive, fills background)
-2. Centered headline — on top of watermark
-3. Centered body — supporting text
-4. Footer
-5. Brushstrokes: heavy framing on both sides
-
-## Selection Guide
-
-| Archetype | When to Use | Accent |
-|-----------|-------------|--------|
-| Full-Bleed Headline | Default for most pain/problem posts | Orange |
-| Headline + Diagram | Technical or process content | Blue |
-| Giant Stat Hero | Data-driven proof points | Green |
-| Pull Quote / Manifesto | Thought leadership, storytelling | Any |
-| Two-Column | LinkedIn landscape educational | Blue |
-| Centered Manifesto | Campaign anchors, mission | Purple |
+- **Has a big stat to highlight?** → `stat-hero-single` (IG) or `hero-stat-li` (LI)
+- **Has multiple stats?** → `hero-stat`, `data-dashboard`, or their `-li` variants
+- **Has a photo?** → `photo-bg-overlay`, `split-photo-text`, `hero-stat-split`, `minimal-photo-top`
+- **Client testimonial?** → `quote-testimonial` (IG) or `quote-testimonial-li` (LI)
+- **Pure text/statement?** → `minimal-statement` (IG) or `minimal-statement-li` (LI)
+- **Uncertain?** → Default to `minimal-statement` — it works for most content
