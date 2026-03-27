@@ -327,31 +327,6 @@ When in doubt, return to these. They represent the voice at its best.
 
 ---
 
-## Copy.md Output Format for Pipeline
-
-When writing copy.md for the generation pipeline, use EXACTLY these section headers:
-
-```
-## HEADLINE
-[Your headline text]
-
-## BODY
-[Your body copy text]
-
-## TAGLINE
-[Your tagline text]
-
-Archetype: [slug]
-Accent: [hex color]
-Photo: [asset-name] (if applicable)
-```
-
-This format is mandatory — the eval harness parses these headers to validate copy structure.
-
-**CRITICAL — Archetype slug rule:** The `Archetype:` value MUST be an exact slug from the Available Archetypes list provided in the copy prompt. Do NOT invent conceptual names like `pain-relief`, `bold-innovator`, `trust-builder`, etc. These are not valid archetypes and will cause routing failures. Use ONLY the exact slugs listed (e.g., `stat-hero-single`, `minimal-statement`, `hero-stat-split`).
-
----
-
 ## One-Sentence Summary of the Voice
 
 Write like someone who has thought deeply about a broken industry, fixed a real part of it, and wants to tell you exactly what they found — without wasting your time.

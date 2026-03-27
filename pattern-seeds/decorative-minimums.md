@@ -14,18 +14,8 @@ Every social post requires minimum decorative treatment. A post with zero decora
 - Circles/underlines: `list_brand_assets(category="circles")` → use as CSS `mask-image` on a colored `<div>` positioned behind a keyword
 - Lines/scribbles/x-marks: `list_brand_assets(category="decorations")` → place as `<div>` with `background-image`
 
-## DECORATIONS Comment (weight: 85)
-
-At the very end of the HTML (before `</html>`), ALWAYS write a machine-readable comment declaring what decorative elements were placed:
-```
-<!-- DECORATIONS: brush=".your-brush-selector" brushAdditional=[".selector1",".selector2"] -->
-```
-If no brush element was placed (which should never happen), write: `<!-- DECORATIONS: brush="" brushAdditional=[] -->`
-This comment is MANDATORY — the pipeline parses it for editor sidebar integration.
-
 ## Anti-patterns (weight: 90)
 
 - Text on a solid black background with NO textures, brushstrokes, or emphasis marks
 - Using only text and a colored accent line with nothing else
 - Empty `.background-layer` / `.decorative-zone` div with no children
-- Omitting the DECORATIONS comment at end of HTML
