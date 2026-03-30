@@ -118,17 +118,15 @@ Same 13 sizes with `lg:` prefix: `lg:text-xs` through `lg:text-9xl`
 
 | Utility Class | Label | Website Font |
 |--------------|-------|-------------|
-| `font-primary` | Primary | Syne |
-| `font-body` | Body | DM Sans |
+| `font-primary` | Primary | NeueHaas |
+| `font-body` | Body | Inter |
 | `font-handwritten` | Handwritten | -- |
 | `font-serif` | Serif | -- |
 
-**Context matters:** These are semantic family names. The actual fonts they resolve to depend on the theme's configuration. For Fluid's website theme, `font-primary` maps to Syne and `font-body` maps to DM Sans.
+**Context matters:** These are semantic family names. The actual fonts they resolve to depend on the theme's configuration. For Fluid's theme, `font-primary` maps to NeueHaas and `font-body` maps to Inter.
 
 **Social vs Website fonts (Weight: 85 rule from rules.json):**
-- Social posts: NeueHaasDisplay + FLFont
-- Website sections: Syne + DM Sans + Space Mono
-- Do NOT cross-pollinate (font-social-only / font-website-only rules)
+- All deliverables: FLFont (taglines) + NeueHaas (headlines, weight 900) + Inter (body, weight 300-400)
 
 ---
 
@@ -143,7 +141,7 @@ Same 13 sizes with `lg:` prefix: `lg:text-xs` through `lg:text-9xl`
 | Spacing | `24px` | `var(--space-lg)` or `py-lg` class |
 | Font size | `16px` or `1rem` | `text-base` class |
 | Font weight | `700` | `font-bold` class |
-| Font family | `"Syne", sans-serif` | `font-primary` class |
+| Font family | `"NeueHaas", sans-serif` | `font-primary` class |
 
 ### Where to use CSS variables vs utility classes:
 
