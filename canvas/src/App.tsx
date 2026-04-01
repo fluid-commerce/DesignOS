@@ -115,12 +115,11 @@ function StandaloneCreationsView() {
   }
 
   return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
       gap: '1rem',
-      padding: '1rem',
-      overflowY: 'auto',
     }}>
       {standaloneCreations.map((cr) => (
         <div
@@ -185,6 +184,7 @@ function StandaloneCreationsView() {
           </div>
         </div>
       ))}
+    </div>
     </div>
   );
 }
