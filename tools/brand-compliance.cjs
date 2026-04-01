@@ -35,8 +35,8 @@ const BASE_RULES = {
   },
   fonts: {
     social_families: ['NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold'],
-    website_families: ['Syne', 'DM Sans', 'Space Mono', 'Inter', 'NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold'],
-    allowed_families: ['NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold', 'Inter', 'Syne', 'DM Sans', 'Space Mono'],
+    website_families: ['Inter', 'NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold'],
+    allowed_families: ['NeueHaasDisplay', 'NeueHaas', 'FLFont', 'flfontbold', 'Inter'],
   },
   thresholds: { error: 81, warning: 51, info: 21, hint: 1 },
 };
