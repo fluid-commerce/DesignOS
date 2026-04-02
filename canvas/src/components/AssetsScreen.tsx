@@ -141,6 +141,43 @@ function CategoryEmptyState({ category }: { category: string }) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+function FontPreview({ url, name }: { url: string; name: string }) {
+  const familyName = `preview-${name.replace(/[^a-zA-Z0-9]/g, '-')}`;
+  return (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 12,
+      boxSizing: 'border-box',
+      gap: 4,
+    }}>
+      <style>{`@font-face { font-family: '${familyName}'; src: url('${url}'); }`}</style>
+      <span style={{
+        fontFamily: `'${familyName}', sans-serif`,
+        fontSize: '1.5rem',
+        color: '#ccc',
+        lineHeight: 1.2,
+        textAlign: 'center',
+        wordBreak: 'break-word',
+      }}>
+        Aa Bb Cc
+      </span>
+      <span style={{
+        fontFamily: `'${familyName}', sans-serif`,
+        fontSize: '0.75rem',
+        color: '#777',
+        textAlign: 'center',
+      }}>
+        0123456789
+      </span>
+    </div>
+  );
+}
+
 export function AssetsScreen() {
   // Saved assets via shared hook (deduped with BuildHero)
   const { assets, loading, error: assetsError, invalidate: fetchAssets } = useAssets();
@@ -298,6 +335,11 @@ export function AssetsScreen() {
   const isImage = (mime: string | null | undefined, url: string) => {
     if (mime?.startsWith('image/')) return true;
     return /\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(url);
+  };
+
+  const isFont = (mime: string | null | undefined, url: string) => {
+    if (mime?.startsWith('font/')) return true;
+    return /\.(ttf|woff2?|otf)(\?|$)/i.test(url);
   };
 
   const syncStatusText = (): string => {
@@ -536,11 +578,14 @@ export function AssetsScreen() {
             >
               <div style={{
                 aspectRatio: '1',
-                backgroundColor: '#111',
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                backgroundColor: '#111',
+                backgroundImage: `linear-gradient(45deg, #1a1a1e 25%, transparent 25%), linear-gradient(-45deg, #1a1a1e 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1e 75%), linear-gradient(-45deg, transparent 75%, #1a1a1e 75%)`,
+                backgroundSize: '16px 16px',
+                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
               }}>
                 {isImage(a.mimeType, a.url) ? (
                   <img
@@ -549,10 +594,14 @@ export function AssetsScreen() {
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       display: 'block',
+                      padding: 12,
+                      boxSizing: 'border-box' as const,
                     }}
                   />
+                ) : isFont(a.mimeType, a.url) ? (
+                  <FontPreview url={a.url} name={a.name ?? 'font'} />
                 ) : (
                   <span style={{ color: '#555', fontSize: '0.75rem' }}>File</span>
                 )}
@@ -724,6 +773,9 @@ export function AssetsScreen() {
               <div style={{
                 aspectRatio: '1',
                 backgroundColor: '#111',
+                backgroundImage: `linear-gradient(45deg, #1a1a1e 25%, transparent 25%), linear-gradient(-45deg, #1a1a1e 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1e 75%), linear-gradient(-45deg, transparent 75%, #1a1a1e 75%)`,
+                backgroundSize: '16px 16px',
+                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -735,10 +787,14 @@ export function AssetsScreen() {
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       display: 'block',
+                      padding: 12,
+                      boxSizing: 'border-box' as const,
                     }}
                   />
+                ) : isFont(a.mimeType, a.url) ? (
+                  <FontPreview url={a.url} name={a.name ?? 'font'} />
                 ) : (
                   <span style={{ color: '#555', fontSize: '0.75rem' }}>File</span>
                 )}
