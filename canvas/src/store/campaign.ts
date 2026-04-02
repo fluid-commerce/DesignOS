@@ -53,6 +53,7 @@ interface CampaignStore {
 
   // Navigation actions
   navigateToDashboard: () => void;
+  navigateToDashboardCreations: () => void;
   navigateToCampaign: (id: string) => Promise<void>;
   navigateToCreation: (id: string) => Promise<void>;
   setActiveSlide: (slideId: string) => void;
@@ -145,6 +146,21 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     get().fetchCampaigns();
   },
 
+  navigateToDashboardCreations: () => {
+    set({
+      currentView: 'dashboard',
+      createViewportTab: 'creations',
+      activeCampaignId: null,
+      activeCreationId: null,
+      activeSlideId: null,
+      activeIterationId: null,
+      creations: [],
+      slides: [],
+      iterations: [],
+    });
+    get().fetchCampaigns();
+  },
+
   navigateToCampaign: async (id: string) => {
     set({
       currentView: 'campaign',
@@ -225,10 +241,27 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
   },
 
   navigateBack: () => {
-    const { currentView, activeCampaignId } = get();
+    const { currentView, activeCampaignId, campaigns } = get();
+    const isStandalone = activeCampaignId
+      ? campaigns.find((c) => c.id === activeCampaignId)?.title === '__standalone__'
+      : false;
+
     switch (currentView) {
       case 'creation':
-        if (activeCampaignId) {
+        if (isStandalone) {
+          set({
+            currentView: 'dashboard',
+            createViewportTab: 'creations',
+            activeCampaignId: null,
+            activeCreationId: null,
+            activeSlideId: null,
+            activeIterationId: null,
+            creations: [],
+            slides: [],
+            iterations: [],
+          });
+          get().fetchCampaigns();
+        } else if (activeCampaignId) {
           get().navigateToCampaign(activeCampaignId);
         } else {
           get().navigateToDashboard();
@@ -239,7 +272,6 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         break;
       case 'dashboard':
       default:
-        // Already at top level; no-op
         break;
     }
   },

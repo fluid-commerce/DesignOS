@@ -245,10 +245,9 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation, h
   const [showCreateNewModal, setShowCreateNewModal] = useState(false);
   const activeNavTab = useCampaignStore((s) => s.activeNavTab);
   const createViewportTab = useCampaignStore((s) => s.createViewportTab);
-  const setCreateViewportTab = useCampaignStore((s) => s.setCreateViewportTab);
   const currentView = useCampaignStore((s) => s.currentView);
-  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
-  const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
+  const navigateToDashboard = useCampaignStore((s) => s.navigateToDashboard);
+  const navigateToDashboardCreations = useCampaignStore((s) => s.navigateToDashboardCreations);
   const rightSidebarOpen = useCampaignStore((s) => s.rightSidebarOpen);
   const toggleRightSidebar = useCampaignStore((s) => s.toggleRightSidebar);
   const showNewCampaignModal = useCampaignStore((s) => s.showNewCampaignModal);
@@ -257,13 +256,17 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation, h
 
   const handleSetCreateViewportTab = useCallback(
     (tab: 'campaigns' | 'creations') => {
-      setCreateViewportTab(tab);
-      // If user is in the editor and clicks Creations tab, show the list (navigate to campaign view)
-      if (tab === 'creations' && currentView === 'creation' && activeCampaignId) {
-        navigateToCampaign(activeCampaignId);
+      if (tab === 'creations') {
+        if (currentView !== 'dashboard' || createViewportTab !== 'creations') {
+          navigateToDashboardCreations();
+        }
+      } else {
+        if (currentView !== 'dashboard' || createViewportTab !== 'campaigns') {
+          navigateToDashboard();
+        }
       }
     },
-    [setCreateViewportTab, currentView, activeCampaignId, navigateToCampaign]
+    [currentView, createViewportTab, navigateToDashboardCreations, navigateToDashboard]
   );
 
   const handleNewCampaignCreated = useCallback((title: string, channels: string[]) => {

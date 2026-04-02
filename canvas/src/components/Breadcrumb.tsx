@@ -57,6 +57,7 @@ export function Breadcrumb() {
   const campaigns = useCampaignStore((s) => s.campaigns);
   const creations = useCampaignStore((s) => s.creations);
   const navigateToDashboard = useCampaignStore((s) => s.navigateToDashboard);
+  const navigateToDashboardCreations = useCampaignStore((s) => s.navigateToDashboardCreations);
   const navigateToCampaign = useCampaignStore((s) => s.navigateToCampaign);
   const navigateBack = useCampaignStore((s) => s.navigateBack);
 
@@ -77,7 +78,7 @@ export function Breadcrumb() {
     // Standalone creations: show "Creations" root, skip campaign segment
     segments.push({
       label: 'Creations',
-      onClick: currentView !== 'dashboard' ? navigateToDashboard : undefined,
+      onClick: currentView !== 'dashboard' ? navigateToDashboardCreations : undefined,
     });
   } else {
     segments.push({
