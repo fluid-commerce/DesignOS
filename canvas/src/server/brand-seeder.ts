@@ -731,6 +731,7 @@ export async function seedDesignRulesIfEmpty(): Promise<void> {
 const SEED_TABLES_ORDERED = [
   'voice_guide_docs',
   'brand_patterns',
+  'brand_styles',
   'template_design_rules',
   'templates',
   'context_map',
