@@ -178,30 +178,49 @@ function StandaloneCreationsView() {
               }}>
                 {previews[cr.id] ? (() => {
                   const dims = getCreationDimensions(cr.creationType);
+                  // Scale the native creation size to fit inside the preview box.
+                  // The inner container is the card width minus padding on each side.
+                  // Grid columns are minmax(320px, 1fr); aspect-ratio:1 makes the box square.
+                  // With 24px padding per side, inner area ≈ 272px.
+                  // We scale both dimensions proportionally to fit.
+                  const containerSize = 272;
+                  const scale = Math.min(containerSize / dims.width, containerSize / dims.height);
+                  const scaledW = dims.width * scale;
+                  const scaledH = dims.height * scale;
                   return (
                     <div style={{
                       width: '100%',
                       height: '100%',
-                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       overflow: 'hidden',
                       borderRadius: 4,
                     }}>
-                      <iframe
-                        src={`/api/iterations/${previews[cr.id]}/html`}
-                        style={{
-                          width: dims.width,
-                          height: dims.height,
-                          border: 'none',
-                          pointerEvents: 'none',
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          transformOrigin: '0 0',
-                          transform: `translate(-50%, -50%) scale(${272 / Math.max(dims.width, dims.height)})`,
-                        }}
-                        sandbox="allow-same-origin"
-                        title={cr.title}
-                      />
+                      <div style={{
+                        width: scaledW,
+                        height: scaledH,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                      }}>
+                        <iframe
+                          src={`/api/iterations/${previews[cr.id]}/html`}
+                          style={{
+                            width: dims.width,
+                            height: dims.height,
+                            border: 'none',
+                            pointerEvents: 'none',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transformOrigin: 'top left',
+                            transform: `scale(${scale})`,
+                          }}
+                          sandbox="allow-same-origin"
+                          title={cr.title}
+                        />
+                      </div>
                     </div>
                   );
                 })() : (
