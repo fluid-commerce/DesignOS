@@ -140,6 +140,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let eventType = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -149,7 +150,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
 
-        let eventType = '';
         for (const line of lines) {
           if (line.startsWith('event: ')) {
             eventType = line.slice(7).trim();
@@ -176,6 +176,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (err.name !== 'AbortError') {
         get()._appendTextDelta(`\n\nConnection error: ${err.message}`);
       }
+    }
+
+    // Always finish streaming when the connection ends
+    if (get().isStreaming) {
       get()._finishStreaming();
     }
 
