@@ -5,7 +5,7 @@ function ToolCallBlock({ tc }: { tc: ToolCallUI }) {
   const [expanded, setExpanded] = useState(false);
 
   const statusIcon = tc.status === 'pending' ? '\u23F3' : tc.status === 'error' ? '\u274C' : '\u2705';
-  const label = tc.tool.replace(/_/g, ' ');
+  const label = (tc.tool ?? 'unknown').replace(/_/g, ' ');
 
   return (
     <div className="chat-tool-call" onClick={() => setExpanded(!expanded)}>
@@ -36,8 +36,8 @@ export function ChatMessage({ message }: { message: ChatMessageUI }) {
       )}
       {message.toolCalls.length > 0 && (
         <div className="chat-tool-calls">
-          {message.toolCalls.map(tc => (
-            <ToolCallBlock key={tc.id} tc={tc} />
+          {message.toolCalls.map((tc, idx) => (
+            <ToolCallBlock key={tc.id ?? idx} tc={tc} />
           ))}
         </div>
       )}

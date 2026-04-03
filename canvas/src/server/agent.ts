@@ -5,7 +5,22 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { nanoid } from 'nanoid';
+import * as path from 'path';
 import { getDb } from '../lib/db';
+
+// Load .env from repo root so ANTHROPIC_API_KEY is available
+const envPaths = [
+  path.resolve(process.cwd(), '../.env'),
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '../../.env'),
+];
+for (const envPath of envPaths) {
+  try {
+    // @ts-ignore — process.loadEnvFile is Node 22.9+
+    (process as any).loadEnvFile(envPath);
+    break;
+  } catch {}
+}
 import { SYSTEM_PROMPT } from './agent-system-prompt';
 import {
   listVoiceGuide,

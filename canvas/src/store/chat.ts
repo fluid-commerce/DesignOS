@@ -70,15 +70,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const res = await fetch(`/api/chats/${chatId}`);
     const data = await res.json();
 
-    const messages: ChatMessageUI[] = (data.messages ?? []).map((m: any) => ({
-      id: m.id,
-      role: m.role,
-      content: m.content,
-      toolCalls: m.toolCalls ? JSON.parse(m.toolCalls).map((tc: any) => ({
-        id: tc.id, tool: tc.name, input: tc.input, status: 'complete' as const,
-      })) : [],
-      createdAt: m.createdAt,
-    }));
+    const messages: ChatMessageUI[] = (data.messages ?? [])
+      .filter((m: any) => m.content || m.toolCalls) // skip tool-result-only messages
+      .map((m: any) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        toolCalls: m.toolCalls ? JSON.parse(m.toolCalls).map((tc: any) => ({
+          id: tc.id, tool: tc.name, input: tc.input, status: 'complete' as const,
+        })) : [],
+        createdAt: m.createdAt,
+      }));
 
     set({ activeChatId: chatId, messages });
   },
@@ -156,11 +158,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
             const store = get();
 
             if (eventType === 'text') {
-              store._appendTextDelta(data.delta);
+              store._appendTextDelta(data.text ?? data.delta);
             } else if (eventType === 'tool_start') {
-              store._addToolCall({ id: data.id, tool: data.tool, input: data.input, status: 'pending' });
+              store._addToolCall({ id: data.toolUseId ?? data.id, tool: data.name ?? data.tool, input: data.input, status: 'pending' });
             } else if (eventType === 'tool_result') {
-              store._updateToolResult(data.id, data.result, data.hasImage, data.error);
+              store._updateToolResult(data.toolUseId ?? data.id, typeof data.result === 'object' ? JSON.stringify(data.result) : (data.result ?? data.summary ?? ''), data.hasImage, data.error);
             } else if (eventType === 'done') {
               store._finishStreaming();
             } else if (eventType === 'error') {
