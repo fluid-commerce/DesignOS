@@ -61,6 +61,7 @@ import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
 import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, splitPatternEntries, seedGlobalVisualStyleIfEmpty, seedFontEnforcementIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
+import { handleChatRoutes } from './chat-routes';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
 import { injectArtboardMarginGuide, PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
@@ -340,6 +341,15 @@ export function fluidWatcherPlugin(): Plugin {
         } catch {
           /* file not found or not readable */
         }
+        next();
+      });
+
+      // Chat API routes (SSE streaming for agent messages)
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/chats')) return next();
+        const chatUrl = new URL(req.url ?? '/', `http://${req.headers.host}`);
+        const handled = await handleChatRoutes(req, res, chatUrl);
+        if (handled) return;
         next();
       });
 
