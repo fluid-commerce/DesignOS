@@ -10,6 +10,7 @@ const TAB_SEGMENTS: Record<string, NavTab> = {
   'assets': 'assets',
   'templates': 'templates',
   'patterns': 'patterns',
+  'styles': 'styles',
   'voice-guide': 'voice-guide',
   'settings': 'settings',
 };
@@ -21,6 +22,7 @@ const TAB_TO_SEGMENT: Record<NavTab, string> = {
   'assets': 'assets',
   'templates': 'templates',
   'patterns': 'patterns',
+  'styles': 'styles',
   'voice-guide': 'voice-guide',
   'settings': 'settings',
 };

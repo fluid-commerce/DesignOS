@@ -4,28 +4,9 @@
 <head>
 <meta charset="UTF-8"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     width: 1200px;
     height: 627px;
-    overflow: hidden;
-    background: #111;
-    position: relative;
-    font-family: sans-serif;
-  }
-
-  .background-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .foreground-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
   }
 
   /* SLOT: .eyebrow */
@@ -37,7 +18,7 @@
     font-size: 22px;
     font-weight: 500;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     z-index: 2;
   }
 
@@ -51,7 +32,7 @@
     font-weight: 900;
     line-height: 0.88;
     letter-spacing: -0.03em;
-    color: #ffffff;
+    color: var(--text-primary);
     z-index: 2;
   }
 
@@ -64,7 +45,7 @@
     font-size: 22px;
     font-weight: 400;
     line-height: 1.4;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--text-body);
     z-index: 2;
   }
 
@@ -94,7 +75,7 @@
     font-weight: 900;
     line-height: 0.85;
     letter-spacing: -0.03em;
-    color: #ffffff;
+    color: var(--text-primary);
   }
 
   /* SLOT: .stat-1-label */
@@ -104,7 +85,7 @@
     font-size: 18px;
     font-weight: 500;
     letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
   }
 </style>
 </head>

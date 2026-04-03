@@ -207,6 +207,13 @@ function initSchema(db: Database.Database): void {
       gap_tool_calls  TEXT NOT NULL DEFAULT '[]',
       created_at      INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS brand_styles (
+      id TEXT PRIMARY KEY,
+      scope TEXT NOT NULL UNIQUE,
+      css_content TEXT NOT NULL DEFAULT '',
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   // Migration: add generation_status to existing databases that predate this column.
@@ -311,6 +318,36 @@ function initSchema(db: Database.Database): void {
   // Migration: add routing metadata to templates for pipeline routing
   try { db.exec("ALTER TABLE templates ADD COLUMN content_type TEXT"); } catch {}
   try { db.exec("ALTER TABLE templates ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'"); } catch {}
+
+  // Seed brand_styles with Fluid defaults if table is empty
+  const styleCount = (db.prepare('SELECT COUNT(*) as c FROM brand_styles').get() as any)?.c ?? 0;
+  if (styleCount === 0) {
+    const now = Date.now();
+    const seedStmt = db.prepare('INSERT INTO brand_styles (id, scope, css_content, updated_at) VALUES (?, ?, ?, ?)');
+    seedStmt.run('bs_global', 'global', `@font-face {
+  font-family: 'NeueHaas';
+  src: url('/api/brand-assets/serve/Inter-VariableFont') format('truetype');
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'FLFont';
+  src: url('/api/brand-assets/serve/flfontbold') format('truetype');
+  font-weight: 700;
+}
+
+:root {
+  --font-headline: 'NeueHaas', sans-serif;
+  --font-body: 'NeueHaas', sans-serif;
+  --font-accent: 'FLFont', sans-serif;
+  --brand-accent: #42b1ff;
+  --brand-accent-warm: #FF8B58;
+  --brand-accent-green: #44b574;
+  --brand-accent-purple: #c985e5;
+}`, now);
+    seedStmt.run('bs_instagram', 'instagram', '', now);
+    seedStmt.run('bs_linkedin', 'linkedin', '', now);
+    seedStmt.run('bs_one-pager', 'one-pager', '', now);
+  }
 
   // FK integrity check: clean up orphaned records that break FK chains
   const fkViolations = db.pragma('foreign_key_check') as Array<{ table: string; rowid: number; parent: string; fkid: number }>;

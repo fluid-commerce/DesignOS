@@ -22,6 +22,7 @@ const SEED_PATH = path.resolve(__dirname, '../canvas/seed-data.json');
 const TABLES_ORDERED = [
   'voice_guide_docs',
   'brand_patterns',
+  'brand_styles',
   'template_design_rules',
   'templates',
   'context_map',

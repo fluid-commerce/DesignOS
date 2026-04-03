@@ -1,0 +1,13 @@
+/* LinkedIn: 1200x627 landscape format */
+body {
+  width: 1200px;
+  height: 627px;
+}
+
+:root {
+  --headline-size: 64px;
+  --subhead-size: 30px;
+  --body-size: 18px;
+  --eyebrow-size: 13px;
+  --tagline-size: 34px;
+}

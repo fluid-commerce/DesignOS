@@ -12,6 +12,7 @@ import type { Iteration } from '../lib/campaign-types';
 import {
   collectTransformTargets,
   slotFieldSelFromLayoutPick,
+  type GroupField,
   type ImageField,
   type TextField,
   type TransformTargetKind,
@@ -24,7 +25,7 @@ import { TextBoxControls } from './TextBoxControls';
 import { CarouselSelector } from './CarouselSelector';
 import { ExportActions } from './ExportActions';
 
-const PICK_KINDS: TransformTargetKind[] = ['text', 'image', 'brush'];
+const PICK_KINDS: TransformTargetKind[] = ['text', 'image', 'brush', 'group'];
 
 function parsePickKind(v: unknown): TransformTargetKind {
   return typeof v === 'string' && (PICK_KINDS as string[]).includes(v)
@@ -43,6 +44,67 @@ function statusColor(status: string): string {
     default:
       return '#555';
   }
+}
+
+function GroupSection({ group, contentTargetSel, contentPickEpoch }: {
+  group: GroupField;
+  contentTargetSel: string | null;
+  contentPickEpoch: number;
+}) {
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <div style={{
+      marginBottom: '0.5rem',
+      border: '1px solid #1e1e1e',
+      borderRadius: 6,
+      overflow: 'hidden',
+    }}>
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.375rem',
+          width: '100%',
+          padding: '8px 10px',
+          background: '#161618',
+          border: 'none',
+          color: '#ccc',
+          fontSize: '0.72rem',
+          fontWeight: 600,
+          letterSpacing: '0.04em',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          textAlign: 'left',
+        }}
+      >
+        <span style={{
+          display: 'inline-block',
+          transition: 'transform 0.15s',
+          transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+          fontSize: '0.6rem',
+          color: '#666',
+        }}>
+          &#9654;
+        </span>
+        {group.label}
+      </button>
+      {expanded && (
+        <div style={{ padding: '4px 10px 8px' }}>
+          {group.fields.map((field, i) => (
+            <SlotField
+              key={`${group.id}-${field.sel}-${i}`}
+              field={field}
+              contentTargetSel={contentTargetSel}
+              contentPickEpoch={contentPickEpoch}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 interface ContentEditorProps {
@@ -368,18 +430,30 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
           ) : (
             <>
               <div style={styles.sectionLabel}>Content</div>
-              {visibleFields.map((field, index) => (
-                <SlotField
-                  key={
-                    field.type === 'divider'
-                      ? `divider-${activeCarouselSlide}-${index}`
-                      : `${field.sel}-${index}`
-                  }
-                  field={field}
-                  contentTargetSel={contentTargetSel}
-                  contentPickEpoch={contentPickEpoch}
-                />
-              ))}
+              {visibleFields.map((field, index) => {
+                if (field.type === 'group') {
+                  return (
+                    <GroupSection
+                      key={`group-${field.id}-${index}`}
+                      group={field}
+                      contentTargetSel={contentTargetSel}
+                      contentPickEpoch={contentPickEpoch}
+                    />
+                  );
+                }
+                return (
+                  <SlotField
+                    key={
+                      field.type === 'divider'
+                        ? `divider-${activeCarouselSlide}-${index}`
+                        : `${field.sel}-${index}`
+                    }
+                    field={field}
+                    contentTargetSel={contentTargetSel}
+                    contentPickEpoch={contentPickEpoch}
+                  />
+                );
+              })}
             </>
           )}
         </div>

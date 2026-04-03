@@ -4,31 +4,11 @@
 <head>
 <meta charset="UTF-8"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
   @page { size: 8.5in 11in; margin: 0.5in; }
 
   body {
     width: 612px;
     height: 792px;
-    overflow: hidden;
-    margin: 0;
-    font-family: sans-serif;
-    background: #111;
-    color: #ffffff;
-  }
-
-  .background-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .foreground-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
   }
 
   .page {
@@ -53,7 +33,7 @@
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.02em;
-    color: #ffffff;
+    color: var(--text-primary);
     margin-bottom: 8px;
   }
 
@@ -93,7 +73,7 @@
     font-size: 13px;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: #ffffff;
+    color: var(--text-primary);
   }
 
   /* SLOT: .feature-1-desc */
@@ -124,7 +104,7 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: #ffffff;
+    color: var(--text-primary);
     text-transform: uppercase;
   }
 
@@ -132,7 +112,7 @@
   .footer-url {
     font-size: 10px;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-muted);
     letter-spacing: 0.02em;
   }
 </style>

@@ -1,0 +1,13 @@
+/* One-pager: 816x1056 (US letter at 96dpi) */
+body {
+  width: 816px;
+  height: 1056px;
+}
+
+:root {
+  --headline-size: 48px;
+  --subhead-size: 24px;
+  --body-size: 15px;
+  --eyebrow-size: 11px;
+  --tagline-size: 28px;
+}

@@ -1,0 +1,13 @@
+/* Instagram: 1080x1080 square format */
+body {
+  width: 1080px;
+  height: 1080px;
+}
+
+:root {
+  --headline-size: 88px;
+  --subhead-size: 38px;
+  --body-size: 20px;
+  --eyebrow-size: 14px;
+  --tagline-size: 42px;
+}

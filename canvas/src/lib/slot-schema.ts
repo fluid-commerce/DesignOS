@@ -52,8 +52,17 @@ export interface DividerField {
   label: string;       // e.g. 'Slide 01 - Cover'
 }
 
+/** A group of related fields (e.g. stat card, quote block) rendered as a collapsible unit. */
+export interface GroupField {
+  type: 'group';
+  id: string;          // unique group identifier
+  label: string;       // "Stat Card", "Quote Block"
+  sel: string;         // CSS selector of the group container div
+  fields: (TextField | ImageField)[];  // nested fields (non-recursive)
+}
+
 /** Union of all field types in a slot schema. */
-export type SlotField = TextField | ImageField | DividerField;
+export type SlotField = TextField | ImageField | DividerField | GroupField;
 
 /**
  * Full slot schema for an asset.
@@ -75,7 +84,7 @@ export interface SlotSchema {
 }
 
 /** How layout is adjusted in the preview for a picked element */
-export type TransformTargetKind = 'text' | 'image' | 'brush';
+export type TransformTargetKind = 'text' | 'image' | 'brush' | 'group';
 
 export interface TransformTarget {
   sel: string;
@@ -91,22 +100,37 @@ export interface TransformTarget {
 export function collectTransformTargets(schema: SlotSchema): TransformTarget[] {
   const out: TransformTarget[] = [];
   const seen = new Set<string>();
-  for (const f of schema.fields) {
-    if (f.type === 'text') {
-      if (!seen.has(f.sel)) {
-        seen.add(f.sel);
-        out.push({ sel: f.sel, label: f.label, kind: 'text', mode: f.mode });
+
+  function walkFields(fields: SlotField[]): void {
+    for (const f of fields) {
+      if (f.type === 'group') {
+        // Group container is a transform target (draggable unit)
+        if (!seen.has(f.sel)) {
+          seen.add(f.sel);
+          out.push({ sel: f.sel, label: f.label, kind: 'group' });
+        }
+        walkFields(f.fields);  // also collect children for field editing
+        continue;
       }
-      continue;
-    }
-    if (f.type === 'image') {
-      const layoutSel = imageLayoutSel(f);
-      if (!seen.has(layoutSel)) {
-        seen.add(layoutSel);
-        out.push({ sel: layoutSel, label: f.label, kind: 'image' });
+      if (f.type === 'text') {
+        if (!seen.has(f.sel)) {
+          seen.add(f.sel);
+          out.push({ sel: f.sel, label: f.label, kind: 'text', mode: f.mode });
+        }
+        continue;
+      }
+      if (f.type === 'image') {
+        const layoutSel = imageLayoutSel(f);
+        if (!seen.has(layoutSel)) {
+          seen.add(layoutSel);
+          out.push({ sel: layoutSel, label: f.label, kind: 'image' });
+        }
       }
     }
   }
+
+  walkFields(schema.fields);
+
   if (schema.brush && !seen.has(schema.brush)) {
     const bl = schema.brushLabel;
     out.push({
@@ -142,16 +166,27 @@ export function slotFieldSelFromLayoutPick(
   picked: LayoutPickRef | null
 ): string | null {
   if (!schema || !picked) return null;
-  if (picked.kind === 'text') {
-    const f = schema.fields.find(
-      (x): x is TextField => x.type === 'text' && x.sel === picked.sel
-    );
-    return f ? f.sel : null;
-  }
-  if (picked.kind === 'image') {
-    for (const x of schema.fields) {
-      if (x.type === 'image' && imageLayoutSel(x) === picked.sel) return x.sel;
+
+  function findInFields(fields: SlotField[]): string | null {
+    for (const x of fields) {
+      if (x.type === 'group') {
+        const found = findInFields(x.fields);
+        if (found) return found;
+        continue;
+      }
+      if (picked!.kind === 'text' && x.type === 'text' && x.sel === picked!.sel) {
+        return x.sel;
+      }
+      if (picked!.kind === 'image' && x.type === 'image' && imageLayoutSel(x) === picked!.sel) {
+        return x.sel;
+      }
     }
+    return null;
   }
+
+  if (picked.kind === 'text' || picked.kind === 'image') {
+    return findInFields(schema.fields);
+  }
+  // Group picks don't map to a content field — they're container-level only
   return null;
 }

@@ -10,6 +10,7 @@ import { AssetsScreen } from './AssetsScreen';
 import { NewCampaignModal } from './CampaignDashboard';
 import { TemplatesScreen } from './TemplatesScreen';
 import { PatternsScreen } from './PatternsScreen';
+import { StylesScreen } from './StylesScreen';
 import { SettingsScreen } from './SettingsScreen';
 
 interface AppShellProps {
@@ -416,6 +417,9 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation, h
 
       case 'patterns':
         return <PatternsScreen />;
+
+      case 'styles':
+        return <StylesScreen />;
 
       case 'voice-guide':
         return <VoiceGuide />;

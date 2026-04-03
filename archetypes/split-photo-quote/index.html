@@ -4,28 +4,9 @@
 <head>
 <meta charset="UTF-8"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     width: 1080px;
     height: 1080px;
-    overflow: hidden;
-    background: #000000;
-    position: relative;
-    font-family: sans-serif;
-  }
-
-  .background-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .foreground-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
   }
 
   /* SLOT: .photo img */
@@ -72,7 +53,7 @@
     font-size: 44px;
     font-style: italic;
     line-height: 1.3;
-    color: #ffffff;
+    color: var(--text-primary);
     margin-bottom: 40px;
   }
 
@@ -108,13 +89,13 @@
   .attribution {
     font-size: 32px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
   }
 
   /* SLOT: .title */
   .title {
     font-size: 28px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
   }
 </style>
 </head>

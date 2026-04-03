@@ -4,28 +4,9 @@
 <head>
 <meta charset="UTF-8"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     width: 1080px;
     height: 1080px;
-    overflow: hidden;
-    background: #000000;
-    position: relative;
-    font-family: sans-serif;
-  }
-
-  .background-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .foreground-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
   }
 
   .context-label {
@@ -35,7 +16,7 @@
     width: 944px;
     font-size: 38px;
     font-weight: 500;
-    color: rgba(255,255,255,0.5);
+    color: var(--text-secondary);
     letter-spacing: 0.1em;
     z-index: 2;
   }
@@ -48,7 +29,7 @@
     font-size: 360px;
     font-weight: 900;
     line-height: 0.85;
-    color: #ffffff;
+    color: var(--text-primary);
     letter-spacing: -0.04em;
     z-index: 2;
   }
@@ -61,7 +42,7 @@
     font-size: 82px;
     font-weight: 900;
     line-height: 0.95;
-    color: #ffffff;
+    color: var(--text-primary);
     letter-spacing: -0.03em;
     z-index: 2;
   }
@@ -74,7 +55,7 @@
     font-size: 36px;
     font-weight: 400;
     line-height: 1.4;
-    color: rgba(255,255,255,0.45);
+    color: var(--text-body);
     z-index: 2;
   }
 </style>

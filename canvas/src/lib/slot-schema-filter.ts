@@ -21,7 +21,10 @@ export function filterFieldsForSlide(
   carouselMode: boolean
 ): SlotField[] {
   if (!carouselMode) {
-    return fields.filter((f): f is Exclude<SlotField, { type: 'divider' }> => f.type === 'text' || f.type === 'image');
+    return fields.filter((f) => {
+      if (f.type === 'group') return true;  // Groups always pass through (children are filtered in UI)
+      return f.type === 'text' || f.type === 'image';
+    });
   }
 
   const out: SlotField[] = [];
@@ -41,6 +44,15 @@ export function filterFieldsForSlide(
         }
       }
       if (slideForDivider === activeSlide) out.push(f);
+      continue;
+    }
+    if (f.type === 'group') {
+      // Include group if any child belongs to this slide
+      const hasVisibleChild = f.fields.some(child => {
+        const s = getSlideIndexFromSelector(child.sel);
+        return s === null || s === activeSlide;
+      });
+      if (hasVisibleChild) out.push(f);
       continue;
     }
     if (f.type === 'text' || f.type === 'image') {

@@ -1,0 +1,166 @@
+/* Fluid DesignOS — Global CSS Layer
+ * System-wide defaults for all platforms. Brand overrides these via DB.
+ * Merge order: global → platform → archetype → brand-global → brand-platform
+ */
+
+:root {
+  /* === COLOR PALETTE (safe defaults, brand overrides these) === */
+  --brand-accent: #78b4ff;
+  --brand-accent-warm: #ffb450;
+  --brand-accent-green: #34d399;
+  --brand-accent-purple: #c084fc;
+  --slide-accent: var(--brand-accent);
+
+  /* === TEXT COLORS === */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-body: rgba(255, 255, 255, 0.45);
+  --text-muted: rgba(255, 255, 255, 0.35);
+
+  /* === BACKGROUNDS === */
+  --bg: #000000;
+  --bg-card: #111111;
+  --card-radius: 12px;
+
+  /* === TYPOGRAPHY === */
+  --font-headline: sans-serif;
+  --font-body: sans-serif;
+  --font-accent: sans-serif;
+  --headline-weight: 900;
+  --headline-line-height: 0.95;
+  --headline-letter-spacing: -0.03em;
+
+  /* === SIZING (overridden per platform) === */
+  --headline-size: 72px;
+  --subhead-size: 32px;
+  --body-size: 18px;
+  --eyebrow-size: 14px;
+  --tagline-size: 36px;
+}
+
+/* === RESET === */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* === BODY === */
+body {
+  overflow: hidden;
+  background: var(--bg);
+  position: relative;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+}
+
+/* === LAYERS (universal) === */
+.background-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.foreground-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* === TYPOGRAPHY CLASSES === */
+.headline {
+  font-family: var(--font-headline);
+  font-size: var(--headline-size);
+  font-weight: var(--headline-weight);
+  line-height: var(--headline-line-height);
+  letter-spacing: var(--headline-letter-spacing);
+  color: var(--text-primary);
+}
+
+.eyebrow {
+  font-size: var(--eyebrow-size);
+  font-weight: 500;
+  color: var(--slide-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.body-copy {
+  font-size: var(--body-size);
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+.tagline {
+  font-family: var(--font-accent);
+  font-size: var(--tagline-size);
+  color: var(--slide-accent);
+}
+
+/* === COMPONENT CLASSES === */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-number {
+  font-family: var(--font-accent);
+  font-size: 80px;
+  font-weight: 700;
+  color: var(--slide-accent);
+}
+
+.stat-label {
+  font-size: var(--eyebrow-size);
+  color: var(--text-secondary);
+}
+
+.quote-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quote-mark {
+  font-family: var(--font-headline);
+  font-size: 200px;
+  font-weight: 900;
+  color: var(--text-muted);
+  line-height: 0.7;
+}
+
+.quote-text {
+  font-family: var(--font-body);
+  font-size: var(--subhead-size);
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.quote-attribution {
+  font-size: var(--eyebrow-size);
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+}
+
+.context-label {
+  font-size: var(--eyebrow-size);
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.subhead {
+  font-family: var(--font-headline);
+  font-size: var(--subhead-size);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.cta-text {
+  font-family: var(--font-accent);
+  font-size: var(--eyebrow-size);
+  font-weight: 700;
+  color: var(--slide-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

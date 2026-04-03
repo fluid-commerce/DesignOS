@@ -4,28 +4,9 @@
 <head>
 <meta charset="UTF-8"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     width: 1200px;
     height: 627px;
-    overflow: hidden;
-    background: #111;
-    position: relative;
-    font-family: sans-serif;
-  }
-
-  .background-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .foreground-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
   }
 
   /* SLOT: .portrait img */
@@ -65,7 +46,7 @@
     font-style: italic;
     font-weight: 400;
     line-height: 1.3;
-    color: #ffffff;
+    color: var(--text-primary);
   }
 
   .attrib-row {
@@ -78,14 +59,14 @@
   .attribution-name {
     font-size: 26px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
   }
 
   /* SLOT: .attribution-title */
   .attribution-title {
     font-size: 20px;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
   }
 </style>
 </head>

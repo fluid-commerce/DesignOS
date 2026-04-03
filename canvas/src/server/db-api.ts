@@ -1235,3 +1235,58 @@ export function getContextLogs(filters?: {
 
   return rows.map(rowToContextLogEntry);
 }
+
+// ─── Brand Styles (CSS Layer System) ─────────────────────────────────────────
+
+export interface BrandStyle {
+  id: string;
+  scope: string;
+  cssContent: string;
+  updatedAt: number;
+}
+
+function rowToBrandStyle(row: Record<string, unknown>): BrandStyle {
+  return {
+    id: row.id as string,
+    scope: row.scope as string,
+    cssContent: row.css_content as string,
+    updatedAt: row.updated_at as number,
+  };
+}
+
+/** List all brand style entries. */
+export function getBrandStyles(): BrandStyle[] {
+  const db = getDb();
+  const rows = db.prepare('SELECT * FROM brand_styles ORDER BY scope').all() as Record<string, unknown>[];
+  return rows.map(rowToBrandStyle);
+}
+
+/** Get CSS for a specific scope. */
+export function getBrandStyleByScope(scope: string): BrandStyle | null {
+  const db = getDb();
+  const row = db.prepare('SELECT * FROM brand_styles WHERE scope = ?').get(scope) as Record<string, unknown> | undefined;
+  return row ? rowToBrandStyle(row) : null;
+}
+
+/** Update CSS content for a scope. Creates if not exists. */
+export function upsertBrandStyle(scope: string, cssContent: string): BrandStyle {
+  const db = getDb();
+  const now = Date.now();
+  const existing = db.prepare('SELECT id FROM brand_styles WHERE scope = ?').get(scope) as { id: string } | undefined;
+
+  if (existing) {
+    db.prepare('UPDATE brand_styles SET css_content = ?, updated_at = ? WHERE scope = ?').run(cssContent, now, scope);
+    return getBrandStyleByScope(scope)!;
+  }
+
+  const id = `bs_${scope}`;
+  db.prepare('INSERT INTO brand_styles (id, scope, css_content, updated_at) VALUES (?, ?, ?, ?)').run(id, scope, cssContent, now);
+  return getBrandStyleByScope(scope)!;
+}
+
+/** Delete brand override for a scope (resets to empty). */
+export function deleteBrandStyle(scope: string): boolean {
+  const db = getDb();
+  const result = db.prepare("UPDATE brand_styles SET css_content = '', updated_at = ? WHERE scope = ?").run(Date.now(), scope);
+  return result.changes > 0;
+}
