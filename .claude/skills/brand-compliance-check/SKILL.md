@@ -1,7 +1,9 @@
 ---
 name: brand-compliance-check
-description: "Run brand compliance validation on generated HTML or .liquid files. Checks colors, fonts, spacing, dimensions against Fluid brand rules."
-user-invocable: true
+description: >
+  Run brand compliance validation against Fluid brand rules. Use this after
+  generating any HTML or .liquid output to validate colors, fonts, spacing,
+  opacity, dimensions, and schema structure.
 invoke: slash
 ---
 
