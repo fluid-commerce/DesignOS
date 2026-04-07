@@ -1,10 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { IdeasGetStarted, type IdeaAction } from '../IdeasGetStarted';
-import { GenerationStreamView } from '../GenerationStreamView';
 import { BG_PRIMARY, TEXT_PRIMARY } from '../tokens';
 import { useAssets } from '../../hooks/useAssets';
-import { useGenerationStream } from '../../hooks/useGenerationStream';
-import { useGenerationStore } from '../../store/generation';
 import { SparklesIcon } from './Icons';
 import { PromptInput } from './PromptInput';
 import { SuggestionPills } from './SuggestionPills';
@@ -20,11 +17,8 @@ export function BuildHero() {
   const [videoDimensionId, setVideoDimensionId] = useState<string>(VIDEO_DIMENSIONS[0].id);
   const [selectedDamAssets, setSelectedDamAssets] = useState<SelectedDamAsset[]>([]);
   const [_selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [submittedPrompt, setSubmittedPrompt] = useState('');
 
-  const { generate, status: genStatus } = useGenerationStream();
-  const isGenerating = genStatus === 'generating';
-  const generationStatus = useGenerationStore((s) => s.status);
+  const isGenerating = false; // old pipeline removed — generation now handled by ChatSidebar
 
   const { assets: savedAssetsRaw } = useAssets();
 
@@ -41,13 +35,9 @@ export function BuildHero() {
   const handleBuild = useCallback(() => {
     const text = inputValue.trim();
     if (!text || isGenerating) return;
-    const creationType = CREATION_TYPES.find((t) => t.id === creationTypeId);
-    const prefix = creationType ? `[${creationType.label}] ` : '';
-    const fullPrompt = `${prefix}${text}`;
-    setSubmittedPrompt(fullPrompt);
-    generate(fullPrompt, { skillType: 'social', source: 'hero' });
+    // TODO: wire up to new sandbox pipeline via ChatSidebar
     setInputValue('');
-  }, [inputValue, isGenerating, creationTypeId, generate]);
+  }, [inputValue, isGenerating]);
 
   const handleApplyIdea = useCallback((idea: IdeaAction) => {
     if (idea.creationType) setCreationTypeId(idea.creationType);
@@ -58,13 +48,6 @@ export function BuildHero() {
     if (idea.videoDimensionId) setVideoDimensionId(idea.videoDimensionId);
     if (idea.templateId != null) setSelectedTemplateId(idea.templateId);
   }, []);
-
-  // Show full-viewport stream view while generating or after completion
-  const showStreamView = submittedPrompt && (generationStatus === 'generating' || generationStatus === 'complete' || generationStatus === 'error');
-
-  if (showStreamView) {
-    return <GenerationStreamView prompt={submittedPrompt} onReset={() => setSubmittedPrompt('')} />;
-  }
 
   return (
     <div

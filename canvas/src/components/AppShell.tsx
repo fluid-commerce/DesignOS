@@ -15,12 +15,6 @@ import { SettingsScreen } from './SettingsScreen';
 
 interface AppShellProps {
   /**
-   * Content for the left chat sidebar (PromptSidebar).
-   * Wrapped in ChatSidebar for collapsible behavior.
-   */
-  leftSidebar?: ReactNode;
-
-  /**
    * Content for the right sidebar (ContentEditor).
    * Closed by default; opens when an iteration is selected.
    */
@@ -242,7 +236,7 @@ function CreateNewChoiceModal({
   );
 }
 
-export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation, hideMyCreationsHeader }: AppShellProps) {
+export function AppShell({ rightSidebar, children, onNewCreation, hideMyCreationsHeader }: AppShellProps) {
   const [showCreateNewModal, setShowCreateNewModal] = useState(false);
   const activeNavTab = useCampaignStore((s) => s.activeNavTab);
   const createViewportTab = useCampaignStore((s) => s.createViewportTab);
@@ -445,9 +439,7 @@ export function AppShell({ leftSidebar, rightSidebar, children, onNewCreation, h
       <LeftNav />
 
       {/* Zone 2: Collapsible AI chat sidebar */}
-      <ChatSidebar>
-        {leftSidebar}
-      </ChatSidebar>
+      <ChatSidebar />
 
       {/* Zone 3: Main viewport (controlled by activeNavTab) */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>

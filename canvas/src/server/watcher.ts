@@ -1,5 +1,4 @@
 import type { Plugin, ViteDevServer } from 'vite';
-import { runApiPipeline, type PipelineContext } from './api-pipeline';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
@@ -61,6 +60,7 @@ import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
 import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, splitPatternEntries, seedGlobalVisualStyleIfEmpty, seedFontEnforcementIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
 import { runDamSync } from './dam-sync';
+import { handleChatRoutes } from './chat-routes';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
 import { injectArtboardMarginGuide, PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
@@ -196,7 +196,6 @@ function buildCreationList(
 export function fluidWatcherPlugin(): Plugin {
   let server: ViteDevServer | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  let activeCampaignGeneration: string | null = null; // campaign-level lock
 
   const sendUpdate = () => {
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -340,6 +339,15 @@ export function fluidWatcherPlugin(): Plugin {
         } catch {
           /* file not found or not readable */
         }
+        next();
+      });
+
+      // Chat API routes (SSE streaming for agent messages)
+      srv.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/chats')) return next();
+        const chatUrl = new URL(req.url ?? '/', `http://${req.headers.host}`);
+        const handled = await handleChatRoutes(req, res, chatUrl);
+        if (handled) return;
         next();
       });
 
@@ -2073,178 +2081,6 @@ export function fluidWatcherPlugin(): Plugin {
             const templates = await discoverTemplates(projectRoot);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(templates));
-            return;
-          }
-
-          // POST /api/generate/cancel -- force-clear stuck generation lock
-          if (req.url === '/api/generate/cancel' && req.method === 'POST') {
-            const wasCampaign = activeCampaignGeneration;
-            activeCampaignGeneration = null;
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({
-              ok: true,
-              message: wasCampaign ? `Campaign ${wasCampaign} cancelled` : 'No active generation',
-            }));
-            return;
-          }
-
-          // POST /api/generate -- run API pipeline and stream SSE
-          if (req.url === '/api/generate' && req.method === 'POST') {
-            const body = JSON.parse(await readBody(req));
-            const { prompt, template, customization, skillType } = body;
-            const userImageUrl = body.userImageUrl as string | undefined;
-
-            // ── CAMPAIGN MODE: Multi-creation parallel API generation ────────
-
-            // Parse channels from prompt (shared by both API and CLI paths)
-            const { channels, creationCounts, isSingleCreation } = parseChannelHints(prompt || '');
-            const creationList = buildCreationList(creationCounts);
-
-            // Title from first 30 chars of prompt
-            const rawTitle = (prompt || 'Marketing Campaign').trim();
-            const campaignTitle = rawTitle.length > 30 ? rawTitle.slice(0, 30) : rawTitle;
-
-            // existingCampaignId: skip campaign creation if adding to existing
-            const existingCampaignId: string | undefined = body.existingCampaignId;
-
-            // Pre-create all Campaign/Creation/Slide/Iteration records BEFORE running pipelines
-            // (Shared between API and CLI paths)
-            const projectRoot = path.resolve(srv.config.root, '..');
-            const fluidDir = path.join(projectRoot, '.fluid');
-
-            let campaignId: string;
-            const creationSlideIterMap: Array<{
-              creation: { id: string; title: string; creationType: string };
-              slideId: string;
-              iterationId: string;
-              htmlPath: string;
-              absHtmlPath: string;
-            }> = [];
-
-            // Campaign-level lock check (shared)
-            if (activeCampaignGeneration !== null) {
-              res.writeHead(409, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Campaign generation already in progress', campaignId: activeCampaignGeneration }));
-              return;
-            }
-
-            try {
-              if (existingCampaignId) {
-                campaignId = existingCampaignId;
-              } else if (isSingleCreation) {
-                // Single-creation prompts: file under sentinel "__standalone__" campaign
-                // and create the creation directly (not via createCampaignWithCreations)
-                campaignId = getOrCreateStandaloneCampaign();
-                for (const spec of creationList) {
-                  createCreation({
-                    campaignId,
-                    title: spec.title,
-                    creationType: spec.creationType,
-                    slideCount: spec.slideCount,
-                  });
-                }
-              } else {
-                const { campaign } = createCampaignWithCreations(
-                  { title: campaignTitle, channels },
-                  creationList
-                );
-                campaignId = campaign.id;
-              }
-
-              // Create slides and iterations for each creation
-              const savedCreations = getCreations(campaignId);
-              // Use only the newly-created creations (all if new campaign, or just the new ones)
-              const targetCreations = existingCampaignId
-                ? savedCreations.slice(-creationList.length)
-                : isSingleCreation
-                  ? savedCreations.slice(-creationList.length)
-                  : savedCreations;
-
-              for (const creation of targetCreations) {
-                const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-                const iterationId = nanoid();
-                const htmlRelPath = `.fluid/campaigns/${campaignId}/${creation.id}/${slide.id}/${iterationId}.html`;
-                const absHtmlPath = path.join(projectRoot, htmlRelPath);
-                fsSync.mkdirSync(path.dirname(absHtmlPath), { recursive: true });
-                createIteration({
-                  id: iterationId,  // Pass pre-generated ID so DB row id matches html_path
-                  slideId: slide.id,
-                  iterationIndex: 0,
-                  htmlPath: htmlRelPath,
-                  source: 'ai',
-                  generationStatus: 'pending',
-                });
-                creationSlideIterMap.push({
-                  creation: { id: creation.id, title: creation.title, creationType: creation.creationType },
-                  slideId: slide.id,
-                  iterationId,
-                  htmlPath: htmlRelPath,
-                  absHtmlPath,
-                });
-              }
-            } catch (err) {
-              console.error('[watcher] Failed to pre-create campaign structure:', err);
-              res.writeHead(500, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Failed to create campaign structure' }));
-              return;
-            }
-
-            // Set campaign-level lock
-            activeCampaignGeneration = campaignId;
-
-            // Set SSE headers
-            res.writeHead(200, {
-              'Content-Type': 'text/event-stream',
-              'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
-            });
-            (res as any).flushHeaders?.();
-
-            // Stream campaignId to client IMMEDIATELY after DB creation
-            res.write(`data: ${JSON.stringify({ type: 'session', campaignId, creationCount: creationSlideIterMap.length, isSingleCreation, creationIds: creationSlideIterMap.map(m => m.creation.id) })}\n\n`);
-
-            // ── API MODE: Anthropic SDK pipeline ──────────────────────────
-            let apiCompletedCount = 0;
-            const apiTotalCount = creationSlideIterMap.length;
-
-            // Client disconnect cleanup
-            req.on('close', () => { activeCampaignGeneration = null; });
-
-            // Run N parallel API pipelines — one per creation
-            for (const entry of creationSlideIterMap) {
-              const pipelineCtx: PipelineContext = {
-                prompt: prompt || 'Generate a marketing creation',
-                creationType: entry.creation.creationType,
-                workingDir: path.join(path.dirname(entry.absHtmlPath), 'working'),
-                htmlOutputPath: entry.absHtmlPath,
-                creationId: entry.creation.id,
-                campaignId,
-                iterationId: entry.iterationId,  // needed for SlotSchema attachment
-                userImageUrl,  // user-uploaded image URL from chat sidebar
-              };
-
-              // Fire and forget — each pipeline runs independently in parallel
-              runApiPipeline(pipelineCtx, res)
-                .then(() => {
-                  try { updateIterationGenerationStatus(entry.iterationId, 'complete'); } catch { /* non-fatal */ }
-                })
-                .catch((err: Error) => {
-                  try {
-                    res.write(`event: stderr\ndata: ${JSON.stringify({ creationId: entry.creation.id, text: `Pipeline error: ${err.message}` })}\n\n`);
-                  } catch { /* client disconnected */ }
-                })
-                .finally(() => {
-                  apiCompletedCount++;
-                  if (apiCompletedCount >= apiTotalCount) {
-                    activeCampaignGeneration = null;
-                    try {
-                      res.write(`event: done\ndata: ${JSON.stringify({ code: 0, campaignId })}\n\n`);
-                      res.end();
-                    } catch { /* client disconnected */ }
-                  }
-                });
-            }
-
             return;
           }
 

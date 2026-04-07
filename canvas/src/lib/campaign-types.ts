@@ -49,6 +49,24 @@ export interface Iteration {
   createdAt: number;           // Unix ms
 }
 
+export interface Chat {
+  id: string;
+  title: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId: string;
+  role: 'user' | 'assistant';
+  content: string | null;
+  toolCalls: string | null;
+  toolResults: string | null;
+  uiContext: string | null;
+  createdAt: number;
+}
+
 /** Annotation on a specific iteration (pin on canvas or sidebar note). */
 export interface CampaignAnnotation {
   id: string;                  // nanoid

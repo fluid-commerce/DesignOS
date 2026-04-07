@@ -30,7 +30,7 @@ describe('TemplateGallery', () => {
     expect(onSelect).toHaveBeenCalledWith(firstTemplate);
   });
 
-  it('renders no "Create with AI" card (AI flow moved to PromptSidebar)', () => {
+  it('renders no "Create with AI" card (AI flow moved to ChatSidebar)', () => {
     const onSelect = vi.fn();
     render(<TemplateGallery onSelectTemplate={onSelect} />);
 
