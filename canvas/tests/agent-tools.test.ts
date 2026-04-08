@@ -94,22 +94,27 @@ describe('Brand Discovery Tools', () => {
 describe('Brand Editing Tools', () => {
   it('createPattern creates and deletePattern removes a pattern', () => {
     const created = createPattern('colors', 'Test Agent Pattern', '# Test\nSome test content');
-    expect(created.slug).toBe('test-agent-pattern');
+    // createPattern returns { slug, name, category, weight } on success or { error } on failure
+    expect('error' in created).toBe(false);
+    if ('error' in created) throw new Error(created.error);
+    expect(created.slug).toMatch(/^test-agent-pattern(-\d+)?$/);
     expect(created.category).toBe('colors');
     expect(created.weight).toBe(50);
 
     // Verify it can be read back
-    const found = readPattern('test-agent-pattern');
+    const found = readPattern(created.slug);
     expect(found).not.toBeNull();
     expect(found!.content).toBe('# Test\nSome test content');
 
-    // Delete and verify removal
-    const deleted = deletePattern('test-agent-pattern');
-    expect(deleted).toBe(true);
-    expect(readPattern('test-agent-pattern')).toBeNull();
+    // Delete and verify removal. Shape is { success, error? }.
+    const deleted = deletePattern(created.slug);
+    expect(deleted.success).toBe(true);
+    expect(readPattern(created.slug)).toBeNull();
 
-    // Deleting again should return false
-    expect(deletePattern('test-agent-pattern')).toBe(false);
+    // Deleting again returns { success: false, error: 'Pattern ... not found' }
+    const deletedAgain = deletePattern(created.slug);
+    expect(deletedAgain.success).toBe(false);
+    expect(deletedAgain.error).toBeDefined();
   });
 });
 
@@ -125,11 +130,13 @@ describe('Visual Tools', () => {
     expect(result.iterationId).toBeTruthy();
     expect(result.htmlPath).toContain('.fluid/campaigns/');
 
-    // Verify HTML file was written
+    // Verify HTML file was written. The harness merges brand CSS layers on
+    // save, so the file content is a superset of the input — check for the
+    // distinctive body string instead of exact match.
     const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
     const absPath = path.resolve(PROJECT_ROOT, result.htmlPath);
     expect(fs.existsSync(absPath)).toBe(true);
-    expect(fs.readFileSync(absPath, 'utf-8')).toBe(html);
+    expect(fs.readFileSync(absPath, 'utf-8')).toContain('Test creation');
 
     // Cleanup: remove the generated file
     try { fs.rmSync(path.dirname(absPath), { recursive: true }); } catch {}
