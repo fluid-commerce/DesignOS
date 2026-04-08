@@ -23,6 +23,7 @@ for (const envPath of envPaths) {
 }
 import { buildSystemPrompt } from './agent-system-prompt';
 import { buildBrandBrief } from './brand-brief';
+import { withAgentContext, logChatEvent } from './observability';
 import {
   listVoiceGuide,
   readVoiceGuide,
@@ -520,10 +521,19 @@ async function createMessageWithRetry(
       lastErr = err;
       const status = err?.status ?? err?.response?.status;
       const retriable = status === 429 || (typeof status === 'number' && status >= 500);
-      if (!retriable || attempt === MAX_ATTEMPTS) throw err;
+      if (!retriable || attempt === MAX_ATTEMPTS) {
+        if (!retriable) {
+          logChatEvent('api_error_nonretriable', {
+            status: status ?? null,
+            message: err?.message ?? String(err),
+          });
+        }
+        throw err;
+      }
+      const delay = 500 * Math.pow(2, attempt - 1);
+      logChatEvent('api_retry', { attempt, status: status ?? null, delay_ms: delay });
       // Exponential backoff: 500ms, 1000ms (third attempt doesn't wait because
       // we break out after the throw above).
-      const delay = 500 * Math.pow(2, attempt - 1);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
@@ -533,6 +543,17 @@ async function createMessageWithRetry(
 // ─── Main Agent Loop ───
 
 export async function runAgent(
+  chatId: string,
+  userContent: string,
+  uiContext: Record<string, any> | null,
+  res: ServerResponse,
+): Promise<void> {
+  // All observability inside this call attributes to `chatId` via
+  // AsyncLocalStorage — no need to thread it through every tool helper.
+  return withAgentContext(chatId, () => runAgentImpl(chatId, userContent, uiContext, res));
+}
+
+async function runAgentImpl(
   chatId: string,
   userContent: string,
   uiContext: Record<string, any> | null,
@@ -618,6 +639,7 @@ export async function runAgent(
 
     while (loopCount < maxLoops) {
       if (session.cancelled) {
+        logChatEvent('cancelled', { loop_count: loopCount });
         sendSSE(res, 'error', { message: 'Chat cancelled' });
         break;
       }
@@ -645,6 +667,11 @@ export async function runAgent(
       // Context window guard — if THIS request already crossed the limit, the
       // next turn will 4xx. Warn and stop instead of hitting an API error.
       if (response.usage && response.usage.input_tokens >= CONTEXT_WINDOW_GUARD) {
+        logChatEvent('budget_trip_context', {
+          input_tokens: response.usage.input_tokens,
+          guard: CONTEXT_WINDOW_GUARD,
+          loop_count: loopCount,
+        });
         sendSSE(res, 'text', {
           text: '\n\n[Context window limit approaching. Please start a new chat to continue.]',
         });
@@ -654,6 +681,11 @@ export async function runAgent(
       // Budget enforcement
       const totalTokens = totalInputTokens + totalOutputTokens;
       if (totalTokens >= CHAT_TOKEN_BUDGET) {
+        logChatEvent('budget_trip_token', {
+          total_tokens: totalTokens,
+          budget: CHAT_TOKEN_BUDGET,
+          loop_count: loopCount,
+        });
         sendSSE(res, 'text', {
           text: '\n\n[Token budget reached. Please start a new chat to continue.]',
         });
@@ -698,6 +730,10 @@ export async function runAgent(
         if (call.name === 'render_preview') {
           renderCount++;
           if (renderCount > MAX_RENDERS_PER_PASS) {
+            logChatEvent('budget_trip_render', {
+              render_count: renderCount,
+              budget: MAX_RENDERS_PER_PASS,
+            });
             toolResults.push({
               tool_use_id: call.id,
               content: JSON.stringify({
@@ -714,10 +750,16 @@ export async function runAgent(
           }
         }
 
+        const toolStart = Date.now();
         try {
           const result = await executeTool(call.name, call.input, uiContext);
 
           toolResults.push({ tool_use_id: call.id, content: result });
+          logChatEvent('tool_exec_metric', {
+            tool: call.name,
+            duration_ms: Date.now() - toolStart,
+            ok: true,
+          });
 
           // Send SSE summary (skip image data to avoid bloating the stream)
           if (Array.isArray(result)) {
@@ -759,6 +801,15 @@ export async function runAgent(
           }
         } catch (err: any) {
           const errorMsg = err?.message ?? 'Tool execution failed';
+          // Classify input-shape errors separately so they can be filtered
+          // from real tool crashes during post-mortem analysis.
+          const isInputError = /^Tool input '[^']+' must be/.test(errorMsg) ||
+            /^Tool '[^']+' called with invalid input/.test(errorMsg);
+          logChatEvent(isInputError ? 'tool_input_rejected' : 'tool_error', {
+            tool: call.name,
+            duration_ms: Date.now() - toolStart,
+            error: errorMsg,
+          });
           toolResults.push({
             tool_use_id: call.id,
             content: JSON.stringify({ error: errorMsg }),
@@ -826,10 +877,18 @@ export async function runAgent(
     // stopping mid-conversation. Without this, the chat UI shows "done" with
     // no explanation after 25 back-and-forth iterations.
     if (loopCount >= maxLoops) {
+      logChatEvent('loop_ceiling', { max_loops: maxLoops });
       const msg = `\n\n[Agent stopped after ${maxLoops} tool iterations. If the work is unfinished, ask the agent to continue.]`;
       sendSSE(res, 'text', { text: msg });
       persistMessage(chatId, 'assistant', msg, null, null, null);
     }
+
+    logChatEvent('agent_run_complete', {
+      loop_count: loopCount,
+      input_tokens: totalInputTokens,
+      output_tokens: totalOutputTokens,
+      render_count: renderCount,
+    });
 
     sendSSE(res, 'done', {
       chatId,
@@ -837,6 +896,7 @@ export async function runAgent(
     });
   } catch (err: any) {
     const message = err?.message ?? 'Agent error';
+    logChatEvent('tool_error', { phase: 'run_agent_outer', error: message });
     sendSSE(res, 'error', { message });
   } finally {
     sessionSet.delete(session);

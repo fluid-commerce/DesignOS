@@ -2,6 +2,7 @@ import { getDb } from '../lib/db';
 import { nanoid } from 'nanoid';
 import { renderPreview } from './render-engine';
 import { runValidation, mergeCssLayersForHtml, formatValidationMessage } from './validation-hooks';
+import { auditBrandWrite, logChatEvent } from './observability';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -25,6 +26,7 @@ const KNOWN_PLATFORMS = new Set([
 function normalizePlatform(platform: string): string {
   const p = platform.toLowerCase().trim();
   if (!KNOWN_PLATFORMS.has(p)) {
+    logChatEvent('platform_rejected', { platform, known: [...KNOWN_PLATFORMS] });
     throw new Error(
       `Unknown platform '${platform}'. Must be one of: ${[...KNOWN_PLATFORMS].join(', ')}`
     );
@@ -124,13 +126,19 @@ export function listArchetypes(): { slug: string; name: string; slots: string[] 
 const SAFE_SLUG = /^[a-z0-9][a-z0-9-_]*$/i;
 
 export function readArchetype(slug: string): { slug: string; html: string; schema: any; notes: string | null } | null {
-  if (!SAFE_SLUG.test(slug)) return null;
+  if (!SAFE_SLUG.test(slug)) {
+    logChatEvent('path_traversal_blocked', { tool: 'read_archetype', slug, reason: 'unsafe_chars' });
+    return null;
+  }
 
   const dir = path.join(ARCHETYPES_DIR, slug);
   // Belt-and-braces: even with the regex, make sure the resolved path is still
   // inside ARCHETYPES_DIR before touching the filesystem.
   const resolved = path.resolve(dir);
-  if (!resolved.startsWith(path.resolve(ARCHETYPES_DIR) + path.sep)) return null;
+  if (!resolved.startsWith(path.resolve(ARCHETYPES_DIR) + path.sep)) {
+    logChatEvent('path_traversal_blocked', { tool: 'read_archetype', slug, reason: 'path_escape' });
+    return null;
+  }
   if (!fs.existsSync(resolved)) return null;
 
   const htmlPath = path.join(resolved, 'index.html');
@@ -146,17 +154,8 @@ export function readArchetype(slug: string): { slug: string; html: string; schem
 
 // ─── Brand Editing (WRITE) ───
 //
-// Destructive brand-data writes all log to stderr so we can audit what the
-// agent has been doing during tuning. Add the chat/session context later if we
-// need per-chat attribution; for now the timestamp + what-and-which is enough
-// to catch over-eager behavior in dev.
-function auditBrandWrite(op: string, detail: Record<string, unknown>): void {
-  try {
-    console.log(`[brand-audit] ${new Date().toISOString()} ${op} ${JSON.stringify(detail)}`);
-  } catch {
-    console.log(`[brand-audit] ${new Date().toISOString()} ${op}`);
-  }
-}
+// Destructive brand-data writes are logged via observability.auditBrandWrite
+// which persists to the brand_audit_log table (and echoes to stdout).
 
 
 export function updatePattern(slug: string, content: string): { success: boolean; error?: string } {

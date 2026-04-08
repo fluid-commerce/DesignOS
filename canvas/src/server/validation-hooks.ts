@@ -9,6 +9,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { mergeCssLayers, extractStyleBlock, inlineResolvedCss, type MergeLayer } from './css-merge';
 import { getBrandStyleByScope } from './db-api';
+import { logChatEvent } from './observability';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..', '..', '..');
 const TOOLS_DIR = path.join(PROJECT_ROOT, 'tools');
@@ -142,6 +143,10 @@ export function mergeCssLayersForHtml(html: string, platform: string): string {
     return inlineResolvedCss(html, merged);
   } catch (err) {
     console.error('[validation-hooks] CSS layer merge failed:', err);
+    logChatEvent('css_merge_failed', {
+      platform,
+      error: err instanceof Error ? err.message : String(err),
+    });
     return html;
   }
 }

@@ -233,6 +233,35 @@ function initSchema(db: Database.Database): void {
       created_at INTEGER NOT NULL,
       FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
     );
+
+    -- Append-only audit log for destructive brand-data writes made by the agent.
+    -- chat_id is nullable because writes may originate outside a chat (e.g. the
+    -- seeder or a future MCP tool). Never ON DELETE CASCADE: audit must survive
+    -- chat deletion.
+    CREATE TABLE IF NOT EXISTS brand_audit_log (
+      id TEXT PRIMARY KEY,
+      ts INTEGER NOT NULL,
+      chat_id TEXT,
+      op TEXT NOT NULL,
+      detail_json TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_brand_audit_log_ts ON brand_audit_log(ts DESC);
+    CREATE INDEX IF NOT EXISTS idx_brand_audit_log_chat_id ON brand_audit_log(chat_id);
+
+    -- Append-only event log for silent harness events: API retries, budget
+    -- trips, context-window guards, tool validation rejections, render metrics,
+    -- cancellations, loop ceilings. Used to investigate failures after the fact.
+    -- chat_id is nullable for the same reason as brand_audit_log.
+    CREATE TABLE IF NOT EXISTS chat_events (
+      id TEXT PRIMARY KEY,
+      ts INTEGER NOT NULL,
+      chat_id TEXT,
+      event_type TEXT NOT NULL,
+      detail_json TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_chat_events_ts ON chat_events(ts DESC);
+    CREATE INDEX IF NOT EXISTS idx_chat_events_chat_id ON chat_events(chat_id);
+    CREATE INDEX IF NOT EXISTS idx_chat_events_event_type ON chat_events(event_type);
   `);
 
   // Migration: add generation_status to existing databases that predate this column.

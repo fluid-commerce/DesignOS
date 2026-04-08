@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite --port 5174",
+    "dev:logged": "mkdir -p ../.logs && npx vite --port 5174 2>&1 | tee -a ../.logs/fluid-dev.log",
     "build": "npx tsc && npx vite build",
     "preview": "npx vite preview",
     "test": "vitest run",

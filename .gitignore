@@ -2,7 +2,13 @@
 canvas/node_modules/
 canvas/.pid
 .fluid/
+.fluid-output/
+.logs/
+.superpowers/
 dogfood-output/
+test-results/
+canvas/fluid.db.backup-*
+.claude/scheduled_tasks.lock
 .DS_Store
 # SQLite database files
 canvas/fluid.db
