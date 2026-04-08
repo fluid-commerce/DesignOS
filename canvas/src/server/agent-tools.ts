@@ -306,6 +306,9 @@ export function saveCreation(
 
   // All four INSERTs run in a single transaction so a mid-way failure can't
   // leave an orphaned campaign/creation/slide without an iteration row.
+  // Note: the HTML file is written above the transaction. If the transaction
+  // throws, we clean up the orphaned file in the catch below — otherwise
+  // failed saves would litter .fluid/campaigns/ with dead files.
   const insertAll = db.transaction(() => {
     if (!campaignId) {
       db.prepare(
@@ -334,7 +337,15 @@ export function saveCreation(
       now
     );
   });
-  insertAll();
+  try {
+    insertAll();
+  } catch (err) {
+    // DB rollback already happened (better-sqlite3 transactions are atomic).
+    // Remove the orphaned HTML file we wrote above the transaction so the
+    // on-disk state stays consistent with the DB.
+    try { fs.unlinkSync(htmlAbsPath); } catch {}
+    throw err;
+  }
 
   // Harness validation hooks (automatic) — CSS merge already happened above.
   const validation = runValidation(htmlAbsPath, normalizedPlatform);
@@ -376,6 +387,16 @@ export function editCreation(
   // Re-run validation
   const validation = runValidation(htmlAbsPath, platform);
 
+  // Log creation edits so iteration churn is visible in chat_events alongside
+  // brand writes. Creations aren't in brand_audit_log because they're
+  // versioned per-iteration, not destructive, but they still deserve a trail.
+  logChatEvent('creation_edited', {
+    iterationId,
+    creationId: row.creation_id,
+    platform,
+    bytes: mergedHtml.length,
+  });
+
   return { success: true, validation: formatValidationMessage(validation) };
 }
 
@@ -406,6 +427,9 @@ export function saveAsTemplate(
   const destPath = path.join(templateDir, templateFile);
   fs.copyFileSync(htmlAbsPath, destPath);
 
+  // num is a legacy free-form string column (no UNIQUE constraint) — '0' is
+  // the convention for agent-saved templates to distinguish them from
+  // numbered curated templates.
   db.prepare(
     `INSERT INTO templates (id, type, num, name, file, layout, dims, description, content_slots, creation_steps, preview_path, sort_order, updated_at)
      VALUES (?, ?, '0', ?, ?, 'single', NULL, ?, '[]', '[]', '', 0, ?)`
@@ -499,10 +523,20 @@ export function getCampaign(campaignId: string): {
     ORDER BY c.created_at ASC
   `).all(campaignId) as any[];
 
+  // Channels is stored as JSON text. Legacy / malformed rows shouldn't throw
+  // and tank the entire get_campaign tool call — fall back to empty array.
+  let channels: string[] = [];
+  try {
+    channels = campaign.channels ? JSON.parse(campaign.channels) : [];
+    if (!Array.isArray(channels)) channels = [];
+  } catch {
+    channels = [];
+  }
+
   return {
     id: campaign.id,
     title: campaign.title,
-    channels: JSON.parse(campaign.channels),
+    channels,
     creations: creations.map(c => ({
       id: c.id,
       title: c.title,

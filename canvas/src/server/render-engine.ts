@@ -1,8 +1,9 @@
 import { chromium, type Browser, type BrowserContext } from 'playwright';
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as os from 'os';
 import { getBrandAssetByName, getBrandAssetByFilePath } from './db-api';
+import { logChatEvent } from './observability';
 
 let browser: Browser | null = null;
 let context: BrowserContext | null = null;
@@ -75,7 +76,17 @@ export async function renderPreview(
           if (asset) {
             return `file://${path.join(assetsDir, asset.file_path)}`;
           }
-        } catch {}
+        } catch (err) {
+          // DB lookup failures here would otherwise produce broken preview
+          // images with zero signal — log so the failure shows up in
+          // chat_events post-mortems.
+          logChatEvent('tool_error', {
+            tool: 'render_preview',
+            phase: 'asset_resolve_fail',
+            name: rawName,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
         // Fallback: best-effort direct mapping
         return `file://${assetsDir}/${rawName}`;
       }
@@ -87,7 +98,7 @@ export async function renderPreview(
       os.tmpdir(),
       `fluid-render-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.html`
     );
-    fs.writeFileSync(tmpFile, resolvedHtml, 'utf-8');
+    await fs.writeFile(tmpFile, resolvedHtml, 'utf-8');
 
     try {
       // 10-second timeout for page load
@@ -104,7 +115,7 @@ export async function renderPreview(
       return screenshot.toString('base64');
     } finally {
       // Always clean up the temp file, even if rendering threw.
-      try { fs.unlinkSync(tmpFile); } catch {}
+      try { await fs.unlink(tmpFile); } catch {}
     }
   } catch (err) {
     // Non-fatal — creation still saves, just without visual self-check

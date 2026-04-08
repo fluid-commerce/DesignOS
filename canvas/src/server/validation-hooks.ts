@@ -4,7 +4,7 @@
  * The agent does not call these — the harness triggers them.
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { mergeCssLayers, extractStyleBlock, inlineResolvedCss, type MergeLayer } from './css-merge';
@@ -39,10 +39,13 @@ export function runValidation(
   // Determine context for brand-compliance
   const context = platform === 'one-pager' ? 'website' : 'social';
 
-  // Run brand-compliance.cjs
+  // Run brand-compliance.cjs. Use execFileSync with an argv array so paths
+  // and flags can never be shell-interpolated, even if htmlPath somehow picks
+  // up a backtick or $() in a future code path.
   try {
-    const complianceOutput = execSync(
-      `node "${path.join(TOOLS_DIR, 'brand-compliance.cjs')}" "${htmlPath}" --context ${context}`,
+    const complianceOutput = execFileSync(
+      'node',
+      [path.join(TOOLS_DIR, 'brand-compliance.cjs'), htmlPath, '--context', context],
       { encoding: 'utf-8', timeout: 15000 }
     );
 
@@ -85,11 +88,12 @@ export function runValidation(
     }
   }
 
-  // Run dimension-check.cjs
+  // Run dimension-check.cjs (same execFileSync rationale as above).
   const dimTarget = platform === 'linkedin' ? 'linkedin_landscape' : platform;
   try {
-    const dimOutput = execSync(
-      `node "${path.join(TOOLS_DIR, 'dimension-check.cjs')}" "${htmlPath}" --target ${dimTarget}`,
+    const dimOutput = execFileSync(
+      'node',
+      [path.join(TOOLS_DIR, 'dimension-check.cjs'), htmlPath, '--target', dimTarget],
       { encoding: 'utf-8', timeout: 10000 }
     );
     const dimResult = JSON.parse(dimOutput);
@@ -100,8 +104,14 @@ export function runValidation(
         message: `Expected ${dimResult.target}, got ${dimResult.actual || 'unknown'}`,
       });
     }
-  } catch {
-    // dimension-check failure is non-fatal
+  } catch (err) {
+    // dimension-check failure is non-fatal, but log it so broken scripts
+    // don't disappear silently.
+    logChatEvent('tool_error', {
+      tool: 'dimension_check',
+      target: dimTarget,
+      error: err instanceof Error ? err.message : String(err),
+    });
   }
 
   result.passed = result.blocking.length === 0;
