@@ -1,6 +1,6 @@
-# Fluid Creative OS
+# Fluid DesignOS
 
-AI-powered creative workspace for generating brand-correct marketing assets. Operators describe what they need in natural language; the system produces pixel-ready HTML (social posts, website sections, one-pagers, carousels) that looks and sounds like Fluid made it.
+AI-powered creative workspace for generating brand-correct marketing assets. Operators describe what they need in natural language; a single creative agent produces pixel-ready HTML (social posts, website sections, one-pagers, carousels) that looks and sounds like the configured brand.
 
 ## Quick Start
 
@@ -23,7 +23,7 @@ Environment variables (`.env` at repo root):
 | Frontend | React 19, TypeScript 5.6, Zustand 5, Vite 6 |
 | Backend | Vite middleware plugin (no Express) |
 | Database | SQLite (better-sqlite3, WAL mode) |
-| AI | Anthropic SDK, Model Context Protocol (MCP) |
+| AI | Anthropic SDK with tool use, SSE streaming |
 | Testing | Vitest + Playwright |
 | Styling | Plain CSS (no Tailwind in the app itself) |
 
@@ -33,26 +33,36 @@ Environment variables (`.env` at repo root):
 canvas/                        # The app (React + Vite + SQLite)
   src/
     App.tsx                    # Main app shell + navigation state machine
-    components/                # React components (CampaignDashboard, DrillDownGrid, etc.)
-    store/                     # Zustand stores (campaign.ts, editor.ts, generation.ts)
+    components/                # React components (CampaignDashboard, ChatSidebar, etc.)
+    store/
+      campaign.ts              # Nav state machine + data cache + race-condition guard
+      chat.ts                  # Chat sessions + SSE streaming + tool-call UI
+      editor.ts                # Slot editing UI state
     server/
       watcher.ts               # Vite plugin: all API routes + file watcher + HMR
-      api-pipeline.ts          # Anthropic SDK integration, generation pipeline
+      agent.ts                 # Creative agent: tool-use loop + SSE streaming + cancellation
+      agent-tools.ts           # Agent tool implementations
+      agent-system-prompt.ts   # Tier 1 rules + UI context layering
+      brand-brief.ts           # Assembles Tier 2 Brand Brief from DB
+      chat-routes.ts           # /api/chats/* handlers
       db-api.ts                # Campaign/Creation/Slide/Iteration CRUD
-      brand-seeder.ts          # Seeds DB from voice-guide/*.md + pattern-seeds/*.md
+      brand-seeder.ts          # Seeds DB from voice-guide/ + pattern-seeds/
+      render-engine.ts         # Playwright render for agent self-critique
+      validation-hooks.ts      # Post-save validation
+      observability.ts         # Chat event logging
     lib/
       db.ts                    # SQLite singleton (WAL, FK constraints)
-      campaign-types.ts        # TypeScript interfaces for data model
+      campaign-types.ts        # TypeScript interfaces for the data model
       template-configs.ts      # Template metadata + slot schemas
-    hooks/                     # useFileWatcher, useGenerationStream, useAssets
-    __tests__/                 # 29 test files (Vitest, real SQLite, no mocking)
+    hooks/                     # useFileWatcher, useRouteSync, useAssets, …
+    __tests__/                 # Vitest tests (real SQLite, no mocking)
   mcp/
-    server.ts                  # MCP server (stdio) for agent-canvas communication
-    tools/                     # push-asset (active), read-annotations/statuses/history (legacy)
-  fluid.db                     # SQLite database (production)
+    server.ts                  # MCP server (stdio) — push_asset tool
+    tools/push-asset.ts        # Sole MCP tool implementation
+  fluid.db                     # SQLite database (gitignored)
   vite.config.ts               # Base /app/, fluidWatcherPlugin, port 5174
 
-tools/                         # CLI validation + verification tools (Node.js CommonJS)
+tools/                         # CLI validation tools (Node.js CommonJS)
 assets/                        # Brand assets (SVGs, fonts, textures, logos, photos)
 archetypes/                    # Brandless structural layout patterns (filesystem, not DB)
   SPEC.md                      # Authoritative format specification
@@ -61,23 +71,20 @@ archetypes/                    # Brandless structural layout patterns (filesyste
 templates/                     # Template library (social/, gold-standard/, one-pagers/)
 pattern-seeds/                 # Clean markdown pattern files (seeded into DB)
 patterns/                      # Legacy visual pattern page (archival — DB is source of truth)
-voice-guide/                   # Brand voice docs (13 .md files, seeded into DB)
+voice-guide/                   # Brand voice docs (seeded into DB)
 feedback/                      # Agent-written usage data for learning loop
 Reference/                     # Archival source material (NEVER load directly)
-  Archetype Research/          # Reference post curation + deconstruction framework
-skills/marketing/              # 30+ marketing domain skills for subagent use
+skills/marketing/              # Marketing domain skills (distributed globally via sync.sh)
 
-.agents/skills/                # Project-scoped agent skills (fluid-campaign orchestrator)
 .claude/
-  agents/                      # Subagent definitions (copy, layout, styling, spec-check)
-  skills/                      # Claude Code skills (brand-intelligence, fluid-social, etc.)
+  skills/                      # Claude Code skills (brand-intelligence, brand-compliance-check, …)
   settings.json                # Permissions + PostToolUse validation hooks
 
 .fluid/                        # Runtime output (generated HTML + working files)
   campaigns/{cId}/{creationId}/{slideId}/{iterationId}.html   # Canonical output paths
-  working/{sessionId}/         # Scratch space during generation
+  working/{sessionId}/         # Scratch space
 
-.planning/                     # GSD project management (roadmap, phases, state)
+.planning/                     # GSD project management (roadmap, phases, state) — gitignored
 .mcp.json                      # MCP server registration (stdio)
 ```
 
@@ -107,14 +114,14 @@ SQLite with WAL mode (concurrent reads from MCP + Vite), foreign keys ON.
 
 **Tables:**
 - `campaigns`, `creations`, `slides`, `iterations`, `annotations` — campaign hierarchy
+- `chats`, `chat_messages` — agent conversation history
 - `voice_guide_docs` — brand voice rules (seeded from `voice-guide/*.md`)
 - `brand_patterns` — visual design tokens + patterns (seeded from `pattern-seeds/*.md`)
 - `templates` — template definitions with slot schemas
 - `template_design_rules` — per-template brand rules with weights
 - `brand_assets` — asset registry (scanned from `assets/` directory)
 - `campaign_assets`, `saved_assets` — per-campaign and DAM-linked assets
-- `context_map` — maps (creation_type, stage) to brand sections for smart context injection
-- `context_log` — audit trail of what brand context was injected per generation
+- `context_map`, `context_log` — brand-section routing + audit trail
 
 **Seeding:** On first app startup, `brand-seeder.ts` populates `voice_guide_docs` from `voice-guide/*.md` and `brand_patterns` from `pattern-seeds/*.md`. Also auto-imports brand config from `canvas/seed-data.json` if present (brand data only — no user data like campaigns/creations).
 
@@ -139,14 +146,10 @@ Brand data lives in the SQLite database, managed through the app UI. There are N
 - **Patterns** — two sections: Foundations (colors, typography) and Rules (layout archetypes, brushstroke rendering, circle emphasis, opacity patterns, etc.). Each pattern has a weight and optional `is_core` flag.
 - **Assets** — brand assets in 4 categories: Fonts, Images, Brand Elements, Decorations. Served at `/fluid-assets/` URLs. Optional description field per asset. DAM sync auto-categorizes by mime type.
 - **Templates** — reference templates with per-template design rules (scope: global-social, platform, archetype)
+- **Styles** — CSS layer system and component groups
 - **Settings** — context map editor for configuring which brand sections are injected per (creation_type, stage) combination. Shows token budgets and injection priorities.
 
-**Navigation:** LeftNav with Create, My Creations, Assets, Templates, Patterns, Voice Guide, Settings (gear icon at bottom). AI Chat sidebar toggles independently.
-
-**Agents access brand context via pipeline tools:**
-- `list_brand_sections(category?)` — discover available brand docs
-- `read_brand_section(slug)` — load a specific brand doc from DB
-- `list_brand_assets(category?)` — list available brand assets with URLs
+**Navigation:** LeftNav with Create, My Creations, Assets, Templates, Patterns, Voice Guide, Settings (gear icon at bottom). Chat sidebar toggles independently.
 
 Do NOT read from `brand/` files (that directory does not exist). Do NOT duplicate brand doc content in prompts.
 
@@ -166,53 +169,40 @@ Archetypes are **brandless structural layout patterns** — content skeletons th
 - **Brand-neutral:** No brand fonts, colors, assets, `text-transform: uppercase`, vertical side labels, or any brand convention. Casing, decoration, and styling are brand-layer decisions applied at generation time.
 - **Background/content/foreground split:** Archetypes define content layout only. Two layers bracket the content: `.background-layer` (z-index 0) receives textures, brushstrokes, and gradient washes; `.foreground-layer` (z-index 10) receives borders, frames, and watermarks. Content sits between them at z-index 2.
 - **`archetypeId`, not `templateId`:** Archetype schemas use `archetypeId` to avoid collision with `TEMPLATE_SCHEMAS` resolution in `template-configs.ts`. `brush` is always `null` — the brand layer provides decorative transform targets.
-- **Identical output shape:** Both templates and archetypes produce renderable HTML + SlotSchema. The pipeline can select either; the editor sidebar works with both.
+- **Identical output shape:** Both templates and archetypes produce renderable HTML + SlotSchema. The agent can select either; the editor sidebar works with both.
 - **Components are patterns, not runtime includes:** Design components (`archetypes/components/`) are reference HTML/CSS patterns. When building an archetype, copy the markup structure and SlotSchema fields — there is no partial/import system.
 
 See `archetypes/SPEC.md` for the authoritative format specification.
 
-## Generation Pipeline
+## Creative Agent
 
-When a user submits a prompt via the sidebar, the system:
+A single Anthropic tool-use loop (`canvas/src/server/agent.ts`) handles the whole flow. There are no staged sub-agents.
 
-1. Parses prompt for channel hints (instagram, linkedin, etc.)
-2. Pre-creates Campaign + Creation + Slide + Iteration records in SQLite
-3. Runs parallel subagents per creation through a 4-stage pipeline:
+**Flow:**
+1. User sends a message to `/api/chats/:id/messages`
+2. Server builds the system prompt: Tier 1 universal rules + Tier 2 Brand Brief + UI context
+3. Agent loop runs: model emits text, calls tools, reads results, continues until it's done
+4. Assistant text and tool events stream to the UI over SSE (`chat_delta`, `tool_start`, `tool_result`, `creation_ready`, `done`)
+5. When the agent calls `save_creation`, the server writes the iteration to SQLite + disk, runs validation hooks, and emits a `creation_ready` event
 
-```
-copy → layout → styling → spec-check (→ fix if needed)
-```
+**System prompt layering (`agent-system-prompt.ts`):**
+- **Tier 1 (static):** universal rules — structural HTML rules, intent gating, platform dimensions. Cacheable.
+- **Tier 2 (static):** Brand Brief assembled from `voice_guide_docs`, `brand_patterns`, and `brand_assets`. Cacheable.
+- **Dynamic:** current UI context (active campaign/creation/iteration). Not cached because it changes every request.
 
-4. Each stage uses Anthropic API with tool use (read_file, write_file, brand tools)
-5. Writes final HTML to `.fluid/campaigns/{cId}/{creationId}/{slideId}/{iterationId}.html`
-6. Pushes HMR event to browser; React refreshes automatically
+**Agent tools (`agent-tools.ts`):**
+- **Brand discovery:** `list_voice_guide`, `read_voice_guide`, `list_patterns`, `read_pattern`, `list_assets`, `list_templates`, `read_template`, `list_archetypes`, `read_archetype`
+- **Creation writing:** `save_creation`, `edit_creation`, `save_as_template`, `get_creation`, `get_campaign`
+- **Brand editing (gated on explicit user intent):** `update_pattern`, `create_pattern`, `delete_pattern`, `update_voice_guide`, `create_voice_guide`
+- **Visual self-critique:** `render_preview` (Playwright-rendered screenshot)
 
-**Model assignments:**
-- **Copy:** Sonnet (creative writing, brand voice)
-- **Layout:** Haiku (structural, cost-optimized — spec-check catches errors)
-- **Styling:** Sonnet (complex CSS composition)
-- **Spec-check:** Sonnet (holistic brand judgment)
-
-**Smart context injection:** The `context_map` table maps (creation_type, stage, page) to specific brand sections. Agents receive pre-loaded brand context instead of discovering it via tools. Token budgets: Copy ~8K, Layout ~6K, Styling ~10K. Per-section cap (60% of budget) prevents any single section from monopolizing the injection. Safety caps truncate oversized sections. Wildcard patterns (`voice-guide:*`, `category:*`) expand at runtime. The `context_log` table records what was actually injected per generation (sections, token estimate, gap tool calls) for observability. The Settings page provides a UI for editing the context map.
-
-**Hard rules extraction:** Brand patterns with weight ≥ 81 are automatically parsed and promoted to system prompt directives (injected into layout/styling stages as `## Hard Rules (NON-NEGOTIABLE)`). This ensures the model treats critical brand rules as constraints, not suggestions.
-
-**Asset manifest pre-injection:** The styling stage receives a pre-built manifest of all brand asset URLs (fonts, brushstrokes, logos) in the system prompt. Eliminates the need for agents to call `list_brand_assets` and prevents wrong URL format guessing.
-
-**Campaign copy accumulator:** In-memory tracker prevents headline/tagline repetition across creations within the same campaign. Each copy agent receives prior creations' headlines and taglines as negative examples.
-
-**Micro-fix loop:** Before spinning up full API-based fix agents, the pipeline attempts regex-based fixes for simple violations (wrong background color, non-brand font families). Saves ~$0.03 and ~15s per fix.
-
-**Design DNA:** For social posts, layout and styling stages receive Design DNA (visual compositor contract + platform rules + archetype notes + HTML exemplar) in the system prompt. Design DNA is sourced from `brand_patterns` (visual-style category) and `template_design_rules` (scoped by platform and archetype). Injected once — not duplicated in the user prompt.
-
-**Brand-agnostic pipeline:** All stage prompts are generic — no brand name or brand-specific content is hardcoded. Brand identity is runtime data loaded from the DB. The pipeline works for any brand whose data is seeded into the database.
-
-**System-invariant hard rules** (injected into stage system prompts, not stored in DB):
-- **Copy length limits:** IG ~20 words total visible copy, LI ~30 words
-- **Inline styles ban:** all styling must be in `<style>` blocks with CSS classes, never `style=""` attributes
-- **Font enforcement:** only fonts registered in brand assets are allowed; non-brand fonts trigger a full fix loop (not micro-fix)
-- **Decorative elements:** brushstrokes/circles use `<div>` with `background-image: url(); background-size: contain`, never `<img>` tags. Minimum 2 brushstrokes per social post.
-- **Circle emphasis:** CSS mask with proper bounding box calculation
+**Hard rules (enforced in the Tier 1 prompt, not in DB):**
+- All CSS in `<style>` blocks with class selectors — never inline `style=""` attributes
+- Self-contained HTML — no external CDN links or stylesheet references
+- Decorative elements use `<div>` with `background-image: url()` — never `<img>` tags
+- Only fonts listed in the Brand Brief's Asset Manifest are allowed
+- Every creation must include a complete SlotSchema based on an archetype
+- Use the background-layer / content / foreground-layer structure from archetypes
 
 ## API Endpoints
 
@@ -228,135 +218,47 @@ All routes served from Vite middleware (`canvas/src/server/watcher.ts`):
 | `/api/iterations/:id` | GET, PATCH | Read/update iteration |
 | `/api/iterations/:id/html` | GET | Serve iteration HTML (with path fallback + slot application) |
 | `/api/iterations/:id/status` | PATCH | Update review status |
-| `/api/generate` | POST | Start generation (SSE stream) |
-| `/api/context-map` | GET, POST, PUT/:id, DELETE/:id | CRUD for smart context injection mappings |
+| `/api/chats` | GET, POST | List/create chats |
+| `/api/chats/:id` | GET, DELETE | Read/delete chat |
+| `/api/chats/:id/messages` | POST | Send message (SSE stream of agent output) |
+| `/api/chats/:id/cancel` | POST | Cancel in-flight generation |
+| `/api/context-map` | GET, POST, PUT/:id, DELETE/:id | CRUD for brand-section routing |
 | `/api/context-log` | GET | Audit trail of injected context per generation |
 | `/api/templates` | GET, POST | List/create templates |
+| `/api/uploads/chat-image` | POST | Upload image to chat |
 | `/` | GET | Template library (static HTML) |
 | `/app/*` | GET | React canvas app |
 | `/fluid-assets/*` | GET | Brand assets |
 
-**HTML serving** uses a 4-strategy fallback: stored path → .fluid/ relative → canonical path → templates fallback. After loading, the server rewrites asset paths, injects `<base href>`, applies `userState` slot values, and adds postMessage listener for live editing.
+**HTML serving** uses a 4-strategy fallback: stored path → `.fluid/` relative → canonical path → templates fallback. After loading, the server rewrites asset paths, injects `<base href>`, applies `userState` slot values, and adds a postMessage listener for live editing.
 
 ## MCP Server
 
 Registered in `.mcp.json`, runs as stdio process (`npx tsx canvas/mcp/server.ts`).
 
-**Active tool:** `push_asset` — creates Iteration record + writes HTML to canonical path. This is the primary write path for agents pushing generated output to the canvas.
+**Tool:** `push_asset` — creates Iteration record + writes HTML to canonical path. Used by external Claude Code sessions that want to push generated output into the canvas from outside the app.
+
+The canvas's own creative agent does NOT go through MCP — it calls its tool set directly in the same process.
 
 **API base:** `http://localhost:5174` (override with `MCP_API_BASE` env)
 
-## Subagent Architecture
-
-Four subagent roles defined in `.claude/agents/`:
-
-| Agent | Model | Input | Output |
-|-------|-------|-------|--------|
-| **copy-agent** | Sonnet | prompt, mode, platform | `{working_dir}/copy.md` with headline, body, tagline, CTA |
-| **layout-agent** | Haiku | copy.md, layout archetypes, specs | `{working_dir}/layout.html` with positioned containers + SLOT comments |
-| **styling-agent** | Sonnet | copy.md, layout.html, brand tokens | `{working_dir}/styled.html` — fully styled HTML/CSS |
-| **spec-check-agent** | Sonnet | styled.html, brand rules | Pass/fail report with fix directives |
-
-Each creation gets its own subagent with fresh context — no cross-contamination between assets.
-
 ## CLI Tools
 
-Validation tools in `tools/`. Run after generating output:
+Validation tools in `tools/`:
 
 ```bash
-node tools/brand-compliance.cjs <file>              # Validate HTML against brand rules (colors, fonts)
-node tools/schema-validation.cjs <file>              # Validate .liquid against Gold Standard schema
-node tools/dimension-check.cjs <file> --target <type> # Check dimensions (instagram, linkedin_landscape, linkedin_tall)
-node tools/scaffold.cjs <section-name>               # Generate Gold Standard .liquid skeleton
-node tools/db-export.cjs                             # Export DB to canvas/seed-data.json (brand data only)
-node tools/db-import.cjs [--merge] [--force]         # Import seed-data.json into DB
-node tools/verify-context-sizes.cjs                  # Check pattern sizes + simulate pipeline token usage
-node tools/feedback-ingest.cjs [--dry-run]           # Analyze feedback, generate proposals
-node tools/simulate-pipeline.cjs "<prompt>"           # Build pipeline prompts + context for agent simulation
-node tools/simulate-pipeline.cjs --live "<prompt>"    # Run real Anthropic API pipeline from CLI
-node tools/simulate-pipeline.cjs --dry-run "<prompt>" # DB records + filesystem only (fastest)
-node tools/simulate-pipeline.cjs --batch prompts.txt --report report.json  # Batch mode
+node tools/brand-compliance.cjs <file>                   # Validate HTML against brand rules
+node tools/schema-validation.cjs <file>                  # Validate .liquid against Gold Standard schema
+node tools/dimension-check.cjs <file> --target <type>    # Check dimensions (instagram, linkedin_landscape, linkedin_tall)
+node tools/scaffold.cjs <section-name>                   # Generate Gold Standard .liquid skeleton
+node tools/validate-archetypes.cjs                       # Validate archetype SPEC conformance
+node tools/db-export.cjs                                 # Export DB → canvas/seed-data.json (brand data only)
+node tools/db-import.cjs [--merge] [--force]             # Import seed-data.json into DB
+node tools/verify-context-sizes.cjs                      # Check pattern sizes
+node tools/feedback-ingest.cjs [--dry-run]               # Analyze feedback, generate proposals
 ```
 
-Note: Validation tools read from the SQLite database. The app must run at least once to seed the DB.
-
-## Pipeline Simulation
-
-To test the generation pipeline at scale without the browser UI, use `simulate-pipeline.cjs` or run manual agent-based simulations.
-
-### Using the CLI harness
-
-```bash
-# Default: set up DB + filesystem + dump exact pipeline prompts/context per stage
-# Ready for a Claude Code agent to simulate each stage
-node tools/simulate-pipeline.cjs "Create an Instagram post about Fluid Connect"
-
-# Live: run the real Anthropic API pipeline (requires ANTHROPIC_API_KEY)
-node tools/simulate-pipeline.cjs --live "Launch a campaign for Payments"
-
-# Dry-run: DB records + filesystem only (no prompt building)
-node tools/simulate-pipeline.cjs --dry-run "Just a linkedin post about FairShare"
-
-# Batch: read prompts from file, run each, output JSON report
-node tools/simulate-pipeline.cjs --batch test-prompts.txt --report results.json
-```
-
-The CLI harness uses the **exact same code paths** as the app: `parseChannelHints()` for routing, `createCampaign/Creation/Slide/Iteration` for DB records. In default mode, it also calls the real `buildSystemPrompt()`, `buildCopyPrompt()`, `buildStylingPrompt()` etc. from `api-pipeline.ts` to dump the exact prompts and injected context each stage would receive.
-
-Each creation gets a `working/_pipeline/` directory containing:
-- `copy-system.txt` / `copy-user.txt` — exact prompts for the copy stage
-- `layout-system.txt` / `layout-user.txt` — exact prompts for layout
-- `styling-system.txt` / `styling-user.txt` — exact prompts for styling
-- `asset-manifest.json` — all brand asset URLs (what `list_brand_assets` returns)
-- `voice-guide-list.json`, `brand-patterns-list.json` — discoverable content catalogs
-- `context.json` — creation metadata, model assignments, file paths
-
-A Claude Code agent can read these files and execute each stage with identical context to what the real API pipeline would provide.
-
-### Agent-based simulation (manual)
-
-When simulating without API calls (spawning subagents as the pipeline stages), follow these rules:
-
-1. **File paths:** HTML output goes to `{PROJECT_ROOT}/.fluid/campaigns/{campaignId}/{creationId}/{slideId}/{iterationId}.html` — NOT inside `canvas/`. The app resolves `html_path` relative to the project root.
-
-2. **DB records:** Use the `--dry-run` mode of simulate-pipeline.cjs to create proper DB records, or create them manually with nanoid IDs, millisecond timestamps, and correct foreign keys (campaign → creation → slide → iteration).
-
-3. **Brand context:** Agents in the real pipeline access brand data via tools (`list_brand_assets`, `read_brand_section`, etc.) that return exact URLs and formatted content. When simulating, either:
-   - Query the SQLite DB directly (`sqlite3 canvas/fluid.db "SELECT ..."`)
-   - Or use the `--dry-run` output which lists working directories where you can dump context files
-
-4. **Spec-check:** Run `node tools/brand-compliance.cjs <file> --context social|website` after each generation. Social posts must use context `social` (enforces #000 bg). One-pagers use `website` (allows #050505).
-
-5. **DB finalization:** After generation, update `iterations.generation_status` from `pending` to `complete`.
-
-### What to evaluate
-
-When reviewing simulation output, check:
-
-- **Brand compliance** — run the validator, track pass/fail rates by creation type
-- **Copy quality** — voice guide adherence, body length (IG: 1-2 sentences, LI: 2-3), tagline variety within campaigns, stat-proof headlines (must be numbers not sentences)
-- **Styling quality** — background color (#000 for social), asset URL format (/api/brand-assets/serve/{name} with no subdirs/extensions), font fallbacks (sans-serif only), position:absolute for social layout
-- **Routing accuracy** — single vs campaign detection, channel inference, DB record correctness
-- **Campaign coherence** — tagline/headline diversity across posts, accent color variety, archetype variety
-
-### Test prompt battery
-
-Good prompts for comprehensive testing (covers all products, platforms, archetypes, and edge cases):
-
-```
-Create an Instagram post about Fluid Connect — how it eliminates the 3am integration fire drills
-Launch a campaign for Fluid Payments — emphasize the 6x retry logic
-Make me a one-pager about FairShare
-just a linkedin post about why WeCommerce exists
-Instagram post for Checkout
-Create a series of posts about Blitz Week for both Instagram and LinkedIn
-Generate multiple posts about Droplets across Instagram
-an instagram post with an employee spotlight format
-posts about Builder
-Create an Instagram post about the competitive advantage of direct selling over D2C brands
-3 instagram posts and a one-pager for Corporate Tools
-just make something cool about Fluid
-```
+Validators read from the SQLite database. The app must run at least once to seed the DB.
 
 ## Testing
 
@@ -369,30 +271,30 @@ npm run test:watch          # Watch mode
 
 - Uses Vitest with real SQLite (no mocking)
 - Each test gets an isolated temp DB via `FLUID_DB_PATH` env var
-- 29 test files covering components, API, DB, brand context, routing
+- Tests cover components, API, DB, brand context, routing
 
 ## State Management
 
 **Zustand stores** in `canvas/src/store/`:
 - `campaign.ts` — navigation state machine + data cache + race condition guard (`_requestId` counter)
+- `chat.ts` — active chat + message stream + tool-call UI + cancellation
 - `editor.ts` — slot editing mode + modified values
-- `generation.ts` — generation status, progress, errors
 
 **HMR integration:** Server sends `fluid:file-change` custom Vite event → `useFileWatcher` hook refreshes store (debounced 200ms, paused during generation).
 
 ## Key Conventions
 
 - **Canonical HTML paths:** `.fluid/campaigns/{campaignId}/{creationId}/{slideId}/{iterationId}.html`
-- **Working directory during generation:** `.fluid/working/{sessionId}/`
-- **Asset URLs in HTML:** Use `/fluid-assets/...` (server rewrites `../../assets/` automatically)
+- **Working directory:** `.fluid/working/{sessionId}/`
+- **Asset URLs in HTML:** use `/fluid-assets/...` (server rewrites `../../assets/` automatically)
 - **IDs:** nanoid-generated (e.g., `cmp_xxx`, `cre_xxx`, `sld_xxx`, `itr_xxx`)
-- **No Express:** All backend routes are Vite middleware in `watcher.ts`
-- **No Tailwind in app:** Plain CSS. (Tailwind only appears in generated output HTML)
+- **No Express:** all backend routes are Vite middleware in `watcher.ts`
+- **No Tailwind in app:** plain CSS. (Tailwind only appears in generated output HTML)
 
 ## Important Rules
 
 - Do NOT read from `brand/` files — that directory does not exist. All brand data is in the DB.
-- Do NOT duplicate brand doc content in prompts; use DB tools to load brand data.
+- Do NOT duplicate brand doc content in prompts; the Brand Brief is assembled from the DB.
 - `Reference/` is archival only — never load directly.
 - `archetypes/SPEC.md` is the authoritative format reference for building archetypes. Do not invent format conventions — follow the spec.
 - Archetypes must be 100% brand-neutral: no `text-transform: uppercase`, no rotated side labels, no brand fonts/colors/assets. Casing and decoration are brand-layer decisions.
@@ -400,4 +302,4 @@ npm run test:watch          # Watch mode
 - `voice-guide/*.md` and `pattern-seeds/*.md` are seed sources — the DB is the live copy.
 - Pattern content is clean markdown with code snippets — never raw HTML or base64. All assets referenced via `/api/brand-assets/serve/` URLs.
 - `seed-data.json` contains brand config only (no campaigns/creations/slides/iterations). User data stays local to each developer's DB.
-- The app must be running (`npm run dev`) for MCP tools and API endpoints to work.
+- The app must be running (`npm run dev`) for the chat agent, MCP push_asset, and API endpoints to work.

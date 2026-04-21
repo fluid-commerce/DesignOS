@@ -312,14 +312,14 @@ Everything that expresses visual brand identity:
 
 ### Generation Time Injection Sequence
 
-At generation time, the pipeline executes this sequence for archetypes:
+At generation time, the creative agent follows this sequence for archetypes:
 
-1. **Read** `archetypes/{slug}/index.html` as the structural skeleton
+1. **Read** `archetypes/{slug}/index.html` as the structural skeleton (via `read_archetype`)
 2. **Read** `archetypes/{slug}/schema.json` for content field definitions
 3. **Inject** brand decorative elements into `.background-layer` (textures, brushstrokes) and `.foreground-layer` (borders, frames) in the HTML
 4. **Apply** brand fonts, colors, and background styling to content elements
 5. **Merge** brand `brush` / `brushAdditional` fields into the final iteration SlotSchema (overriding the archetype's `null` value)
-6. **Write** final renderable HTML + final SlotSchema to the iteration record
+6. **Write** final renderable HTML + final SlotSchema to the iteration record (via `save_creation`)
 
 The final SlotSchema that reaches the editor sidebar is the *merged* schema — it has all archetype content fields plus brand brush fields. This is the editor sidebar parity guarantee: template-based and archetype-based iterations both produce a complete SlotSchema with content + decorative transform targets.
 
@@ -508,6 +508,7 @@ All Phase 19 archetypes MUST use `"width": 1080, "height": 1080` in `schema.json
 |------|---------|
 | `canvas/src/lib/slot-schema.ts` | Authoritative SlotSchema TypeScript interface and `collectTransformTargets()` function |
 | `canvas/src/lib/template-configs.ts` | 8 existing template configs — reference for CSS selector conventions and field patterns |
-| `canvas/src/server/api-pipeline.ts` | Pipeline entry point — where archetype selection logic will be added in Phase 20 |
+| `canvas/src/server/agent.ts` | Creative agent loop — where archetype selection happens via `list_archetypes` / `read_archetype` tools |
+| `canvas/src/server/agent-tools.ts` | Tool implementations (including archetype tools) |
 | `archetypes/components/README.md` | Component library conventions |
 | `Reference/Archetype Research/README.md` | Research methodology and curation criteria |

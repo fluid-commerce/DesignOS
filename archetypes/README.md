@@ -14,12 +14,12 @@ An archetype captures the **layout intent** of a post type (stat-heavy, testimon
 | **Brand** | Fully styled, brand-specific | Brandless, neutral placeholder |
 | **Curation** | Hand-curated by users | System-level, researcher-curated |
 | **Scope** | Exact layout + exact brand expression | Structural skeleton only |
-| **Selection** | Pipeline: exact match on templateId | Pipeline: best structural fit |
+| **Selection** | Agent: exact match on templateId | Agent: best structural fit |
 | **Output** | Renderable HTML + SlotSchema | Renderable HTML + SlotSchema (identical shape) |
 
-**Both produce the same output format.** The pipeline can select a template (exact match — preserves the hand-crafted design) or an archetype (adapt + apply brand). Either way, the result is a renderable HTML file + SlotSchema for the editor sidebar. This parity is the system contract.
+**Both produce the same output format.** The creative agent can select a template (exact match — preserves the hand-crafted design) or an archetype (adapt + apply brand). Either way, the result is a renderable HTML file + SlotSchema for the editor sidebar. This parity is the system contract.
 
-The pipeline routing decision (template vs archetype) is made in `canvas/src/server/api-pipeline.ts`.
+Selection happens inside the creative agent (`canvas/src/server/agent.ts`) using the `list_templates` / `read_template` / `list_archetypes` / `read_archetype` tools defined in `canvas/src/server/agent-tools.ts`.
 
 ## Directory Layout
 
@@ -50,7 +50,7 @@ Archetype slug suffixes determine platform:
 | `-li` | LinkedIn Landscape | 1200 × 627 | `linkedin` |
 | `-op` | One-Pager (US Letter) | 612 × 792 | `one-pager` |
 
-The `filterArchetypesByPlatform()` function in `canvas/src/server/api-pipeline.ts` uses these suffixes to route the correct archetype set to each pipeline run.
+The archetype listing tool (`list_archetypes` in `canvas/src/server/agent-tools.ts`) uses these suffixes to filter archetypes by platform when the agent requests them.
 
 ## Instagram Archetypes (1080 × 1080) — Phase 19 — 10 archetypes
 
@@ -101,7 +101,7 @@ Archetypes define **content layout only**. The two categories are strictly separ
 - Background gradients and color fills
 - Brand watermarks and logo placements
 
-At generation time, the pipeline injects brand decorative elements into `.background-layer` (textures, brushstrokes) and `.foreground-layer` (borders, frames), then merges brand `brush`/`brushAdditional` fields into the final SlotSchema. The archetype `schema.json` always sets `brush: null` — the brand layer provides all decorative transform targets.
+At generation time, the creative agent injects brand decorative elements into `.background-layer` (textures, brushstrokes) and `.foreground-layer` (borders, frames), then merges brand `brush`/`brushAdditional` fields into the final SlotSchema. The archetype `schema.json` always sets `brush: null` — the brand layer provides all decorative transform targets.
 
 ## Schema Contract
 

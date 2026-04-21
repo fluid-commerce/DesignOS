@@ -5,39 +5,38 @@
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Brand Intelligence Layer                                │
-│  SQLite DB (voice_guide_docs, brand_patterns, etc.)      │
-│  Weight system (1-100)  •  Smart context injection       │
-│  context_map routes sections per (type, stage, page)     │
+│  SQLite DB: voice_guide_docs, brand_patterns,            │
+│  brand_assets, templates, template_design_rules          │
+│  Weight system (1-100) drives rule enforcement           │
 └────────────────────────┬────────────────────────────────┘
-                         │ brand context pre-injected by
+                         │ assembled into Brand Brief by
 ┌────────────────────────▼────────────────────────────────┐
 │  Archetype Layer (brandless structural patterns)         │
 │  Filesystem: archetypes/{slug}/index.html + schema.json  │
-│  Content/decorative split  •  Components as patterns     │
-│  archetypeId (not templateId)  •  brush: null always     │
+│  Background/content/foreground split                     │
+│  archetypeId (not templateId) • brush: null always       │
 └────────────────────────┬────────────────────────────────┘
                          │ selected + branded by
 ┌────────────────────────▼────────────────────────────────┐
-│  Pipeline Layer (brand-agnostic)                         │
-│  Anthropic SDK (api-pipeline.ts)                         │
-│  Pipeline: copy → layout → styling → spec-check → fix   │
-│  Parallel creations  •  Design DNA  •  Hard rules        │
+│  Creative Agent                                          │
+│  Anthropic SDK with tool use (canvas/src/server/agent.ts)│
+│  Single loop — no staged sub-pipeline                    │
+│  SSE stream back to UI                                   │
 └────────────────────────┬────────────────────────────────┘
-                         │ writes HTML to
+                         │ writes via save_creation to
 ┌────────────────────────▼────────────────────────────────┐
 │  Runtime Layer                                           │
 │  .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html │
 │  SQLite records → HMR push to browser                    │
-│  Vite middleware: API routes + static serving             │
+│  Vite middleware: API routes + static serving            │
 └────────────────────────┬────────────────────────────────┘
                          │ renders in
 ┌────────────────────────▼────────────────────────────────┐
 │  Canvas UI Layer                                         │
 │  React 19 + Zustand 5 + Vite 6                           │
 │  Dashboard → Campaign → Creation → Slide → Iteration     │
-│  ContentEditor for slot editing via postMessage           │
-│  LeftNav: Create, My Creations, Assets, Templates,       │
-│           Patterns, Voice Guide, Settings                │
+│  ContentEditor for slot editing via postMessage          │
+│  ChatSidebar talks to the agent via SSE                  │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -84,13 +83,11 @@ The server is a **Vite middleware plugin** (`canvas/src/server/watcher.ts`), not
 
 **Iterations:** `GET /api/iterations/:id`, `GET /api/iterations/:id/html`, `PATCH /api/iterations/:id/status`
 
-**Generation:** `POST /api/generate` (SSE stream)
+**Chat / Generation:** `GET|POST /api/chats`, `GET|DELETE /api/chats/:id`, `POST /api/chats/:id/messages` (SSE), `POST /api/chats/:id/cancel`
 
-**Brand:** `GET /api/brand-assets`, `GET /api/brand-assets/serve/:name`, `GET /api/voice-guide`, `GET /api/brand-patterns`
+**Brand:** `GET /api/brand-assets`, `GET /api/brand-assets/serve/:name`, `GET /api/voice-guide`, `GET /api/brand-patterns`, `GET /api/templates`
 
 **Context:** `GET|POST|PUT|DELETE /api/context-map`, `GET /api/context-log`
-
-**Templates:** `GET /api/templates`, `POST /api/templates/preview`
 
 ### HTML Serving (`/api/iterations/:id/html`)
 
@@ -119,12 +116,11 @@ When generation completes or data changes, the server pushes a Vite HMR custom e
 
 ## State Management
 
-**Zustand** with a single primary store (`store/campaign.ts`):
+**Zustand** with three primary stores:
 
-- **Navigation state machine:** `dashboard → campaign → creation → slide` (+ iteration selection within slide view)
-- **Data cache:** `campaigns[]`, `creations[]`, `slides[]`, `iterations[]`, `latestIterationByCreationId{}`
-- **Race condition guard:** `_requestId` counter increments on each fetch; stale responses are discarded
-- **Sidebar state:** `leftSidebarOpen`, `rightSidebarOpen`
+- `store/campaign.ts` — navigation state machine + data cache + race condition guard (`_requestId`)
+- `store/chat.ts` — active chat sessions, SSE streaming, tool call UI, cancellation
+- `store/editor.ts` — slot editing UI state
 
 Navigation actions fetch data then set view:
 ```
@@ -136,64 +132,46 @@ navigateToSlide(id) → fetchIterations(id)
 
 ## MCP Server
 
-Stdio-based MCP server (`canvas/mcp/server.ts`) for agent-canvas communication:
+Stdio-based MCP server (`canvas/mcp/server.ts`) for external agent-canvas communication.
 
 | Tool | Purpose |
 |------|---------|
 | `push_asset` | Create iteration + write HTML to canonical path |
-| `read_annotations` | Fetch pin/sidebar notes for an iteration |
-| `read_statuses` | Get all iterations in a frame with review status |
-| `read_history` | Full iteration chain for a frame |
-| `iterate_request` | Signal intent to generate next round |
 
-Agents never write SQLite directly. The MCP server and API endpoints own all database mutations.
+The canvas's own creative agent does not go through MCP — it uses the tool set defined in `canvas/src/server/agent-tools.ts` directly. MCP is retained for external Claude Code sessions that want to push generated output into the canvas from outside the app.
 
-## Generation Pipeline
+## Creative Agent
+
+A single Anthropic tool-use loop handles the entire creation flow.
 
 ```
-POST /api/generate { prompt, campaignId? }
+POST /api/chats/:id/messages { text, uiContext }
   │
-  ├── Parse prompt for channel hints ("just LinkedIn" → 3 LinkedIn creations)
-  ├── Pre-create Campaign + Creation + Slide + Iteration records in SQLite
-  ├── Set all iterations to generationStatus: 'pending'
-  │
-  ├── Load context_map once (creation_type → brand sections per stage)
-  ├── Load brand context from DB (voice docs, patterns, assets, design DNA)
-  │
-  ├── For each creation (parallel):
-  │   ├── Pre-inject brand context per stage from context_map
-  │   ├── Extract hard rules (weight ≥ 81) → system prompt directives
-  │   ├── Build asset manifest (all brand asset URLs for styling stage)
-  │   ├── Run pipeline: copy → layout → styling → spec-check → fix
-  │   ├── Write HTML to .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
-  │   ├── Log injected context to context_log (sections, tokens, gap calls)
-  │   └── Update generationStatus to 'complete'
-  │
-  └── Stream SSE events: { campaignId, status, stage updates, context_injected }
+  ├── Build system prompt: Tier 1 (universal rules) + Tier 2 (Brand Brief from DB) + UI context
+  ├── Start tool-use loop:
+  │   ├── Brand discovery tools (list_voice_guide, read_pattern, list_assets, list_archetypes, …)
+  │   ├── Preview tool (render_preview) for self-critique
+  │   ├── Creation tools (save_creation, edit_creation, save_as_template)
+  │   └── Brand editing tools (update_pattern, create_pattern, update_voice_guide) — gated on explicit user intent
+  ├── Stream assistant text and tool events over SSE
+  └── On save_creation: validation hooks run, iteration record written, UI refreshed via HMR
 ```
+
+System prompt layering is in `canvas/src/server/agent-system-prompt.ts`. The Brand Brief is assembled in `canvas/src/server/brand-brief.ts` from `voice_guide_docs`, `brand_patterns`, and `brand_assets`.
 
 ## Brand Data Loading
 
-Brand data lives in SQLite (`canvas/fluid.db`), managed through the app's UI pages. The pipeline is **brand-agnostic** — all stage prompts are generic, brand identity is runtime data from the DB.
+Brand data lives in SQLite (`canvas/fluid.db`), managed through the app's UI pages. The creative agent is **brand-agnostic** — all prompts are generic; brand identity is runtime data from the DB.
 
 **DB tables:** `voice_guide_docs`, `brand_patterns`, `brand_assets`, `templates`, `template_design_rules`, `context_map`, `context_log`
 
-**Smart context injection:** The `context_map` table maps `(creation_type, stage, page)` to specific brand sections. Wildcard patterns (`voice-guide:*`, `category:*`) expand at runtime. Token budgets enforce per-stage limits (Copy ~8K, Layout ~6K, Styling ~10K). The `context_log` records what was actually injected per generation for observability.
-
-**Design DNA:** For social posts, layout and styling stages receive Design DNA sourced from `brand_patterns` (visual-style category) and `template_design_rules`. Includes visual compositor contract, platform rules, archetype notes, and HTML exemplar.
-
-**System-invariant hard rules** (in stage system prompts, not DB):
-- Copy length: IG ~20 words, LI ~30 words total visible copy
-- Inline styles ban: all styling in `<style>` blocks, never `style=""` attributes
-- Font enforcement: only brand-registered fonts allowed (non-brand triggers full fix loop)
-- Decorative elements: `<div>` with `background-image`, never `<img>` tags
-- Circle emphasis: CSS mask with proper bounding box
-
-**Weight system** (in each doc): rules carry weights 1-100. Enforcement:
-- 81-100 = must follow (brand-critical) — auto-promoted to hard rules in system prompt
+**Weight system** — rules carry weights 1-100:
+- 81-100 = must follow (brand-critical)
 - 51-80 = should follow (strong preference)
 - 21-50 = recommended (flexible)
 - 1-20 = nice-to-have
+
+**Hard rules** — patterns with weight ≥ 81 are treated as non-negotiable constraints in the Brand Brief.
 
 ## Template System
 
@@ -203,7 +181,7 @@ Templates use Jonathan's standard format:
 3. **Annotations** — FIXED / FLEXIBLE / OPTIONAL per element
 4. **Dimensions** — native pixel size (1080x1080, 1200x627, 816x1056)
 
-8 social templates have been ported to TypeScript configs in `canvas/src/lib/template-configs.ts` for programmatic access via the template gallery UI.
+Social templates have TypeScript configs in `canvas/src/lib/template-configs.ts` for programmatic access via the template gallery UI.
 
 ## Archetype System
 
@@ -218,13 +196,13 @@ Archetypes are **brandless structural layout patterns** — content skeletons st
 | **Selection** | Exact match on `templateId` | Best structural fit for content type |
 | **Output** | Renderable HTML + SlotSchema | Renderable HTML + SlotSchema (identical shape) |
 
-Both produce the same output format. The pipeline can select either; the editor sidebar works with both.
+Both produce the same output format. The agent can select either; the editor sidebar works with both.
 
 ### Content/Decorative Split
 
 Archetypes enforce a strict separation:
 - **Content (archetype-defined):** text blocks, image zones, layout structure, positioning
-- **Decorative (brand-defined, injected at generation):** brushstrokes, textures, circles, gradients, logos
+- **Decorative (brand-defined, applied at generation):** brushstrokes, textures, circles, gradients, logos
 
 Each archetype includes two injection layers: `.background-layer` (z-index 0, for textures and brushstrokes) and `.foreground-layer` (z-index 10, for borders and frames). Content sits between them at z-index 2. The archetype `schema.json` sets `brush: null` — the brand layer provides all decorative transform targets.
 
@@ -276,14 +254,13 @@ beforeAll(() => {
 | SQLite with WAL mode | Concurrent reads from MCP + Vite, no external DB dependency |
 | HTML on disk, metadata in SQLite | Files are the artifact; DB tracks relationships and state |
 | Canonical file paths | `.fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html` prevents collisions |
-| Zustand over Redux/Context | Minimal boilerplate, single store, race condition guard built-in |
-| MCP via stdio, not TCP | No external service; integrates with agent's context window |
-| Brand-agnostic pipeline | No brand hardcoded in prompts; brand identity is runtime DB data |
-| Smart context injection | context_map pre-injects brand data per (type, stage); agents don't self-discover |
-| Hard rules extraction | Weight ≥ 81 patterns auto-promoted to NON-NEGOTIABLE system prompt directives |
+| Zustand over Redux/Context | Minimal boilerplate, small stores, race condition guard built-in |
+| Single creative agent, no staged pipeline | Simpler loop; lets the model plan its own steps; one context window per creation |
+| MCP via stdio, not TCP | No external service; integrates with external agents' context |
+| Brand-agnostic system prompt | No brand hardcoded; Brand Brief is runtime DB data |
+| Hard rules extraction | Weight ≥ 81 patterns treated as non-negotiable constraints |
 | HMR push on data changes | Server sends custom Vite HMR event after writes; `useFileWatcher` refreshes UI |
-| Parallel subagents per asset | Each asset gets fresh context; no cross-contamination between assets |
 | Archetypes on filesystem, not DB | Structural patterns are code artifacts; version-controlled, not user-editable data |
 | `archetypeId` not `templateId` | Avoids collision with `TEMPLATE_SCHEMAS` lookup in `resolveSlotSchemaForIteration()` |
-| Background/content/foreground split | Archetypes define layout only; `.background-layer` + `.foreground-layer` + `brush: null` defers all brand decoration to pipeline |
+| Background/content/foreground split | Archetypes define layout only; `brush: null` defers all decoration to the agent |
 | Components as patterns | No runtime include/partial system; components are reference HTML for copy-paste composition |
