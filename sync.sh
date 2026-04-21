@@ -12,7 +12,7 @@ CURSOR_DIR="$HOME/.cursor"
 NAMESPACE="fluid"
 
 # Skills to distribute (relative to .claude/skills/)
-SKILLS=("brand-intelligence" "brand-compliance-check" "scaffold-section" "fluid-social" "fluid-one-pager" "fluid-theme-section" "fluid-design-os")
+SKILLS=("brand-intelligence" "brand-compliance-check" "scaffold-section" "fluid-design-os" "fluid-design-os-feedback" "feedback-ingest")
 
 # Parse arguments
 TARGET="both"
@@ -56,9 +56,9 @@ done
 # ──────────────────────────────────────────────
 # PREFLIGHT CHECKS
 # ──────────────────────────────────────────────
-if [ ! -d "$REPO_DIR/brand" ]; then
-  echo "ERROR: brand/ directory not found at $REPO_DIR/brand"
-  echo "Are you running sync.sh from the Fluid Creative OS repo root?"
+if [ ! -d "$REPO_DIR/.claude/skills" ]; then
+  echo "ERROR: .claude/skills/ directory not found at $REPO_DIR/.claude/skills"
+  echo "Are you running sync.sh from the Fluid DesignOS repo root?"
   exit 1
 fi
 

@@ -1,15 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Read(brand/**)",
-      "Read(patterns/**)",
       "Read(templates/**)",
       "Read(assets/**)",
       "Read(canvas/**)",
       "Read(tools/**)",
-      "Read(install.md)",
       "Read(.claude/skills/**)",
       "Read(CLAUDE.md)",
+      "Read(AGENTS.md)",
       "Bash(npx vite*)",
       "Bash(npx tsc*)",
       "Bash(npx tsx*)",

@@ -1,31 +1,44 @@
 ---
 name: brand-intelligence
-description: Loads brand context from the DesignOS database for any brand-related task
+description: Loads brand context from the Fluid DesignOS database for any brand-related task
 invoke: always-active
 ---
 
 # Brand Intelligence
 
-Brand data lives in the app's SQLite database (`canvas/.fluid/fluid.db`), managed through the app UI (Voice Guide, Patterns, Assets, Templates pages).
+Brand data lives in the canvas SQLite database (`canvas/fluid.db`), managed through the app UI (Voice Guide, Patterns, Assets, Templates pages). There are no brand files on disk to read.
 
 ## Accessing Brand Data
 
-Use these MCP tools to load brand context at runtime:
+The canvas app must be running (`cd canvas && npm run dev`) so the HTTP API is available.
 
-- **`list_brand_sections(category?)`** — Discover available brand docs. Categories: `voice-guide`, `design-tokens`, `layout-archetype`, `pattern`.
-- **`read_brand_section(slug)`** — Load a specific brand doc by slug.
-- **`list_brand_assets(category?)`** — Discover available brand assets (fonts, images, textures). Returns ready-to-use URLs.
+HTTP endpoints:
+
+- `GET /api/voice-guide` — list all voice guide docs
+- `GET /api/voice-guide/:slug` — read one voice guide doc
+- `GET /api/brand-patterns` — list all patterns (filterable by `?category=`)
+- `GET /api/brand-patterns/:slug` — read one pattern
+- `GET /api/brand-assets` — list all assets (filterable by `?category=`)
+- `GET /api/brand-assets/serve/:name` — fetch asset bytes
+- `GET /api/templates` — list templates with slot schemas
+
+SQLite tables (for direct `sqlite3 canvas/fluid.db` queries):
+
+- `voice_guide_docs` — voice rules and identity
+- `brand_patterns` — visual design tokens + pattern rules (with weights)
+- `brand_assets` — fonts, images, decorations (with URL-ready filenames)
+- `templates`, `template_design_rules` — reference templates
 
 ## Role-Based Loading
 
-Load only what you need for the task at hand (3-6 sections max):
+Load only what you need (3-6 sections max):
 
 | Task Type | Start With |
 |-----------|------------|
-| Copy / messaging | `list_brand_sections(category="voice-guide")` |
-| Visual styling | `list_brand_sections(category="design-tokens")` + `list_brand_assets()` |
-| Layout / structure | `list_brand_sections(category="layout-archetype")` |
-| Spec validation | Use `run_brand_check` tool directly |
+| Copy / messaging | `GET /api/voice-guide` |
+| Visual styling | `GET /api/brand-patterns?category=design-tokens` + `GET /api/brand-assets` |
+| Layout / structure | `GET /api/brand-patterns?category=archetypes` |
+| Spec validation | `node tools/brand-compliance.cjs <file>` |
 
 ## Weight System
 
@@ -37,6 +50,6 @@ Brand rules carry weights 1-100:
 
 ## Important
 
-- Do NOT read from `brand/` files — they do not exist. All brand data is in the DB.
-- Do NOT hardcode brand-specific values. Always query the DB tools.
-- The DB is seeded on first app startup. Run the app at least once before using brand tools.
+- Do NOT read from `brand/` files — they do not exist.
+- Do NOT duplicate brand doc content in your prompts; reference it via the API.
+- The canvas's own creative agent has richer in-process tools (see `canvas/src/server/agent-tools.ts`). This skill is for external Claude Code sessions working in the repo.

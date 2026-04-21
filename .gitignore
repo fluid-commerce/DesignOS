@@ -1,11 +1,13 @@
 .planning/
 canvas/node_modules/
+canvas/dist/
 canvas/.pid
 .fluid/
 .fluid-output/
 .logs/
 .superpowers/
 dogfood-output/
+output/
 test-results/
 canvas/fluid.db.backup-*
 .claude/scheduled_tasks.lock
@@ -18,3 +20,5 @@ canvas/fluid.db-shm
 canvas/.env
 .env
 .env.local
+# Overnight review snapshots (dated)
+tools/overnight-review-[0-9]*.html
