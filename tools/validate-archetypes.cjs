@@ -12,12 +12,16 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { ArchetypeSchema } = require('./schemas/archetype.cjs');
 
 // ──────────────────────────────────────────────
 // Constants
 // ──────────────────────────────────────────────
 
-const ARCHETYPES_DIR = path.resolve(__dirname, '../archetypes');
+// Allow FLUID_ARCHETYPES_DIR env var for testability in isolation
+const ARCHETYPES_DIR = process.env.FLUID_ARCHETYPES_DIR
+  ? path.resolve(process.env.FLUID_ARCHETYPES_DIR)
+  : path.resolve(__dirname, '../archetypes');
 const REQUIRED_FILES = ['index.html', 'schema.json', 'README.md'];
 const KNOWN_FIELD_TYPES = ['text', 'image', 'divider'];
 const KNOWN_TEXT_MODES = ['text', 'pre', 'br'];
@@ -107,19 +111,94 @@ function validateArchetype(dir, slug) {
     }
   }
 
-  // ── Check 3: schema.json has required top-level fields ────────────────────
+  // ── Check 3–7: Validate schema shape with zod ────────────────────────────
   if (schema !== null) {
-    if (typeof schema.width !== 'number') {
-      error('MISSING_WIDTH', 'schema.json must have a numeric "width" field');
-    }
-    if (typeof schema.height !== 'number') {
-      error('MISSING_HEIGHT', 'schema.json must have a numeric "height" field');
-    }
-    if (!Array.isArray(schema.fields)) {
-      error('MISSING_FIELDS', 'schema.json must have a "fields" array');
+    const parseResult = ArchetypeSchema.safeParse(schema);
+
+    if (!parseResult.success) {
+      // Map zod issues to legacy error codes where possible
+      for (const issue of parseResult.error.issues) {
+        const pathStr = issue.path.length > 0 ? issue.path.join('.') : 'root';
+
+        if (issue.message === "must not have a 'templateId' field — use 'archetypeId' instead") {
+          error('HAS_TEMPLATE_ID', 'schema.json must not have a "templateId" field — use "archetypeId" instead');
+          continue;
+        }
+
+        // Map zod path-based issues to legacy codes
+        const topKey = issue.path[0];
+        if (topKey === 'width') {
+          error('MISSING_WIDTH', 'schema.json must have a numeric "width" field');
+          continue;
+        }
+        if (topKey === 'height') {
+          error('MISSING_HEIGHT', 'schema.json must have a numeric "height" field');
+          continue;
+        }
+        if (topKey === 'fields') {
+          const fieldIdx = issue.path[1];
+          const fieldRef = typeof fieldIdx === 'number' ? `fields[${fieldIdx}]` : 'fields';
+          const subKey = issue.path[2];
+
+          if (issue.path.length === 1) {
+            // fields itself is invalid
+            error('MISSING_FIELDS', 'schema.json must have a "fields" array');
+            continue;
+          }
+
+          // Discriminated union mismatch — unknown type
+          if (issue.code === 'invalid_union_discriminator') {
+            const rawField = Array.isArray(schema.fields) ? schema.fields[fieldIdx] : null;
+            const actualType = rawField ? String(rawField.type ?? '(missing)') : '(unknown)';
+            error('UNKNOWN_FIELD_TYPE', `${fieldRef} has unknown type: "${actualType}" (expected one of: ${KNOWN_FIELD_TYPES.join(', ')})`);
+            continue;
+          }
+
+          // Field-level sub-key issues
+          if (subKey === 'sel') {
+            const rawField = Array.isArray(schema.fields) ? schema.fields[fieldIdx] : null;
+            const ftype = rawField ? rawField.type : '';
+            error('MISSING_SEL', `${fieldRef} (${ftype}) must have a non-empty "sel" string`);
+            continue;
+          }
+          if (subKey === 'label') {
+            const rawField = Array.isArray(schema.fields) ? schema.fields[fieldIdx] : null;
+            const ftype = rawField ? rawField.type : '';
+            if (ftype === 'divider') {
+              error('MISSING_DIVIDER_LABEL', `${fieldRef} (divider) must have a non-empty "label" string`);
+            } else {
+              error('MISSING_LABEL', `${fieldRef} (${ftype}) must have a non-empty "label" string`);
+            }
+            continue;
+          }
+          if (subKey === 'mode') {
+            const rawField = Array.isArray(schema.fields) ? schema.fields[fieldIdx] : null;
+            const actualMode = rawField ? String(rawField.mode ?? '(missing)') : '(unknown)';
+            error('UNKNOWN_TEXT_MODE', `${fieldRef} (text) has unknown mode: "${actualMode}" (expected one of: ${KNOWN_TEXT_MODES.join(', ')})`);
+            continue;
+          }
+          if (subKey === 'brushAdditional') {
+            error('NON_EMPTY_BRUSH_ADDITIONAL', 'schema.json "brushAdditional" must be [] or absent for archetypes');
+            continue;
+          }
+        }
+
+        if (topKey === 'brush') {
+          error('NON_NULL_BRUSH', `schema.json "brush" must be null for archetypes, got: ${JSON.stringify(schema.brush)}`);
+          continue;
+        }
+        if (topKey === 'brushAdditional') {
+          error('NON_EMPTY_BRUSH_ADDITIONAL', 'schema.json "brushAdditional" must be [] or absent for archetypes');
+          continue;
+        }
+
+        // Fallthrough: emit generic SCHEMA_INVALID
+        error('SCHEMA_INVALID', `schema.json structural error at "${pathStr}": ${issue.message}`);
+      }
     }
 
     // ── Check 4: Dimensions must match platform ─────────────────────────────
+    // (Semantic check — can't be expressed in zod without knowing the slug)
     const platform = getPlatformForSlug(slug);
     const requiredDims = PLATFORM_DIMS[platform];
     if (typeof schema.width === 'number' && schema.width !== requiredDims.width) {
@@ -129,26 +208,8 @@ function validateArchetype(dir, slug) {
       error('WRONG_DIMS', `schema.json height must be ${requiredDims.height} for ${platform}, got ${schema.height}`);
     }
 
-    // ── Check 5: brush must be null or absent ─────────────────────────────────
-    if (schema.brush !== null && schema.brush !== undefined) {
-      error('NON_NULL_BRUSH', `schema.json "brush" must be null for archetypes, got: ${JSON.stringify(schema.brush)}`);
-    }
-
-    // ── Check 6: brushAdditional must be [] or absent ─────────────────────────
-    if (schema.brushAdditional !== undefined && schema.brushAdditional !== null) {
-      if (!Array.isArray(schema.brushAdditional) || schema.brushAdditional.length > 0) {
-        error('NON_EMPTY_BRUSH_ADDITIONAL', `schema.json "brushAdditional" must be [] or absent for archetypes`);
-      }
-    }
-
-    // ── Check 7: No templateId field ──────────────────────────────────────────
-    if (Object.prototype.hasOwnProperty.call(schema, 'templateId')) {
-      error('HAS_TEMPLATE_ID', 'schema.json must not have a "templateId" field — use "archetypeId" instead');
-    }
-
-    // ── Checks 8-11: Field-level validation ───────────────────────────────────
+    // ── Check 11: Selector parity — class names must appear in index.html ────
     if (Array.isArray(schema.fields)) {
-      // Read HTML for selector parity check (Check 11)
       let html = '';
       if (hasHtml) {
         html = fs.readFileSync(htmlPath, 'utf8');
@@ -156,50 +217,11 @@ function validateArchetype(dir, slug) {
 
       for (let i = 0; i < schema.fields.length; i++) {
         const field = schema.fields[i];
-        const fieldRef = `fields[${i}]`;
-
-        // Check 8: Valid field type
-        if (!KNOWN_FIELD_TYPES.includes(field.type)) {
-          error('UNKNOWN_FIELD_TYPE', `${fieldRef} has unknown type: "${field.type}" (expected one of: ${KNOWN_FIELD_TYPES.join(', ')})`);
-          continue; // Can't validate the rest of this field without knowing its type
-        }
-
-        // Divider fields only need a label
-        if (field.type === 'divider') {
-          if (typeof field.label !== 'string' || field.label.trim() === '') {
-            error('MISSING_DIVIDER_LABEL', `${fieldRef} (divider) must have a non-empty "label" string`);
-          }
-          continue;
-        }
-
-        // Check 9 (text fields): sel, label, mode are required
-        if (field.type === 'text') {
-          if (typeof field.sel !== 'string' || field.sel.trim() === '') {
-            error('MISSING_SEL', `${fieldRef} (text) must have a non-empty "sel" string`);
-          }
-          if (typeof field.label !== 'string' || field.label.trim() === '') {
-            error('MISSING_LABEL', `${fieldRef} (text) must have a non-empty "label" string`);
-          }
-          if (!KNOWN_TEXT_MODES.includes(field.mode)) {
-            error('UNKNOWN_TEXT_MODE', `${fieldRef} (text) has unknown mode: "${field.mode}" (expected one of: ${KNOWN_TEXT_MODES.join(', ')})`);
-          }
-        }
-
-        // Check 10 (image fields): sel and label are required
-        if (field.type === 'image') {
-          if (typeof field.sel !== 'string' || field.sel.trim() === '') {
-            error('MISSING_SEL', `${fieldRef} (image) must have a non-empty "sel" string`);
-          }
-          if (typeof field.label !== 'string' || field.label.trim() === '') {
-            error('MISSING_LABEL', `${fieldRef} (image) must have a non-empty "label" string`);
-          }
-        }
-
-        // Check 11: Selector parity — class name must appear in index.html
+        if (field.type === 'divider') continue;
         if (typeof field.sel === 'string' && field.sel.trim() !== '' && html !== '') {
           const className = extractClassName(field.sel);
           if (className && !html.includes(className)) {
-            error('SELECTOR_NOT_FOUND', `${fieldRef} sel "${field.sel}" — class "${className}" not found in index.html`);
+            error('SELECTOR_NOT_FOUND', `fields[${i}] sel "${field.sel}" — class "${className}" not found in index.html`);
           }
         }
       }

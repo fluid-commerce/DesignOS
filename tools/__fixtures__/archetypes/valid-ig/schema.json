@@ -1,0 +1,13 @@
+{
+  "archetypeId": "valid-ig",
+  "platform": "instagram-square",
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".headline", "label": "Headline", "mode": "text" },
+    { "type": "image", "sel": ".photo img", "label": "Photo" },
+    { "type": "divider", "label": "Section" }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

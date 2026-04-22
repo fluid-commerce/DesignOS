@@ -6,31 +6,38 @@
  * Source: Jonathan's editor.js TEMPLATES config structure.
  */
 
+import { z } from 'zod';
+
+// ─── Zod schemas (XZ naming convention) ──────────────────────────────────────
+
 /** How text content is updated in the template's HTML. */
-export type FieldMode = 'text' | 'pre' | 'br';
+export const FieldModeZ = z.enum(['text', 'pre', 'br']);
+export type FieldMode = z.infer<typeof FieldModeZ>;
 
 /** An editable text field in the template. */
-export interface TextField {
-  type: 'text';
-  sel: string;         // CSS selector in template HTML
-  label: string;
-  mode: FieldMode;
-  rows?: number;       // textarea rows hint
-}
+export const TextFieldZ = z.object({
+  type: z.literal('text'),
+  sel: z.string(),         // CSS selector in template HTML
+  label: z.string(),
+  mode: FieldModeZ,
+  rows: z.number().optional(),       // textarea rows hint
+});
+export type TextField = z.infer<typeof TextFieldZ>;
 
 /** An editable image field in the template. */
-export interface ImageField {
-  type: 'image';
+export const ImageFieldZ = z.object({
+  type: z.literal('image'),
   /** CSS selector for the `<img>` (src updates, imgStyle, Reposition). */
-  sel: string;
-  label: string;
-  dims?: string;       // display hint e.g. '353 x 439px'
+  sel: z.string(),
+  label: z.string(),
+  dims: z.string().optional(),       // display hint e.g. '353 x 439px'
   /**
    * Click-to-move / CSS transform target (e.g. `.photo` wrapper). If omitted, derived from `sel`:
    * selectors ending with ` img` use the parent token (`.photo img` → `.photo`) so the whole frame moves.
    */
-  frameSel?: string;
-}
+  frameSel: z.string().optional(),
+});
+export type ImageField = z.infer<typeof ImageFieldZ>;
 
 /**
  * Element that receives layout transform in the preview (usually the visible frame, not the `<img>`).
@@ -47,52 +54,67 @@ export function imageLayoutSel(field: ImageField): string {
 }
 
 /** A visual separator between groups of fields (e.g. carousel slide boundaries). */
-export interface DividerField {
-  type: 'divider';
-  label: string;       // e.g. 'Slide 01 - Cover'
-}
+export const DividerFieldZ = z.object({
+  type: z.literal('divider'),
+  label: z.string(),       // e.g. 'Slide 01 - Cover'
+});
+export type DividerField = z.infer<typeof DividerFieldZ>;
 
-/** A group of related fields (e.g. stat card, quote block) rendered as a collapsible unit. */
-export interface GroupField {
+// GroupField is recursive (fields contains TextField | ImageField), so we need z.lazy.
+// We define a forward-declared type first, then the zod schema.
+
+export type GroupField = {
   type: 'group';
-  id: string;          // unique group identifier
-  label: string;       // "Stat Card", "Quote Block"
-  sel: string;         // CSS selector of the group container div
+  id: string;           // unique group identifier
+  label: string;        // "Stat Card", "Quote Block"
+  sel: string;          // CSS selector of the group container div
   fields: (TextField | ImageField)[];  // nested fields (non-recursive)
-}
+};
+
+export const GroupFieldZ: z.ZodType<GroupField> = z.object({
+  type: z.literal('group'),
+  id: z.string(),
+  label: z.string(),
+  sel: z.string(),
+  fields: z.array(z.union([TextFieldZ, ImageFieldZ])),
+});
 
 /** Union of all field types in a slot schema. */
-export type SlotField = TextField | ImageField | DividerField | GroupField;
+export const SlotFieldZ = z.union([TextFieldZ, ImageFieldZ, DividerFieldZ, GroupFieldZ]);
+export type SlotField = z.infer<typeof SlotFieldZ>;
 
 /**
  * Full slot schema for an asset.
  * Emitted as JSON by the layout subagent alongside the HTML file.
  * Applies to both template-based and AI-generated assets.
  */
-export interface SlotSchema {
-  templateId?: string;          // set for template-based assets
-  archetypeId?: string;         // set for archetype-based assets (added Phase 20)
-  platform?: 'instagram-square' | 'linkedin-landscape' | 'one-pager';  // added Phase 21
-  width: number;                // asset width in pixels
-  height: number;               // asset height in pixels
-  fields: SlotField[];          // ordered list of editable fields
-  brush?: string | null;        // CSS selector for movable element (one per template)
-  brushLabel?: string;          // label for the brush/transform element
+export const SlotSchemaZ = z.object({
+  templateId: z.string().optional(),          // set for template-based assets
+  archetypeId: z.string().optional(),         // set for archetype-based assets (added Phase 20)
+  platform: z.enum(['instagram-square', 'linkedin-landscape', 'one-pager']).optional(),  // added Phase 21
+  width: z.number(),                // asset width in pixels
+  height: z.number(),               // asset height in pixels
+  fields: z.array(SlotFieldZ),      // ordered list of editable fields
+  brush: z.union([z.string(), z.null()]).optional(),        // CSS selector for movable element (one per template)
+  brushLabel: z.string().optional(),          // label for the brush/transform element
   /** Extra pickable/transform elements (e.g. carousel arrow) with their own persisted transform keys */
-  brushAdditional?: ReadonlyArray<{ sel: string; label: string }>;
-  carouselCount?: number;       // number of slides (undefined for single-frame assets)
-}
+  brushAdditional: z.array(z.object({ sel: z.string(), label: z.string() })).readonly().optional(),
+  carouselCount: z.number().optional(),       // number of slides (undefined for single-frame assets)
+});
+export type SlotSchema = z.infer<typeof SlotSchemaZ>;
 
 /** How layout is adjusted in the preview for a picked element */
-export type TransformTargetKind = 'text' | 'image' | 'brush' | 'group';
+export const TransformTargetKindZ = z.enum(['text', 'image', 'brush', 'group']);
+export type TransformTargetKind = z.infer<typeof TransformTargetKindZ>;
 
-export interface TransformTarget {
-  sel: string;
-  label: string;
-  kind: TransformTargetKind;
+export const TransformTargetZ = z.object({
+  sel: z.string(),
+  label: z.string(),
+  kind: TransformTargetKindZ,
   /** When `kind === 'text'`, how the parent applies updates (matches slot field `mode`). */
-  mode?: FieldMode;
-}
+  mode: FieldModeZ.optional(),
+});
+export type TransformTarget = z.infer<typeof TransformTargetZ>;
 
 /**
  * Selectors that can be picked in the preview: text (text box resize), image & brush (transform).
@@ -152,10 +174,11 @@ export function collectTransformTargets(schema: SlotSchema): TransformTarget[] {
 }
 
 /** Pick payload from the preview iframe (same shape as editor `pickedTransform`). */
-export interface LayoutPickRef {
-  sel: string;
-  kind: TransformTargetKind;
-}
+export const LayoutPickRefZ = z.object({
+  sel: z.string(),
+  kind: TransformTargetKindZ,
+});
+export type LayoutPickRef = z.infer<typeof LayoutPickRefZ>;
 
 /**
  * Map a preview click pick to the sidebar slot key (`field.sel` in slotValues).

@@ -1,0 +1,9 @@
+{
+  "templateId": "t1-quote",
+  "width": 1080,
+  "height": 1080,
+  "fields": [
+    { "type": "text", "sel": ".headline", "label": "Headline", "mode": "text" }
+  ],
+  "brush": null
+}
