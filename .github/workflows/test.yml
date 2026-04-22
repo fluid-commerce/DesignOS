@@ -7,7 +7,27 @@ on:
 
 jobs:
   unit:
-    name: Canvas unit tests
+    name: Canvas unit tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22']
+    defaults:
+      run:
+        working-directory: canvas
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+          cache-dependency-path: canvas/package-lock.json
+      - run: npm ci
+      - run: npm test -- --run
+
+  build:
+    name: Canvas typecheck + build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,7 +40,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: canvas/package-lock.json
       - run: npm ci
-      - run: npm test -- --run
+      - run: npm run build
 
   tools:
     name: CLI tools tests
@@ -51,12 +71,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: canvas/package-lock.json
       - run: npm ci
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('canvas/package-lock.json') }}
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
-        # Playwright config currently assumes a Vite dev server already running
-        # on :5174. The Phase 3 CI hardening step adds a `webServer` block to
-        # playwright.config.ts so this job can run without a separate server
-        # launch. Until then, use `--reporter=line` and let this job no-op if
-        # no specs are discoverable.
-        run: npx playwright test --reporter=line || true
+        # webServer config in playwright.config.ts boots `npm run dev` and
+        # waits for :5174 before running specs.
+        run: npx playwright test --reporter=line
