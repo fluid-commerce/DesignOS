@@ -1,5 +1,6 @@
 import { getDb } from '../lib/db';
 import { nanoid } from 'nanoid';
+import { slugify } from '../lib/slugify';
 import { renderPreview } from './render-engine';
 import { runValidation, mergeCssLayersForHtml, formatValidationMessage } from './validation-hooks';
 import { auditBrandWrite, logChatEvent } from './observability';
@@ -130,17 +131,23 @@ export function readTemplate(id: number): any | null {
 }
 
 export function listArchetypes(): { slug: string; name: string; slots: string[] }[] {
-  if (!fs.existsSync(ARCHETYPES_DIR)) return [];
-  const dirs = fs
-    .readdirSync(ARCHETYPES_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && d.name !== 'components');
+  let dirs: fs.Dirent[];
+  try {
+    dirs = fs
+      .readdirSync(ARCHETYPES_DIR, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && d.name !== 'components');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw err;
+  }
 
   return dirs.map((d) => {
     const schemaPath = path.join(ARCHETYPES_DIR, d.name, 'schema.json');
+    const raw = tryReadFile(schemaPath);
     let slots: string[] = [];
-    if (fs.existsSync(schemaPath)) {
+    if (raw != null) {
       try {
-        const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
+        const schema = JSON.parse(raw);
         slots = (schema.slots ?? []).map((s: any) => s.label ?? s.selector);
       } catch {}
     }
@@ -177,19 +184,26 @@ export function readArchetype(
     logChatEvent('path_traversal_blocked', { tool: 'read_archetype', slug, reason: 'path_escape' });
     return null;
   }
-  if (!fs.existsSync(resolved)) return null;
-
   const htmlPath = path.join(resolved, 'index.html');
   const schemaPath = path.join(resolved, 'schema.json');
   const notesPath = path.join(resolved, 'notes.md');
 
-  const html = fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, 'utf-8') : '';
-  const schema = fs.existsSync(schemaPath)
-    ? JSON.parse(fs.readFileSync(schemaPath, 'utf-8'))
-    : null;
-  const notes = fs.existsSync(notesPath) ? fs.readFileSync(notesPath, 'utf-8') : null;
+  const html = tryReadFile(htmlPath) ?? '';
+  if (html === '' && !fs.existsSync(resolved)) return null;
+  const schemaRaw = tryReadFile(schemaPath);
+  const schema = schemaRaw != null ? JSON.parse(schemaRaw) : null;
+  const notes = tryReadFile(notesPath);
 
   return { slug, html, schema, notes };
+}
+
+function tryReadFile(filePath: string): string | null {
+  try {
+    return fs.readFileSync(filePath, 'utf-8');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw err;
+  }
 }
 
 // ─── Brand Editing (WRITE) ───
@@ -206,13 +220,6 @@ export function updatePattern(slug: string, content: string): { success: boolean
     .run(content, Date.now(), slug);
   auditBrandWrite('update_pattern', { slug, bytes: content.length });
   return { success: result.changes > 0 };
-}
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
 }
 
 export function createPattern(

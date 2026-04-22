@@ -9,6 +9,7 @@
 
 import { nanoid } from 'nanoid';
 import { getDb } from '../lib/db';
+import { slugify } from '../lib/slugify';
 import type {
   Campaign,
   Creation,
@@ -882,13 +883,6 @@ export function updateBrandPattern(
   params.push(Date.now());
   params.push(slug);
   db.prepare(`UPDATE brand_patterns SET ${sets.join(', ')} WHERE slug = ?`).run(...params);
-}
-
-function slugify(label: string): string {
-  return label
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
 }
 
 export function createBrandPattern(input: {

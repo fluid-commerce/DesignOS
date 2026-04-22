@@ -18,6 +18,7 @@ import {
 } from '../lib/editor-history';
 import {
   type TextBoxFontPreset,
+  isNamedFontPreset,
   resolveTextBoxFontSizePx,
   textBoxFontPostMessage,
 } from '../lib/textbox-typography';
@@ -171,7 +172,18 @@ function extractSlotValues(iteration: Iteration): Record<string, string> {
   );
 }
 
-export const useEditorStore = create<EditorStore>((set, get) => ({
+export const useEditorStore = create<EditorStore>((set, get) => {
+  const commitUndoSnapshot = (snapshot: Record<string, string>) => {
+    const after = get().slotValues;
+    if (!slotMapsEqual(snapshot, after)) {
+      set((s) => ({
+        undoStack: [...s.undoStack, snapshot].slice(-MAX_UNDO),
+        redoStack: [],
+      }));
+    }
+  };
+
+  return {
   selectedIterationId: null,
   slotSchema: null,
   slotValues: {},
@@ -217,20 +229,12 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   updateSlotValue: (sel, value, mode, options) => {
-    const before = structuredClone(get().slotValues);
+    const beforeRef = get().slotValues;
     set((state) => ({
       slotValues: { ...state.slotValues, [sel]: value },
       isDirty: true,
     }));
-    scheduleUndoSnapshot(before, (snapshot) => {
-      const after = get().slotValues;
-      if (!slotMapsEqual(snapshot, after)) {
-        set((s) => ({
-          undoStack: [...s.undoStack, snapshot].slice(-MAX_UNDO),
-          redoStack: [],
-        }));
-      }
-    });
+    scheduleUndoSnapshot(() => beforeRef, commitUndoSnapshot);
 
     if (!options?.skipIframeEcho) {
       const { iframeRef } = get();
@@ -244,7 +248,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   updateElementTransform: (sel: string, transform: string) => {
-    const before = structuredClone(get().slotValues);
+    const beforeRef = get().slotValues;
     const key = `${SLOT_TRANSFORM_PREFIX}${sel}`;
     const tbKey = `${SLOT_TEXT_BOX_PREFIX}${sel}`;
     set((state) => {
@@ -282,17 +286,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
                 slim.fontPreset = 'custom';
                 slim.fontSizePx = resolveTextBoxFontSizePx('custom', o.fontSizePx) ?? 16;
               }
-            } else if (
-              o.fontPreset === 'h1' ||
-              o.fontPreset === 'h2' ||
-              o.fontPreset === 'h3' ||
-              o.fontPreset === 'h4' ||
-              o.fontPreset === 'h5' ||
-              o.fontPreset === 'h6' ||
-              o.fontPreset === 'p1' ||
-              o.fontPreset === 'p2' ||
-              o.fontPreset === 'p3'
-            ) {
+            } else if (isNamedFontPreset(o.fontPreset)) {
               slim.fontPreset = o.fontPreset;
             }
           }
@@ -303,15 +297,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       }
       return { slotValues: next, isDirty: true };
     });
-    scheduleUndoSnapshot(before, (snapshot) => {
-      const after = get().slotValues;
-      if (!slotMapsEqual(snapshot, after)) {
-        set((s) => ({
-          undoStack: [...s.undoStack, snapshot].slice(-MAX_UNDO),
-          redoStack: [],
-        }));
-      }
-    });
+    scheduleUndoSnapshot(() => beforeRef, commitUndoSnapshot);
     const { iframeRef } = get();
     if (iframeRef?.contentWindow) {
       iframeRef.contentWindow.postMessage(
@@ -322,7 +308,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   updateTextBox: (sel, box) => {
-    const before = structuredClone(get().slotValues);
+    const beforeRef = get().slotValues;
     const tbKey = `${SLOT_TEXT_BOX_PREFIX}${sel}`;
     const p = parseTextBoxPrev(get().slotValues[tbKey]);
 
@@ -376,34 +362,13 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         } else if (typeof p.fontSizePx === 'number' && Number.isFinite(p.fontSizePx)) {
           mergedFontSizePx = resolveTextBoxFontSizePx('custom', p.fontSizePx) ?? undefined;
         }
-      } else if (
-        box.fontPreset === 'h1' ||
-        box.fontPreset === 'h2' ||
-        box.fontPreset === 'h3' ||
-        box.fontPreset === 'h4' ||
-        box.fontPreset === 'h5' ||
-        box.fontPreset === 'h6' ||
-        box.fontPreset === 'p1' ||
-        box.fontPreset === 'p2' ||
-        box.fontPreset === 'p3'
-      ) {
+      } else if (isNamedFontPreset(box.fontPreset)) {
         mergedFontPreset = box.fontPreset;
         mergedFontSizePx = undefined;
       }
     } else {
       const pp = p.fontPreset;
-      if (
-        pp === 'h1' ||
-        pp === 'h2' ||
-        pp === 'h3' ||
-        pp === 'h4' ||
-        pp === 'h5' ||
-        pp === 'h6' ||
-        pp === 'p1' ||
-        pp === 'p2' ||
-        pp === 'p3' ||
-        pp === 'custom'
-      ) {
+      if (typeof pp === 'string' && (isNamedFontPreset(pp) || pp === 'custom')) {
         mergedFontPreset = pp as TextBoxFontPreset;
         if (pp === 'custom' && typeof p.fontSizePx === 'number' && Number.isFinite(p.fontSizePx)) {
           mergedFontSizePx = resolveTextBoxFontSizePx('custom', p.fontSizePx) ?? undefined;
@@ -426,17 +391,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (mergedFontPreset === 'custom' && mergedFontSizePx != null) {
       payloadObj.fontPreset = 'custom';
       payloadObj.fontSizePx = mergedFontSizePx;
-    } else if (
-      mergedFontPreset === 'h1' ||
-      mergedFontPreset === 'h2' ||
-      mergedFontPreset === 'h3' ||
-      mergedFontPreset === 'h4' ||
-      mergedFontPreset === 'h5' ||
-      mergedFontPreset === 'h6' ||
-      mergedFontPreset === 'p1' ||
-      mergedFontPreset === 'p2' ||
-      mergedFontPreset === 'p3'
-    ) {
+    } else if (isNamedFontPreset(mergedFontPreset)) {
       payloadObj.fontPreset = mergedFontPreset;
     }
 
@@ -445,15 +400,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       slotValues: { ...state.slotValues, [tbKey]: payload },
       isDirty: true,
     }));
-    scheduleUndoSnapshot(before, (snapshot) => {
-      const after = get().slotValues;
-      if (!slotMapsEqual(snapshot, after)) {
-        set((s) => ({
-          undoStack: [...s.undoStack, snapshot].slice(-MAX_UNDO),
-          redoStack: [],
-        }));
-      }
-    });
+    scheduleUndoSnapshot(() => beforeRef, commitUndoSnapshot);
     const { iframeRef } = get();
     if (iframeRef?.contentWindow) {
       const fontMsg = textBoxFontPostMessage(
@@ -482,18 +429,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     const s = get();
     if (!s.selectedIterationId || !s.iframeRef?.contentWindow) return;
 
-    flushPendingUndoSnapshot(
-      () => get().slotValues,
-      (snapshot) => {
-        const after = get().slotValues;
-        if (!slotMapsEqual(snapshot, after)) {
-          set((st) => ({
-            undoStack: [...st.undoStack, snapshot].slice(-MAX_UNDO),
-            redoStack: [],
-          }));
-        }
-      },
-    );
+    flushPendingUndoSnapshot(() => get().slotValues, commitUndoSnapshot);
 
     const s2 = get();
     if (s2.undoStack.length === 0) return;
@@ -519,18 +455,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     const s = get();
     if (!s.selectedIterationId || !s.iframeRef?.contentWindow) return;
 
-    flushPendingUndoSnapshot(
-      () => get().slotValues,
-      (snapshot) => {
-        const after = get().slotValues;
-        if (!slotMapsEqual(snapshot, after)) {
-          set((st) => ({
-            undoStack: [...st.undoStack, snapshot].slice(-MAX_UNDO),
-            redoStack: [],
-          }));
-        }
-      },
-    );
+    flushPendingUndoSnapshot(() => get().slotValues, commitUndoSnapshot);
 
     const s2 = get();
     if (s2.redoStack.length === 0) return;
@@ -571,7 +496,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   patchBrushTransform: (sel: string, transform: string) => {
-    const before = structuredClone(get().slotValues);
+    const beforeRef = get().slotValues;
     set((state) => {
       let map: Record<string, string> = {};
       try {
@@ -588,15 +513,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         isDirty: true,
       };
     });
-    scheduleUndoSnapshot(before, (snapshot) => {
-      const after = get().slotValues;
-      if (!slotMapsEqual(snapshot, after)) {
-        set((st) => ({
-          undoStack: [...st.undoStack, snapshot].slice(-MAX_UNDO),
-          redoStack: [],
-        }));
-      }
-    });
+    scheduleUndoSnapshot(() => beforeRef, commitUndoSnapshot);
     const { iframeRef } = get();
     if (iframeRef?.contentWindow) {
       iframeRef.contentWindow.postMessage(
@@ -657,4 +574,5 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       activeCarouselSlide: 1,
     });
   },
-}));
+  };
+});

@@ -2,6 +2,7 @@ import { chromium, type Browser, type BrowserContext } from 'playwright';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
+import { nanoid } from 'nanoid';
 import { getBrandAssetByName, getBrandAssetByFilePath } from './db-api';
 import { logChatEvent } from './observability';
 
@@ -101,12 +102,7 @@ export async function renderPreview(
       },
     );
 
-    // Write to temp file so file:// URLs resolve correctly. Include a random
-    // suffix so parallel renders don't collide on Date.now().
-    const tmpFile = path.join(
-      os.tmpdir(),
-      `fluid-render-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.html`,
-    );
+    const tmpFile = path.join(os.tmpdir(), `fluid-render-${nanoid(10)}.html`);
     await fs.writeFile(tmpFile, resolvedHtml, 'utf-8');
 
     try {

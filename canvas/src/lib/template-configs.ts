@@ -632,15 +632,15 @@ export function getTemplateSchema(templateId: string): SlotSchema | undefined {
 /**
  * Guess template id from stored html_path (e.g. `social/t1-quote.html` → `t1-quote`).
  */
+export function stripHtmlExt(filePath: string): string {
+  return filePath.replace(/\.html$/i, '');
+}
+
 export function inferTemplateIdFromHtmlPath(
   htmlPath: string | null | undefined,
 ): string | undefined {
   if (!htmlPath || typeof htmlPath !== 'string') return undefined;
-  const base =
-    htmlPath
-      .split(/[/\\]/)
-      .pop()
-      ?.replace(/\.html$/i, '') ?? '';
+  const base = stripHtmlExt(htmlPath.split(/[/\\]/).pop() ?? '');
   if (base && TEMPLATE_SCHEMAS[base]) return base;
   return undefined;
 }

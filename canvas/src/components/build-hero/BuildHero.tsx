@@ -26,7 +26,6 @@ export function BuildHero() {
   const [videoFormatId, setVideoFormatId] = useState<string>(VIDEO_FORMATS[0].id);
   const [videoDimensionId, setVideoDimensionId] = useState<string>(VIDEO_DIMENSIONS[0].id);
   const [selectedDamAssets, setSelectedDamAssets] = useState<SelectedDamAsset[]>([]);
-  const [_selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   const sendMessage = useChatStore((s) => s.sendMessage);
   const isGenerating = useChatStore((s) => s.isStreaming);
@@ -83,7 +82,6 @@ export function BuildHero() {
     if (idea.socialPostDimensionId) setSocialPostDimensionId(idea.socialPostDimensionId);
     if (idea.videoFormatId) setVideoFormatId(idea.videoFormatId);
     if (idea.videoDimensionId) setVideoDimensionId(idea.videoDimensionId);
-    if (idea.templateId != null) setSelectedTemplateId(idea.templateId);
   }, []);
 
   return (

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
+import { stripHtmlExt } from '../lib/template-configs';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -252,8 +253,7 @@ function TemplatePreview({
   };
 
   const handleDownloadZip = () => {
-    const pathWithoutExt = templatePath.replace(/\.html$/, '');
-    downloadTemplateZip(pathWithoutExt, templateName.replace(/\s+/g, '-').toLowerCase());
+    downloadTemplateZip(stripHtmlExt(templatePath), templateName.replace(/\s+/g, '-').toLowerCase());
   };
 
   return (

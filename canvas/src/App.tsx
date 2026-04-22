@@ -22,6 +22,7 @@ import type { Creation, Slide, Iteration } from './lib/campaign-types';
 import {
   TEMPLATE_METADATA,
   getTemplateSchema,
+  stripHtmlExt,
   type TemplateMetadata,
 } from './lib/template-configs';
 import {
@@ -435,11 +436,7 @@ export function App() {
       setEditTemplateError(null);
       // Normalize: DB may send "social/t1-quote" or "t1-quote.html" → "t1-quote"
       const raw: string = e.data.templateId;
-      const templateId =
-        raw
-          .replace(/\.html$/i, '')
-          .split('/')
-          .pop() ?? raw;
+      const templateId = stripHtmlExt(raw).split('/').pop() ?? raw;
       const meta = TEMPLATE_METADATA.find((t) => t.templateId === templateId);
       if (!meta) {
         console.warn('[App] editTemplate: unknown templateId', raw, '→ normalized', templateId);

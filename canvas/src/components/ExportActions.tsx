@@ -13,6 +13,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { nanoid } from 'nanoid';
 import type { Iteration } from '../lib/campaign-types';
 
 interface ExportActionsProps {
@@ -68,7 +69,7 @@ export function ExportActions({ iteration, iframeEl }: ExportActionsProps) {
     setLoading(fmt);
     setError(null);
 
-    const id = `cap_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const id = `cap_${nanoid(10)}`;
 
     try {
       const result = await new Promise<{ dataUrl?: string; error?: string }>((resolve) => {

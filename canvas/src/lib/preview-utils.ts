@@ -66,9 +66,6 @@ export function getCreationDimensions(creationType: string): { width: number; he
   return map[creationType] ?? { width: 1080, height: 1080 };
 }
 
-/** @deprecated Use getCreationDimensions */
-export const getAssetDimensions = getCreationDimensions;
-
 /**
  * Pure function version of renderCreationPreview — testable without React.
  * Returns an iframe src descriptor when latestIter is complete, else metadata fallback.
@@ -95,9 +92,6 @@ export function buildCreationPreview(
     },
   };
 }
-
-/** @deprecated Use buildCreationPreview */
-export const buildAssetPreview = buildCreationPreview;
 
 /**
  * Pure function version of renderSlidePreview — testable without React.
@@ -128,6 +122,3 @@ export function buildSlidePreview(
     },
   };
 }
-
-/** @deprecated Use buildSlidePreview */
-export const buildFramePreview = buildSlidePreview;

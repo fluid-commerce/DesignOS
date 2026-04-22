@@ -47,11 +47,11 @@ export function flushPendingUndoSnapshot(
 }
 
 export function scheduleUndoSnapshot(
-  stateBeforeMutation: Record<string, string>,
+  getStateBeforeMutation: () => Record<string, string>,
   commit: (snapshot: Record<string, string>) => void,
 ): void {
   if (debounceBefore === null) {
-    debounceBefore = structuredClone(stateBeforeMutation);
+    debounceBefore = structuredClone(getStateBeforeMutation());
   }
   if (historyTimer != null) clearTimeout(historyTimer);
   historyTimer = setTimeout(() => {

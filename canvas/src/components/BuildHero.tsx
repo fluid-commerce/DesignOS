@@ -367,7 +367,6 @@ export function BuildHero() {
     Array<{ id: string; url: string; name?: string }>
   >([]);
   const [savedAssets, setSavedAssets] = useState<SavedAssetForIdeas[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const creationDropdownRef = useRef<HTMLDivElement>(null);
   const socialPostFormatDropdownRef = useRef<HTMLDivElement>(null);
   const socialPostDimensionDropdownRef = useRef<HTMLDivElement>(null);
@@ -528,7 +527,6 @@ export function BuildHero() {
     if (idea.socialPostDimensionId) setSocialPostDimensionId(idea.socialPostDimensionId);
     if (idea.videoFormatId) setVideoFormatId(idea.videoFormatId);
     if (idea.videoDimensionId) setVideoDimensionId(idea.videoDimensionId);
-    if (idea.templateId != null) setSelectedTemplateId(idea.templateId);
   }, []);
 
   return (

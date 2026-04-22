@@ -72,7 +72,7 @@ import {
 } from './brand-seeder';
 import { runDamSync } from './dam-sync';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
-import { resolveSlotSchemaForIteration } from '../lib/template-configs';
+import { resolveSlotSchemaForIteration, stripHtmlExt } from '../lib/template-configs';
 import { injectArtboardMarginGuide, PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
@@ -627,7 +627,7 @@ export function fluidWatcherPlugin(): Plugin {
         )
           return next();
         const fileName = req.url.replace('/preview/templates/', '').split('?')[0];
-        const templateSlug = fileName.replace(/\.html$/, '');
+        const templateSlug = stripHtmlExt(fileName);
         const meta = previewMeta[templateSlug] || { w: 1080, h: 1080, label: templateSlug };
         const idx = previewTemplateOrder.indexOf(templateSlug);
         const prevSlug =
