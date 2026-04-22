@@ -21,10 +21,9 @@ describe('AppShell', () => {
         <div>children</div>
       </AppShell>,
     );
-    // New unified page: no single "Template Library" iframe; per-card iframes use template names
-    const quoteIframe = screen.getByTitle('Quote') as HTMLIFrameElement;
-    expect(quoteIframe).toBeTruthy();
-    expect(quoteIframe.src).toContain('/templates/social/');
+    // TemplatesScreen renders its header (templates are fetched async from DB; the list
+    // itself isn't populated in jsdom, but the screen should mount and show the title)
+    expect(screen.getByRole('heading', { name: /templates/i })).toBeInTheDocument();
   });
 
   it('renders PatternsScreen component when activeNavTab is patterns', () => {

@@ -121,7 +121,7 @@ describe('TemplateCustomizer', () => {
     fireEvent.click(screen.getByRole('button', { name: /create creation/i }));
 
     await waitFor(() => {
-      expect(onCreated).toHaveBeenCalledWith('cmp_test');
+      expect(onCreated).toHaveBeenCalledWith('cmp_test', 'crt_1', 'itr_1');
     });
 
     // Should have made 3 API calls

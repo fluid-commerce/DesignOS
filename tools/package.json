@@ -4,7 +4,7 @@
   "private": true,
   "description": "CLI tools for Fluid DesignOS — validators, importers, scaffolders. Tests use node:test.",
   "scripts": {
-    "test": "node --test '__tests__/**/*.test.cjs'"
+    "test": "node -e \"const{globSync}=require('node:fs'),{spawnSync}=require('node:child_process');const files=globSync('__tests__/**/*.test.cjs');const r=spawnSync(process.execPath,['--test',...files],{stdio:'inherit'});process.exit(r.status??1);\""
   },
   "dependencies": {
     "parse5": "^8.0.1",

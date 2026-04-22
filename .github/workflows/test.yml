@@ -24,6 +24,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: canvas/package-lock.json
       - run: npm ci
+      - name: Install tools/ deps (canvas tests shell out to tools/*.cjs)
+        working-directory: tools
+        run: npm install
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('canvas/package-lock.json') }}
+      - name: Install Playwright chromium (needed by render-engine tests)
+        run: npx playwright install --with-deps chromium
       - run: npm test -- --run
 
   build:
