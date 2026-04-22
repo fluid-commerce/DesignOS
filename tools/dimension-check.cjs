@@ -17,6 +17,40 @@ const path = require('node:path');
 const pc = require('picocolors');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { parse: parseHtml } = require('parse5');
+
+// ─── parse5 AST helpers ───────────────────────────────────────────────────────
+
+function buildAst(htmlString) {
+  return parseHtml(htmlString, { sourceCodeLocationInfo: true });
+}
+
+function findAll(node, predicate, out = []) {
+  if (predicate(node)) out.push(node);
+  if (node.childNodes) for (const c of node.childNodes) findAll(c, predicate, out);
+  return out;
+}
+
+function findFirst(node, predicate) {
+  if (predicate(node)) return node;
+  if (node.childNodes) {
+    for (const c of node.childNodes) {
+      const f = findFirst(c, predicate);
+      if (f) return f;
+    }
+  }
+  return null;
+}
+
+const getAttr = (el, name) => el.attrs?.find(a => a.name === name)?.value;
+
+function getTextContent(node) {
+  if (!node.childNodes) return '';
+  return node.childNodes
+    .filter(c => c.nodeName === '#text')
+    .map(c => c.value)
+    .join('');
+}
 
 // Known target dimensions — authoritative values from brand specs
 const KNOWN_DIMENSIONS = {
@@ -29,22 +63,55 @@ function loadRules() {
   return { dimensions: KNOWN_DIMENSIONS };
 }
 
+/**
+ * extractDimensions — parse5 AST-based dimension extraction.
+ *
+ * Replaces the previous regex-based implementation. Key improvement: comment
+ * detection now only looks at AST nodes with nodeName '#comment', so the text
+ * `target: 1080x1080` inside a data-* attribute (or any non-comment context)
+ * is never matched. The previous regex operated on the raw HTML string, which
+ * could be tricked by attribute values that contain the pattern.
+ *
+ * Strategy (in order of priority):
+ *   1. HTML comment node with `target: WxH` pattern
+ *   2. <body> element style attribute
+ *   3. <div> with class matching container|wrapper|canvas|post, style attribute
+ *   4. <style> text content — CSS rule for body/.container/etc.
+ *   5. <meta name="viewport"> content attribute
+ */
 function extractDimensions(content) {
   const found = { width: null, height: null, source: null };
+  const doc = buildAst(content);
 
-  // 1. Check for explicit dimension comment: <!-- target: 1080x1080 -->
-  const commentMatch = content.match(/<!--\s*(?:target|dimensions?|size)\s*:\s*(\d+)\s*x\s*(\d+)\s*-->/i);
-  if (commentMatch) {
-    found.width = parseInt(commentMatch[1]);
-    found.height = parseInt(commentMatch[2]);
-    found.source = 'html-comment';
-    return found;
+  // 1. HTML comment nodes only — NOT arbitrary text matching the pattern.
+  //
+  //    We use a tighter regex that matches a DIRECTIVE-style comment: the
+  //    keyword (target/dimensions/size) must appear at the start of the
+  //    comment (after optional whitespace), and the comment must end
+  //    immediately after the dimensions (after optional whitespace).
+  //
+  //    This prevents fixture-description comments like:
+  //      <!-- FIXTURE: The phrase `target: 1080x1080` appears inside ... -->
+  //    from being treated as dimension directives. A real directive comment
+  //    is tightly formatted as:
+  //      <!-- target: 1080x1080 -->
+  const commentNodes = findAll(doc, n => n.nodeName === '#comment');
+  for (const c of commentNodes) {
+    const text = c.data || '';
+    // Anchored: comment text must start and end with the dimension directive
+    const m = text.match(/^\s*(?:target|dimensions?|size)\s*:\s*(\d+)\s*x\s*(\d+)\s*$/i);
+    if (m) {
+      found.width = parseInt(m[1]);
+      found.height = parseInt(m[2]);
+      found.source = 'html-comment';
+      return found;
+    }
   }
 
-  // 2. Check body/container inline style width/height
-  const bodyStyleMatch = content.match(/<body[^>]*style\s*=\s*["']([^"']*)["']/i);
-  if (bodyStyleMatch) {
-    const style = bodyStyleMatch[1];
+  // 2. <body> element inline style
+  const bodyEl = findFirst(doc, n => n.nodeName === 'body');
+  if (bodyEl) {
+    const style = getAttr(bodyEl, 'style') || '';
     const w = style.match(/width\s*:\s*(\d+)px/i);
     const h = style.match(/height\s*:\s*(\d+)px/i);
     if (w && h) {
@@ -55,10 +122,13 @@ function extractDimensions(content) {
     }
   }
 
-  // 3. Check container/wrapper div inline styles
-  const containerMatch = content.match(/<div[^>]*(?:class\s*=\s*["'][^"']*(?:container|wrapper|canvas|post)[^"']*["'][^>]*)?style\s*=\s*["']([^"']*)["']/i);
-  if (containerMatch) {
-    const style = containerMatch[1];
+  // 3. Container/wrapper div inline styles
+  const containerClassPattern = /container|wrapper|canvas|post/i;
+  const divEls = findAll(doc, n => n.nodeName === 'div');
+  for (const div of divEls) {
+    const cls = getAttr(div, 'class') || '';
+    if (!containerClassPattern.test(cls)) continue;
+    const style = getAttr(div, 'style') || '';
     const w = style.match(/width\s*:\s*(\d+)px/i);
     const h = style.match(/height\s*:\s*(\d+)px/i);
     if (w && h) {
@@ -69,11 +139,10 @@ function extractDimensions(content) {
     }
   }
 
-  // 4. Check CSS width/height in style block
-  const styleBlock = content.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-  if (styleBlock) {
-    const css = styleBlock[1];
-    // Look for body, .container, .post, .canvas etc.
+  // 4. <style> block CSS rules — text content only, regex on CSS text
+  const styleEls = findAll(doc, n => n.nodeName === 'style');
+  for (const styleEl of styleEls) {
+    const css = getTextContent(styleEl);
     const bodyCSS = css.match(/(?:body|\.container|\.wrapper|\.canvas|\.post)\s*\{([^}]*)\}/i);
     if (bodyCSS) {
       const w = bodyCSS[1].match(/width\s*:\s*(\d+)px/i);
@@ -87,10 +156,12 @@ function extractDimensions(content) {
     }
   }
 
-  // 5. Check meta viewport
-  const viewportMatch = content.match(/<meta[^>]*name\s*=\s*["']viewport["'][^>]*content\s*=\s*["']([^"']*)["']/i);
-  if (viewportMatch) {
-    const vp = viewportMatch[1];
+  // 5. <meta name="viewport"> content attribute
+  const metaEls = findAll(doc, n => n.nodeName === 'meta');
+  for (const meta of metaEls) {
+    const name = getAttr(meta, 'name') || '';
+    if (name.toLowerCase() !== 'viewport') continue;
+    const vp = getAttr(meta, 'content') || '';
     const w = vp.match(/width\s*=\s*(\d+)/i);
     const h = vp.match(/height\s*=\s*(\d+)/i);
     if (w && h) {
