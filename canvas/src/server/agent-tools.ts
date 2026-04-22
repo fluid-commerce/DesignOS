@@ -270,9 +270,10 @@ export function createVoiceGuide(
 export async function renderPreviewTool(
   html: string,
   width: number,
-  height: number
+  height: number,
+  signal?: AbortSignal,
 ): Promise<{ base64: string }> {
-  const base64 = await renderPreview(html, width, height);
+  const base64 = await renderPreview(html, width, height, signal);
   return { base64 };
 }
 

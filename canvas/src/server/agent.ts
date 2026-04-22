@@ -273,15 +273,35 @@ export function sendSSE(res: ServerResponse, event: string, data: unknown): void
 // ─── Cancellation ───
 //
 // A single chat can have multiple in-flight runAgent calls if the user double-sends.
-// Track them as a Set so we don't lose the cancel handle for earlier sessions when a
-// newer one registers under the same chatId.
+// Track them as a Set<AbortController> so we don't lose the cancel handle for
+// earlier sessions when a newer one registers under the same chatId. Abort
+// propagates natively into anthropic.messages.create (via options.signal) and
+// into signal-aware tool helpers (render_preview).
 
-const activeSessions = new Map<string, Set<{ cancelled: boolean }>>();
+const activeSessions = new Map<string, Set<AbortController>>();
 
 export function cancelChat(chatId: string): void {
-  const sessions = activeSessions.get(chatId);
-  if (!sessions) return;
-  for (const s of sessions) s.cancelled = true;
+  const controllers = activeSessions.get(chatId);
+  if (!controllers) return;
+  for (const c of controllers) {
+    if (!c.signal.aborted) c.abort(new DOMException('Chat cancelled', 'AbortError'));
+  }
+}
+
+// ─── Test hooks ─── (underscore-prefixed, not part of the public API)
+export function __registerSessionForTests(chatId: string, ctrl: AbortController): void {
+  let set = activeSessions.get(chatId);
+  if (!set) {
+    set = new Set();
+    activeSessions.set(chatId, set);
+  }
+  set.add(ctrl);
+}
+export function __getActiveSessionCount(chatId: string): number {
+  return activeSessions.get(chatId)?.size ?? 0;
+}
+export function __clearActiveSessionsForTests(): void {
+  activeSessions.clear();
 }
 
 // ─── Tool Executor ───
@@ -306,10 +326,12 @@ async function executeTool(
   name: string,
   input: Record<string, any>,
   uiContext: Record<string, any> | null,
+  signal: AbortSignal,
 ): Promise<Anthropic.ToolResultBlockParam['content']> {
   if (!input || typeof input !== 'object') {
     throw new Error(`Tool '${name}' called with invalid input`);
   }
+  if (signal.aborted) throw new Error('Chat cancelled');
   switch (name) {
     // Brand Discovery
     case 'list_voice_guide':
@@ -349,6 +371,7 @@ async function executeTool(
         requireString(input, 'html'),
         requireNumber(input, 'width'),
         requireNumber(input, 'height'),
+        signal,
       );
       return [
         { type: 'text', text: 'Preview rendered successfully.' },
@@ -511,20 +534,26 @@ async function autoTitle(client: Anthropic, chatId: string, userMessage: string)
  * Call client.messages.create with bounded retries on transient errors
  * (429 rate-limited, 5xx server errors). Uses exponential backoff.
  * Non-retriable errors (4xx other than 429, schema mismatches) throw immediately.
+ *
+ * Cancellation: the provided AbortSignal is forwarded to the SDK and also
+ * aborts the backoff sleep between retries, so pressing Stop during a delay
+ * doesn't have to wait for the delay to elapse.
  */
-async function createMessageWithRetry(
+export async function createMessageWithRetry(
   client: Anthropic,
   params: Anthropic.MessageCreateParamsNonStreaming,
-  session: { cancelled: boolean },
+  signal: AbortSignal,
 ): Promise<Anthropic.Message> {
   const MAX_ATTEMPTS = 3;
   let lastErr: any;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    if (session.cancelled) throw new Error('Chat cancelled');
+    if (signal.aborted) throw new Error('Chat cancelled');
     try {
-      return await client.messages.create(params);
+      return await client.messages.create(params, { signal });
     } catch (err: any) {
       lastErr = err;
+      // AbortError from the SDK propagates immediately regardless of status.
+      if (err?.name === 'AbortError' || signal.aborted) throw err;
       const status = err?.status ?? err?.response?.status;
       const retriable = status === 429 || (typeof status === 'number' && status >= 500);
       if (!retriable || attempt === MAX_ATTEMPTS) {
@@ -538,17 +567,31 @@ async function createMessageWithRetry(
       }
       const delay = 500 * Math.pow(2, attempt - 1);
       logChatEvent('api_retry', { attempt, status: status ?? null, delay_ms: delay });
-      // Exponential backoff: 500ms, 1000ms (third attempt doesn't wait because
-      // we break out after the throw above). Poll cancellation every 100ms so
-      // the user pressing Stop during a backoff doesn't have to wait the full
-      // delay before the abort lands.
-      for (let waited = 0; waited < delay; waited += 100) {
-        if (session.cancelled) throw new Error('Chat cancelled');
-        await new Promise((resolve) => setTimeout(resolve, Math.min(100, delay - waited)));
-      }
+      await sleepOrAbort(delay, signal);
     }
   }
   throw lastErr;
+}
+
+/**
+ * Resolve after `ms` or reject immediately if the signal fires.
+ */
+function sleepOrAbort(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error('Chat cancelled'));
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(t);
+      reject(new Error('Chat cancelled'));
+    };
+    const t = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
 }
 
 // ─── Main Agent Loop ───
@@ -584,13 +627,14 @@ async function runAgentImpl(
     return;
   }
 
-  const session = { cancelled: false };
+  const controller = new AbortController();
+  const signal = controller.signal;
   let sessionSet = activeSessions.get(chatId);
   if (!sessionSet) {
     sessionSet = new Set();
     activeSessions.set(chatId, sessionSet);
   }
-  sessionSet.add(session);
+  sessionSet.add(controller);
 
   // Validate API key before attempting anything — the SDK lazily validates on the
   // first request and the error message ("Could not resolve authentication method")
@@ -600,7 +644,7 @@ async function runAgentImpl(
     sendSSE(res, 'error', {
       message: 'ANTHROPIC_API_KEY is not set. Add it to your .env file and restart the dev server.',
     });
-    sessionSet.delete(session);
+    sessionSet.delete(controller);
     if (sessionSet.size === 0) activeSessions.delete(chatId);
     return;
   }
@@ -665,7 +709,7 @@ async function runAgentImpl(
     const maxLoops = 25;
 
     while (loopCount < maxLoops) {
-      if (session.cancelled) {
+      if (signal.aborted) {
         logChatEvent('cancelled', { loop_count: loopCount });
         sendSSE(res, 'error', { message: 'Chat cancelled' });
         break;
@@ -682,7 +726,7 @@ async function runAgentImpl(
           tools: TOOL_DEFINITIONS,
           messages: currentMessages,
         },
-        session,
+        signal,
       );
 
       // Track token usage
@@ -757,7 +801,7 @@ async function runAgentImpl(
       const toolResults: { tool_use_id: string; content: any }[] = [];
       try {
       for (const call of toolCalls) {
-        if (session.cancelled) break;
+        if (signal.aborted) break;
 
         // Render budget enforcement
         if (call.name === 'render_preview') {
@@ -785,7 +829,7 @@ async function runAgentImpl(
 
         const toolStart = Date.now();
         try {
-          const result = await executeTool(call.name, call.input, uiContext);
+          const result = await executeTool(call.name, call.input, uiContext, signal);
 
           toolResults.push({ tool_use_id: call.id, content: result });
           logChatEvent('tool_exec_metric', {
@@ -945,7 +989,7 @@ async function runAgentImpl(
     logChatEvent('agent_run_failed', { error: message });
     sendSSE(res, 'error', { message });
   } finally {
-    sessionSet.delete(session);
+    sessionSet.delete(controller);
     if (sessionSet.size === 0) {
       activeSessions.delete(chatId);
     }
