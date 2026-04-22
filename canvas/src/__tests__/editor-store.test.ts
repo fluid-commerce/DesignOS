@@ -45,9 +45,7 @@ describe('selectIteration', () => {
       slotSchema: {
         width: 1080,
         height: 1080,
-        fields: [
-          { type: 'text', sel: '.headline', label: 'Headline', mode: 'text', rows: 2 },
-        ],
+        fields: [{ type: 'text', sel: '.headline', label: 'Headline', mode: 'text', rows: 2 }],
         brush: null,
       },
       aiBaseline: { '.headline': 'Hello World' },
@@ -58,10 +56,13 @@ describe('selectIteration', () => {
       createdAt: Date.now(),
     };
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => mockIteration,
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockIteration,
+      }),
+    );
 
     await useEditorStore.getState().selectIteration('iter_001');
 
@@ -89,10 +90,13 @@ describe('selectIteration', () => {
       createdAt: Date.now(),
     };
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => mockIteration,
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockIteration,
+      }),
+    );
 
     await useEditorStore.getState().selectIteration('iter_002');
 
@@ -116,10 +120,13 @@ describe('selectIteration', () => {
       createdAt: Date.now(),
     };
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => mockIteration,
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockIteration,
+      }),
+    );
 
     await useEditorStore.getState().selectIteration('iter_003');
 
@@ -135,10 +142,13 @@ describe('selectIteration', () => {
   });
 
   it('does not update state when API returns non-ok response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      }),
+    );
 
     await useEditorStore.getState().selectIteration('iter_404');
 
@@ -168,7 +178,7 @@ describe('updateSlotValue', () => {
 
     expect(mockPostMessage).toHaveBeenCalledWith(
       { type: 'tmpl', sel: '.tagline', value: 'Hello', mode: 'pre' },
-      '*'
+      '*',
     );
   });
 
@@ -300,7 +310,9 @@ describe('updateElementTransform', () => {
     } as unknown as HTMLIFrameElement;
 
     useEditorStore.getState().setIframeRef(mockIframe);
-    useEditorStore.getState().updateElementTransform('.brush', 'translate(0px, 0px) rotate(0deg) scale(1, 1)');
+    useEditorStore
+      .getState()
+      .updateElementTransform('.brush', 'translate(0px, 0px) rotate(0deg) scale(1, 1)');
 
     expect(mockPostMessage).toHaveBeenCalledWith(
       {
@@ -309,7 +321,7 @@ describe('updateElementTransform', () => {
         action: 'transform',
         transform: 'translate(0px, 0px) rotate(0deg) scale(1, 1)',
       },
-      '*'
+      '*',
     );
   });
 });
@@ -365,7 +377,7 @@ describe('saveUserState', () => {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userState: { '.headline': 'Saved Headline' } }),
-      })
+      }),
     );
     expect(useEditorStore.getState().isDirty).toBe(false);
   });

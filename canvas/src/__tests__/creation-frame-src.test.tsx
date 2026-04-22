@@ -18,12 +18,7 @@ const sharedProps = {
 
 describe('CreationFrame src-based rendering (ASSET-04)', () => {
   it('renders iframe with src attribute when iterationId is provided', () => {
-    const { container } = render(
-      <CreationFrame
-        {...sharedProps}
-        iterationId="iter-abc123"
-      />
-    );
+    const { container } = render(<CreationFrame {...sharedProps} iterationId="iter-abc123" />);
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
     expect(iframe?.getAttribute('src')).toBe('/api/iterations/iter-abc123/html');
@@ -32,24 +27,14 @@ describe('CreationFrame src-based rendering (ASSET-04)', () => {
   });
 
   it('sandbox includes allow-scripts for postMessage support', () => {
-    const { container } = render(
-      <CreationFrame
-        {...sharedProps}
-        iterationId="iter-abc123"
-      />
-    );
+    const { container } = render(<CreationFrame {...sharedProps} iterationId="iter-abc123" />);
     const iframe = container.querySelector('iframe');
     expect(iframe?.getAttribute('sandbox')).toContain('allow-scripts');
     expect(iframe?.getAttribute('sandbox')).toContain('allow-same-origin');
   });
 
   it('falls back to srcDoc when only html is provided (no iterationId)', () => {
-    const { container } = render(
-      <CreationFrame
-        {...sharedProps}
-        html="<h1>Fallback</h1>"
-      />
-    );
+    const { container } = render(<CreationFrame {...sharedProps} html="<h1>Fallback</h1>" />);
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
     expect(iframe?.getAttribute('srcdoc')).toBe('<h1>Fallback</h1>');
@@ -61,16 +46,14 @@ describe('CreationFrame src-based rendering (ASSET-04)', () => {
     const path = await import('node:path');
     const source = await fs.readFile(
       path.resolve(__dirname, '../components/CreationFrame.tsx'),
-      'utf-8'
+      'utf-8',
     );
     expect(source).not.toContain('MAX_HTML_SIZE');
     expect(source).not.toContain('htmlTooLarge');
   });
 
   it('shows empty state when neither iterationId nor html is provided', () => {
-    const { container } = render(
-      <CreationFrame {...sharedProps} />
-    );
+    const { container } = render(<CreationFrame {...sharedProps} />);
     const iframe = container.querySelector('iframe');
     expect(iframe).toBeNull();
     expect(container.textContent).toContain('No preview available');

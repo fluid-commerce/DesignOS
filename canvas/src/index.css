@@ -2,17 +2,17 @@
 
 /* ─── Design tokens ─────────────────────────────────────────────────────── */
 :root {
-  --bg-primary:    #0d0d0d;
-  --bg-secondary:  #141414;
-  --bg-card:       #1a1a1e;
-  --border:        #1e1e1e;
-  --border-hover:  #2a2a2e;
-  --accent:        #44B2FF;
-  --accent-orange: #FF6614;
-  --text-primary:  #e0e0e0;
-  --text-secondary:#888;
-  --text-muted:    #555;
-  --text-white:    #fff;
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1e;
+  --border: #1e1e1e;
+  --border-hover: #2a2a2e;
+  --accent: #44b2ff;
+  --accent-orange: #ff6614;
+  --text-primary: #e0e0e0;
+  --text-secondary: #888;
+  --text-muted: #555;
+  --text-white: #fff;
 }
 
 /* ─── Box-sizing reset ──────────────────────────────────────────────────── */
@@ -36,7 +36,12 @@ body {
   min-height: 100vh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Inter', 'Neue Haas Grotesk Display Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Inter',
+    'Neue Haas Grotesk Display Pro',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
@@ -102,6 +107,10 @@ button {
 
 /* ─── Loading spinner keyframe ──────────────────────────────────────────── */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

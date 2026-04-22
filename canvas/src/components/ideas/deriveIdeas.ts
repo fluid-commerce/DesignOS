@@ -18,7 +18,11 @@ const IDEA_TEMPLATES: Array<{
     title: 'Instagram Story',
     description: 'Story or reel.',
     badgeLabel: 'Story',
-    promptPhrases: ['Create an Instagram story from this', 'Turn this into a story', 'Remix as an Instagram story'],
+    promptPhrases: [
+      'Create an Instagram story from this',
+      'Turn this into a story',
+      'Remix as an Instagram story',
+    ],
     creationType: 'instagram-story',
     videoFormatId: 'story',
     videoDimensionId: '1080-1920',
@@ -28,7 +32,11 @@ const IDEA_TEMPLATES: Array<{
     title: 'LinkedIn post (portrait)',
     description: 'Single post.',
     badgeLabel: 'Social Post',
-    promptPhrases: ['Create a LinkedIn post from this', 'Turn this into a LinkedIn post', 'Repurpose for LinkedIn'],
+    promptPhrases: [
+      'Create a LinkedIn post from this',
+      'Turn this into a LinkedIn post',
+      'Repurpose for LinkedIn',
+    ],
     creationType: 'social-post',
     socialPostFormatId: 'single',
     socialPostDimensionId: 'linkedin-1080-1350',
@@ -58,7 +66,11 @@ const IDEA_TEMPLATES: Array<{
     title: 'Instagram carousel',
     description: 'Multi-slide carousel.',
     badgeLabel: 'Carousel',
-    promptPhrases: ['Create an Instagram carousel from this', 'Turn this into a carousel', 'Remix as a multi-slide carousel'],
+    promptPhrases: [
+      'Create an Instagram carousel from this',
+      'Turn this into a carousel',
+      'Remix as a multi-slide carousel',
+    ],
     creationType: 'social-post',
     socialPostFormatId: 'carousel',
     socialPostDimensionId: 'instagram-4-5',
@@ -78,7 +90,11 @@ const IDEA_TEMPLATES: Array<{
     title: 'Video (landscape)',
     description: 'Landscape video.',
     badgeLabel: 'Video',
-    promptPhrases: ['Repurpose this as a landscape video', 'Turn this into a landscape video', 'Create a video from this'],
+    promptPhrases: [
+      'Repurpose this as a landscape video',
+      'Turn this into a landscape video',
+      'Create a video from this',
+    ],
     creationType: 'instagram-story',
     videoFormatId: 'video',
     videoDimensionId: '1920-1080',
@@ -98,7 +114,11 @@ const IDEA_TEMPLATES: Array<{
     title: 'Story / Reel',
     description: 'Vertical for Reels or TikTok.',
     badgeLabel: 'Story',
-    promptPhrases: ['Create a Reel from this', 'Turn this into a Reel', 'Remix as a vertical short'],
+    promptPhrases: [
+      'Create a Reel from this',
+      'Turn this into a Reel',
+      'Remix as a vertical short',
+    ],
     creationType: 'instagram-story',
     videoFormatId: 'story',
     videoDimensionId: '1080-1920',
@@ -139,7 +159,10 @@ export function deriveAssetIdeas(assets: SelectedAsset[]): IdeaItem[] {
 /** Template-based ideas: one card per template from the library. */
 export function deriveTemplateIdeas(templates: TemplateMeta[]): IdeaItem[] {
   return templates.map((t, i) => {
-    const phrase = TEMPLATE_PROMPT_PHRASES[i % TEMPLATE_PROMPT_PHRASES.length].replace('{{name}}', t.name);
+    const phrase = TEMPLATE_PROMPT_PHRASES[i % TEMPLATE_PROMPT_PHRASES.length].replace(
+      '{{name}}',
+      t.name,
+    );
     const creationType = t.category === 'social' ? 'social-post' : 'one-pager';
     const badgeLabel = t.category === 'social' ? 'Template' : 'One-pager';
     return {

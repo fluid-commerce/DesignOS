@@ -14,9 +14,13 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const pc = require('picocolors');
+const { LiquidSchemaSchema } = require('./schemas/gold-standard.cjs');
 
-// Gold Standard schema requirements — authoritative values from brand docs
-const GOLD_STANDARD_SCHEMA = {
+// Gold Standard count requirements — authoritative values from brand docs.
+// These are semantic business rules (not structural shape); they stay hand-written.
+// The structural shape of a {% schema %} block is validated by LiquidSchemaSchema (zod).
+const GOLD_STANDARD_REQUIREMENTS = {
   font_size_count: 13,
   font_size_options: [
     'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl',
@@ -57,7 +61,7 @@ const GOLD_STANDARD_SCHEMA = {
 };
 
 function loadRules() {
-  return { schema: GOLD_STANDARD_SCHEMA };
+  return { schema: GOLD_STANDARD_REQUIREMENTS };
 }
 
 function extractSchema(content) {
@@ -313,6 +317,24 @@ if (schema._parse_error) {
   process.exit(2);
 }
 
+// Validate structural shape of the parsed schema block with zod
+const shapeCheck = LiquidSchemaSchema.safeParse(schema);
+if (!shapeCheck.success) {
+  const zodMessages = shapeCheck.error.issues.map(i => {
+    const p = i.path.length > 0 ? i.path.join('.') : 'root';
+    return `${p}: ${i.message}`;
+  }).join('; ');
+  const result = {
+    file: filePath,
+    status: 'error',
+    message: `Schema has invalid structure: ${zodMessages}`,
+    issues: [],
+  };
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  process.stderr.write(`\nSchema Validation: ${path.basename(filePath)}\n  ERROR: Invalid schema structure: ${zodMessages}\n\n`);
+  process.exit(2);
+}
+
 const issues = validateSchema(schema, rules);
 
 const result = {
@@ -329,22 +351,16 @@ const result = {
 process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 
 // Human summary to stderr
-const supportsColor = process.stderr.isTTY;
-const red = supportsColor ? '\x1b[31m' : '';
-const green = supportsColor ? '\x1b[32m' : '';
-const yellow = supportsColor ? '\x1b[33m' : '';
-const reset = supportsColor ? '\x1b[0m' : '';
-
 process.stderr.write(`\nSchema Validation: ${path.basename(filePath)}\n`);
 
 if (issues.length === 0) {
-  process.stderr.write(`  ${green}PASS${reset} — All Gold Standard requirements met\n\n`);
+  process.stderr.write(`  ${pc.green('PASS')} — All Gold Standard requirements met\n\n`);
 } else {
   for (const issue of issues) {
-    const color = issue.severity === 'error' ? red : yellow;
-    process.stderr.write(`  ${color}${issue.severity.toUpperCase()}${reset} [${issue.rule}] ${issue.message}\n`);
+    const color = issue.severity === 'error' ? pc.red : pc.yellow;
+    process.stderr.write(`  ${color(issue.severity.toUpperCase())} [${issue.rule}] ${issue.message}\n`);
   }
-  process.stderr.write(`\n  ${red}${result.summary.errors} errors${reset}, ${yellow}${result.summary.warnings} warnings${reset}\n\n`);
+  process.stderr.write(`\n  ${pc.red(`${result.summary.errors} errors`)}, ${pc.yellow(`${result.summary.warnings} warnings`)}\n\n`);
 }
 
 process.exit(issues.length > 0 ? 1 : 0);

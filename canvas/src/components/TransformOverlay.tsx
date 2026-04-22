@@ -14,7 +14,10 @@ import {
   roundLayoutRotateDeg,
   roundLayoutTranslatePx,
 } from '../lib/transform-format';
-import { elementRectToWrapOverlay, elementRotatedOverlayInfo } from '../lib/iframe-overlay-geometry';
+import {
+  elementRectToWrapOverlay,
+  elementRotatedOverlayInfo,
+} from '../lib/iframe-overlay-geometry';
 import { collectTransformTargets } from '../lib/slot-schema';
 import {
   canSnapAxisAlignedTransform,
@@ -54,13 +57,13 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
   const isTextLayout = picked?.kind === 'text';
   const transformKey = sel ? `${SLOT_TRANSFORM_PREFIX}${sel}` : '';
   const savedTransformForSel = useEditorStore((s) =>
-    transformKey ? (s.slotValues[transformKey] ?? '') : ''
+    transformKey ? (s.slotValues[transformKey] ?? '') : '',
   );
   const slotSchema = useEditorStore((s) => s.slotSchema);
 
   const snapTargetSels = useMemo(
     () => (slotSchema ? collectTransformTargets(slotSchema).map((t) => t.sel) : []),
-    [slotSchema]
+    [slotSchema],
   );
   const artboardW = slotSchema?.width ?? 1080;
   const artboardH = slotSchema?.height ?? 1080;
@@ -125,9 +128,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
     const win = iframeEl!.contentWindow!;
     const cs = win.getComputedStyle(el);
     const saved = savedTransformForSel;
-    const parsed = saved
-      ? parseTransform(saved)
-      : parseTransformComputed(cs.transform, win);
+    const parsed = saved ? parseTransform(saved) : parseTransformComputed(cs.transform, win);
     /* When a saved transform exists, left/top were already zeroed by the iframe
        load script (__tmpl_listener__) — the translate carries the absorbed offset.
        Only fold in left/top for never-edited elements (no saved transform). */
@@ -190,7 +191,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       updateElementTransform(sel, buildTransformString(tx, ty, rot, sx, sy));
       requestAnimationFrame(syncBox);
     },
-    [sel, updateElementTransform, syncBox]
+    [sel, updateElementTransform, syncBox],
   );
 
   /* Strip any CSS scale when text is selected so height/width use layout, not stretched glyphs.
@@ -215,7 +216,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
         y: (clientY - ir.top) / sY,
       };
     },
-    [iframeEl]
+    [iframeEl],
   );
 
   const onPointerDown = useCallback(
@@ -224,7 +225,8 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       const t = e.currentTarget as HTMLElement;
       const mode = t.dataset.tmode as 'move' | 'rotate' | 'nw' | 'ne' | 'se' | 'sw' | undefined;
       if (!mode) return;
-      if (isTextLayout && (mode === 'nw' || mode === 'ne' || mode === 'se' || mode === 'sw')) return;
+      if (isTextLayout && (mode === 'nw' || mode === 'ne' || mode === 'se' || mode === 'sw'))
+        return;
       e.preventDefault();
       e.stopPropagation();
       t.setPointerCapture(e.pointerId);
@@ -313,7 +315,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
         scaleLayoutCY: (lr.t + lr.b) / 2,
       };
     },
-    [sel, box, readParsed, readEl, iframeEl, isTextLayout]
+    [sel, box, readParsed, readEl, iframeEl, isTextLayout],
   );
 
   const onPointerMove = useCallback(
@@ -362,12 +364,12 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
           const sxSnap = pickCloserSnap(
             snapTranslate1D([hypoL, hypoR], edgeX, th),
             snapTranslate1D([hypoCX], midX, th),
-            th
+            th,
           );
           const sySnap = pickCloserSnap(
             snapTranslate1D([hypoT, hypoB], edgeY, th),
             snapTranslate1D([hypoCY], midY, th),
-            th
+            th,
           );
 
           tx += sxSnap.delta;
@@ -383,7 +385,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
           setSnapGuides(
             nextGuides.verticalLayoutX != null || nextGuides.horizontalLayoutY != null
               ? nextGuides
-              : null
+              : null,
           );
         } else {
           setSnapGuides(null);
@@ -462,7 +464,7 @@ export function TransformOverlay({ iframeEl, wrapRef }: TransformOverlayProps) {
       snapTargetSels,
       artboardW,
       artboardH,
-    ]
+    ],
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {

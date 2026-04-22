@@ -7,8 +7,8 @@
 import * as csstree from 'css-tree';
 
 export interface MergeLayer {
-  label: string;   // for debugging: 'global', 'instagram', 'archetype', 'brand-global', 'brand-instagram'
-  css: string;      // raw CSS text
+  label: string; // for debugging: 'global', 'instagram', 'archetype', 'brand-global', 'brand-instagram'
+  css: string; // raw CSS text
 }
 
 /**
@@ -135,19 +135,13 @@ export function inlineResolvedCss(html: string, resolvedCss: string): string {
   const hasStyle = /<style[^>]*>[\s\S]*?<\/style>/i.test(html);
 
   if (hasStyle) {
-    return html.replace(
-      /<style[^>]*>[\s\S]*?<\/style>/i,
-      `<style>\n${resolvedCss}\n</style>`
-    );
+    return html.replace(/<style[^>]*>[\s\S]*?<\/style>/i, `<style>\n${resolvedCss}\n</style>`);
   }
 
   // Insert before </head> if it exists
   const hasHead = /<\/head>/i.test(html);
   if (hasHead) {
-    return html.replace(
-      /<\/head>/i,
-      `<style>\n${resolvedCss}\n</style>\n</head>`
-    );
+    return html.replace(/<\/head>/i, `<style>\n${resolvedCss}\n</style>\n</head>`);
   }
 
   // Fallback: prepend to HTML

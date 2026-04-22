@@ -1,0 +1,16 @@
+<!--
+  FIXTURE: XHTML-style self-closing <img .../> with decorative class.
+
+  Regex `<img\b[^>]*>` handles this, but serialize-after-parse5 round-trips
+  should not duplicate the '/'. Included to exercise parser/serializer parity.
+
+  Expected: same behavior pre- and post-migration.
+-->
+<!-- target: 1080x1080 -->
+<!DOCTYPE html>
+<html>
+<head><style>body { background: #000000; font-family: 'NeueHaasDisplay'; color: #FFFFFF; }</style></head>
+<body>
+  <img src="brush.svg" class="brush" alt="" />
+</body>
+</html>

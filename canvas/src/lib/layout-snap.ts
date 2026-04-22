@@ -38,7 +38,7 @@ export function collectSnapEdgeLinesX(
   iframe: HTMLIFrameElement,
   targetSels: readonly string[],
   excludeSel: string | null,
-  artboardW: number
+  artboardW: number,
 ): number[] {
   const xs = new Set<number>();
   xs.add(0);
@@ -65,7 +65,7 @@ export function collectSnapMidLinesX(
   iframe: HTMLIFrameElement,
   targetSels: readonly string[],
   excludeSel: string | null,
-  artboardW: number
+  artboardW: number,
 ): number[] {
   const xs = new Set<number>();
   xs.add(artboardW / 2);
@@ -85,7 +85,7 @@ export function collectSnapEdgeLinesY(
   iframe: HTMLIFrameElement,
   targetSels: readonly string[],
   excludeSel: string | null,
-  artboardH: number
+  artboardH: number,
 ): number[] {
   const ys = new Set<number>();
   ys.add(0);
@@ -112,7 +112,7 @@ export function collectSnapMidLinesY(
   iframe: HTMLIFrameElement,
   targetSels: readonly string[],
   excludeSel: string | null,
-  artboardH: number
+  artboardH: number,
 ): number[] {
   const ys = new Set<number>();
   ys.add(artboardH / 2);
@@ -141,7 +141,7 @@ export interface Snap1DResult {
 export function snapTranslate1D(
   positions: readonly number[],
   targets: readonly number[],
-  threshold: number
+  threshold: number,
 ): Snap1DResult {
   let bestDist = threshold + 1;
   let bestCorr = 0;
@@ -177,11 +177,7 @@ export function pickCloserSnap(a: Snap1DResult, b: Snap1DResult, threshold: numb
 }
 
 export function canSnapAxisAlignedTransform(rotDeg: number, sx: number, sy: number): boolean {
-  return (
-    Math.abs(rotDeg) < 0.75 &&
-    Math.abs(sx - 1) < 0.04 &&
-    Math.abs(sy - 1) < 0.04
-  );
+  return Math.abs(rotDeg) < 0.75 && Math.abs(sx - 1) < 0.04 && Math.abs(sy - 1) < 0.04;
 }
 
 const MIN_SNAP_WIDTH = 32;
@@ -193,7 +189,7 @@ export function collectSnapWidths(
   iframe: HTMLIFrameElement,
   targetSels: readonly string[],
   excludeSel: string | null,
-  artboardW: number
+  artboardW: number,
 ): number[] {
   const ws = new Set<number>();
   ws.add(Math.round(artboardW));
@@ -215,7 +211,7 @@ export function collectSnapHeights(
   iframe: HTMLIFrameElement,
   targetSels: readonly string[],
   excludeSel: string | null,
-  artboardH: number
+  artboardH: number,
 ): number[] {
   const hs = new Set<number>();
   hs.add(Math.round(artboardH));
@@ -242,7 +238,7 @@ export function snapDimensionToTargets(
   raw: number,
   targets: readonly number[],
   threshold: number,
-  min: number
+  min: number,
 ): SnapDimensionResult {
   let bestDist = threshold + 1;
   let best = raw;
@@ -266,7 +262,7 @@ interface ScalarSnapCandidate {
 
 export function pickBestScalarSnap<T extends ScalarSnapCandidate>(
   candidates: readonly (T | null | undefined)[],
-  threshold: number
+  threshold: number,
 ): T | null {
   let best: T | null = null;
   for (const c of candidates) {
@@ -288,14 +284,13 @@ export function snapScaleSx(
   widthTargets: readonly number[],
   edgeX: readonly number[],
   threshold: number,
-  minScale: number
+  minScale: number,
 ): number {
   const hypoW = nW * rawSx;
   const minW = nW * minScale;
 
   const dim = snapDimensionToTargets(hypoW, widthTargets, threshold, minW);
-  const candDim =
-    dim.dist <= threshold ? { dist: dim.dist, sx: dim.value / nW } : null;
+  const candDim = dim.dist <= threshold ? { dist: dim.dist, sx: dim.value / nW } : null;
 
   if (side === 'east') {
     const hypoR = scaleCX + hypoW / 2;
@@ -326,14 +321,13 @@ export function snapScaleSy(
   heightTargets: readonly number[],
   edgeY: readonly number[],
   threshold: number,
-  minScale: number
+  minScale: number,
 ): number {
   const hypoH = nH * rawSy;
   const minH = nH * minScale;
 
   const dim = snapDimensionToTargets(hypoH, heightTargets, threshold, minH);
-  const candDim =
-    dim.dist <= threshold ? { dist: dim.dist, sy: dim.value / nH } : null;
+  const candDim = dim.dist <= threshold ? { dist: dim.dist, sy: dim.value / nH } : null;
 
   if (side === 'south') {
     const hypoB = scaleCY + hypoH / 2;
@@ -359,7 +353,7 @@ export function snapScaleSy(
 export function layoutScalarToOverlayX(
   iframe: HTMLIFrameElement,
   wrap: HTMLElement,
-  lxLayout: number
+  lxLayout: number,
 ): number {
   const ir = iframe.getBoundingClientRect();
   const wr = wrap.getBoundingClientRect();
@@ -371,7 +365,7 @@ export function layoutScalarToOverlayX(
 export function layoutScalarToOverlayY(
   iframe: HTMLIFrameElement,
   wrap: HTMLElement,
-  lyLayout: number
+  lyLayout: number,
 ): number {
   const ir = iframe.getBoundingClientRect();
   const wr = wrap.getBoundingClientRect();

@@ -44,22 +44,26 @@ export function AnnotationThread({ annotation, onReply, onClose }: AnnotationThr
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0.5rem 0.75rem',
-        borderBottom: '1px solid #2a2a2e',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0.5rem 0.75rem',
+          borderBottom: '1px solid #2a2a2e',
+        }}
+      >
         <span style={{ fontSize: '0.75rem', color: '#aaa' }}>
-          <span style={{
-            display: 'inline-block',
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            backgroundColor: isAgent ? '#8b5cf6' : '#44B2FF',
-            marginRight: 6,
-          }} />
+          <span
+            style={{
+              display: 'inline-block',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: isAgent ? '#8b5cf6' : '#44B2FF',
+              marginRight: 6,
+            }}
+          />
           {annotation.author} &middot; Pin #{annotation.pinNumber}
         </span>
         <button
@@ -79,16 +83,16 @@ export function AnnotationThread({ annotation, onReply, onClose }: AnnotationThr
       </div>
 
       {/* Body */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '0.5rem 0.75rem',
-      }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '0.5rem 0.75rem',
+        }}
+      >
         {/* Original annotation */}
         <div style={{ marginBottom: '0.75rem' }}>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: '#e0e0e0' }}>
-            {annotation.text}
-          </p>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#e0e0e0' }}>{annotation.text}</p>
           <span style={{ fontSize: '0.65rem', color: '#666' }}>
             {new Date(annotation.createdAt).toLocaleString()}
           </span>
@@ -96,17 +100,16 @@ export function AnnotationThread({ annotation, onReply, onClose }: AnnotationThr
 
         {/* Replies */}
         {(annotation.replies ?? []).map((r) => (
-          <div key={r.id} style={{
-            marginBottom: '0.5rem',
-            paddingLeft: '0.5rem',
-            borderLeft: `2px solid ${r.authorType === 'agent' ? '#8b5cf6' : '#44B2FF'}`,
-          }}>
-            <span style={{ fontSize: '0.7rem', color: '#888' }}>
-              {r.author}
-            </span>
-            <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#ccc' }}>
-              {r.text}
-            </p>
+          <div
+            key={r.id}
+            style={{
+              marginBottom: '0.5rem',
+              paddingLeft: '0.5rem',
+              borderLeft: `2px solid ${r.authorType === 'agent' ? '#8b5cf6' : '#44B2FF'}`,
+            }}
+          >
+            <span style={{ fontSize: '0.7rem', color: '#888' }}>{r.author}</span>
+            <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#ccc' }}>{r.text}</p>
             <span style={{ fontSize: '0.6rem', color: '#555' }}>
               {new Date(r.createdAt).toLocaleString()}
             </span>
@@ -115,19 +118,23 @@ export function AnnotationThread({ annotation, onReply, onClose }: AnnotationThr
       </div>
 
       {/* Reply input */}
-      <div style={{
-        display: 'flex',
-        gap: 4,
-        padding: '0.5rem 0.75rem',
-        borderTop: '1px solid #2a2a2e',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 4,
+          padding: '0.5rem 0.75rem',
+          borderTop: '1px solid #2a2a2e',
+        }}
+      >
         <input
           data-testid="reply-input"
           type="text"
           placeholder="Reply..."
           value={replyText}
           onChange={(e) => setReplyText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSubmit();
+          }}
           style={{
             flex: 1,
             backgroundColor: '#1a1a1e',

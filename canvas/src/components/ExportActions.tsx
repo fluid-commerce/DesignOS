@@ -81,7 +81,7 @@ export function ExportActions({ iteration, iframeEl }: ExportActionsProps) {
 
         iframeEl.contentWindow!.postMessage(
           { type: 'capture', id, fmt, scale: 1, h2c: h2cUrl.current },
-          '*'
+          '*',
         );
       });
 
@@ -132,11 +132,7 @@ export function ExportActions({ iteration, iframeEl }: ExportActionsProps) {
           isLoading={loading === 'webp'}
           onClick={() => exportImage('webp')}
         />
-        <ExportButton
-          label="ZIP"
-          isLoading={loading === 'html'}
-          onClick={exportHtml}
-        />
+        <ExportButton label="ZIP" isLoading={loading === 'html'} onClick={exportHtml} />
       </div>
       {error && <div style={styles.error}>{error}</div>}
     </div>

@@ -5,7 +5,11 @@
  */
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { useCampaignStore } from '../store/campaign';
-import { getCreationDimensions, buildCreationPreview, buildSlidePreview } from '../lib/preview-utils';
+import {
+  getCreationDimensions,
+  buildCreationPreview,
+  buildSlidePreview,
+} from '../lib/preview-utils';
 import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types';
 
 // ---- Mock fetch globally ----
@@ -44,19 +48,40 @@ beforeEach(() => {
 
 // ---- Sample data ----
 const sampleCampaigns: Campaign[] = [
-  { id: 'cmp_1', title: 'Spring Campaign', channels: ['instagram'], createdAt: 1000, updatedAt: 1000 },
+  {
+    id: 'cmp_1',
+    title: 'Spring Campaign',
+    channels: ['instagram'],
+    createdAt: 1000,
+    updatedAt: 1000,
+  },
 ];
 const sampleCreations: Creation[] = [
-  { id: 'crt_1', campaignId: 'cmp_1', title: 'Hero Post', creationType: 'instagram', slideCount: 1, createdAt: 1000 },
+  {
+    id: 'crt_1',
+    campaignId: 'cmp_1',
+    title: 'Hero Post',
+    creationType: 'instagram',
+    slideCount: 1,
+    createdAt: 1000,
+  },
 ];
 const sampleSlides: Slide[] = [
   { id: 'sld_1', creationId: 'crt_1', slideIndex: 0, createdAt: 1000 },
 ];
 const sampleIterations: Iteration[] = [
   {
-    id: 'itr_1', slideId: 'sld_1', iterationIndex: 0,
-    htmlPath: '/path/to/file.html', slotSchema: null, aiBaseline: null,
-    userState: null, status: 'unmarked', source: 'ai', templateId: null, createdAt: 1000,
+    id: 'itr_1',
+    slideId: 'sld_1',
+    iterationIndex: 0,
+    htmlPath: '/path/to/file.html',
+    slotSchema: null,
+    aiBaseline: null,
+    userState: null,
+    status: 'unmarked',
+    source: 'ai',
+    templateId: null,
+    createdAt: 1000,
   },
 ];
 
@@ -111,8 +136,8 @@ describe('navigateToCreation', () => {
   it('sets currentView to creation and auto-selects first slide', async () => {
     // fetchSlides returns slides, then fetchIterations for each slide
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleSlides))       // fetchSlides
-      .mockResolvedValueOnce(makeJsonResponse(sampleIterations));   // iterations for sld_1
+      .mockResolvedValueOnce(makeJsonResponse(sampleSlides)) // fetchSlides
+      .mockResolvedValueOnce(makeJsonResponse(sampleIterations)); // iterations for sld_1
 
     await useCampaignStore.getState().navigateToCreation('crt_1');
 
@@ -461,7 +486,7 @@ describe('fetchLatestIterations', () => {
 
     // fetchLatestIterations fetches /api/creations/{id}/slides then /api/slides/{slideId}/iterations
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(slides))     // slides for crt_1
+      .mockResolvedValueOnce(makeJsonResponse(slides)) // slides for crt_1
       .mockResolvedValueOnce(makeJsonResponse(iterations)); // iterations for sld_1
 
     await useCampaignStore.getState().fetchLatestIterations('cmp_1');
@@ -486,8 +511,8 @@ describe('fetchLatestIterations', () => {
 
     const slides: Slide[] = [{ id: 'sld_1', creationId: 'crt_1', slideIndex: 0, createdAt: 1000 }];
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(slides))  // slides
-      .mockResolvedValueOnce(makeJsonResponse([]));     // empty iterations
+      .mockResolvedValueOnce(makeJsonResponse(slides)) // slides
+      .mockResolvedValueOnce(makeJsonResponse([])); // empty iterations
 
     await useCampaignStore.getState().fetchLatestIterations('cmp_1');
 
@@ -500,9 +525,9 @@ describe('fetchLatestIterations', () => {
 
     // navigateToCampaign calls: 1) fetchCreations, 2) fetchLatestIterations (slides + iterations per creation)
     mockFetch
-      .mockResolvedValueOnce(makeJsonResponse(sampleCreations))  // fetchCreations
-      .mockResolvedValueOnce(makeJsonResponse(slides))            // fetchLatestIterations -> slides for crt_1
-      .mockResolvedValueOnce(makeJsonResponse(iterations));       // fetchLatestIterations -> iterations for sld_1
+      .mockResolvedValueOnce(makeJsonResponse(sampleCreations)) // fetchCreations
+      .mockResolvedValueOnce(makeJsonResponse(slides)) // fetchLatestIterations -> slides for crt_1
+      .mockResolvedValueOnce(makeJsonResponse(iterations)); // fetchLatestIterations -> iterations for sld_1
 
     await useCampaignStore.getState().navigateToCampaign('cmp_1');
 

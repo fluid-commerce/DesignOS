@@ -12,17 +12,17 @@ export function ChatSidebar() {
   const activeCreationId = useCampaignStore((s) => s.activeCreationId);
   const activeIterationId = useCampaignStore((s) => s.activeIterationId);
 
-  const {
-    messages, activeChatId, isStreaming,
-    sendMessage, cancelGeneration, loadChats,
-  } = useChatStore();
+  const { messages, activeChatId, isStreaming, sendMessage, cancelGeneration, loadChats } =
+    useChatStore();
 
   const [input, setInput] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load chat list once on mount so the header + history panel don't start empty.
-  useEffect(() => { loadChats(); }, [loadChats]);
+  useEffect(() => {
+    loadChats();
+  }, [loadChats]);
 
   useEffect(() => {
     // Guard: jsdom doesn't implement scrollIntoView
@@ -51,24 +51,32 @@ export function ChatSidebar() {
   };
 
   return (
-    <div style={{
-      width: chatSidebarOpen ? 280 : 0,
-      flexShrink: 0,
-      overflow: 'hidden',
-      transition: 'width 0.2s ease',
-      borderRight: chatSidebarOpen ? '1px solid #1e1e1e' : 'none',
-      backgroundColor: '#111111',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div
+      style={{
+        width: chatSidebarOpen ? 280 : 0,
+        flexShrink: 0,
+        overflow: 'hidden',
+        transition: 'width 0.2s ease',
+        borderRight: chatSidebarOpen ? '1px solid #1e1e1e' : 'none',
+        backgroundColor: '#111111',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <div className="chat-sidebar">
         <div className="chat-sidebar-header">
-          <button className="chat-history-toggle" onClick={() => setShowHistory(!showHistory)} title="Chat history">
+          <button
+            className="chat-history-toggle"
+            onClick={() => setShowHistory(!showHistory)}
+            title="Chat history"
+          >
             &#9776;
           </button>
           <span className="chat-sidebar-title">{activeChatId ? 'Chat' : 'New Chat'}</span>
           {isStreaming && (
-            <button className="chat-cancel-btn" onClick={cancelGeneration}>Stop</button>
+            <button className="chat-cancel-btn" onClick={cancelGeneration}>
+              Stop
+            </button>
           )}
         </div>
 
@@ -94,7 +102,7 @@ export function ChatSidebar() {
           <textarea
             className="chat-input"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Message your creative partner..."
             rows={2}

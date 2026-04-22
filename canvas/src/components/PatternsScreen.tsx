@@ -27,11 +27,36 @@ interface CategoryDef {
 
 const CATEGORIES: CategoryDef[] = [
   { id: 'logos', title: 'Logos', subtitle: 'Brand marks and logo usage rules.', coreType: 'none' },
-  { id: 'colors', title: 'Colors', subtitle: 'Color palette and usage rules.', coreType: 'markdown' },
-  { id: 'typography', title: 'Typography', subtitle: 'Font families, scales, and typographic rules.', coreType: 'markdown' },
-  { id: 'images', title: 'Images', subtitle: 'Photography, mockups, and image usage.', coreType: 'none' },
-  { id: 'decorations', title: 'Decorations', subtitle: 'Textures, brushstrokes, and decorative elements.', coreType: 'none' },
-  { id: 'archetypes', title: 'Archetypes', subtitle: 'Layout templates and compositional structures.', coreType: 'markdown' },
+  {
+    id: 'colors',
+    title: 'Colors',
+    subtitle: 'Color palette and usage rules.',
+    coreType: 'markdown',
+  },
+  {
+    id: 'typography',
+    title: 'Typography',
+    subtitle: 'Font families, scales, and typographic rules.',
+    coreType: 'markdown',
+  },
+  {
+    id: 'images',
+    title: 'Images',
+    subtitle: 'Photography, mockups, and image usage.',
+    coreType: 'none',
+  },
+  {
+    id: 'decorations',
+    title: 'Decorations',
+    subtitle: 'Textures, brushstrokes, and decorative elements.',
+    coreType: 'none',
+  },
+  {
+    id: 'archetypes',
+    title: 'Archetypes',
+    subtitle: 'Layout templates and compositional structures.',
+    coreType: 'markdown',
+  },
 ];
 
 // ─── Pattern styles ─────────────────────────────────────────────────────────
@@ -159,10 +184,17 @@ function preprocessPatternMarkdown(content: string): string {
     let foundHtml = false;
     for (const line of lines) {
       if (!foundHtml && /^\s*<(?!!)/.test(line)) foundHtml = true;
-      if (foundHtml) htmlLines.push(line); else cssLines.push(line);
+      if (foundHtml) htmlLines.push(line);
+      else cssLines.push(line);
     }
     if (htmlLines.length > 0 && cssLines.length > 0) {
-      return '```html\n<style>' + cssLines.join('\n').trimEnd() + '</style>\n' + htmlLines.join('\n').trimEnd() + '\n```';
+      return (
+        '```html\n<style>' +
+        cssLines.join('\n').trimEnd() +
+        '</style>\n' +
+        htmlLines.join('\n').trimEnd() +
+        '\n```'
+      );
     }
     return _match;
   });
@@ -175,59 +207,152 @@ function CodePreview({ code, language }: { code: string; language: string }) {
   const [tab, setTab] = useState<'preview' | 'code'>('preview');
 
   const hasEmbeddedStyle = language === 'html' && code.includes('<style>');
-  const cssSource = hasEmbeddedStyle ? (code.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '').trim() : '';
+  const cssSource = hasEmbeddedStyle
+    ? (code.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '').trim()
+    : '';
   const htmlSource = hasEmbeddedStyle ? code.replace(/<style>[\s\S]*?<\/style>\s*/, '').trim() : '';
 
   const previewHtml = (() => {
     if (language === 'html') return code;
     if (language === 'css') {
-      const colors = [...code.matchAll(/:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/g)].map(m => m[1]);
+      const colors = [
+        ...code.matchAll(/:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/g),
+      ].map((m) => m[1]);
       const uniqueColors = [...new Set(colors)].slice(0, 16);
-      const swatches = uniqueColors.length > 0 ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${
-        uniqueColors.map(c => `<div style="width:32px;height:32px;border-radius:4px;background:${c};border:1px solid rgba(255,255,255,0.1);" title="${c}"></div>`).join('')
-      }</div>` : '';
-      const classNames = [...code.matchAll(/\.([\w-]+)\s*\{/g)].map(m => m[1]);
-      const samples = classNames.map(cls => `<div class="${cls}" style="margin-bottom:8px;min-height:1em;">${cls.replace(/[-_]/g, ' ')}</div>`).join('\n');
+      const swatches =
+        uniqueColors.length > 0
+          ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${uniqueColors
+              .map(
+                (c) =>
+                  `<div style="width:32px;height:32px;border-radius:4px;background:${c};border:1px solid rgba(255,255,255,0.1);" title="${c}"></div>`,
+              )
+              .join('')}</div>`
+          : '';
+      const classNames = [...code.matchAll(/\.([\w-]+)\s*\{/g)].map((m) => m[1]);
+      const samples = classNames
+        .map(
+          (cls) =>
+            `<div class="${cls}" style="margin-bottom:8px;min-height:1em;">${cls.replace(/[-_]/g, ' ')}</div>`,
+        )
+        .join('\n');
       return `<style>${code}</style><div style="padding:16px;font-family:'Inter',sans-serif;color:rgba(255,255,255,0.75);font-size:14px;">${swatches}${samples}</div>`;
     }
     return code;
   })();
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
-    padding: '5px 14px', fontSize: 11, fontWeight: 600, letterSpacing: '0.03em',
-    border: 'none', borderBottom: active ? '2px solid #42b1ff' : '2px solid transparent',
-    background: 'none', color: active ? '#42b1ff' : 'rgba(255,255,255,0.35)', cursor: 'pointer', transition: 'all 0.15s',
+    padding: '5px 14px',
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '0.03em',
+    border: 'none',
+    borderBottom: active ? '2px solid #42b1ff' : '2px solid transparent',
+    background: 'none',
+    color: active ? '#42b1ff' : 'rgba(255,255,255,0.35)',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
   });
 
   const codeStyle: React.CSSProperties = {
     fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace",
-    fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.75)', background: 'none', padding: 0,
+    fontSize: 12,
+    lineHeight: 1.6,
+    color: 'rgba(255,255,255,0.75)',
+    background: 'none',
+    padding: 0,
   };
 
   return (
-    <div style={{ margin: '12px 0', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, overflow: 'hidden', background: '#111' }}>
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0a0a0a', padding: '0 8px' }}>
-        <button style={tabStyle(tab === 'preview')} onClick={() => setTab('preview')}>Preview</button>
-        <button style={tabStyle(tab === 'code')} onClick={() => setTab('code')}>Code</button>
-        <span style={{ marginLeft: 'auto', alignSelf: 'center', fontSize: 10, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', paddingRight: 8 }}>
+    <div
+      style={{
+        margin: '12px 0',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 8,
+        overflow: 'hidden',
+        background: '#111',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          gap: 0,
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: '#0a0a0a',
+          padding: '0 8px',
+        }}
+      >
+        <button style={tabStyle(tab === 'preview')} onClick={() => setTab('preview')}>
+          Preview
+        </button>
+        <button style={tabStyle(tab === 'code')} onClick={() => setTab('code')}>
+          Code
+        </button>
+        <span
+          style={{
+            marginLeft: 'auto',
+            alignSelf: 'center',
+            fontSize: 10,
+            color: 'rgba(255,255,255,0.2)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            paddingRight: 8,
+          }}
+        >
           {hasEmbeddedStyle ? 'css + html' : language}
         </span>
       </div>
       {tab === 'preview' ? (
-        <div className="code-preview-sandbox" style={{ padding: 0, background: '#000', minHeight: 40, overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: previewHtml }} />
+        <div
+          className="code-preview-sandbox"
+          style={{ padding: 0, background: '#000', minHeight: 40, overflow: 'hidden' }}
+          dangerouslySetInnerHTML={{ __html: previewHtml }}
+        />
       ) : hasEmbeddedStyle ? (
         <div style={{ overflow: 'auto', background: '#111' }}>
-          {cssSource && (<>
-            <div style={{ padding: '8px 20px 4px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)' }}>CSS</div>
-            <pre style={{ margin: 0, padding: '4px 20px 16px', background: '#111' }}><code style={codeStyle}>{cssSource}</code></pre>
-          </>)}
-          {htmlSource && (<>
-            <div style={{ padding: '8px 20px 4px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>HTML</div>
-            <pre style={{ margin: 0, padding: '4px 20px 16px', background: '#111' }}><code style={codeStyle}>{htmlSource}</code></pre>
-          </>)}
+          {cssSource && (
+            <>
+              <div
+                style={{
+                  padding: '8px 20px 4px',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: 'rgba(255,255,255,0.25)',
+                }}
+              >
+                CSS
+              </div>
+              <pre style={{ margin: 0, padding: '4px 20px 16px', background: '#111' }}>
+                <code style={codeStyle}>{cssSource}</code>
+              </pre>
+            </>
+          )}
+          {htmlSource && (
+            <>
+              <div
+                style={{
+                  padding: '8px 20px 4px',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: 'rgba(255,255,255,0.25)',
+                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                HTML
+              </div>
+              <pre style={{ margin: 0, padding: '4px 20px 16px', background: '#111' }}>
+                <code style={codeStyle}>{htmlSource}</code>
+              </pre>
+            </>
+          )}
         </div>
       ) : (
-        <pre style={{ margin: 0, padding: 20, overflow: 'auto', background: '#111' }}><code style={codeStyle}>{code}</code></pre>
+        <pre style={{ margin: 0, padding: 20, overflow: 'auto', background: '#111' }}>
+          <code style={codeStyle}>{code}</code>
+        </pre>
       )}
     </div>
   );
@@ -252,15 +377,33 @@ const markdownComponents: Record<string, React.ComponentType<Record<string, unkn
 // ─── Weight Badge ────────────────────────────────────────────────────────────
 
 function WeightBadge({ weight }: { weight: number }) {
-  const color = weight >= 81 ? '#ff6b6b' : weight >= 51 ? '#f0a85e' : weight >= 21 ? '#42b1ff' : '#666';
-  const bg = weight >= 81 ? 'rgba(255,107,107,0.12)' : weight >= 51 ? 'rgba(240,168,94,0.12)' : weight >= 21 ? 'rgba(66,177,255,0.12)' : 'rgba(255,255,255,0.04)';
+  const color =
+    weight >= 81 ? '#ff6b6b' : weight >= 51 ? '#f0a85e' : weight >= 21 ? '#42b1ff' : '#666';
+  const bg =
+    weight >= 81
+      ? 'rgba(255,107,107,0.12)'
+      : weight >= 51
+        ? 'rgba(240,168,94,0.12)'
+        : weight >= 21
+          ? 'rgba(66,177,255,0.12)'
+          : 'rgba(255,255,255,0.04)';
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 3,
-      padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-      color, background: bg, border: `1px solid ${color}22`,
-      letterSpacing: '0.02em', lineHeight: 1,
-    }}>
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 3,
+        padding: '2px 8px',
+        borderRadius: 4,
+        fontSize: 11,
+        fontWeight: 700,
+        color,
+        background: bg,
+        border: `1px solid ${color}22`,
+        letterSpacing: '0.02em',
+        lineHeight: 1,
+      }}
+    >
       W{weight}
     </span>
   );
@@ -270,7 +413,10 @@ function WeightBadge({ weight }: { weight: number }) {
 
 interface RuleCardProps {
   pattern: BrandPattern;
-  onSave: (slug: string, updates: { content?: string; weight?: number; label?: string }) => Promise<void>;
+  onSave: (
+    slug: string,
+    updates: { content?: string; weight?: number; label?: string },
+  ) => Promise<void>;
   onDelete?: (slug: string) => Promise<void>;
   flash: string | null;
   flashType: 'saved' | 'failed';
@@ -280,26 +426,46 @@ function RuleCard({ pattern, onSave, onDelete, flash, flashType }: RuleCardProps
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
 
-  const handleStartEdit = () => { setEditContent(pattern.content); setEditing(true); };
-  const handleSave = async () => { setEditing(false); await onSave(pattern.slug, { content: editContent }); };
+  const handleStartEdit = () => {
+    setEditContent(pattern.content);
+    setEditing(true);
+  };
+  const handleSave = async () => {
+    setEditing(false);
+    await onSave(pattern.slug, { content: editContent });
+  };
   const handleCancel = () => setEditing(false);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleSave(); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSave();
+    }
     if (e.key === 'Escape') handleCancel();
   };
 
   const isFlashed = flash === pattern.slug;
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-      borderRadius: 10, marginBottom: 16, overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 10,
+        marginBottom: 16,
+        overflow: 'hidden',
+      }}
+    >
       {/* Card header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10, padding: '12px 20px',
-        borderBottom: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.01)',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '12px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          background: 'rgba(255,255,255,0.01)',
+        }}
+      >
         <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0, flex: 1 }}>
           {pattern.label}
         </h3>
@@ -309,27 +475,46 @@ function RuleCard({ pattern, onSave, onDelete, flash, flashType }: RuleCardProps
           style={{
             background: editing ? 'rgba(255,59,48,0.15)' : 'rgba(255,255,255,0.06)',
             border: `1px solid ${editing ? 'rgba(255,59,48,0.3)' : 'rgba(255,255,255,0.1)'}`,
-            borderRadius: 4, padding: '3px 10px', fontSize: 11, fontWeight: 600,
-            color: editing ? '#ff3b30' : 'rgba(255,255,255,0.4)', cursor: 'pointer',
-            letterSpacing: '0.02em', transition: 'all 0.15s',
+            borderRadius: 4,
+            padding: '3px 10px',
+            fontSize: 11,
+            fontWeight: 600,
+            color: editing ? '#ff3b30' : 'rgba(255,255,255,0.4)',
+            cursor: 'pointer',
+            letterSpacing: '0.02em',
+            transition: 'all 0.15s',
           }}
         >
           {editing ? 'Cancel' : 'Edit'}
         </button>
         {!pattern.isCore && onDelete && (
           <button
-            onClick={() => { if (confirm(`Delete "${pattern.label}"?`)) onDelete(pattern.slug); }}
+            onClick={() => {
+              if (confirm(`Delete "${pattern.label}"?`)) onDelete(pattern.slug);
+            }}
             style={{
-              background: 'none', border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: 4, padding: '3px 8px', fontSize: 11, fontWeight: 600,
-              color: 'rgba(255,255,255,0.25)', cursor: 'pointer', transition: 'all 0.15s',
+              background: 'none',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 4,
+              padding: '3px 8px',
+              fontSize: 11,
+              fontWeight: 600,
+              color: 'rgba(255,255,255,0.25)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
             }}
           >
             Delete
           </button>
         )}
         {isFlashed && (
-          <span style={{ fontSize: 11, fontWeight: 500, color: flashType === 'saved' ? '#44b574' : '#ff3b30' }}>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 500,
+              color: flashType === 'saved' ? '#44b574' : '#ff3b30',
+            }}
+          >
             {flashType === 'saved' ? 'Saved' : 'Failed'}
           </span>
         )}
@@ -345,18 +530,37 @@ function RuleCard({ pattern, onSave, onDelete, flash, flashType }: RuleCardProps
               onKeyDown={handleKeyDown}
               autoFocus
               style={{
-                width: '100%', minHeight: 300, backgroundColor: '#0a0a0a',
-                border: '1px solid #42b1ff', borderRadius: 6, padding: 14,
+                width: '100%',
+                minHeight: 300,
+                backgroundColor: '#0a0a0a',
+                border: '1px solid #42b1ff',
+                borderRadius: 6,
+                padding: 14,
                 fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                fontSize: 12, color: 'rgba(255,255,255,0.75)', resize: 'vertical',
-                outline: 'none', lineHeight: 1.6, boxSizing: 'border-box',
+                fontSize: 12,
+                color: 'rgba(255,255,255,0.75)',
+                resize: 'vertical',
+                outline: 'none',
+                lineHeight: 1.6,
+                boxSizing: 'border-box',
               }}
             />
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-              <button onClick={handleSave} style={{
-                background: '#42b1ff', border: 'none', borderRadius: 4,
-                padding: '5px 14px', fontSize: 12, fontWeight: 600, color: '#000', cursor: 'pointer',
-              }}>Save</button>
+              <button
+                onClick={handleSave}
+                style={{
+                  background: '#42b1ff',
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '5px 14px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#000',
+                  cursor: 'pointer',
+                }}
+              >
+                Save
+              </button>
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', alignSelf: 'center' }}>
                 Ctrl+Enter to save, Esc to cancel
               </span>
@@ -376,7 +580,18 @@ function RuleCard({ pattern, onSave, onDelete, flash, flashType }: RuleCardProps
 
 // ─── Add Rule Form ───────────────────────────────────────────────────────────
 
-function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { label: string; category: string; content: string; weight: number }) => Promise<void> }) {
+function AddRuleForm({
+  category,
+  onAdd,
+}: {
+  category: string;
+  onAdd: (data: {
+    label: string;
+    category: string;
+    content: string;
+    weight: number;
+  }) => Promise<void>;
+}) {
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState('');
   const [content, setContent] = useState('');
@@ -387,7 +602,11 @@ function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { la
     if (!label.trim() || !content.trim()) return;
     setSaving(true);
     await onAdd({ label: label.trim(), category, content: content.trim(), weight });
-    setLabel(''); setContent(''); setWeight(50); setOpen(false); setSaving(false);
+    setLabel('');
+    setContent('');
+    setWeight(50);
+    setOpen(false);
+    setSaving(false);
   };
 
   if (!open) {
@@ -395,9 +614,17 @@ function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { la
       <button
         onClick={() => setOpen(true)}
         style={{
-          width: '100%', padding: '10px 16px', background: 'rgba(255,255,255,0.02)',
-          border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 8, color: 'rgba(255,255,255,0.3)',
-          fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.15s', marginTop: 8,
+          width: '100%',
+          padding: '10px 16px',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px dashed rgba(255,255,255,0.1)',
+          borderRadius: 8,
+          color: 'rgba(255,255,255,0.3)',
+          fontSize: 13,
+          fontWeight: 500,
+          cursor: 'pointer',
+          transition: 'all 0.15s',
+          marginTop: 8,
         }}
       >
         + Add Rule
@@ -406,10 +633,15 @@ function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { la
   }
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(66,177,255,0.3)',
-      borderRadius: 10, padding: 20, marginTop: 8,
-    }}>
+    <div
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(66,177,255,0.3)',
+        borderRadius: 10,
+        padding: 20,
+        marginTop: 8,
+      }}
+    >
       <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
         <input
           placeholder="Rule name"
@@ -417,18 +649,36 @@ function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { la
           onChange={(e) => setLabel(e.target.value)}
           autoFocus
           style={{
-            flex: 1, padding: '8px 12px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 6, color: '#fff', fontSize: 14, outline: 'none',
+            flex: 1,
+            padding: '8px 12px',
+            background: '#0a0a0a',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 6,
+            color: '#fff',
+            fontSize: 14,
+            outline: 'none',
           }}
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>Weight</label>
+          <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>
+            Weight
+          </label>
           <input
-            type="number" min={1} max={100} value={weight}
+            type="number"
+            min={1}
+            max={100}
+            value={weight}
             onChange={(e) => setWeight(Math.min(100, Math.max(1, parseInt(e.target.value) || 50)))}
             style={{
-              width: 56, padding: '6px 8px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 6, color: '#fff', fontSize: 13, textAlign: 'center', outline: 'none',
+              width: 56,
+              padding: '6px 8px',
+              background: '#0a0a0a',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 6,
+              color: '#fff',
+              fontSize: 13,
+              textAlign: 'center',
+              outline: 'none',
             }}
           />
         </div>
@@ -438,11 +688,19 @@ function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { la
         value={content}
         onChange={(e) => setContent(e.target.value)}
         style={{
-          width: '100%', minHeight: 200, backgroundColor: '#0a0a0a',
-          border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: 14,
+          width: '100%',
+          minHeight: 200,
+          backgroundColor: '#0a0a0a',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 6,
+          padding: 14,
           fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-          fontSize: 12, color: 'rgba(255,255,255,0.75)', resize: 'vertical',
-          outline: 'none', lineHeight: 1.6, boxSizing: 'border-box',
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.75)',
+          resize: 'vertical',
+          outline: 'none',
+          lineHeight: 1.6,
+          boxSizing: 'border-box',
         }}
       />
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -450,18 +708,35 @@ function AddRuleForm({ category, onAdd }: { category: string; onAdd: (data: { la
           onClick={handleSubmit}
           disabled={saving || !label.trim() || !content.trim()}
           style={{
-            background: '#42b1ff', border: 'none', borderRadius: 4,
-            padding: '6px 16px', fontSize: 12, fontWeight: 600, color: '#000', cursor: 'pointer',
+            background: '#42b1ff',
+            border: 'none',
+            borderRadius: 4,
+            padding: '6px 16px',
+            fontSize: 12,
+            fontWeight: 600,
+            color: '#000',
+            cursor: 'pointer',
             opacity: saving || !label.trim() || !content.trim() ? 0.4 : 1,
           }}
         >
           {saving ? 'Saving...' : 'Save Rule'}
         </button>
         <button
-          onClick={() => { setOpen(false); setLabel(''); setContent(''); setWeight(50); }}
+          onClick={() => {
+            setOpen(false);
+            setLabel('');
+            setContent('');
+            setWeight(50);
+          }}
           style={{
-            background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4,
-            padding: '6px 14px', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.4)', cursor: 'pointer',
+            background: 'none',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 4,
+            padding: '6px 14px',
+            fontSize: 12,
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.4)',
+            cursor: 'pointer',
           }}
         >
           Cancel
@@ -477,52 +752,75 @@ interface CategorySectionProps {
   category: CategoryDef;
   corePattern: BrandPattern | undefined;
   rules: BrandPattern[];
-  onSave: (slug: string, updates: { content?: string; weight?: number; label?: string }) => Promise<void>;
+  onSave: (
+    slug: string,
+    updates: { content?: string; weight?: number; label?: string },
+  ) => Promise<void>;
   onDelete: (slug: string) => Promise<void>;
-  onAdd: (data: { label: string; category: string; content: string; weight: number }) => Promise<void>;
+  onAdd: (data: {
+    label: string;
+    category: string;
+    content: string;
+    weight: number;
+  }) => Promise<void>;
   flash: string | null;
   flashType: 'saved' | 'failed';
 }
 
-function CategorySection({ category, corePattern, rules, onSave, onDelete, onAdd, flash, flashType }: CategorySectionProps) {
+function CategorySection({
+  category,
+  corePattern,
+  rules,
+  onSave,
+  onDelete,
+  onAdd,
+  flash,
+  flashType,
+}: CategorySectionProps) {
   return (
     <div style={{ marginBottom: 56 }}>
       {/* Category header */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{
-          fontSize: 10, fontWeight: 700, textTransform: 'uppercase' as const,
-          letterSpacing: '0.15em', color: 'rgba(255,255,255,0.25)', marginBottom: 6,
-        }}>
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.15em',
+            color: 'rgba(255,255,255,0.25)',
+            marginBottom: 6,
+          }}
+        >
           {category.title}
         </div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-          {category.subtitle}
-        </div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{category.subtitle}</div>
       </div>
 
       {/* Core section: markdown */}
       {category.coreType === 'markdown' && corePattern && (
-        <RuleCard
-          pattern={corePattern}
-          onSave={onSave}
-          flash={flash}
-          flashType={flashType}
-        />
+        <RuleCard pattern={corePattern} onSave={onSave} flash={flash} flashType={flashType} />
       )}
 
       {/* Core empty state */}
       {category.coreType === 'markdown' && !corePattern && (
-        <div style={{
-          background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)',
-          borderRadius: 10, padding: '24px 20px', marginBottom: 16,
-          color: 'rgba(255,255,255,0.25)', fontSize: 13, fontStyle: 'italic',
-        }}>
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px dashed rgba(255,255,255,0.08)',
+            borderRadius: 10,
+            padding: '24px 20px',
+            marginBottom: 16,
+            color: 'rgba(255,255,255,0.25)',
+            fontSize: 13,
+            fontStyle: 'italic',
+          }}
+        >
           No core {category.title.toLowerCase()} data defined yet.
         </div>
       )}
 
       {/* Custom rules */}
-      {rules.map(rule => (
+      {rules.map((rule) => (
         <RuleCard
           key={rule.slug}
           pattern={rule}
@@ -551,62 +849,102 @@ export function PatternsScreen() {
 
   useEffect(() => {
     fetch('/api/brand-patterns')
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((pats: BrandPattern[]) => { setPatterns(pats); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((pats: BrandPattern[]) => {
+        setPatterns(pats);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
   }, []);
 
   const showFlash = useCallback((slug: string, type: 'saved' | 'failed') => {
-    setFlash(slug); setFlashType(type);
+    setFlash(slug);
+    setFlashType(type);
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setFlash(null), type === 'saved' ? 2000 : 4000);
   }, []);
 
-  const savePattern = useCallback(async (slug: string, updates: { content?: string; weight?: number; label?: string }) => {
-    const prev = patterns;
-    setPatterns(ps => ps.map(p => p.slug === slug ? { ...p, ...updates } : p));
-    try {
-      const res = await fetch(`/api/brand-patterns/${slug}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates),
-      });
-      if (!res.ok) throw new Error();
-      showFlash(slug, 'saved');
-    } catch {
-      setPatterns(prev);
-      showFlash(slug, 'failed');
-    }
-  }, [patterns, showFlash]);
+  const savePattern = useCallback(
+    async (slug: string, updates: { content?: string; weight?: number; label?: string }) => {
+      const prev = patterns;
+      setPatterns((ps) => ps.map((p) => (p.slug === slug ? { ...p, ...updates } : p)));
+      try {
+        const res = await fetch(`/api/brand-patterns/${slug}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        });
+        if (!res.ok) throw new Error();
+        showFlash(slug, 'saved');
+      } catch {
+        setPatterns(prev);
+        showFlash(slug, 'failed');
+      }
+    },
+    [patterns, showFlash],
+  );
 
-  const deletePattern = useCallback(async (slug: string) => {
-    const prev = patterns;
-    setPatterns(ps => ps.filter(p => p.slug !== slug));
-    try {
-      const res = await fetch(`/api/brand-patterns/${slug}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error();
-    } catch {
-      setPatterns(prev);
-      showFlash(slug, 'failed');
-    }
-  }, [patterns, showFlash]);
+  const deletePattern = useCallback(
+    async (slug: string) => {
+      const prev = patterns;
+      setPatterns((ps) => ps.filter((p) => p.slug !== slug));
+      try {
+        const res = await fetch(`/api/brand-patterns/${slug}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error();
+      } catch {
+        setPatterns(prev);
+        showFlash(slug, 'failed');
+      }
+    },
+    [patterns, showFlash],
+  );
 
-  const addPattern = useCallback(async (data: { label: string; category: string; content: string; weight: number }) => {
-    try {
-      const res = await fetch('/api/brand-patterns', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error();
-      const created: BrandPattern = await res.json();
-      setPatterns(ps => [...ps, created]);
-      showFlash(created.slug, 'saved');
-    } catch {
-      showFlash('__add__', 'failed');
-    }
-  }, [showFlash]);
+  const addPattern = useCallback(
+    async (data: { label: string; category: string; content: string; weight: number }) => {
+      try {
+        const res = await fetch('/api/brand-patterns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error();
+        const created: BrandPattern = await res.json();
+        setPatterns((ps) => [...ps, created]);
+        showFlash(created.slug, 'saved');
+      } catch {
+        showFlash('__add__', 'failed');
+      }
+    },
+    [showFlash],
+  );
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: '#000' }}>
-        <div style={{ width: 20, height: 20, border: '2px solid #333', borderTopColor: '#555', borderRadius: '50%', animation: 'patterns-spin 0.8s linear infinite' }} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          backgroundColor: '#000',
+        }}
+      >
+        <div
+          style={{
+            width: 20,
+            height: 20,
+            border: '2px solid #333',
+            borderTopColor: '#555',
+            borderRadius: '50%',
+            animation: 'patterns-spin 0.8s linear infinite',
+          }}
+        />
         <style>{PATTERN_STYLES}</style>
       </div>
     );
@@ -614,7 +952,19 @@ export function PatternsScreen() {
 
   if (error) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: '#000', color: '#777', fontSize: 14, padding: 24, textAlign: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          backgroundColor: '#000',
+          color: '#777',
+          fontSize: 14,
+          padding: 24,
+          textAlign: 'center',
+        }}
+      >
         Failed to load Patterns data. Check the server is running and refresh.
       </div>
     );
@@ -629,24 +979,46 @@ export function PatternsScreen() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#000' }}>
+    <div
+      style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#000' }}
+    >
       <style>{PATTERN_STYLES}</style>
 
       {/* Header */}
-      <div style={{ flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)', backgroundColor: '#000', padding: '14px 1rem' }}>
+      <div
+        style={{
+          flexShrink: 0,
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          backgroundColor: '#000',
+          padding: '14px 1rem',
+        }}
+      >
         <h1 style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: 0 }}>Patterns</h1>
-        <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(255,255,255,0.45)', marginTop: 4, marginBottom: 0 }}>
-          Visual building blocks — color foundations, typographic rules, and compositional techniques
+        <p
+          style={{
+            fontSize: 14,
+            fontWeight: 400,
+            color: 'rgba(255,255,255,0.45)',
+            marginTop: 4,
+            marginBottom: 0,
+          }}
+        >
+          Visual building blocks — color foundations, typographic rules, and compositional
+          techniques
         </p>
       </div>
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '40px 64px 96px', boxSizing: 'border-box' }}>
+      <div
+        style={{ flex: 1, overflowY: 'auto', padding: '40px 64px 96px', boxSizing: 'border-box' }}
+      >
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          {CATEGORIES.map(cat => {
+          {CATEGORIES.map((cat) => {
             const catPatterns = byCategory.get(cat.id) || [];
-            const corePattern = catPatterns.find(p => p.isCore);
-            const rules = catPatterns.filter(p => !p.isCore).sort((a, b) => a.sortOrder - b.sortOrder);
+            const corePattern = catPatterns.find((p) => p.isCore);
+            const rules = catPatterns
+              .filter((p) => !p.isCore)
+              .sort((a, b) => a.sortOrder - b.sortOrder);
 
             return (
               <CategorySection

@@ -3,8 +3,16 @@ import { useCampaignStore } from '../store/campaign';
 /** Left-arrow icon for back navigation */
 function BackArrow() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="15 18 9 12 15 6" />
     </svg>
   );
@@ -42,8 +50,12 @@ function BreadcrumbSegment({ label, onClick, isLast }: BreadcrumbSegmentProps) {
         display: 'inline-block',
         verticalAlign: 'middle',
       }}
-      onMouseEnter={(e) => { if (isClickable) e.currentTarget.style.color = '#aaa'; }}
-      onMouseLeave={(e) => { if (isClickable) e.currentTarget.style.color = '#666'; }}
+      onMouseEnter={(e) => {
+        if (isClickable) e.currentTarget.style.color = '#aaa';
+      }}
+      onMouseLeave={(e) => {
+        if (isClickable) e.currentTarget.style.color = '#666';
+      }}
     >
       {label}
     </span>
@@ -62,9 +74,7 @@ export function Breadcrumb() {
   const navigateBack = useCampaignStore((s) => s.navigateBack);
 
   // Resolve display names from cache
-  const campaign = activeCampaignId
-    ? campaigns.find((c) => c.id === activeCampaignId)
-    : null;
+  const campaign = activeCampaignId ? campaigns.find((c) => c.id === activeCampaignId) : null;
   const campaignTitle = campaign?.title ?? activeCampaignId;
   const isStandalone = campaign?.title === '__standalone__';
   const creationTitle = activeCreationId

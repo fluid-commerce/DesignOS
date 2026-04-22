@@ -30,7 +30,12 @@ const ACCENT_COLORS: Array<{ name: string; hex: string }> = [
  * server to serve the correct HTML). The slotSchema is stored in the iteration
  * so ContentEditor can immediately render the right editing fields.
  */
-export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: TemplateCustomizerProps) {
+export function TemplateCustomizer({
+  template,
+  campaignId,
+  onBack,
+  onCreated,
+}: TemplateCustomizerProps) {
   const [title, setTitle] = useState(template.name);
   const [accentColor, setAccentColor] = useState('orange');
   const [notes, setNotes] = useState('');
@@ -45,9 +50,13 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
     try {
       const slotSchema = getTemplateSchema(template.templateId);
       const htmlPath = `templates/${template.templateId}.html`;
-      const slideCount = (slotSchema && 'carouselCount' in slotSchema && typeof (slotSchema as { carouselCount?: number }).carouselCount === 'number' && (slotSchema as { carouselCount: number }).carouselCount > 0)
-        ? (slotSchema as { carouselCount: number }).carouselCount
-        : 1;
+      const slideCount =
+        slotSchema &&
+        'carouselCount' in slotSchema &&
+        typeof (slotSchema as { carouselCount?: number }).carouselCount === 'number' &&
+        (slotSchema as { carouselCount: number }).carouselCount > 0
+          ? (slotSchema as { carouselCount: number }).carouselCount
+          : 1;
 
       let firstIterationId: string | null = null;
 
@@ -117,8 +126,15 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
           gap: '0.25rem',
         }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
           <polyline points="15 18 9 12 15 6" />
         </svg>
         Back to Templates
@@ -145,7 +161,9 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
 
           {/* Creation title */}
           <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="tmpl-title" style={labelStyle}>Creation Title</label>
+            <label htmlFor="tmpl-title" style={labelStyle}>
+              Creation Title
+            </label>
             <input
               id="tmpl-title"
               type="text"
@@ -185,7 +203,9 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
 
           {/* Notes / brief */}
           <div style={{ marginBottom: '1.5rem' }}>
-            <label htmlFor="tmpl-notes" style={labelStyle}>Notes (optional)</label>
+            <label htmlFor="tmpl-notes" style={labelStyle}>
+              Notes (optional)
+            </label>
             <textarea
               id="tmpl-notes"
               value={notes}
@@ -200,15 +220,17 @@ export function TemplateCustomizer({ template, campaignId, onBack, onCreated }: 
 
           {/* Error message */}
           {error && (
-            <div style={{
-              marginBottom: '1rem',
-              padding: '0.625rem 0.875rem',
-              backgroundColor: 'rgba(239,68,68,0.1)',
-              border: '1px solid rgba(239,68,68,0.3)',
-              borderRadius: 6,
-              fontSize: '0.8rem',
-              color: '#f87171',
-            }}>
+            <div
+              style={{
+                marginBottom: '1rem',
+                padding: '0.625rem 0.875rem',
+                backgroundColor: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                borderRadius: 6,
+                fontSize: '0.8rem',
+                color: '#f87171',
+              }}
+            >
               {error}
             </div>
           )}
@@ -282,16 +304,18 @@ function TemplatePreviewIframe({ template }: { template: TemplateMetadata }) {
         boxSizing: 'border-box',
       }}
     >
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        transformOrigin: 'center center',
-        width,
-        height,
-        borderRadius: 4,
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: `translate(-50%, -50%) scale(${scale})`,
+          transformOrigin: 'center center',
+          width,
+          height,
+          borderRadius: 4,
+        }}
+      >
         <iframe
           src={previewSrc}
           width={width}

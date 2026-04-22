@@ -1,8 +1,14 @@
 import { useEffect, useState, useCallback, useRef, type CSSProperties } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/query-client';
 import { AppShell } from './components/AppShell';
 import { ContentEditor } from './components/ContentEditor';
 import { CampaignDashboard, FilterSortBar, type SortKey } from './components/CampaignDashboard';
-import { DrillDownGrid, type DrillDownItem, type PreviewDescriptor } from './components/DrillDownGrid';
+import {
+  DrillDownGrid,
+  type DrillDownItem,
+  type PreviewDescriptor,
+} from './components/DrillDownGrid';
 // TemplateGallery no longer used — template cards are rendered inline in the modal
 // import { TemplateGallery } from './components/TemplateGallery';
 import { TemplateCustomizer } from './components/TemplateCustomizer';
@@ -13,8 +19,17 @@ import { useEditorStore } from './store/editor';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import { useRouteSync } from './hooks/useRouteSync';
 import type { Creation, Slide, Iteration } from './lib/campaign-types';
-import { TEMPLATE_METADATA, getTemplateSchema, type TemplateMetadata } from './lib/template-configs';
-import { PREVIEW_CHROME_PADDING_PX, buildCreationPreview, buildSlidePreview, getCreationDimensions } from './lib/preview-utils';
+import {
+  TEMPLATE_METADATA,
+  getTemplateSchema,
+  type TemplateMetadata,
+} from './lib/template-configs';
+import {
+  PREVIEW_CHROME_PADDING_PX,
+  buildCreationPreview,
+  buildSlidePreview,
+  getCreationDimensions,
+} from './lib/preview-utils';
 // Note: iteration previews always try the API — the server handles path resolution with multiple fallback strategies
 import { StatusBadge } from './components/StatusBadge';
 
@@ -46,12 +61,18 @@ function StandaloneCreationsView() {
         if (!campaignsRes.ok || cancelled) return;
         const campaigns = await campaignsRes.json();
         const standalone = campaigns.find((c: { title: string }) => c.title === '__standalone__');
-        if (!standalone || cancelled) { setStandaloneLoading(false); return; }
+        if (!standalone || cancelled) {
+          setStandaloneLoading(false);
+          return;
+        }
         setStandaloneCampaignId(standalone.id);
 
         // Fetch its creations
         const crRes = await fetch(`/api/campaigns/${standalone.id}/creations`);
-        if (!crRes.ok || cancelled) { setStandaloneLoading(false); return; }
+        if (!crRes.ok || cancelled) {
+          setStandaloneLoading(false);
+          return;
+        }
         const creations: Creation[] = await crRes.json();
         if (cancelled) return;
         setStandaloneCreations(creations);
@@ -59,33 +80,48 @@ function StandaloneCreationsView() {
 
         // Fetch latest iteration preview for each creation
         const prevMap: Record<string, string> = {};
-        await Promise.all(creations.map(async (cr) => {
-          try {
-            const slidesRes = await fetch(`/api/creations/${cr.id}/slides`);
-            if (!slidesRes.ok) return;
-            const slides = await slidesRes.json();
-            if (slides.length === 0) return;
-            const itersRes = await fetch(`/api/slides/${slides[0].id}/iterations`);
-            if (!itersRes.ok) return;
-            const iters = await itersRes.json();
-            if (iters.length === 0) return;
-            const latest = iters.reduce((best: any, it: any) =>
-              it.iterationIndex > best.iterationIndex ? it : best
-            );
-            prevMap[cr.id] = latest.id;
-          } catch { /* skip */ }
-        }));
+        await Promise.all(
+          creations.map(async (cr) => {
+            try {
+              const slidesRes = await fetch(`/api/creations/${cr.id}/slides`);
+              if (!slidesRes.ok) return;
+              const slides = await slidesRes.json();
+              if (slides.length === 0) return;
+              const itersRes = await fetch(`/api/slides/${slides[0].id}/iterations`);
+              if (!itersRes.ok) return;
+              const iters = await itersRes.json();
+              if (iters.length === 0) return;
+              const latest = iters.reduce((best: any, it: any) =>
+                it.iterationIndex > best.iterationIndex ? it : best,
+              );
+              prevMap[cr.id] = latest.id;
+            } catch {
+              /* skip */
+            }
+          }),
+        );
         if (!cancelled) setPreviews(prevMap);
       } catch {
         if (!cancelled) setStandaloneLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [createViewportTab]);
 
   if (standaloneLoading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#666', fontSize: '0.85rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          color: '#666',
+          fontSize: '0.85rem',
+        }}
+      >
         Loading creations...
       </div>
     );
@@ -93,18 +129,28 @@ function StandaloneCreationsView() {
 
   if (standaloneCreations.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        minHeight: 300,
-        gap: '1rem',
-        color: '#555',
-      }}>
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-             stroke="#2a2a2e" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          minHeight: 300,
+          gap: '1rem',
+          color: '#555',
+        }}
+      >
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#2a2a2e"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x="3" y="3" width="18" height="18" rx="2" />
           <circle cx="8.5" cy="8.5" r="1.5" />
           <polyline points="21 15 16 10 5 21" />
@@ -117,11 +163,14 @@ function StandaloneCreationsView() {
     );
   }
 
-  const channels = Array.from(new Set(standaloneCreations.map((c) => c.creationType).filter(Boolean)));
+  const channels = Array.from(
+    new Set(standaloneCreations.map((c) => c.creationType).filter(Boolean)),
+  );
 
-  const filtered = filterChannel === 'all'
-    ? standaloneCreations
-    : standaloneCreations.filter((c) => c.creationType === filterChannel);
+  const filtered =
+    filterChannel === 'all'
+      ? standaloneCreations
+      : standaloneCreations.filter((c) => c.creationType === filterChannel);
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortKey === 'title') return a.title.localeCompare(b.title);
@@ -140,11 +189,13 @@ function StandaloneCreationsView() {
         />
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '0.5rem 1rem 1rem' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '1rem',
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '1rem',
+          }}
+        >
           {sorted.map((cr) => (
             <div
               key={cr.id}
@@ -167,72 +218,106 @@ function StandaloneCreationsView() {
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#44B2FF')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2a2a2e')}
             >
-              <div style={{
-                aspectRatio: '1',
-                backgroundColor: '#111',
-                position: 'relative',
-                overflow: 'hidden',
-                padding: PREVIEW_CHROME_PADDING_PX,
-                boxSizing: 'border-box',
-              }}>
-                {previews[cr.id] ? (() => {
-                  const dims = getCreationDimensions(cr.creationType);
-                  // Scale the native creation size to fit inside the preview box.
-                  // The inner container is the card width minus padding on each side.
-                  // Grid columns are minmax(320px, 1fr); aspect-ratio:1 makes the box square.
-                  // With 24px padding per side, inner area ≈ 272px.
-                  // We scale both dimensions proportionally to fit.
-                  const containerSize = 272;
-                  const scale = Math.min(containerSize / dims.width, containerSize / dims.height);
-                  const scaledW = dims.width * scale;
-                  const scaledH = dims.height * scale;
-                  return (
-                    <div style={{
-                      width: '100%',
-                      height: '100%',
+              <div
+                style={{
+                  aspectRatio: '1',
+                  backgroundColor: '#111',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  padding: PREVIEW_CHROME_PADDING_PX,
+                  boxSizing: 'border-box',
+                }}
+              >
+                {previews[cr.id] ? (
+                  (() => {
+                    const dims = getCreationDimensions(cr.creationType);
+                    // Scale the native creation size to fit inside the preview box.
+                    // The inner container is the card width minus padding on each side.
+                    // Grid columns are minmax(320px, 1fr); aspect-ratio:1 makes the box square.
+                    // With 24px padding per side, inner area ≈ 272px.
+                    // We scale both dimensions proportionally to fit.
+                    const containerSize = 272;
+                    const scale = Math.min(containerSize / dims.width, containerSize / dims.height);
+                    const scaledW = dims.width * scale;
+                    const scaledH = dims.height * scale;
+                    return (
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          borderRadius: 4,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: scaledW,
+                            height: scaledH,
+                            position: 'relative',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <iframe
+                            src={`/api/iterations/${previews[cr.id]}/html`}
+                            style={{
+                              width: dims.width,
+                              height: dims.height,
+                              border: 'none',
+                              pointerEvents: 'none',
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              transformOrigin: 'top left',
+                              transform: `scale(${scale})`,
+                            }}
+                            sandbox="allow-same-origin"
+                            title={cr.title}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div
+                    style={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      overflow: 'hidden',
-                      borderRadius: 4,
-                    }}>
-                      <div style={{
-                        width: scaledW,
-                        height: scaledH,
-                        position: 'relative',
-                        overflow: 'hidden',
-                        flexShrink: 0,
-                      }}>
-                        <iframe
-                          src={`/api/iterations/${previews[cr.id]}/html`}
-                          style={{
-                            width: dims.width,
-                            height: dims.height,
-                            border: 'none',
-                            pointerEvents: 'none',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            transformOrigin: 'top left',
-                            transform: `scale(${scale})`,
-                          }}
-                          sandbox="allow-same-origin"
-                          title={cr.title}
-                        />
-                      </div>
-                    </div>
-                  );
-                })() : (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#444', fontSize: '0.75rem' }}>
+                      height: '100%',
+                      color: '#444',
+                      fontSize: '0.75rem',
+                    }}
+                  >
                     No preview
                   </div>
                 )}
               </div>
               <div style={{ padding: '0.5rem 0.65rem' }}>
-                <div style={{ fontSize: '0.78rem', color: '#e0e0e0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div
+                  style={{
+                    fontSize: '0.78rem',
+                    color: '#e0e0e0',
+                    fontWeight: 500,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {cr.title}
                 </div>
-                <div style={{ fontSize: '0.68rem', color: '#666', marginTop: '0.15rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div
+                  style={{
+                    fontSize: '0.68rem',
+                    color: '#666',
+                    marginTop: '0.15rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
+                >
                   {cr.creationType}
                 </div>
               </div>
@@ -302,7 +387,9 @@ export function App() {
       .catch(() => {
         if (!cancelled) setStandaloneCampaignId(null);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [creationFlow]);
 
   // Initial data load
@@ -348,11 +435,17 @@ export function App() {
       setEditTemplateError(null);
       // Normalize: DB may send "social/t1-quote" or "t1-quote.html" → "t1-quote"
       const raw: string = e.data.templateId;
-      const templateId = raw.replace(/\.html$/i, '').split('/').pop() ?? raw;
+      const templateId =
+        raw
+          .replace(/\.html$/i, '')
+          .split('/')
+          .pop() ?? raw;
       const meta = TEMPLATE_METADATA.find((t) => t.templateId === templateId);
       if (!meta) {
         console.warn('[App] editTemplate: unknown templateId', raw, '→ normalized', templateId);
-        setEditTemplateError(`Template "${templateId}" isn't available for editing here. Try a social template (e.g. Quote, Carousel).`);
+        setEditTemplateError(
+          `Template "${templateId}" isn't available for editing here. Try a social template (e.g. Quote, Carousel).`,
+        );
         return;
       }
 
@@ -380,7 +473,10 @@ export function App() {
 
         const slotSchema = getTemplateSchema(templateId);
         const slideCount =
-          slotSchema && 'carouselCount' in slotSchema && typeof (slotSchema as { carouselCount?: number }).carouselCount === 'number' && (slotSchema as { carouselCount: number }).carouselCount > 0
+          slotSchema &&
+          'carouselCount' in slotSchema &&
+          typeof (slotSchema as { carouselCount?: number }).carouselCount === 'number' &&
+          (slotSchema as { carouselCount: number }).carouselCount > 0
             ? (slotSchema as { carouselCount: number }).carouselCount
             : 1;
 
@@ -432,7 +528,9 @@ export function App() {
           if (!iterRes.ok) {
             const msg = await iterRes.text();
             console.error('[App] editTemplate: iteration POST failed', iterRes.status, msg);
-            setEditTemplateError('Could not create template iteration. Check the console or restart the app (DB may need a migration).');
+            setEditTemplateError(
+              'Could not create template iteration. Check the console or restart the app (DB may need a migration).',
+            );
             return;
           }
         }
@@ -449,20 +547,28 @@ export function App() {
         setRightSidebarOpen(true);
       } catch (err) {
         console.error('[App] editTemplate handler failed:', err);
-        setEditTemplateError(err instanceof Error ? err.message : 'Something went wrong. Try again.');
+        setEditTemplateError(
+          err instanceof Error ? err.message : 'Something went wrong. Try again.',
+        );
       }
     };
 
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [navigateToCreation, setActiveNavTab, setCreateViewportTab, setRightSidebarOpen, fetchCampaigns]);
+  }, [
+    navigateToCreation,
+    setActiveNavTab,
+    setCreateViewportTab,
+    setRightSidebarOpen,
+    fetchCampaigns,
+  ]);
 
   // ── Iteration selection handler ──────────────────────────────────────────
   const handleSelectIteration = useCallback(
     (item: DrillDownItem<Iteration>) => {
       selectIteration(item.id);
     },
-    [selectIteration]
+    [selectIteration],
   );
 
   // ── Navigation handlers ──────────────────────────────────────────────────
@@ -470,7 +576,7 @@ export function App() {
     (item: DrillDownItem<Creation>) => {
       navigateToCreation(item.id);
     },
-    [navigateToCreation]
+    [navigateToCreation],
   );
 
   // ── Template creation flow ───────────────────────────────────────────────
@@ -506,7 +612,9 @@ export function App() {
         if (!cancelled) setStandaloneCampaignId(null);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [creationFlow, activeCampaignId]);
 
   const handleNewCreation = useCallback(() => {
@@ -540,12 +648,19 @@ export function App() {
       // Refetch creations so the Creations tab list shows the new asset when user navigates back
       await fetchCreations(campaignId);
     },
-    [handleCloseCreationFlow, navigateToCampaign, navigateToCreation, selectIteration, setRightSidebarOpen, fetchCreations]
+    [
+      handleCloseCreationFlow,
+      navigateToCampaign,
+      navigateToCreation,
+      selectIteration,
+      setRightSidebarOpen,
+      fetchCreations,
+    ],
   );
 
   // ── Derive active iteration object ──────────────────────────────────────
   const activeIteration = activeIterationId
-    ? iterations.find((it) => it.id === activeIterationId) ?? null
+    ? (iterations.find((it) => it.id === activeIterationId) ?? null)
     : null;
 
   // ── DrillDownGrid renderPreview helpers ─────────────────────────────────
@@ -564,7 +679,9 @@ export function App() {
   const renderIterationPreview = (item: DrillDownItem<Iteration>): PreviewDescriptor | null => {
     if (!item.data.htmlPath) return null;
     // Look up template dimensions from templateId, or fall back to 1080x1080
-    const tmpl = item.data.templateId ? TEMPLATE_METADATA.find((t) => t.templateId === item.data.templateId) : null;
+    const tmpl = item.data.templateId
+      ? TEMPLATE_METADATA.find((t) => t.templateId === item.data.templateId)
+      : null;
     const width = tmpl?.dimensions.width ?? 1080;
     const height = tmpl?.dimensions.height ?? 1080;
     return {
@@ -586,21 +703,26 @@ export function App() {
           <span>{a.creationType}</span>
           <StatusBadge status={genStatus} />
         </span>
-      ) : a.creationType,
+      ) : (
+        a.creationType
+      ),
       data: a,
     };
   });
 
   // Filter/sort for Creations tab (by type and sort key; Creation has createdAt, no updatedAt)
   const creationTypes = Array.from(new Set(creations.map((c) => c.creationType)));
-  const filteredCreationItems = filterCreationType === 'all'
-    ? creationItems
-    : creationItems.filter((item) => item.data.creationType === filterCreationType);
+  const filteredCreationItems =
+    filterCreationType === 'all'
+      ? creationItems
+      : creationItems.filter((item) => item.data.creationType === filterCreationType);
   const sortedCreationItems = [...filteredCreationItems].sort((a, b) => {
     if (sortCreationKey === 'title') return a.data.title.localeCompare(b.data.title);
     const aTime = a.data.createdAt;
     const bTime = b.data.createdAt;
-    return sortCreationKey === 'updatedAt' || sortCreationKey === 'createdAt' ? bTime - aTime : bTime - aTime;
+    return sortCreationKey === 'updatedAt' || sortCreationKey === 'createdAt'
+      ? bTime - aTime
+      : bTime - aTime;
   });
 
   const slideItems: DrillDownItem<Slide>[] = slides.map((f) => ({
@@ -621,20 +743,27 @@ export function App() {
   const renderMainContent = () => {
     if (loading && currentView !== 'dashboard') {
       return (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          color: '#555',
-          fontSize: '0.9rem',
-          gap: '0.75rem',
-        }}>
-          <div style={{
-            width: 20, height: 20, borderRadius: '50%',
-            border: '2px solid #2a2a2e', borderTopColor: '#44B2FF',
-            animation: 'spin 0.8s linear infinite',
-          }} />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            color: '#555',
+            fontSize: '0.9rem',
+            gap: '0.75rem',
+          }}
+        >
+          <div
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: '50%',
+              border: '2px solid #2a2a2e',
+              borderTopColor: '#44B2FF',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           Loading...
         </div>
@@ -669,18 +798,35 @@ export function App() {
               />
             }
             emptyState={
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', height: '100%', minHeight: 300,
-                gap: '1rem', color: '#555',
-              }}>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                     stroke="#2a2a2e" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  minHeight: 300,
+                  gap: '1rem',
+                  color: '#555',
+                }}
+              >
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#2a2a2e"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <rect x="3" y="3" width="18" height="18" rx="2" />
                   <circle cx="8.5" cy="8.5" r="1.5" />
                   <polyline points="21 15 16 10 5 21" />
                 </svg>
-                <div style={{ fontSize: '0.9rem', color: '#555' }}>No creations in this campaign yet</div>
+                <div style={{ fontSize: '0.9rem', color: '#555' }}>
+                  No creations in this campaign yet
+                </div>
                 <div style={{ fontSize: '0.8rem', color: '#3a3a3a' }}>
                   Add a creation with &quot;Create New&quot; above
                 </div>
@@ -705,6 +851,7 @@ export function App() {
   };
 
   return (
+    <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
       {editTemplateError && (
         <div
@@ -748,7 +895,9 @@ export function App() {
         rightSidebar={
           <ContentEditor
             iteration={activeIteration}
-            iframeEl={currentView === 'creation' && activeIterationId ? editIframeEl : iframeRef.current}
+            iframeEl={
+              currentView === 'creation' && activeIterationId ? editIframeEl : iframeRef.current
+            }
           />
         }
         onNewCreation={handleNewCreation}
@@ -770,6 +919,7 @@ export function App() {
         />
       )}
     </ErrorBoundary>
+    </QueryClientProvider>
   );
 }
 
@@ -857,7 +1007,12 @@ interface NewCreationTabProps {
   onCreationCreated: (campaignId: string, creationId: string, iterationId: string) => void;
 }
 
-function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, onCreationCreated }: NewCreationTabProps) {
+function NewCreationTab({
+  selectedTemplate,
+  onSelectTemplate,
+  activeCampaignId,
+  onCreationCreated,
+}: NewCreationTabProps) {
   const [localTemplate, setLocalTemplate] = useState<TemplateMetadata | null>(selectedTemplate);
   const [selectedSkill, setSelectedSkill] = useState('ad-creative');
   const [brief, setBrief] = useState('');
@@ -880,9 +1035,10 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
     setReferences((prev) => prev.map((r, i) => (i === idx ? val : r)));
 
   // Preview URL for locally selected template
-  const previewUrl = localTemplate && localTemplate.templateId !== 'scratch'
-    ? `/templates/${localTemplate.templateId}.html`
-    : null;
+  const previewUrl =
+    localTemplate && localTemplate.templateId !== 'scratch'
+      ? `/templates/${localTemplate.templateId}.html`
+      : null;
 
   // Determine dimension badge for a template
   const getDimBadge = (t: TemplateMetadata) => {
@@ -902,20 +1058,24 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
   return (
     <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
       {/* ── Left column: Form ── */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '0 36px 36px 36px',
-      }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '0 36px 36px 36px',
+        }}
+      >
         {/* SKILL section — 3-column grid */}
         <div style={{ marginBottom: 24 }}>
           <label style={LABEL_STYLE}>Skill</label>
           <div style={SUBLABEL_STYLE}>Choose what type of asset to create</div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: 8,
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: 8,
+            }}
+          >
             {SKILLS.map((skill) => {
               const isActive = selectedSkill === skill.id;
               return (
@@ -946,19 +1106,23 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
                   }}
                 >
                   <div style={{ fontSize: 18, marginBottom: 6 }}>{skill.emoji}</div>
-                  <div style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: isActive ? '#fff' : '#ccc',
-                    marginBottom: 3,
-                  }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: isActive ? '#fff' : '#ccc',
+                      marginBottom: 3,
+                    }}
+                  >
                     {skill.label}
                   </div>
-                  <div style={{
-                    fontSize: 10,
-                    color: isActive ? '#4a6a80' : '#3a3a3a',
-                    lineHeight: 1.4,
-                  }}>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: isActive ? '#4a6a80' : '#3a3a3a',
+                      lineHeight: 1.4,
+                    }}
+                  >
                     {skill.description}
                   </div>
                 </button>
@@ -971,21 +1135,25 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
         <div style={{ marginBottom: 24 }}>
           <label style={LABEL_STYLE}>Base Template</label>
           <div style={SUBLABEL_STYLE}>Start from an existing layout or from scratch</div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 8,
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 8,
+            }}
+          >
             {/* From Scratch card */}
             <button
-              onClick={() => setLocalTemplate({
-                templateId: 'scratch',
-                name: 'From Scratch',
-                description: 'Start with a blank canvas',
-                thumbnailPath: '',
-                platform: 'unknown',
-                dimensions: { width: 1080, height: 1080 },
-              })}
+              onClick={() =>
+                setLocalTemplate({
+                  templateId: 'scratch',
+                  name: 'From Scratch',
+                  description: 'Start with a blank canvas',
+                  thumbnailPath: '',
+                  platform: 'unknown',
+                  dimensions: { width: 1080, height: 1080 },
+                })
+              }
               style={{
                 padding: '10px 12px',
                 border: `1px solid ${localTemplate?.templateId === 'scratch' ? BLUE : BORDER}`,
@@ -1011,29 +1179,35 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
                 }
               }}
             >
-              <span style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: BLUE,
-                letterSpacing: '0.08em',
-                flexShrink: 0,
-                width: 20,
-              }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: BLUE,
+                  letterSpacing: '0.08em',
+                  flexShrink: 0,
+                  width: 20,
+                }}
+              >
                 ✦
               </span>
-              <span style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: localTemplate?.templateId === 'scratch' ? '#fff' : '#888',
-              }}>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: localTemplate?.templateId === 'scratch' ? '#fff' : '#888',
+                }}
+              >
                 From Scratch
               </span>
-              <span style={{
-                fontSize: 9,
-                color: '#2a2a2a',
-                marginLeft: 'auto',
-                flexShrink: 0,
-              }}>
+              <span
+                style={{
+                  fontSize: 9,
+                  color: '#2a2a2a',
+                  marginLeft: 'auto',
+                  flexShrink: 0,
+                }}
+              >
                 AI picks
               </span>
             </button>
@@ -1071,34 +1245,45 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
                     }
                   }}
                 >
-                  <span style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: BLUE,
-                    letterSpacing: '0.08em',
-                    flexShrink: 0,
-                    width: 20,
-                  }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: BLUE,
+                      letterSpacing: '0.08em',
+                      flexShrink: 0,
+                      width: 20,
+                    }}
+                  >
                     {num}
                   </span>
-                  <span style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: isSelected ? '#fff' : '#888',
-                    flex: 1,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    textAlign: 'left',
-                  }}>
-                    {template.name.replace(' / ', ' / ').replace(' (Landscape)', '').replace(' — Instagram Ad', '').replace(' — Insights', '').replace(' — Carousel', '')}
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: isSelected ? '#fff' : '#888',
+                      flex: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {template.name
+                      .replace(' / ', ' / ')
+                      .replace(' (Landscape)', '')
+                      .replace(' — Instagram Ad', '')
+                      .replace(' — Insights', '')
+                      .replace(' — Carousel', '')}
                   </span>
-                  <span style={{
-                    fontSize: 9,
-                    color: '#2a2a2a',
-                    marginLeft: 'auto',
-                    flexShrink: 0,
-                  }}>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      color: '#2a2a2a',
+                      marginLeft: 'auto',
+                      flexShrink: 0,
+                    }}
+                  >
                     {getCarouselBadge(template)}
                   </span>
                 </button>
@@ -1109,8 +1294,12 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
 
         {/* BRIEF */}
         <div style={{ marginBottom: 24 }}>
-          <label htmlFor="creation-brief" style={LABEL_STYLE}>Brief</label>
-          <div style={SUBLABEL_STYLE}>Describe the goal, audience, and what the asset should communicate</div>
+          <label htmlFor="creation-brief" style={LABEL_STYLE}>
+            Brief
+          </label>
+          <div style={SUBLABEL_STYLE}>
+            Describe the goal, audience, and what the asset should communicate
+          </div>
           <textarea
             id="creation-brief"
             value={brief}
@@ -1125,9 +1314,12 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
         {/* REFERENCES */}
         <div style={{ marginBottom: 24 }}>
           <label style={LABEL_STYLE}>
-            References <span style={{ color: '#2a2a2a', fontWeight: 500, letterSpacing: 0 }}>(optional)</span>
+            References{' '}
+            <span style={{ color: '#2a2a2a', fontWeight: 500, letterSpacing: 0 }}>(optional)</span>
           </label>
-          <div style={SUBLABEL_STYLE}>Add URLs, Figma links, or file paths for visual or copy reference</div>
+          <div style={SUBLABEL_STYLE}>
+            Add URLs, Figma links, or file paths for visual or copy reference
+          </div>
           {references.map((ref, i) => (
             <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
               <input
@@ -1198,21 +1390,27 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
         </div>
 
         {/* FOOTER — hint + Generate button */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginTop: 32,
-          paddingTop: 24,
-          borderTop: `1px solid ${BORDER}`,
-        }}>
-          <div style={{
-            fontSize: 10,
-            color: '#2a2a2a',
-            lineHeight: 1.5,
-          }}>
-            Generates a formatted prompt for Claude.<br />Copies to clipboard — paste into Claude Code to create.
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginTop: 32,
+            paddingTop: 24,
+            borderTop: `1px solid ${BORDER}`,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              color: '#2a2a2a',
+              lineHeight: 1.5,
+            }}
+          >
+            Generates a formatted prompt for Claude.
+            <br />
+            Copies to clipboard — paste into Claude Code to create.
           </div>
           <button
             onClick={handleGeneratePrompt}
@@ -1245,36 +1443,46 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
       </div>
 
       {/* ── Right column: PREVIEW ── */}
-      <div style={{
-        width: 320,
-        flexShrink: 0,
-        borderLeft: `1px solid ${BORDER}`,
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: BG_DARK,
-      }}>
-        {/* Preview header */}
-        <div style={{
-          padding: '12px 20px',
-          borderBottom: `1px solid #141414`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+      <div
+        style={{
+          width: 320,
           flexShrink: 0,
-        }}>
-          <span style={{
-            fontSize: 9,
-            fontWeight: 700,
-            letterSpacing: '0.13em',
-            textTransform: 'uppercase',
-            color: '#333',
-          }}>Preview</span>
-          <span style={{
-            fontSize: 9,
-            fontWeight: 600,
-            color: '#222',
-            fontFamily: 'monospace',
-          }}>
+          borderLeft: `1px solid ${BORDER}`,
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: BG_DARK,
+        }}
+      >
+        {/* Preview header */}
+        <div
+          style={{
+            padding: '12px 20px',
+            borderBottom: `1px solid #141414`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: '0.13em',
+              textTransform: 'uppercase',
+              color: '#333',
+            }}
+          >
+            Preview
+          </span>
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 600,
+              color: '#222',
+              fontFamily: 'monospace',
+            }}
+          >
             {localTemplate
               ? localTemplate.templateId === 'scratch'
                 ? '\u2014'
@@ -1284,15 +1492,17 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
         </div>
 
         {/* Preview content */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: PREVIEW_CHROME_PADDING_PX,
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: PREVIEW_CHROME_PADDING_PX,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
           {previewUrl ? (
             (() => {
               const m = PREVIEW_CHROME_PADDING_PX;
@@ -1302,64 +1512,70 @@ function NewCreationTab({ selectedTemplate, onSelectTemplate, activeCampaignId, 
               const innerH = Math.max(1, boxH - 2 * m);
               const tw = localTemplate!.dimensions.width;
               const th = localTemplate!.dimensions.height;
-              const scale = isLandscape
-                ? Math.min(innerW / tw, innerH / th)
-                : innerW / tw;
+              const scale = isLandscape ? Math.min(innerW / tw, innerH / th) : innerW / tw;
               return (
-            <div style={{
-              width: boxW,
-              height: boxH,
-              background: '#000',
-              position: 'relative',
-              overflow: 'hidden',
-              borderRadius: 3,
-              transition: 'height 0.3s',
-              padding: m,
-              boxSizing: 'border-box',
-            }}>
-              <div style={{
-                width: innerW,
-                height: innerH,
-                overflow: 'hidden',
-                position: 'relative',
-                borderRadius: 2,
-              }}>
-              <iframe
-                src={previewUrl}
-                width={tw}
-                height={th}
-                style={{
-                  border: 'none',
-                  transform: `scale(${scale})`,
-                  transformOrigin: 'top left',
-                  pointerEvents: 'none',
-                }}
-                title="Template preview"
-              />
-              </div>
-            </div>
+                <div
+                  style={{
+                    width: boxW,
+                    height: boxH,
+                    background: '#000',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: 3,
+                    transition: 'height 0.3s',
+                    padding: m,
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: innerW,
+                      height: innerH,
+                      overflow: 'hidden',
+                      position: 'relative',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <iframe
+                      src={previewUrl}
+                      width={tw}
+                      height={th}
+                      style={{
+                        border: 'none',
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top left',
+                        pointerEvents: 'none',
+                      }}
+                      title="Template preview"
+                    />
+                  </div>
+                </div>
               );
             })()
           ) : (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-              width: 280,
-              height: 280,
-              border: `1px dashed ${BORDER}`,
-              borderRadius: 3,
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                width: 280,
+                height: 280,
+                border: `1px dashed ${BORDER}`,
+                borderRadius: 3,
+              }}
+            >
               <div style={{ fontSize: 28, color: BORDER }}>✦</div>
-              <div style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: '#222',
-                textAlign: 'center',
-                lineHeight: 1.5,
-              }}>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: '#222',
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                }}
+              >
                 {localTemplate?.templateId === 'scratch'
                   ? 'From Scratch\nAI will choose the best layout'
                   : 'Select a template to preview'}
@@ -1404,19 +1620,33 @@ function IterationEditFrame({
   }, [width, height]);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: PREVIEW_CHROME_PADDING_PX, boxSizing: 'border-box' }}>
-      <div style={{
+    <div
+      ref={containerRef}
+      style={{
+        width: '100%',
+        height: '100%',
         position: 'relative',
-        width,
-        height,
-        transform: `scale(${scale})`,
-        transformOrigin: 'center center',
-        border: '1px solid #2a2a2e',
-        borderRadius: 8,
-        overflow: 'hidden',
-        boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
-        backgroundColor: '#000',
-      }}>
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: PREVIEW_CHROME_PADDING_PX,
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          width,
+          height,
+          transform: `scale(${scale})`,
+          transformOrigin: 'center center',
+          border: '1px solid #2a2a2e',
+          borderRadius: 8,
+          overflow: 'hidden',
+          boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
+          backgroundColor: '#000',
+        }}
+      >
         <iframe
           ref={onIframeRef}
           src={`/api/iterations/${iterationId}/html`}
@@ -1504,15 +1734,18 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
 
   return (
     <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '0 48px 40px 48px',
-      }}>
-
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '0 48px 40px 48px',
+        }}
+      >
         {/* CAMPAIGN NAME */}
         <div style={{ marginBottom: 24 }}>
-          <label htmlFor="campaign-name" style={LABEL_STYLE}>Campaign Name</label>
+          <label htmlFor="campaign-name" style={LABEL_STYLE}>
+            Campaign Name
+          </label>
           <input
             id="campaign-name"
             type="text"
@@ -1527,8 +1760,12 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
 
         {/* BRIEF */}
         <div style={{ marginBottom: 24 }}>
-          <label htmlFor="campaign-brief" style={LABEL_STYLE}>Brief</label>
-          <div style={SUBLABEL_STYLE}>Describe the campaign goals, audience, messaging strategy, and key deliverables</div>
+          <label htmlFor="campaign-brief" style={LABEL_STYLE}>
+            Brief
+          </label>
+          <div style={SUBLABEL_STYLE}>
+            Describe the campaign goals, audience, messaging strategy, and key deliverables
+          </div>
           <textarea
             id="campaign-brief"
             value={brief}
@@ -1553,7 +1790,10 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
             </div>
             <div style={resourceBlockBodyStyle}>
               {links.map((link, i) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < links.length - 1 ? 8 : 0 }}>
+                <div
+                  key={i}
+                  style={{ display: 'flex', gap: 8, marginBottom: i < links.length - 1 ? 8 : 0 }}
+                >
                   <input
                     type="url"
                     value={link}
@@ -1630,20 +1870,22 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
               <span style={resourceBlockLabelStyle}>Attach Files</span>
             </div>
             <div style={resourceBlockBodyStyle}>
-              <label style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '8px 14px',
-                border: `1px dashed ${BORDER_LIGHT}`,
-                borderRadius: 4,
-                background: 'transparent',
-                color: '#3a3a3a',
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'border-color 0.15s, color 0.15s',
-              }}>
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 14px',
+                  border: `1px dashed ${BORDER_LIGHT}`,
+                  borderRadius: 4,
+                  background: 'transparent',
+                  color: '#3a3a3a',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s, color 0.15s',
+                }}
+              >
                 <input
                   type="file"
                   multiple
@@ -1698,35 +1940,43 @@ function NewCampaignTab({ onClose }: NewCampaignTabProps) {
 
         {/* Error */}
         {error && (
-          <div style={{
-            marginBottom: 16,
-            padding: '10px 14px',
-            backgroundColor: 'rgba(239,68,68,0.1)',
-            border: '1px solid rgba(239,68,68,0.3)',
-            borderRadius: 4,
-            fontSize: 12,
-            color: '#f87171',
-          }}>
+          <div
+            style={{
+              marginBottom: 16,
+              padding: '10px 14px',
+              backgroundColor: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: 4,
+              fontSize: 12,
+              color: '#f87171',
+            }}
+          >
             {error}
           </div>
         )}
 
         {/* FOOTER — hint + Save button */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginTop: 32,
-          paddingTop: 24,
-          borderTop: `1px solid ${BORDER}`,
-        }}>
-          <div style={{
-            fontSize: 10,
-            color: '#2a2a2a',
-            lineHeight: 1.5,
-          }}>
-            Saves the campaign brief and resources<br />so you can reference them while building assets.
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginTop: 32,
+            paddingTop: 24,
+            borderTop: `1px solid ${BORDER}`,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              color: '#2a2a2a',
+              lineHeight: 1.5,
+            }}
+          >
+            Saves the campaign brief and resources
+            <br />
+            so you can reference them while building assets.
           </div>
           <button
             onClick={handleSave}
@@ -1805,15 +2055,25 @@ function TemplateCreationModal({
         }}
       >
         {/* ── Header: tabs (match My Creations style) + close ── */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '28px 36px 0 36px',
-          marginBottom: 24,
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', gap: '2px', flexShrink: 0, borderRadius: 0, overflow: 'hidden' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '28px 36px 0 36px',
+            marginBottom: 24,
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: '2px',
+              flexShrink: 0,
+              borderRadius: 0,
+              overflow: 'hidden',
+            }}
+          >
             {(['creation', 'campaign'] as const).map((tab) => {
               const isActive = activeTab === tab;
               return (
@@ -1913,9 +2173,7 @@ function TemplateCreationModal({
             </>
           )}
 
-          {activeTab === 'campaign' && (
-            <NewCampaignTab onClose={onClose} />
-          )}
+          {activeTab === 'campaign' && <NewCampaignTab onClose={onClose} />}
         </div>
       </div>
     </div>

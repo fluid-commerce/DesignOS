@@ -27,17 +27,19 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          gap: '1rem',
-          padding: '2rem',
-          color: '#e0e0e0',
-          backgroundColor: '#1e1e1e',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            gap: '1rem',
+            padding: '2rem',
+            color: '#e0e0e0',
+            backgroundColor: '#1e1e1e',
+          }}
+        >
           <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>Something went wrong</div>
           <div style={{ fontSize: '0.8rem', color: '#888', maxWidth: 400, textAlign: 'center' }}>
             {this.state.error?.message || 'An unexpected error occurred while rendering.'}

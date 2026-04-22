@@ -8,7 +8,7 @@ describe('ZIP export endpoint contract', () => {
     const path = await import('node:path');
     const source = await fs.readFile(
       path.resolve(__dirname, '../components/ExportActions.tsx'),
-      'utf-8'
+      'utf-8',
     );
     expect(source).toContain('export=zip');
     expect(source).not.toContain('download=1');
@@ -19,7 +19,7 @@ describe('ZIP export endpoint contract', () => {
     const path = await import('node:path');
     const source = await fs.readFile(
       path.resolve(__dirname, '../components/ExportActions.tsx'),
-      'utf-8'
+      'utf-8',
     );
     expect(source).toContain('.zip');
   });
@@ -29,7 +29,7 @@ describe('ZIP export endpoint contract', () => {
     const path = await import('node:path');
     const source = await fs.readFile(
       path.resolve(__dirname, '../components/ExportActions.tsx'),
-      'utf-8'
+      'utf-8',
     );
     // The label prop passed to ExportButton should be "ZIP"
     expect(source).toContain('label="ZIP"');

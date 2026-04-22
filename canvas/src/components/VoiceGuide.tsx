@@ -12,37 +12,67 @@ interface VoiceGuideDoc {
 // Dark-theme markdown component overrides
 const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components'] = {
   h1: ({ children }) => (
-    <h1 style={{ fontSize: '1.75rem', color: '#fff', marginTop: '2rem', marginBottom: '0.75rem', fontWeight: 700, lineHeight: 1.2 }}>
+    <h1
+      style={{
+        fontSize: '1.75rem',
+        color: '#fff',
+        marginTop: '2rem',
+        marginBottom: '0.75rem',
+        fontWeight: 700,
+        lineHeight: 1.2,
+      }}
+    >
       {children}
     </h1>
   ),
   h2: ({ children }) => (
-    <h2 style={{ fontSize: '1.375rem', color: '#fff', marginTop: '2rem', marginBottom: '0.75rem', fontWeight: 600, lineHeight: 1.3 }}>
+    <h2
+      style={{
+        fontSize: '1.375rem',
+        color: '#fff',
+        marginTop: '2rem',
+        marginBottom: '0.75rem',
+        fontWeight: 600,
+        lineHeight: 1.3,
+      }}
+    >
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 style={{ fontSize: '1.125rem', color: '#fff', marginTop: '1.5rem', marginBottom: '0.5rem', fontWeight: 600 }}>
+    <h3
+      style={{
+        fontSize: '1.125rem',
+        color: '#fff',
+        marginTop: '1.5rem',
+        marginBottom: '0.5rem',
+        fontWeight: 600,
+      }}
+    >
       {children}
     </h3>
   ),
   h4: ({ children }) => (
-    <h4 style={{ fontSize: '1rem', color: '#e0e0e0', marginTop: '1.25rem', marginBottom: '0.5rem', fontWeight: 600 }}>
+    <h4
+      style={{
+        fontSize: '1rem',
+        color: '#e0e0e0',
+        marginTop: '1.25rem',
+        marginBottom: '0.5rem',
+        fontWeight: 600,
+      }}
+    >
       {children}
     </h4>
   ),
-  p: ({ children }) => (
-    <p style={{ marginBottom: '1rem', lineHeight: 1.7 }}>{children}</p>
-  ),
+  p: ({ children }) => <p style={{ marginBottom: '1rem', lineHeight: 1.7 }}>{children}</p>,
   ul: ({ children }) => (
     <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem', lineHeight: 1.7 }}>{children}</ul>
   ),
   ol: ({ children }) => (
     <ol style={{ paddingLeft: '1.5rem', marginBottom: '1rem', lineHeight: 1.7 }}>{children}</ol>
   ),
-  li: ({ children }) => (
-    <li style={{ marginBottom: '0.25rem' }}>{children}</li>
-  ),
+  li: ({ children }) => <li style={{ marginBottom: '0.25rem' }}>{children}</li>,
   code: ({ inline, children, ...props }: { inline?: boolean; children?: React.ReactNode }) =>
     inline ? (
       <code
@@ -77,11 +107,14 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components
         {children}
       </code>
     ),
-  pre: ({ children }) => (
-    <pre style={{ margin: '0 0 1rem', overflow: 'auto' }}>{children}</pre>
-  ),
+  pre: ({ children }) => <pre style={{ margin: '0 0 1rem', overflow: 'auto' }}>{children}</pre>,
   a: ({ children, href }) => (
-    <a href={href} style={{ color: '#44B2FF', textDecoration: 'underline' }} target="_blank" rel="noreferrer">
+    <a
+      href={href}
+      style={{ color: '#44B2FF', textDecoration: 'underline' }}
+      target="_blank"
+      rel="noreferrer"
+    >
       {children}
     </a>
   ),
@@ -125,12 +158,8 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components
       {children}
     </td>
   ),
-  strong: ({ children }) => (
-    <strong style={{ color: '#fff', fontWeight: 600 }}>{children}</strong>
-  ),
-  em: ({ children }) => (
-    <em style={{ color: '#ccc' }}>{children}</em>
-  ),
+  strong: ({ children }) => <strong style={{ color: '#fff', fontWeight: 600 }}>{children}</strong>,
+  em: ({ children }) => <em style={{ color: '#ccc' }}>{children}</em>,
 };
 
 export function VoiceGuide() {
@@ -140,7 +169,7 @@ export function VoiceGuide() {
 
   useEffect(() => {
     fetch('/api/voice-guide')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: VoiceGuideDoc[]) => {
         setDocs(data);
         setLoading(false);
@@ -155,7 +184,7 @@ export function VoiceGuide() {
     }
   }, [docs, activeDocSlug]);
 
-  const selectedDoc = docs.find(d => d.slug === activeDocSlug);
+  const selectedDoc = docs.find((d) => d.slug === activeDocSlug);
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
@@ -246,17 +275,16 @@ export function VoiceGuide() {
           <p style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: 0, lineHeight: 1.2 }}>
             Voice Guide
           </p>
-          <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+          <p
+            style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}
+          >
             Brand voice rules, messaging frameworks, and example copy your team and agents reference
           </p>
         </div>
         {loading && docs.length === 0 ? (
           <p style={{ color: '#555', textAlign: 'center', marginTop: '2rem' }}>Loading...</p>
         ) : selectedDoc ? (
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={markdownComponents}
-          >
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
             {selectedDoc.content}
           </ReactMarkdown>
         ) : null}

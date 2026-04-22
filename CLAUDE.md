@@ -1,4 +1,4 @@
-# Fluid Creative OS — Agent Instructions
+# Fluid DesignOS — Agent Instructions
 
 All project context, architecture, conventions, and rules are in **AGENTS.md** (shared across all AI tools).
 

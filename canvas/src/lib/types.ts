@@ -14,8 +14,8 @@ export interface Annotation {
   versionPath: string;
   text: string;
   createdAt: string;
-  x?: number;        // percentage 0-100 (pin only)
-  y?: number;        // percentage 0-100 (pin only)
+  x?: number; // percentage 0-100 (pin only)
+  y?: number; // percentage 0-100 (pin only)
   pinNumber?: number;
   replies?: AnnotationReply[];
 }
@@ -31,8 +31,8 @@ export interface IterationContext {
 }
 
 export const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
-  'instagram': { width: 1080, height: 1080 },
+  instagram: { width: 1080, height: 1080 },
   'linkedin-landscape': { width: 1200, height: 627 },
   'linkedin-wide': { width: 1340, height: 630 },
-  'one-pager': { width: 816, height: 1056 },  // letter at 96dpi
+  'one-pager': { width: 816, height: 1056 }, // letter at 96dpi
 };

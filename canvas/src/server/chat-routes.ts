@@ -29,12 +29,18 @@ async function readBody(req: IncomingMessage): Promise<any> {
       body += chunk;
     });
     req.on('end', () => {
-      if (body.length === 0) { resolve({}); return; }
-      try { resolve(JSON.parse(body)); }
-      // Return a sentinel instead of masking invalid JSON as an empty body —
-      // the handler can then distinguish "client sent nothing" from "client
-      // sent garbage" and return the appropriate status.
-      catch { resolve(INVALID_JSON); }
+      if (body.length === 0) {
+        resolve({});
+        return;
+      }
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        // Return a sentinel instead of masking invalid JSON as an empty body —
+        // the handler can then distinguish "client sent nothing" from "client
+        // sent garbage" and return the appropriate status.
+        resolve(INVALID_JSON);
+      }
     });
     req.on('error', reject);
   });
@@ -43,7 +49,7 @@ async function readBody(req: IncomingMessage): Promise<any> {
 export async function handleChatRoutes(
   req: IncomingMessage,
   res: ServerResponse,
-  url: URL
+  url: URL,
 ): Promise<boolean> {
   const method = req.method ?? 'GET';
   const pathname = url.pathname;
@@ -51,9 +57,11 @@ export async function handleChatRoutes(
   // GET /api/chats — list all chats
   if (method === 'GET' && pathname === '/api/chats') {
     const db = getDb();
-    const chats = db.prepare(
-      `SELECT id, title, created_at as createdAt, updated_at as updatedAt FROM chats ORDER BY updated_at DESC`
-    ).all();
+    const chats = db
+      .prepare(
+        `SELECT id, title, created_at as createdAt, updated_at as updatedAt FROM chats ORDER BY updated_at DESC`,
+      )
+      .all();
     json(res, chats);
     return true;
   }
@@ -63,7 +71,11 @@ export async function handleChatRoutes(
     const db = getDb();
     const id = `chat_${nanoid(10)}`;
     const now = Date.now();
-    db.prepare(`INSERT INTO chats (id, title, created_at, updated_at) VALUES (?, NULL, ?, ?)`).run(id, now, now);
+    db.prepare(`INSERT INTO chats (id, title, created_at, updated_at) VALUES (?, NULL, ?, ?)`).run(
+      id,
+      now,
+      now,
+    );
     json(res, { id, title: null, createdAt: now, updatedAt: now }, 201);
     return true;
   }
@@ -75,13 +87,22 @@ export async function handleChatRoutes(
     const chatId = chatIdMatch[1];
 
     if (method === 'GET') {
-      const chat = db.prepare(`SELECT id, title, created_at as createdAt, updated_at as updatedAt FROM chats WHERE id = ?`).get(chatId);
-      if (!chat) { json(res, { error: 'Chat not found' }, 404); return true; }
+      const chat = db
+        .prepare(
+          `SELECT id, title, created_at as createdAt, updated_at as updatedAt FROM chats WHERE id = ?`,
+        )
+        .get(chatId);
+      if (!chat) {
+        json(res, { error: 'Chat not found' }, 404);
+        return true;
+      }
 
-      const messages = db.prepare(
-        `SELECT id, role, content, tool_calls as toolCalls, tool_results as toolResults, ui_context as uiContext, created_at as createdAt
-         FROM chat_messages WHERE chat_id = ? ORDER BY created_at ASC, rowid ASC`
-      ).all(chatId);
+      const messages = db
+        .prepare(
+          `SELECT id, role, content, tool_calls as toolCalls, tool_results as toolResults, ui_context as uiContext, created_at as createdAt
+         FROM chat_messages WHERE chat_id = ? ORDER BY created_at ASC, rowid ASC`,
+        )
+        .all(chatId);
 
       json(res, { ...(chat as any), messages });
       return true;
@@ -109,7 +130,10 @@ export async function handleChatRoutes(
     const db = getDb();
 
     const chat = db.prepare(`SELECT id FROM chats WHERE id = ?`).get(chatId);
-    if (!chat) { json(res, { error: 'Chat not found' }, 404); return true; }
+    if (!chat) {
+      json(res, { error: 'Chat not found' }, 404);
+      return true;
+    }
 
     let body: any;
     try {
@@ -131,7 +155,7 @@ export async function handleChatRoutes(
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
       'X-Accel-Buffering': 'no',
     });
     res.flushHeaders();
@@ -157,7 +181,10 @@ export async function handleChatRoutes(
     const chatId = cancelMatch[1];
     const db = getDb();
     const chat = db.prepare(`SELECT id FROM chats WHERE id = ?`).get(chatId);
-    if (!chat) { json(res, { error: 'Chat not found' }, 404); return true; }
+    if (!chat) {
+      json(res, { error: 'Chat not found' }, 404);
+      return true;
+    }
     cancelChat(chatId);
     json(res, { success: true });
     return true;

@@ -38,8 +38,14 @@ server.tool(
     frameId: z.string().optional().describe('Frame ID (frm_xxx) — required'),
     html: z.string().describe('Full HTML content of the asset'),
     iterationIndex: z.number().int().optional().describe('Iteration index (auto if omitted)'),
-    slotSchema: z.record(z.string(), z.unknown()).optional().describe('Slot schema JSON for content editor'),
-    source: z.enum(['ai', 'template']).optional().describe('How the asset was created (default: ai)'),
+    slotSchema: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Slot schema JSON for content editor'),
+    source: z
+      .enum(['ai', 'template'])
+      .optional()
+      .describe('How the asset was created (default: ai)'),
     templateId: z.string().optional().describe('Template ID if source=template'),
     platform: z.string().optional().describe('Platform hint (e.g. instagram-square)'),
     // V1 legacy params — accepted only to emit a useful deprecation error
@@ -58,7 +64,9 @@ server.tool(
       }
 
       if (!params.frameId) {
-        throw new Error('push_asset: frameId is required. Provide campaignId, assetId, and frameId.');
+        throw new Error(
+          'push_asset: frameId is required. Provide campaignId, assetId, and frameId.',
+        );
       }
 
       const result = await pushAsset(
@@ -74,7 +82,7 @@ server.tool(
           templateId: params.templateId,
           platform: params.platform,
         },
-        API_BASE
+        API_BASE,
       );
 
       return {
@@ -88,7 +96,7 @@ server.tool(
         isError: true,
       };
     }
-  }
+  },
 );
 
 async function main() {

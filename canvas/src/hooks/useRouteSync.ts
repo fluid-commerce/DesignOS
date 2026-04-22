@@ -5,26 +5,26 @@ const BASE = '/app';
 
 /** Tab segments that map 1:1 to NavTab values */
 const TAB_SEGMENTS: Record<string, NavTab> = {
-  'create': 'create',
+  create: 'create',
   'my-creations': 'my-creations',
-  'assets': 'assets',
-  'templates': 'templates',
-  'patterns': 'patterns',
-  'styles': 'styles',
+  assets: 'assets',
+  templates: 'templates',
+  patterns: 'patterns',
+  styles: 'styles',
   'voice-guide': 'voice-guide',
-  'settings': 'settings',
+  settings: 'settings',
 };
 
 /** Reverse: NavTab → URL segment */
 const TAB_TO_SEGMENT: Record<NavTab, string> = {
-  'create': 'create',
+  create: 'create',
   'my-creations': 'my-creations',
-  'assets': 'assets',
-  'templates': 'templates',
-  'patterns': 'patterns',
-  'styles': 'styles',
+  assets: 'assets',
+  templates: 'templates',
+  patterns: 'patterns',
+  styles: 'styles',
   'voice-guide': 'voice-guide',
-  'settings': 'settings',
+  settings: 'settings',
 };
 
 interface ParsedRoute {
@@ -167,7 +167,7 @@ export function useRouteSync() {
     requestAnimationFrame(() => {
       suppressPush.current = false;
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── 2. Subscribe to state changes → push URL ──
   useEffect(() => {

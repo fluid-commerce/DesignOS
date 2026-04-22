@@ -29,25 +29,26 @@ export function buildBrandBrief(): string {
   // cached by exact-string match — any reshuffling silently busts the cache
   // and doubles input-token costs.
   // --- Voice Guide (top entries) ---
-  const voiceDocs = db.prepare(
-    'SELECT slug, label, content FROM voice_guide_docs ORDER BY sort_order ASC, slug ASC'
-  ).all() as Array<{ slug: string; label: string; content: string }>;
+  const voiceDocs = db
+    .prepare('SELECT slug, label, content FROM voice_guide_docs ORDER BY sort_order ASC, slug ASC')
+    .all() as Array<{ slug: string; label: string; content: string }>;
 
   if (voiceDocs.length > 0) {
     parts.push('### Voice');
     // Include first 3 docs (condensed) — adjust via context_map in future
     for (const doc of voiceDocs.slice(0, 3)) {
-      const truncated = doc.content.length > 800
-        ? doc.content.slice(0, 800) + '\n[truncated]'
-        : doc.content;
+      const truncated =
+        doc.content.length > 800 ? doc.content.slice(0, 800) + '\n[truncated]' : doc.content;
       parts.push(`**${doc.label}**\n${truncated}`);
     }
   }
 
   // --- Hard Rules (weight >= 81) ---
-  const hardRules = db.prepare(
-    'SELECT slug, label, content FROM brand_patterns WHERE weight >= 81 ORDER BY weight DESC, sort_order ASC, slug ASC'
-  ).all() as Array<{ slug: string; label: string; content: string }>;
+  const hardRules = db
+    .prepare(
+      'SELECT slug, label, content FROM brand_patterns WHERE weight >= 81 ORDER BY weight DESC, sort_order ASC, slug ASC',
+    )
+    .all() as Array<{ slug: string; label: string; content: string }>;
 
   if (hardRules.length > 0) {
     parts.push('### Hard Rules (non-negotiable)');
@@ -57,9 +58,11 @@ export function buildBrandBrief(): string {
   }
 
   // --- Color System ---
-  const colorPatterns = db.prepare(
-    "SELECT slug, label, content FROM brand_patterns WHERE category = 'colors' ORDER BY weight DESC, sort_order ASC, slug ASC"
-  ).all() as Array<{ slug: string; label: string; content: string }>;
+  const colorPatterns = db
+    .prepare(
+      "SELECT slug, label, content FROM brand_patterns WHERE category = 'colors' ORDER BY weight DESC, sort_order ASC, slug ASC",
+    )
+    .all() as Array<{ slug: string; label: string; content: string }>;
 
   if (colorPatterns.length > 0) {
     parts.push('### Color System');
@@ -69,9 +72,11 @@ export function buildBrandBrief(): string {
   }
 
   // --- Typography ---
-  const typoPatterns = db.prepare(
-    "SELECT slug, label, content FROM brand_patterns WHERE category = 'typography' ORDER BY weight DESC, sort_order ASC, slug ASC"
-  ).all() as Array<{ slug: string; label: string; content: string }>;
+  const typoPatterns = db
+    .prepare(
+      "SELECT slug, label, content FROM brand_patterns WHERE category = 'typography' ORDER BY weight DESC, sort_order ASC, slug ASC",
+    )
+    .all() as Array<{ slug: string; label: string; content: string }>;
 
   if (typoPatterns.length > 0) {
     parts.push('### Typography');
@@ -81,9 +86,11 @@ export function buildBrandBrief(): string {
   }
 
   // --- Asset Manifest ---
-  const assets = db.prepare(
-    "SELECT name, category, file_path, mime_type FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY category, name"
-  ).all() as Array<{ name: string; category: string; file_path: string; mime_type: string }>;
+  const assets = db
+    .prepare(
+      'SELECT name, category, file_path, mime_type FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL) ORDER BY category, name',
+    )
+    .all() as Array<{ name: string; category: string; file_path: string; mime_type: string }>;
 
   if (assets.length > 0) {
     parts.push('### Asset Manifest');
@@ -109,25 +116,32 @@ export function buildBrandBrief(): string {
   }
 
   // --- Active CSS Layers ---
-  const styles = db.prepare(
-    "SELECT scope, css_content FROM brand_styles WHERE css_content != '' ORDER BY scope ASC, id ASC"
-  ).all() as Array<{ scope: string; css_content: string }>;
+  const styles = db
+    .prepare(
+      "SELECT scope, css_content FROM brand_styles WHERE css_content != '' ORDER BY scope ASC, id ASC",
+    )
+    .all() as Array<{ scope: string; css_content: string }>;
 
   if (styles.length > 0) {
     parts.push('### Active CSS Layers');
-    parts.push('These CSS layers are automatically merged into creations on save. You do not need to duplicate them.\n');
+    parts.push(
+      'These CSS layers are automatically merged into creations on save. You do not need to duplicate them.\n',
+    );
     for (const s of styles) {
-      const preview = s.css_content.length > 300
-        ? s.css_content.slice(0, 300) + '\n/* ... truncated ... */'
-        : s.css_content;
+      const preview =
+        s.css_content.length > 300
+          ? s.css_content.slice(0, 300) + '\n/* ... truncated ... */'
+          : s.css_content;
       parts.push(`**${s.scope}**\n\`\`\`css\n${preview}\n\`\`\``);
     }
   }
 
   // --- Decoration Rules ---
-  const decoPatterns = db.prepare(
-    "SELECT slug, label, content FROM brand_patterns WHERE category = 'decorations' ORDER BY weight DESC, sort_order ASC, slug ASC"
-  ).all() as Array<{ slug: string; label: string; content: string }>;
+  const decoPatterns = db
+    .prepare(
+      "SELECT slug, label, content FROM brand_patterns WHERE category = 'decorations' ORDER BY weight DESC, sort_order ASC, slug ASC",
+    )
+    .all() as Array<{ slug: string; label: string; content: string }>;
 
   if (decoPatterns.length > 0) {
     parts.push('### Decoration Rules');

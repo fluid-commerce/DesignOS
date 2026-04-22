@@ -71,7 +71,7 @@ test.describe('Creations Tab Navigation', () => {
       // Should be back at dashboard level (not inside campaign)
       // Verify by checking breadcrumb does NOT show a campaign name segment
       const breadcrumb = page.locator('nav[aria-label="Breadcrumb"]');
-      const segments = breadcrumb.locator('span').filter({ hasText: /[A-Za-z]/ });
+      const _segments = breadcrumb.locator('span').filter({ hasText: /[A-Za-z]/ });
 
       // The creations tab should be active
       const borderBottom = await crTab.evaluate(
@@ -261,7 +261,7 @@ test.describe('Asset Preview Rendering', () => {
     // Check that no bare "File" spans exist in preview containers
     // (They might still exist for truly unknown file types)
     const fileFallbacks = page.locator('span:text-is("File")');
-    const fileCount = await fileFallbacks.count();
+    const _fileCount = await fileFallbacks.count();
 
     // If there are fonts, there should be previews and no "File" fallback for them
     if (fontCount > 0) {

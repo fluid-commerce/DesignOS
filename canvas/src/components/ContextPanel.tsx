@@ -50,15 +50,17 @@ export function ContextPanel({ sections, tokenEstimate, gapCount = 0 }: ContextP
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div style={{
-      marginTop: 4,
-      borderRadius: 4,
-      border: '1px solid #1e1e1e',
-      backgroundColor: '#141414',
-      overflow: 'hidden',
-      transition: 'max-height 0.2s ease',
-      maxHeight: expanded ? 300 : 24,
-    }}>
+    <div
+      style={{
+        marginTop: 4,
+        borderRadius: 4,
+        border: '1px solid #1e1e1e',
+        backgroundColor: '#141414',
+        overflow: 'hidden',
+        transition: 'max-height 0.2s ease',
+        maxHeight: expanded ? 300 : 24,
+      }}
+    >
       {/* Collapsed pill / toggle header */}
       <button
         onClick={() => setExpanded((v) => !v)}
@@ -83,10 +85,12 @@ export function ContextPanel({ sections, tokenEstimate, gapCount = 0 }: ContextP
           {sections.length > 0 && (
             <>
               {' · '}
-              <span style={{
-                color: '#44B2FF',
-                fontWeight: 600,
-              }}>
+              <span
+                style={{
+                  color: '#44B2FF',
+                  fontWeight: 600,
+                }}
+              >
                 {sections.length}
               </span>
               {' sections'}
@@ -98,12 +102,14 @@ export function ContextPanel({ sections, tokenEstimate, gapCount = 0 }: ContextP
 
       {/* Expanded content */}
       {expanded && (
-        <div style={{
-          padding: '6px 8px 8px',
-          borderTop: '1px solid #1e1e1e',
-          overflowY: 'auto',
-          maxHeight: 276,
-        }}>
+        <div
+          style={{
+            padding: '6px 8px 8px',
+            borderTop: '1px solid #1e1e1e',
+            overflowY: 'auto',
+            maxHeight: 276,
+          }}
+        >
           {/* Section slug chips */}
           {sections.length > 0 ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>

@@ -33,7 +33,7 @@ export interface DamSyncResult {
  * Sanitize a filename: lowercase, replace non-alphanumeric chars (except dots/hyphens) with underscores.
  */
 export function sanitizeFilename(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9.\-]/g, '_');
+  return name.toLowerCase().replace(/[^a-z0-9.-]/g, '_');
 }
 
 /**
@@ -44,17 +44,27 @@ export function getMimeTypeFromUrl(url: string): string {
   const urlPath = url.split('?')[0];
   const ext = path.extname(urlPath).toLowerCase();
   switch (ext) {
-    case '.png':  return 'image/png';
+    case '.png':
+      return 'image/png';
     case '.jpg':
-    case '.jpeg': return 'image/jpeg';
-    case '.svg':  return 'image/svg+xml';
-    case '.webp': return 'image/webp';
-    case '.gif':  return 'image/gif';
-    case '.ttf':  return 'font/ttf';
-    case '.woff': return 'font/woff';
-    case '.woff2': return 'font/woff2';
-    case '.otf':  return 'font/otf';
-    default:      return 'application/octet-stream';
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.svg':
+      return 'image/svg+xml';
+    case '.webp':
+      return 'image/webp';
+    case '.gif':
+      return 'image/gif';
+    case '.ttf':
+      return 'font/ttf';
+    case '.woff':
+      return 'font/woff';
+    case '.woff2':
+      return 'font/woff2';
+    case '.otf':
+      return 'font/otf';
+    default:
+      return 'application/octet-stream';
   }
 }
 

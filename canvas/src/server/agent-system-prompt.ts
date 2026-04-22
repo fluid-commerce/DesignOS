@@ -58,7 +58,12 @@ export interface SystemPromptParts {
  */
 export function buildSystemPrompt(
   brandBrief: string,
-  uiContext?: { currentView?: string; activeCampaignId?: string; activeCreationId?: string; activeIterationId?: string } | null,
+  uiContext?: {
+    currentView?: string;
+    activeCampaignId?: string;
+    activeCreationId?: string;
+    activeIterationId?: string;
+  } | null,
 ): SystemPromptParts {
   const staticParts = [TIER1_PROMPT];
   if (brandBrief) staticParts.push(brandBrief);

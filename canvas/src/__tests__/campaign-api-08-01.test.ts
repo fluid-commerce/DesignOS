@@ -40,7 +40,12 @@ function resetDb() {
 
 function makeSlide() {
   const campaign = createCampaign({ title: 'C', channels: [] });
-  const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+  const creation = createCreation({
+    campaignId: campaign.id,
+    title: 'A',
+    creationType: 'instagram',
+    slideCount: 1,
+  });
   const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
   return { campaign, creation, slide };
 }
@@ -109,7 +114,12 @@ describe('updateCreation', () => {
 
   it('updateCreation changes the creation title', () => {
     const campaign = createCampaign({ title: 'C', channels: [] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'Old Title', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'Old Title',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     updateCreation(creation.id, { title: 'New Title' });
     const creations = getCreations(campaign.id);
     expect(creations[0].title).toBe('New Title');

@@ -1,0 +1,22 @@
+<!--
+  FIXTURE: Non-brand hex inside a <meta name="theme-color"> tag, outside any
+  <style> block.
+
+  Current validator uses a global hex regex across the entire file, so it
+  flags `#FF00FF` here even though theme-color is not CSS and is not rendered
+  in the creation. parse5 post-migration should only consider <style> text
+  nodes and `style` attributes.
+
+  Expected (parse5-post-migration): zero hex violations — meta theme-color
+  is not brand-controlled surface area.
+
+  Pre-migration: false positive on #FF00FF.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="theme-color" content="#FF00FF">
+  <style>body { background: #000000; color: #FFFFFF; font-family: 'NeueHaasDisplay'; }</style>
+</head>
+<body><h1>Hello</h1></body>
+</html>

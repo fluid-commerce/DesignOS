@@ -55,7 +55,10 @@ describe('Campaign CRUD', () => {
   });
 
   it('createCampaign returns a Campaign with id, title, channels, timestamps', () => {
-    const campaign = createCampaign({ title: 'Q3 Brand Push', channels: ['instagram', 'linkedin'] });
+    const campaign = createCampaign({
+      title: 'Q3 Brand Push',
+      channels: ['instagram', 'linkedin'],
+    });
     expect(campaign.id).toBeDefined();
     expect(campaign.id.length).toBeGreaterThan(4);
     expect(campaign.title).toBe('Q3 Brand Push');
@@ -112,8 +115,18 @@ describe('Creation CRUD', () => {
 
   it('getCreations returns creations for a campaign ordered by createdAt ASC', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const c1 = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
-    const c2 = createCreation({ campaignId: campaign.id, title: 'B', creationType: 'linkedin', slideCount: 3 });
+    const c1 = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
+    const c2 = createCreation({
+      campaignId: campaign.id,
+      title: 'B',
+      creationType: 'linkedin',
+      slideCount: 3,
+    });
     const creations = getCreations(campaign.id);
     expect(creations.length).toBe(2);
     // Both created at nearly same ms; verify both exist by ID
@@ -128,7 +141,12 @@ describe('Creation CRUD', () => {
 
   it('createCreation with invalid campaignId throws FK constraint error', () => {
     expect(() =>
-      createCreation({ campaignId: 'bad-id', title: 'X', creationType: 'instagram', slideCount: 1 })
+      createCreation({
+        campaignId: 'bad-id',
+        title: 'X',
+        creationType: 'instagram',
+        slideCount: 1,
+      }),
     ).toThrow();
   });
 });
@@ -140,7 +158,12 @@ describe('Slide CRUD', () => {
 
   it('createSlide returns a Slide with correct fields', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     expect(slide.id).toBeDefined();
     expect(slide.creationId).toBe(creation.id);
@@ -150,7 +173,12 @@ describe('Slide CRUD', () => {
 
   it('getSlides returns slides ordered by slideIndex ASC', () => {
     const campaign = createCampaign({ title: 'Cam', channels: [] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'carousel', slideCount: 3 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'carousel',
+      slideCount: 3,
+    });
     createSlide({ creationId: creation.id, slideIndex: 2 });
     createSlide({ creationId: creation.id, slideIndex: 0 });
     createSlide({ creationId: creation.id, slideIndex: 1 });
@@ -173,7 +201,12 @@ describe('Iteration CRUD', () => {
 
   function makeSlide() {
     const campaign = createCampaign({ title: 'C', channels: [] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     return createSlide({ creationId: creation.id, slideIndex: 0 });
   }
 
@@ -227,7 +260,12 @@ describe('Iteration CRUD', () => {
 
   it('updateIterationStatus changes status to winner', () => {
     const slide = makeSlide();
-    const iter = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const iter = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: 'x.html',
+      source: 'ai',
+    });
     updateIterationStatus(iter.id, 'winner');
     const [updated] = getIterations(slide.id);
     expect(updated.status).toBe('winner');
@@ -235,7 +273,12 @@ describe('Iteration CRUD', () => {
 
   it('updateIterationStatus changes status to rejected', () => {
     const slide = makeSlide();
-    const iter = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const iter = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: 'x.html',
+      source: 'ai',
+    });
     updateIterationStatus(iter.id, 'rejected');
     const [updated] = getIterations(slide.id);
     expect(updated.status).toBe('rejected');
@@ -243,7 +286,12 @@ describe('Iteration CRUD', () => {
 
   it('updateIterationUserState persists the user state object', () => {
     const slide = makeSlide();
-    const iter = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    const iter = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: 'x.html',
+      source: 'ai',
+    });
     const userState = { headline: 'New Headline', body: 'Updated copy' };
     updateIterationUserState(iter.id, userState);
     const [updated] = getIterations(slide.id);
@@ -252,7 +300,7 @@ describe('Iteration CRUD', () => {
 
   it('createIteration with invalid slideId throws FK constraint error', () => {
     expect(() =>
-      createIteration({ slideId: 'bad-id', iterationIndex: 0, htmlPath: 'x.html', source: 'ai' })
+      createIteration({ slideId: 'bad-id', iterationIndex: 0, htmlPath: 'x.html', source: 'ai' }),
     ).toThrow();
   });
 });
@@ -264,9 +312,19 @@ describe('Annotation CRUD', () => {
 
   function makeIteration() {
     const campaign = createCampaign({ title: 'C', channels: [] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    return createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'x.html', source: 'ai' });
+    return createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: 'x.html',
+      source: 'ai',
+    });
   }
 
   it('createAnnotation returns a pin annotation with coordinates', () => {
@@ -304,8 +362,20 @@ describe('Annotation CRUD', () => {
 
   it('getAnnotations returns annotations ordered by createdAt ASC', () => {
     const iter = makeIteration();
-    const a1 = createAnnotation({ iterationId: iter.id, type: 'sidebar', author: 'human', text: 'First' });
-    const a2 = createAnnotation({ iterationId: iter.id, type: 'pin', author: 'human', text: 'Second', x: 10, y: 10 });
+    const a1 = createAnnotation({
+      iterationId: iter.id,
+      type: 'sidebar',
+      author: 'human',
+      text: 'First',
+    });
+    const a2 = createAnnotation({
+      iterationId: iter.id,
+      type: 'pin',
+      author: 'human',
+      text: 'Second',
+      x: 10,
+      y: 10,
+    });
     const anns = getAnnotations(iter.id);
     expect(anns.length).toBe(2);
     // Verify both exist by ID
@@ -316,7 +386,14 @@ describe('Annotation CRUD', () => {
 
   it('createAnnotation with invalid iterationId throws FK constraint error', () => {
     expect(() =>
-      createAnnotation({ iterationId: 'bad-id', type: 'pin', author: 'human', text: 'x', x: 0, y: 0 })
+      createAnnotation({
+        iterationId: 'bad-id',
+        type: 'pin',
+        author: 'human',
+        text: 'x',
+        x: 0,
+        y: 0,
+      }),
     ).toThrow();
   });
 });
@@ -333,7 +410,7 @@ describe('createCampaignWithCreations — atomic transaction', () => {
         { title: 'IG Story', creationType: 'instagram-story', slideCount: 1 },
         { title: 'LI Banner', creationType: 'linkedin-landscape', slideCount: 1 },
         { title: 'One-Pager', creationType: 'one-pager', slideCount: 1 },
-      ]
+      ],
     );
     expect(campaign.id).toBeDefined();
     expect(campaign.title).toBe('Big Campaign');
@@ -348,10 +425,9 @@ describe('createCampaignWithCreations — atomic transaction', () => {
   });
 
   it('returns correct creation structures from the transaction', () => {
-    const { campaign, creations } = createCampaignWithCreations(
-      { title: 'Cam', channels: [] },
-      [{ title: 'Post', creationType: 'instagram', slideCount: 2 }]
-    );
+    const { campaign, creations } = createCampaignWithCreations({ title: 'Cam', channels: [] }, [
+      { title: 'Post', creationType: 'instagram', slideCount: 2 },
+    ]);
     expect(creations[0].campaignId).toBe(campaign.id);
     expect(creations[0].creationType).toBe('instagram');
     expect(creations[0].slideCount).toBe(2);
@@ -360,7 +436,7 @@ describe('createCampaignWithCreations — atomic transaction', () => {
   it('createCampaignWithCreations with zero creations creates only the campaign', () => {
     const { campaign, creations } = createCampaignWithCreations(
       { title: 'Empty Campaign', channels: [] },
-      []
+      [],
     );
     expect(getCampaigns().length).toBe(1);
     expect(creations.length).toBe(0);
@@ -375,7 +451,12 @@ describe('updateCreation — PATCH /api/creations/:id', () => {
 
   function makeCreation() {
     const campaign = createCampaign({ title: 'Cam', channels: ['instagram'] });
-    return createCreation({ campaignId: campaign.id, title: 'instagram 1', creationType: 'instagram', slideCount: 1 });
+    return createCreation({
+      campaignId: campaign.id,
+      title: 'instagram 1',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
   }
 
   it('updateCreation changes the title in the database', () => {
@@ -415,7 +496,7 @@ describe('getCampaignPreviewUrls — GET /api/campaigns/:id/preview-urls', () =>
         title: `creation ${i + 1}`,
         creationType: i % 2 === 0 ? 'instagram' : 'linkedin',
         slideCount: 1,
-      }))
+      })),
     );
     const entries: Array<{ iterationId: string; creationType: string }> = [];
     for (const creation of creations) {

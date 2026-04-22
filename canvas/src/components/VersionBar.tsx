@@ -58,15 +58,17 @@ export function VersionBar({ iterations, activeIterationId }: VersionBarProps) {
   if (iterations.length < 2) return null;
 
   return (
-    <div style={{
-      flexShrink: 0,
-      backgroundColor: 'rgba(50, 48, 48, 0.8)',
-      borderRadius: '7.027px',
-      margin: '0 12px 12px 12px',
-      overflow: 'hidden',
-      transition: 'max-height 0.2s ease',
-      maxHeight: collapsed ? 32 : 200,
-    }}>
+    <div
+      style={{
+        flexShrink: 0,
+        backgroundColor: 'rgba(50, 48, 48, 0.8)',
+        borderRadius: '7.027px',
+        margin: '0 12px 12px 12px',
+        overflow: 'hidden',
+        transition: 'max-height 0.2s ease',
+        maxHeight: collapsed ? 32 : 200,
+      }}
+    >
       {/* Collapse toggle */}
       <div
         onClick={() => setCollapsed(!collapsed)}
@@ -100,19 +102,23 @@ export function VersionBar({ iterations, activeIterationId }: VersionBarProps) {
       {!collapsed && (
         <div style={{ padding: '0 12px 12px' }}>
           {/* Header row */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-          }}>
-            <span style={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              color: '#aaa',
-              fontFamily: "'Inter', sans-serif",
-              letterSpacing: '0.04em',
-            }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 8,
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                color: '#aaa',
+                fontFamily: "'Inter', sans-serif",
+                letterSpacing: '0.04em',
+              }}
+            >
               Slide Versions{' '}
               <span style={{ color: '#3ba9ff' }}>
                 {activeIndex >= 0 ? activeIndex + 1 : '?'}/{total}
@@ -120,23 +126,31 @@ export function VersionBar({ iterations, activeIterationId }: VersionBarProps) {
             </span>
 
             <div style={{ display: 'flex', gap: 4 }}>
-              <button
-                onClick={handleScrollLeft}
-                style={navBtnStyle}
-                title="Scroll left"
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <button onClick={handleScrollLeft} style={navBtnStyle} title="Scroll left">
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-              <button
-                onClick={handleScrollRight}
-                style={navBtnStyle}
-                title="Scroll right"
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <button onClick={handleScrollRight} style={navBtnStyle} title="Scroll right">
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <polyline points="9 6 15 12 9 18" />
                 </svg>
               </button>
@@ -211,8 +225,22 @@ export function VersionBar({ iterations, activeIterationId }: VersionBarProps) {
                       }}
                       viewBox="0 0 114 114"
                     >
-                      <line x1="0" y1="0" x2="114" y2="114" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-                      <line x1="114" y1="0" x2="0" y2="114" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2="114"
+                        y2="114"
+                        stroke="rgba(255,255,255,0.3)"
+                        strokeWidth="2"
+                      />
+                      <line
+                        x1="114"
+                        y1="0"
+                        x2="0"
+                        y2="114"
+                        stroke="rgba(255,255,255,0.3)"
+                        strokeWidth="2"
+                      />
                     </svg>
                   )}
 

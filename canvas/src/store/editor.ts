@@ -98,7 +98,7 @@ interface EditorStore {
     sel: string,
     value: string,
     mode?: string,
-    options?: { skipIframeEcho?: boolean }
+    options?: { skipIframeEcho?: boolean },
   ) => void;
   /**
    * Persist CSS transform for a template element (same postMessage as legacy brush).
@@ -124,7 +124,7 @@ interface EditorStore {
       align?: TextBoxAlign;
       fontPreset?: TextBoxFontPreset;
       fontSizePx?: number;
-    }
+    },
   ) => void;
   /** PATCH /api/iterations/:id/user-state with current slotValues, resets isDirty */
   saveUserState: () => Promise<void>;
@@ -147,7 +147,10 @@ function normalizeImageUrlForSave(value: string): string {
   if (value.startsWith('data:') || !value.startsWith('http')) return value;
   try {
     const u = new URL(value);
-    if (u.origin === window.location.origin && (u.pathname.startsWith('/fluid-assets/') || u.pathname.startsWith('/api/brand-assets/serve/'))) {
+    if (
+      u.origin === window.location.origin &&
+      (u.pathname.startsWith('/fluid-assets/') || u.pathname.startsWith('/api/brand-assets/serve/'))
+    ) {
       return u.pathname;
     }
   } catch {
@@ -164,7 +167,7 @@ function extractSlotValues(iteration: Iteration): Record<string, string> {
     Object.entries(source).map(([k, v]) => {
       const s = String(v);
       return [k, normalizeImageUrlForSave(s)];
-    })
+    }),
   );
 }
 
@@ -234,7 +237,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       if (iframeRef?.contentWindow) {
         iframeRef.contentWindow.postMessage(
           { type: 'tmpl', sel, value, mode: mode ?? 'text' },
-          '*'
+          '*',
         );
       }
     }
@@ -264,10 +267,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
             fontPreset?: TextBoxFontPreset;
             fontSizePx?: number;
           } = {
-            w:
-              typeof o.w === 'number' && Number.isFinite(o.w) && o.w >= 1
-                ? Math.round(o.w)
-                : null,
+            w: typeof o.w === 'number' && Number.isFinite(o.w) && o.w >= 1 ? Math.round(o.w) : null,
           };
           if ('h' in o) {
             if (o.h == null) slim.h = null;
@@ -316,7 +316,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (iframeRef?.contentWindow) {
       iframeRef.contentWindow.postMessage(
         { type: 'tmpl', sel, action: 'transform', transform },
-        '*'
+        '*',
       );
     }
   },
@@ -459,7 +459,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       const fontMsg = textBoxFontPostMessage(
         mergedFontPreset,
         mergedFontSizePx,
-        explicitFontInherit
+        explicitFontInherit,
       );
       iframeRef.contentWindow.postMessage(
         {
@@ -473,7 +473,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
           ...(mergedAlign ? { textAlign: mergedAlign } : {}),
           ...fontMsg,
         },
-        '*'
+        '*',
       );
     }
   },
@@ -492,7 +492,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
             redoStack: [],
           }));
         }
-      }
+      },
     );
 
     const s2 = get();
@@ -529,7 +529,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
             redoStack: [],
           }));
         }
-      }
+      },
     );
 
     const s2 = get();
@@ -575,7 +575,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set((state) => {
       let map: Record<string, string> = {};
       try {
-        map = JSON.parse(state.slotValues[BRUSH_TRANSFORM_STATE_KEY] || '{}') as Record<string, string>;
+        map = JSON.parse(state.slotValues[BRUSH_TRANSFORM_STATE_KEY] || '{}') as Record<
+          string,
+          string
+        >;
       } catch {
         map = {};
       }
@@ -598,7 +601,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (iframeRef?.contentWindow) {
       iframeRef.contentWindow.postMessage(
         { type: 'tmpl', sel, action: 'transform', transform },
-        '*'
+        '*',
       );
     }
   },
@@ -607,7 +610,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     const { selectedIterationId, slotValues } = get();
     if (!selectedIterationId) return;
     const normalized = Object.fromEntries(
-      Object.entries(slotValues).map(([k, v]) => [k, normalizeImageUrlForSave(v)])
+      Object.entries(slotValues).map(([k, v]) => [k, normalizeImageUrlForSave(v)]),
     );
     try {
       const res = await fetch(`/api/iterations/${selectedIterationId}/user-state`, {

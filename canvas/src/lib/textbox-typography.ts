@@ -36,14 +36,14 @@ export const TEXTBOX_FONT_PRESET_PX: Record<
 const PRESET_KEYS = new Set<string>(Object.keys(TEXTBOX_FONT_PRESET_PX));
 
 export function isNamedFontPreset(
-  v: string | undefined | null
+  v: string | undefined | null,
 ): v is Exclude<TextBoxFontPreset, 'inherit' | 'custom'> {
   return typeof v === 'string' && PRESET_KEYS.has(v);
 }
 
 export function resolveTextBoxFontSizePx(
   preset: TextBoxFontPreset | undefined,
-  fontSizePx?: number | null
+  fontSizePx?: number | null,
 ): number | null {
   if (preset == null || preset === 'inherit') return null;
   if (preset === 'custom') {
@@ -59,7 +59,7 @@ export function textBoxFontPostMessage(
   preset: TextBoxFontPreset | undefined,
   fontSizePx?: number | null,
   /** True when user chose “Template default” this update. */
-  explicitInherit?: boolean
+  explicitInherit?: boolean,
 ): { fontSize?: string; clearFontSize?: boolean } {
   if (explicitInherit) return { clearFontSize: true };
   const px = resolveTextBoxFontSizePx(preset, fontSizePx);

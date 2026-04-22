@@ -44,7 +44,11 @@ interface TextBoxControlsProps {
   iframeEl: HTMLIFrameElement | null;
 }
 
-export function TextBoxControls({ textSel, textLabel: _textLabel, iframeEl }: TextBoxControlsProps) {
+export function TextBoxControls({
+  textSel,
+  textLabel: _textLabel,
+  iframeEl,
+}: TextBoxControlsProps) {
   const fontFieldId = useId();
   const tbKey = `${SLOT_TEXT_BOX_PREFIX}${textSel}`;
   const saved = useEditorStore((s) => s.slotValues[tbKey] ?? '');
@@ -163,7 +167,7 @@ export function TextBoxControls({ textSel, textLabel: _textLabel, iframeEl }: Te
         h: autoH ? null : Math.max(24, Math.round(hPx)),
       });
     },
-    [textSel, updateTextBox, heightPx]
+    [textSel, updateTextBox, heightPx],
   );
 
   const fixedW = autoWidth ? null : widthPx;
@@ -293,7 +297,9 @@ export function TextBoxControls({ textSel, textLabel: _textLabel, iframeEl }: Te
                   setAlign(a);
                   updateTextBox(textSel, { align: a });
                 }}
-                title={a === 'left' ? 'Align left' : a === 'center' ? 'Align center' : 'Align right'}
+                title={
+                  a === 'left' ? 'Align left' : a === 'center' ? 'Align center' : 'Align right'
+                }
               >
                 {a === 'left' ? 'Left' : a === 'center' ? 'Center' : 'Right'}
               </button>

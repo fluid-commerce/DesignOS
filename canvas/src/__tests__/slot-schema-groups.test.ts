@@ -31,7 +31,7 @@ const groupSchema: SlotSchema = {
 describe('collectTransformTargets with groups', () => {
   it('includes group container as a transform target', () => {
     const targets = collectTransformTargets(groupSchema);
-    const groupTarget = targets.find(t => t.sel === '.stat-card');
+    const groupTarget = targets.find((t) => t.sel === '.stat-card');
     expect(groupTarget).toBeDefined();
     expect(groupTarget!.kind).toBe('group');
     expect(groupTarget!.label).toBe('Stat Card');
@@ -39,14 +39,14 @@ describe('collectTransformTargets with groups', () => {
 
   it('includes group children as transform targets', () => {
     const targets = collectTransformTargets(groupSchema);
-    expect(targets.find(t => t.sel === '.stat-number')).toBeDefined();
-    expect(targets.find(t => t.sel === '.stat-label')).toBeDefined();
+    expect(targets.find((t) => t.sel === '.stat-number')).toBeDefined();
+    expect(targets.find((t) => t.sel === '.stat-label')).toBeDefined();
   });
 
   it('includes non-grouped fields', () => {
     const targets = collectTransformTargets(groupSchema);
-    expect(targets.find(t => t.sel === '.headline')).toBeDefined();
-    expect(targets.find(t => t.sel === '.body-copy')).toBeDefined();
+    expect(targets.find((t) => t.sel === '.headline')).toBeDefined();
+    expect(targets.find((t) => t.sel === '.body-copy')).toBeDefined();
   });
 
   it('returns correct count (group + 2 children + 2 top-level)', () => {
@@ -84,7 +84,7 @@ describe('slotFieldSelFromLayoutPick with groups', () => {
 describe('filterFieldsForSlide with groups', () => {
   it('includes groups in non-carousel mode', () => {
     const result = filterFieldsForSlide(groupSchema.fields, 1, false);
-    const hasGroup = result.some(f => f.type === 'group');
+    const hasGroup = result.some((f) => f.type === 'group');
     expect(hasGroup).toBe(true);
   });
 
@@ -100,6 +100,6 @@ describe('filterFieldsForSlide with groups', () => {
     };
     const result = filterFieldsForSlide(flatSchema.fields, 1, false);
     expect(result).toHaveLength(2);
-    expect(result.every(f => f.type === 'text')).toBe(true);
+    expect(result.every((f) => f.type === 'text')).toBe(true);
   });
 });

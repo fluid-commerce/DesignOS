@@ -4,7 +4,15 @@ import type { Campaign, Creation, Slide, Iteration } from '../lib/campaign-types
 export type NavigationView = 'dashboard' | 'campaign' | 'creation';
 
 /** Top-level navigation tabs controlling the main viewport */
-export type NavTab = 'create' | 'my-creations' | 'assets' | 'templates' | 'patterns' | 'styles' | 'voice-guide' | 'settings';
+export type NavTab =
+  | 'create'
+  | 'my-creations'
+  | 'assets'
+  | 'templates'
+  | 'patterns'
+  | 'styles'
+  | 'voice-guide'
+  | 'settings';
 
 /** Sub-tabs within the Create viewport */
 export type CreateViewportTab = 'campaigns' | 'creations';
@@ -95,7 +103,7 @@ function pickBestIteration(slideIterations: Iteration[]): Iteration | undefined 
   const winner = slideIterations.find((it) => it.status === 'winner');
   if (winner) return winner;
   return slideIterations.reduce((best, it) =>
-    it.iterationIndex > best.iterationIndex ? it : best
+    it.iterationIndex > best.iterationIndex ? it : best,
   );
 }
 
@@ -196,8 +204,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
             if (!res.ok) return;
             const iters: Iteration[] = await res.json();
             allIterations.push(...iters);
-          } catch { /* noop */ }
-        })
+          } catch {
+            /* noop */
+          }
+        }),
       );
       set({ iterations: allIterations });
 
@@ -302,7 +312,12 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
             return { ...it, status: newStatus as Iteration['status'] };
           }
           // Un-star previous winner when starring a new one
-          if (newStatus === 'winner' && it.slideId === slideId && it.status === 'winner' && it.id !== iterationId) {
+          if (
+            newStatus === 'winner' &&
+            it.slideId === slideId &&
+            it.status === 'winner' &&
+            it.id !== iterationId
+          ) {
             // Fire and forget the API call for the old winner
             fetch(`/api/iterations/${it.id}/status`, {
               method: 'PATCH',
@@ -327,7 +342,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     try {
       const res = await fetch('/api/campaigns');
       if (get()._requestId !== requestId) return;
-      if (!res.ok) { set({ loading: false }); return; }
+      if (!res.ok) {
+        set({ loading: false });
+        return;
+      }
       const campaigns: Campaign[] = await res.json();
       if (get()._requestId !== requestId) return;
       set({ campaigns, loading: false });
@@ -344,7 +362,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     try {
       const res = await fetch(`/api/campaigns/${campaignId}/creations`);
       if (get()._requestId !== requestId) return;
-      if (!res.ok) { set({ loading: false }); return; }
+      if (!res.ok) {
+        set({ loading: false });
+        return;
+      }
       const creations: Creation[] = await res.json();
       if (get()._requestId !== requestId) return;
       set({ creations, loading: false });
@@ -361,7 +382,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     try {
       const res = await fetch(`/api/creations/${creationId}/slides`);
       if (get()._requestId !== requestId) return;
-      if (!res.ok) { set({ loading: false }); return; }
+      if (!res.ok) {
+        set({ loading: false });
+        return;
+      }
       const slides: Slide[] = await res.json();
       if (get()._requestId !== requestId) return;
       set({ slides, loading: false });
@@ -378,7 +402,10 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
     try {
       const res = await fetch(`/api/slides/${slideId}/iterations`);
       if (get()._requestId !== requestId) return;
-      if (!res.ok) { set({ loading: false }); return; }
+      if (!res.ok) {
+        set({ loading: false });
+        return;
+      }
       const iterations: Iteration[] = await res.json();
       if (get()._requestId !== requestId) return;
       set({ iterations, loading: false });
@@ -413,13 +440,17 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
 
           // Pick the latest by iterationIndex
           const latest = iterations.reduce((best, iter) =>
-            iter.iterationIndex > best.iterationIndex ? iter : best
+            iter.iterationIndex > best.iterationIndex ? iter : best,
           );
           result[creation.id] = latest;
         } catch (err) {
-          console.error('[campaign store] fetchLatestIterations failed for creation:', creation.id, err);
+          console.error(
+            '[campaign store] fetchLatestIterations failed for creation:',
+            creation.id,
+            err,
+          );
         }
-      })
+      }),
     );
 
     set({ latestIterationByCreationId: result });

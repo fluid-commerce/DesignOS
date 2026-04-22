@@ -31,7 +31,7 @@ export function clearHistoryDebounceSchedule(): void {
  */
 export function flushPendingUndoSnapshot(
   getCurrentSlotValues: () => Record<string, string>,
-  commit: (snapshot: Record<string, string>) => void
+  commit: (snapshot: Record<string, string>) => void,
 ): void {
   if (historyTimer != null) {
     clearTimeout(historyTimer);
@@ -48,7 +48,7 @@ export function flushPendingUndoSnapshot(
 
 export function scheduleUndoSnapshot(
   stateBeforeMutation: Record<string, string>,
-  commit: (snapshot: Record<string, string>) => void
+  commit: (snapshot: Record<string, string>) => void,
 ): void {
   if (debounceBefore === null) {
     debounceBefore = structuredClone(stateBeforeMutation);
@@ -77,7 +77,7 @@ export function slotMapsEqual(a: Record<string, string>, b: Record<string, strin
 function collectAllKeys(
   target: Record<string, string>,
   previous: Record<string, string> | null,
-  schema: SlotSchema | null
+  schema: SlotSchema | null,
 ): string[] {
   const s = new Set<string>([...Object.keys(target), ...Object.keys(previous ?? {})]);
   if (schema) {
@@ -141,14 +141,15 @@ export function applySlotValuesToIframe(
   target: Record<string, string>,
   previous: Record<string, string> | null,
   schema: SlotSchema | null,
-  win: Window
+  win: Window,
 ): void {
   const imageSels = new Set(
-    schema?.fields.filter((f): f is ImageField => f.type === 'image').map((f) => f.sel) ?? []
+    schema?.fields.filter((f): f is ImageField => f.type === 'image').map((f) => f.sel) ?? [],
   );
   const textModeBySel = new Map(
-    schema?.fields.filter((f): f is TextField => f.type === 'text').map((f) => [f.sel, f.mode] as const) ??
-      []
+    schema?.fields
+      .filter((f): f is TextField => f.type === 'text')
+      .map((f) => [f.sel, f.mode] as const) ?? [],
   );
 
   const keys = sortKeysForIframeApply(collectAllKeys(target, previous, schema));
@@ -158,7 +159,9 @@ export function applySlotValuesToIframe(
       const raw = target[key];
       try {
         const map =
-          typeof raw === 'string' ? (JSON.parse(raw) as Record<string, string>) : (raw as Record<string, string>);
+          typeof raw === 'string'
+            ? (JSON.parse(raw) as Record<string, string>)
+            : (raw as Record<string, string>);
         if (map && typeof map === 'object') {
           for (const [sel, transform] of Object.entries(map)) {
             if (typeof transform === 'string') {
@@ -191,7 +194,7 @@ export function applySlotValuesToIframe(
             width: 'auto',
             height: 'auto',
           },
-          '*'
+          '*',
         );
         continue;
       }
@@ -211,12 +214,11 @@ export function applySlotValuesToIframe(
         const prevRaw = previous?.[key];
         const hadFont = textBoxJsonHasActiveFont(prevRaw);
         const hasFont = textBoxJsonHasActiveFont(raw);
-        const fontExtra =
-          hasFont
-            ? textBoxFontPostMessage(o.fontPreset, o.fontSizePx, false)
-            : hadFont && !hasFont
-              ? { clearFontSize: true as const }
-              : {};
+        const fontExtra = hasFont
+          ? textBoxFontPostMessage(o.fontPreset, o.fontSizePx, false)
+          : hadFont && !hasFont
+            ? { clearFontSize: true as const }
+            : {};
         win.postMessage(
           {
             type: 'tmpl',
@@ -229,7 +231,7 @@ export function applySlotValuesToIframe(
             ...(ta ? { textAlign: ta } : {}),
             ...fontExtra,
           },
-          '*'
+          '*',
         );
       } catch {
         /* ignore */

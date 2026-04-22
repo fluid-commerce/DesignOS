@@ -1,4 +1,12 @@
-import { BG_PRIMARY, BG_CARD, BG_SECONDARY, BORDER, BORDER_HOVER, TEXT_PRIMARY, TEXT_SECONDARY } from '../tokens';
+import {
+  BG_PRIMARY,
+  BG_CARD,
+  BG_SECONDARY,
+  BORDER,
+  BORDER_HOVER,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from '../tokens';
 import { SUGGESTIONS, FADE_WIDTH } from './constants';
 import { SuggestionIcon, ChevronLeftIcon, ChevronRightIcon } from './Icons';
 import { usePillsOverflow } from './hooks';

@@ -18,11 +18,11 @@ export function getSlideIndexFromSelector(sel: string): number | null {
 export function filterFieldsForSlide(
   fields: SlotField[],
   activeSlide: number,
-  carouselMode: boolean
+  carouselMode: boolean,
 ): SlotField[] {
   if (!carouselMode) {
     return fields.filter((f) => {
-      if (f.type === 'group') return true;  // Groups always pass through (children are filtered in UI)
+      if (f.type === 'group') return true; // Groups always pass through (children are filtered in UI)
       return f.type === 'text' || f.type === 'image';
     });
   }
@@ -48,7 +48,7 @@ export function filterFieldsForSlide(
     }
     if (f.type === 'group') {
       // Include group if any child belongs to this slide
-      const hasVisibleChild = f.fields.some(child => {
+      const hasVisibleChild = f.fields.some((child) => {
         const s = getSlideIndexFromSelector(child.sel);
         return s === null || s === activeSlide;
       });
@@ -67,7 +67,7 @@ export function filterFieldsForSlide(
 export function brushVisibleForSlide(
   brush: string | null | undefined,
   activeSlide: number,
-  carouselMode: boolean
+  carouselMode: boolean,
 ): boolean {
   if (!brush) return false;
   if (!carouselMode) return true;

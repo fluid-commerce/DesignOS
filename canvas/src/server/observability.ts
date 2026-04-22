@@ -44,23 +44,23 @@ function currentChatId(): string | null {
 // silent log-type drift. Add new types here before emitting them.
 
 export type ChatEventType =
-  | 'api_retry'                 // 429/5xx retry attempt
-  | 'api_error_nonretriable'    // 4xx other than 429 — surfaced to user
-  | 'budget_trip_token'         // CHAT_TOKEN_BUDGET exceeded
-  | 'budget_trip_context'       // CONTEXT_WINDOW_GUARD hit
-  | 'budget_trip_render'        // MAX_RENDERS_PER_PASS exceeded
-  | 'loop_ceiling'              // maxLoops hit without end_turn
-  | 'cancelled'                 // user clicked Stop
-  | 'tool_input_rejected'       // requireString/requireNumber failed
-  | 'tool_error'                // executeTool threw something else
-  | 'tool_exec_metric'          // successful tool call with timing
-  | 'render_metric'             // render_preview timing + success
-  | 'path_traversal_blocked'    // readArchetype rejected an unsafe slug
-  | 'platform_rejected'         // save_creation unknown platform
-  | 'css_merge_failed'          // mergeCssLayersForHtml returned input unchanged
-  | 'agent_run_failed'          // outer catch in runAgentImpl — unexpected throw
-  | 'creation_edited'           // edit_creation tool completed
-  | 'agent_run_complete';       // end-of-turn summary with usage totals
+  | 'api_retry' // 429/5xx retry attempt
+  | 'api_error_nonretriable' // 4xx other than 429 — surfaced to user
+  | 'budget_trip_token' // CHAT_TOKEN_BUDGET exceeded
+  | 'budget_trip_context' // CONTEXT_WINDOW_GUARD hit
+  | 'budget_trip_render' // MAX_RENDERS_PER_PASS exceeded
+  | 'loop_ceiling' // maxLoops hit without end_turn
+  | 'cancelled' // user clicked Stop
+  | 'tool_input_rejected' // requireString/requireNumber failed
+  | 'tool_error' // executeTool threw something else
+  | 'tool_exec_metric' // successful tool call with timing
+  | 'render_metric' // render_preview timing + success
+  | 'path_traversal_blocked' // readArchetype rejected an unsafe slug
+  | 'platform_rejected' // save_creation unknown platform
+  | 'css_merge_failed' // mergeCssLayersForHtml returned input unchanged
+  | 'agent_run_failed' // outer catch in runAgentImpl — unexpected throw
+  | 'creation_edited' // edit_creation tool completed
+  | 'agent_run_complete'; // end-of-turn summary with usage totals
 
 // ─── Brand audit log ─────────────────────────────────────────────────────
 
@@ -76,7 +76,7 @@ export function auditBrandWrite(op: BrandAuditOp, detail: Record<string, unknown
   const chatId = currentChatId();
   try {
     db.prepare(
-      `INSERT INTO brand_audit_log (id, ts, chat_id, op, detail_json) VALUES (?, ?, ?, ?, ?)`
+      `INSERT INTO brand_audit_log (id, ts, chat_id, op, detail_json) VALUES (?, ?, ?, ?, ?)`,
     ).run(nanoid(), Date.now(), chatId, op, safeStringify(detail));
   } catch (err) {
     // Never let observability failures break the main flow.
@@ -85,7 +85,7 @@ export function auditBrandWrite(op: BrandAuditOp, detail: Record<string, unknown
   // Also echo to stdout for live tailing during dev.
   try {
     console.log(
-      `[brand-audit] ${new Date().toISOString()} ${op} ${safeStringify({ chat_id: chatId, ...detail })}`
+      `[brand-audit] ${new Date().toISOString()} ${op} ${safeStringify({ chat_id: chatId, ...detail })}`,
     );
   } catch {
     console.log(`[brand-audit] ${new Date().toISOString()} ${op}`);
@@ -99,7 +99,7 @@ export function logChatEvent(eventType: ChatEventType, detail: Record<string, un
   const chatId = currentChatId();
   try {
     db.prepare(
-      `INSERT INTO chat_events (id, ts, chat_id, event_type, detail_json) VALUES (?, ?, ?, ?, ?)`
+      `INSERT INTO chat_events (id, ts, chat_id, event_type, detail_json) VALUES (?, ?, ?, ?, ?)`,
     ).run(nanoid(), Date.now(), chatId, eventType, safeStringify(detail));
   } catch (err) {
     console.error('[observability] chat_events insert failed:', err);
@@ -108,7 +108,7 @@ export function logChatEvent(eventType: ChatEventType, detail: Record<string, un
   // up both streams in dev logs.
   try {
     console.log(
-      `[chat-event] ${new Date().toISOString()} ${eventType} ${safeStringify({ chat_id: chatId, ...detail })}`
+      `[chat-event] ${new Date().toISOString()} ${eventType} ${safeStringify({ chat_id: chatId, ...detail })}`,
     );
   } catch {
     console.log(`[chat-event] ${new Date().toISOString()} ${eventType}`);
@@ -139,13 +139,13 @@ export function listBrandAudit(sinceTs?: number, limit = 200): BrandAuditRow[] {
   return db
     .prepare(
       `SELECT id, ts, chat_id, op, detail_json FROM brand_audit_log
-       WHERE ts >= ? ORDER BY ts DESC LIMIT ?`
+       WHERE ts >= ? ORDER BY ts DESC LIMIT ?`,
     )
     .all(since, limit) as BrandAuditRow[];
 }
 
 export function listChatEvents(
-  filter: { sinceTs?: number; chatId?: string; eventType?: ChatEventType; limit?: number } = {}
+  filter: { sinceTs?: number; chatId?: string; eventType?: ChatEventType; limit?: number } = {},
 ): ChatEventRow[] {
   const db = getDb();
   const clauses: string[] = ['ts >= ?'];
@@ -163,7 +163,7 @@ export function listChatEvents(
   return db
     .prepare(
       `SELECT id, ts, chat_id, event_type, detail_json FROM chat_events
-       WHERE ${where} ORDER BY ts DESC LIMIT ?`
+       WHERE ${where} ORDER BY ts DESC LIMIT ?`,
     )
     .all(...params) as ChatEventRow[];
 }

@@ -25,7 +25,13 @@ interface TransformState {
 }
 
 function parseTransform(transform: string): TransformState {
-  const result: TransformState = { translateX: 0, translateY: 0, rotateDeg: 0, scaleX: 1, scaleY: 1 };
+  const result: TransformState = {
+    translateX: 0,
+    translateY: 0,
+    rotateDeg: 0,
+    scaleX: 1,
+    scaleY: 1,
+  };
   if (!transform || transform === 'none') return result;
   const tx = transform.match(/translate\(([^,)]+),\s*([^)]+)\)/);
   if (tx) {
@@ -47,7 +53,13 @@ function parseTransform(transform: string): TransformState {
  * which parseTransform() misses — first inline apply would then wipe rotate/scale from CSS.
  */
 function parseTransformFromComputed(transform: string): TransformState {
-  const fallback: TransformState = { translateX: 0, translateY: 0, rotateDeg: 0, scaleX: 1, scaleY: 1 };
+  const fallback: TransformState = {
+    translateX: 0,
+    translateY: 0,
+    rotateDeg: 0,
+    scaleX: 1,
+    scaleY: 1,
+  };
   if (!transform || transform === 'none') return fallback;
 
   const trimmed = transform.trim();
@@ -105,8 +117,12 @@ function getBrushScreenRect(iframe: HTMLIFrameElement | null, selector: string):
 }
 
 function parseCssPxPair(width: string, height: string): { w: number; h: number } | null {
-  const mw = String(width).trim().match(/^([\d.]+)px$/);
-  const mh = String(height).trim().match(/^([\d.]+)px$/);
+  const mw = String(width)
+    .trim()
+    .match(/^([\d.]+)px$/);
+  const mh = String(height)
+    .trim()
+    .match(/^([\d.]+)px$/);
   if (!mw || !mh) return null;
   const w = parseFloat(mw[1]);
   const h = parseFloat(mh[1]);
@@ -183,7 +199,11 @@ const OVERLAY_Z = 100100;
 
 type ScaleCorner = 'nw' | 'ne' | 'se' | 'sw';
 
-function localCornerOffset(corner: ScaleCorner, hw: number, hh: number): { vx: number; vy: number } {
+function localCornerOffset(
+  corner: ScaleCorner,
+  hw: number,
+  hh: number,
+): { vx: number; vy: number } {
   switch (corner) {
     case 'nw':
       return { vx: -hw, vy: -hh };
@@ -207,7 +227,7 @@ function screenDeltaFromLocalScaled(
   lvy: number,
   rotDeg: number,
   sx: number,
-  sy: number
+  sy: number,
 ): { x: number; y: number } {
   const wx = lvx * sx;
   const wy = lvy * sy;
@@ -224,7 +244,7 @@ function cornerScreenPx(
   layoutH: number,
   rotDeg: number,
   sx: number,
-  sy: number
+  sy: number,
 ): { x: number; y: number } {
   const hw = layoutW / 2;
   const hh = layoutH / 2;
@@ -331,7 +351,7 @@ export function BrushTransform({
       setSy(csy);
       patchBrushTransform(brushSel, transformStr);
     },
-    [brushSel, patchBrushTransform, safeW, safeH]
+    [brushSel, patchBrushTransform, safeW, safeH],
   );
 
   // Hydrate once when iteration / brush / iframe changes — NOT on every __brushTransform__ save (that re-ran every drag frame and could fight local state).
@@ -431,9 +451,13 @@ export function BrushTransform({
     }
     const iframeRect = effectiveIframe.getBoundingClientRect();
     const iw =
-      effectiveIframe.offsetWidth || effectiveIframe.contentDocument.documentElement?.clientWidth || 1;
+      effectiveIframe.offsetWidth ||
+      effectiveIframe.contentDocument.documentElement?.clientWidth ||
+      1;
     const ih =
-      effectiveIframe.offsetHeight || effectiveIframe.contentDocument.documentElement?.clientHeight || 1;
+      effectiveIframe.offsetHeight ||
+      effectiveIframe.contentDocument.documentElement?.clientHeight ||
+      1;
     const scaleXi = iw > 0 ? iframeRect.width / iw : 1;
     const scaleYi = ih > 0 ? iframeRect.height / ih : 1;
     let layoutIframe = getBrushRotationInvariantLayoutSize(el);
@@ -492,9 +516,9 @@ export function BrushTransform({
           ? 'move'
           : session.mode === 'rotate'
             ? 'grabbing'
-          : session.scaleCorner
-            ? scaleCursorForCorner(session.scaleCorner)
-            : 'nwse-resize';
+            : session.scaleCorner
+              ? scaleCursorForCorner(session.scaleCorner)
+              : 'nwse-resize';
       veil.style.cssText = [
         'position:fixed',
         'inset:0',
@@ -553,9 +577,20 @@ export function BrushTransform({
           const dTx = c * dvx - s * dvy;
           const dTy = s * dvx + c * dvy;
           sendTransform(rel.startTx + dTx, rel.startTy + dTy, rel.startRot, s1x, s1y);
-        } else if (rel.mode === 'rotate' && rel.cx != null && rel.cy != null && rel.startAngle != null) {
+        } else if (
+          rel.mode === 'rotate' &&
+          rel.cx != null &&
+          rel.cy != null &&
+          rel.startAngle != null
+        ) {
           const ang = (Math.atan2(ev.clientY - rel.cy, ev.clientX - rel.cx) * 180) / Math.PI;
-          sendTransform(rel.startTx, rel.startTy, rel.startRot + (ang - rel.startAngle), rel.startSx, rel.startSy);
+          sendTransform(
+            rel.startTx,
+            rel.startTy,
+            rel.startRot + (ang - rel.startAngle),
+            rel.startSx,
+            rel.startSy,
+          );
         }
       };
 
@@ -600,7 +635,7 @@ export function BrushTransform({
       target.addEventListener('pointercancel', cleanupDom);
       target.addEventListener('lostpointercapture', onLostCapture);
     },
-    [iframeScale, sendTransform]
+    [iframeScale, sendTransform],
   );
 
   const startMove = (e: React.PointerEvent) => {
@@ -618,7 +653,7 @@ export function BrushTransform({
         startSy: sy,
       },
       e.currentTarget,
-      e.pointerId
+      e.pointerId,
     );
   };
 
@@ -674,7 +709,7 @@ export function BrushTransform({
         anchorVy: avy,
       },
       e.currentTarget,
-      e.pointerId
+      e.pointerId,
     );
   };
 
@@ -702,7 +737,7 @@ export function BrushTransform({
         cy,
       },
       e.currentTarget,
-      e.pointerId
+      e.pointerId,
     );
   };
 
@@ -893,21 +928,36 @@ export function BrushTransform({
           </div>
         )}
       </div>,
-      document.body
+      document.body,
     );
 
   return (
     <div style={styles.container}>
       {overlay}
       <div style={styles.hint}>
-        Drag to move, pull corners to scale width/height independently. Hover slightly past a corner to
-        show rotate, then drag there to rotate around center.
+        Drag to move, pull corners to scale width/height independently. Hover slightly past a corner
+        to show rotate, then drag there to rotate around center.
       </div>
 
       <div style={styles.grid}>
-        <NumberField label="X (px)" value={tx} step={1} onChange={(v) => sendTransform(v, ty, rot, sx, sy)} />
-        <NumberField label="Y (px)" value={ty} step={1} onChange={(v) => sendTransform(tx, v, rot, sx, sy)} />
-        <NumberField label="Rotate °" value={rot} step={0.5} onChange={(v) => sendTransform(tx, ty, v, sx, sy)} />
+        <NumberField
+          label="X (px)"
+          value={tx}
+          step={1}
+          onChange={(v) => sendTransform(v, ty, rot, sx, sy)}
+        />
+        <NumberField
+          label="Y (px)"
+          value={ty}
+          step={1}
+          onChange={(v) => sendTransform(tx, v, rot, sx, sy)}
+        />
+        <NumberField
+          label="Rotate °"
+          value={rot}
+          step={0.5}
+          onChange={(v) => sendTransform(tx, ty, v, sx, sy)}
+        />
         <div />
         <NumberField
           label="Scale W %"

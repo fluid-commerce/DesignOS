@@ -118,9 +118,9 @@ describe('push_asset (db-api layer)', () => {
   });
 });
 
-// ─── read_annotations — returns annotations by iterationId ───────────────
+// ─── getAnnotations — returns annotations by iterationId ────────────────
 
-describe('read_annotations (db-api layer)', () => {
+describe('getAnnotations (db-api layer)', () => {
   it('returns empty array when no annotations exist for an iteration', async () => {
     const { slide } = scaffoldCampaignHierarchy();
     const iteration = dbApi.createIteration({
@@ -177,9 +177,9 @@ describe('read_annotations (db-api layer)', () => {
   });
 });
 
-// ─── read_statuses — returns status map for slide's iterations ────────────
+// ─── iteration status map — returns status per iteration for a slide ─────
 
-describe('read_statuses (db-api layer)', () => {
+describe('getIterations status map (db-api layer)', () => {
   it('returns status map keyed by iterationId', async () => {
     const { slide } = scaffoldCampaignHierarchy();
 
@@ -216,29 +216,66 @@ describe('read_statuses (db-api layer)', () => {
   });
 });
 
-// ─── read_history — returns full iteration chain ──────────────────────────
+// ─── iteration history — returns full iteration chain for a slide ────────
 
-describe('read_history (db-api layer)', () => {
+describe('getIterations history chain (db-api layer)', () => {
   it('returns all iterations for a slide in order', async () => {
     const { slide } = scaffoldCampaignHierarchy();
 
-    dbApi.createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
-    dbApi.createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
-    dbApi.createIteration({ slideId: slide.id, iterationIndex: 2, htmlPath: 'r2.html', source: 'ai' });
+    dbApi.createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: 'r0.html',
+      source: 'ai',
+    });
+    dbApi.createIteration({
+      slideId: slide.id,
+      iterationIndex: 1,
+      htmlPath: 'r1.html',
+      source: 'ai',
+    });
+    dbApi.createIteration({
+      slideId: slide.id,
+      iterationIndex: 2,
+      htmlPath: 'r2.html',
+      source: 'ai',
+    });
 
     const iterations = dbApi.getIterations(slide.id);
     expect(iterations).toHaveLength(3);
-    expect(iterations.map(i => i.iterationIndex)).toEqual([0, 1, 2]);
+    expect(iterations.map((i) => i.iterationIndex)).toEqual([0, 1, 2]);
   });
 
   it('can retrieve annotations for each iteration in the chain', async () => {
     const { slide } = scaffoldCampaignHierarchy();
 
-    const iter0 = dbApi.createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: 'r0.html', source: 'ai' });
-    const iter1 = dbApi.createIteration({ slideId: slide.id, iterationIndex: 1, htmlPath: 'r1.html', source: 'ai' });
+    const iter0 = dbApi.createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: 'r0.html',
+      source: 'ai',
+    });
+    const iter1 = dbApi.createIteration({
+      slideId: slide.id,
+      iterationIndex: 1,
+      htmlPath: 'r1.html',
+      source: 'ai',
+    });
 
-    dbApi.createAnnotation({ iterationId: iter0.id, type: 'pin', author: 'human', text: 'Too dark', x: 10, y: 10 });
-    dbApi.createAnnotation({ iterationId: iter1.id, type: 'sidebar', author: 'human', text: 'Perfect' });
+    dbApi.createAnnotation({
+      iterationId: iter0.id,
+      type: 'pin',
+      author: 'human',
+      text: 'Too dark',
+      x: 10,
+      y: 10,
+    });
+    dbApi.createAnnotation({
+      iterationId: iter1.id,
+      type: 'sidebar',
+      author: 'human',
+      text: 'Perfect',
+    });
 
     const ann0 = dbApi.getAnnotations(iter0.id);
     const ann1 = dbApi.getAnnotations(iter1.id);
@@ -259,7 +296,7 @@ describe('push_asset backward compatibility', () => {
         sessionId: '20260310-143022',
         variationId: 'v1',
         html: '<html></html>',
-      })
+      }),
     ).toThrow(/DEPRECATED/);
 
     expect(() =>
@@ -267,7 +304,7 @@ describe('push_asset backward compatibility', () => {
         sessionId: '20260310-143022',
         variationId: 'v1',
         html: '<html></html>',
-      })
+      }),
     ).toThrow(/sessionId/);
   });
 });

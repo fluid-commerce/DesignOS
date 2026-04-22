@@ -2,12 +2,23 @@ import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { FluidDAMModal } from '../DAMPicker';
 import {
-  BG_PRIMARY, BG_CARD, BG_SECONDARY, BORDER, BORDER_HOVER,
-  ACCENT, TEXT_PRIMARY, TEXT_SECONDARY, TEXT_MUTED,
+  BG_PRIMARY,
+  BG_CARD,
+  BG_SECONDARY,
+  BORDER,
+  BORDER_HOVER,
+  ACCENT,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_MUTED,
 } from '../tokens';
 import {
-  CREATION_TYPES, SOCIAL_POST_FORMATS, SOCIAL_POST_DIMENSIONS,
-  VIDEO_FORMATS, VIDEO_DIMENSIONS, type VideoFormatTag,
+  CREATION_TYPES,
+  SOCIAL_POST_FORMATS,
+  SOCIAL_POST_DIMENSIONS,
+  VIDEO_FORMATS,
+  VIDEO_DIMENSIONS,
+  type VideoFormatTag,
 } from './constants';
 import { Dropdown } from './Dropdown';
 import { SparklesIcon, MicIcon, PlusIcon, ArrowRightIcon, SettingsIcon } from './Icons';
@@ -58,7 +69,7 @@ export function PromptInput({
   const isVideo = creationTypeId === 'instagram-story';
 
   const videoDimensionsForFormat = VIDEO_DIMENSIONS.filter((d) =>
-    (d.formats as readonly VideoFormatTag[]).includes(videoFormatId as VideoFormatTag)
+    (d.formats as readonly VideoFormatTag[]).includes(videoFormatId as VideoFormatTag),
   );
 
   useEffect(() => {
@@ -68,7 +79,7 @@ export function PromptInput({
   }, [videoFormatId, videoDimensionId, onVideoDimensionChange]);
 
   const selectedCreation = creationTypeId
-    ? CREATION_TYPES.find((t) => t.id === creationTypeId) ?? null
+    ? (CREATION_TYPES.find((t) => t.id === creationTypeId) ?? null)
     : null;
 
   return (
@@ -79,7 +90,8 @@ export function PromptInput({
           position: 'absolute',
           inset: -1,
           borderRadius: 10,
-          background: 'linear-gradient(90deg, rgba(255,102,20,0.35) 0%, rgba(239,68,68,0.2) 50%, rgba(68,178,255,0.35) 100%)',
+          background:
+            'linear-gradient(90deg, rgba(255,102,20,0.35) 0%, rgba(239,68,68,0.2) 50%, rgba(68,178,255,0.35) 100%)',
           filter: 'blur(8px)',
           opacity: 0.8,
           pointerEvents: 'none',
@@ -149,7 +161,14 @@ export function PromptInput({
                 />
                 <Dropdown
                   value={socialPostDimensionId}
-                  options={SOCIAL_POST_DIMENSIONS as unknown as { id: string; label: string; dimensions?: string; sublabel?: string }[]}
+                  options={
+                    SOCIAL_POST_DIMENSIONS as unknown as {
+                      id: string;
+                      label: string;
+                      dimensions?: string;
+                      sublabel?: string;
+                    }[]
+                  }
                   onChange={onSocialPostDimensionChange}
                   title="Select dimensions"
                   minWidth={200}
@@ -166,7 +185,14 @@ export function PromptInput({
                 />
                 <Dropdown
                   value={videoDimensionId}
-                  options={videoDimensionsForFormat as unknown as { id: string; label: string; dimensions?: string; sublabel?: string }[]}
+                  options={
+                    videoDimensionsForFormat as unknown as {
+                      id: string;
+                      label: string;
+                      dimensions?: string;
+                      sublabel?: string;
+                    }[]
+                  }
                   onChange={onVideoDimensionChange}
                   title="Select dimensions"
                   minWidth={200}

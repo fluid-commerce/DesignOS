@@ -15,7 +15,7 @@ describe('LeftNav', () => {
     const { container } = render(<LeftNav />);
     // Query buttons with title attributes (nav items)
     const tabButtons = Array.from(container.querySelectorAll('button[title]')).filter(
-      (b) => b.getAttribute('title') !== 'AI Chat'
+      (b) => b.getAttribute('title') !== 'AI Chat',
     );
     expect(tabButtons.length).toBeGreaterThanOrEqual(4);
   });

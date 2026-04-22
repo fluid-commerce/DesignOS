@@ -29,7 +29,7 @@ describe('applySlotValuesToIframe', () => {
       },
       {},
       schema,
-      win
+      win,
     );
 
     const transformIdx = order.findIndex((x) => x.startsWith('transform:'));
@@ -72,7 +72,7 @@ describe('applySlotValuesToIframe', () => {
       },
       {},
       schema,
-      win
+      win,
     );
 
     const textA = order.findIndex((x) => x === 'text:.a');

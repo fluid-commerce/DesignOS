@@ -68,7 +68,10 @@ describe('db schema creation', () => {
 describe('Campaign CRUD', () => {
   it('createCampaign returns a Campaign with id, title, channels, timestamps', () => {
     const before = Date.now();
-    const campaign = createCampaign({ title: 'Instagram Launch', channels: ['instagram', 'linkedin'] });
+    const campaign = createCampaign({
+      title: 'Instagram Launch',
+      channels: ['instagram', 'linkedin'],
+    });
     const after = Date.now();
 
     expect(campaign.id).toBeTruthy();
@@ -86,11 +89,11 @@ describe('Campaign CRUD', () => {
     const campaigns = getCampaigns();
     expect(campaigns.length).toBeGreaterThanOrEqual(2);
     // Both campaigns are present in the results
-    expect(campaigns.map(c => c.id)).toContain(c1.id);
-    expect(campaigns.map(c => c.id)).toContain(c2.id);
+    expect(campaigns.map((c) => c.id)).toContain(c1.id);
+    expect(campaigns.map((c) => c.id)).toContain(c2.id);
     // Channels are deserialized from JSON correctly
-    const found1 = campaigns.find(c => c.id === c1.id)!;
-    const found2 = campaigns.find(c => c.id === c2.id)!;
+    const found1 = campaigns.find((c) => c.id === c1.id)!;
+    const found2 = campaigns.find((c) => c.id === c2.id)!;
     expect(found1.channels).toEqual(['instagram']);
     expect(found2.channels).toEqual(['linkedin']);
   });
@@ -127,14 +130,27 @@ describe('Creation CRUD', () => {
   });
 
   it('getCreations returns creations for a campaign', () => {
-    const campaign = createCampaign({ title: 'Multi-Creation', channels: ['instagram', 'linkedin'] });
-    createCreation({ campaignId: campaign.id, title: 'Creation 1', creationType: 'instagram', slideCount: 1 });
-    createCreation({ campaignId: campaign.id, title: 'Creation 2', creationType: 'linkedin-landscape', slideCount: 1 });
+    const campaign = createCampaign({
+      title: 'Multi-Creation',
+      channels: ['instagram', 'linkedin'],
+    });
+    createCreation({
+      campaignId: campaign.id,
+      title: 'Creation 1',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
+    createCreation({
+      campaignId: campaign.id,
+      title: 'Creation 2',
+      creationType: 'linkedin-landscape',
+      slideCount: 1,
+    });
 
     const creations = getCreations(campaign.id);
     expect(creations).toHaveLength(2);
-    expect(creations.map(c => c.title)).toContain('Creation 1');
-    expect(creations.map(c => c.title)).toContain('Creation 2');
+    expect(creations.map((c) => c.title)).toContain('Creation 1');
+    expect(creations.map((c) => c.title)).toContain('Creation 2');
   });
 
   it('FK constraint: inserting creation with nonexistent campaign_id throws', () => {
@@ -152,7 +168,12 @@ describe('Creation CRUD', () => {
 describe('Slide CRUD', () => {
   it('createSlide returns a Slide linked to a creation', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 3 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 3,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
 
     expect(slide.id).toBeTruthy();
@@ -162,21 +183,31 @@ describe('Slide CRUD', () => {
 
   it('getSlides returns slides for a creation', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'Carousel', creationType: 'instagram', slideCount: 3 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'Carousel',
+      creationType: 'instagram',
+      slideCount: 3,
+    });
     createSlide({ creationId: creation.id, slideIndex: 0 });
     createSlide({ creationId: creation.id, slideIndex: 1 });
     createSlide({ creationId: creation.id, slideIndex: 2 });
 
     const slides = getSlides(creation.id);
     expect(slides).toHaveLength(3);
-    expect(slides.map(s => s.slideIndex).sort()).toEqual([0, 1, 2]);
+    expect(slides.map((s) => s.slideIndex).sort()).toEqual([0, 1, 2]);
   });
 });
 
 describe('Iteration CRUD', () => {
   it('createIteration returns an Iteration linked to a slide', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     const iteration = createIteration({
       slideId: slide.id,
@@ -198,7 +229,12 @@ describe('Iteration CRUD', () => {
 
   it('createIteration accepts optional slotSchema, source=template with templateId', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     const schema = { width: 1080, height: 1080, fields: [] };
     const iteration = createIteration({
@@ -217,7 +253,12 @@ describe('Iteration CRUD', () => {
 
   it('getIterations returns iterations ordered by iteration_index ASC', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
     // Insert out of order
     createIteration({ slideId: slide.id, iterationIndex: 2, htmlPath: '/v3.html', source: 'ai' });
@@ -233,9 +274,19 @@ describe('Iteration CRUD', () => {
 
   it('updateIterationStatus changes the status field', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const iteration = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: '/v.html',
+      source: 'ai',
+    });
 
     updateIterationStatus(iteration.id, 'winner');
     const updated = getIterations(slide.id);
@@ -244,9 +295,19 @@ describe('Iteration CRUD', () => {
 
   it('updateIterationUserState updates the user_state field', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const iteration = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: '/v.html',
+      source: 'ai',
+    });
 
     const userState = { '.headline': 'Updated Headline', '.subline': 'Updated Subline' };
     updateIterationUserState(iteration.id, userState);
@@ -258,9 +319,19 @@ describe('Iteration CRUD', () => {
 describe('Annotation CRUD', () => {
   it('createAnnotation returns a CampaignAnnotation linked to an iteration', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const iteration = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: '/v.html',
+      source: 'ai',
+    });
 
     const annotation = createAnnotation({
       iterationId: iteration.id,
@@ -282,17 +353,39 @@ describe('Annotation CRUD', () => {
 
   it('getAnnotations returns annotations for an iteration', () => {
     const campaign = createCampaign({ title: 'C', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'A', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'A',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const iteration = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: '/v.html',
+      source: 'ai',
+    });
 
-    createAnnotation({ iterationId: iteration.id, type: 'pin', author: 'human', text: 'Note 1', x: 10, y: 20 });
-    createAnnotation({ iterationId: iteration.id, type: 'sidebar', author: 'human', text: 'Note 2' });
+    createAnnotation({
+      iterationId: iteration.id,
+      type: 'pin',
+      author: 'human',
+      text: 'Note 1',
+      x: 10,
+      y: 20,
+    });
+    createAnnotation({
+      iterationId: iteration.id,
+      type: 'sidebar',
+      author: 'human',
+      text: 'Note 2',
+    });
 
     const annotations = getAnnotations(iteration.id);
     expect(annotations).toHaveLength(2);
-    expect(annotations.map(a => a.text)).toContain('Note 1');
-    expect(annotations.map(a => a.text)).toContain('Note 2');
+    expect(annotations.map((a) => a.text)).toContain('Note 1');
+    expect(annotations.map((a) => a.text)).toContain('Note 2');
   });
 });
 
@@ -303,7 +396,7 @@ describe('Transaction: createCampaignWithCreations', () => {
       [
         { title: 'IG Post', creationType: 'instagram', slideCount: 1 },
         { title: 'LN Post', creationType: 'linkedin-landscape', slideCount: 1 },
-      ]
+      ],
     );
 
     expect(result.campaign.id).toBeTruthy();
@@ -316,12 +409,9 @@ describe('Transaction: createCampaignWithCreations', () => {
     const initialCampaigns = getCampaigns();
     expect(() => {
       // Force a failure by passing an invalid creationType shape that violates NOT NULL
-      createCampaignWithCreations(
-        { title: 'Should Rollback', channels: ['instagram'] },
-        [
-          { title: null as unknown as string, creationType: 'instagram', slideCount: 1 },
-        ]
-      );
+      createCampaignWithCreations({ title: 'Should Rollback', channels: ['instagram'] }, [
+        { title: null as unknown as string, creationType: 'instagram', slideCount: 1 },
+      ]);
     }).toThrow();
     // Campaign should NOT have been created
     const afterCampaigns = getCampaigns();
@@ -336,9 +426,19 @@ describe('Transaction: createCampaignWithCreations', () => {
 describe('updateIterationSlotSchema', () => {
   it('persists slot schema JSON and can be read back via getIterations', () => {
     const campaign = createCampaign({ title: 'SlotSchema Campaign', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'Post', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'Post',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v.html', source: 'ai' });
+    const iteration = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: '/v.html',
+      source: 'ai',
+    });
 
     const schema = {
       archetypeId: 'stat-hero-single',
@@ -358,9 +458,19 @@ describe('updateIterationSlotSchema', () => {
 
   it('stores archetypeId field in schema and it can be retrieved', () => {
     const campaign = createCampaign({ title: 'SlotSchema Campaign 2', channels: ['instagram'] });
-    const creation = createCreation({ campaignId: campaign.id, title: 'Post', creationType: 'instagram', slideCount: 1 });
+    const creation = createCreation({
+      campaignId: campaign.id,
+      title: 'Post',
+      creationType: 'instagram',
+      slideCount: 1,
+    });
     const slide = createSlide({ creationId: creation.id, slideIndex: 0 });
-    const iteration = createIteration({ slideId: slide.id, iterationIndex: 0, htmlPath: '/v2.html', source: 'ai' });
+    const iteration = createIteration({
+      slideId: slide.id,
+      iterationIndex: 0,
+      htmlPath: '/v2.html',
+      source: 'ai',
+    });
 
     const schema = {
       archetypeId: 'stat-hero-single',

@@ -252,11 +252,11 @@
 }
 
 .chat-input:focus {
-  border-color: #44B2FF;
+  border-color: #44b2ff;
 }
 
 .chat-send-btn {
-  background: #44B2FF;
+  background: #44b2ff;
   color: white;
   border: none;
   border-radius: 8px;

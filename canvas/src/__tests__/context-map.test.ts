@@ -64,19 +64,19 @@ describe('seedContextMapIfEmpty', () => {
   it('seeds entries with correct creation types and stages', () => {
     seedContextMapIfEmpty();
     const entries = getContextMap();
-    const instagram = entries.filter(e => e.creationType === 'instagram');
-    const linkedin = entries.filter(e => e.creationType === 'linkedin');
-    const onePager = entries.filter(e => e.creationType === 'one-pager');
+    const instagram = entries.filter((e) => e.creationType === 'instagram');
+    const linkedin = entries.filter((e) => e.creationType === 'linkedin');
+    const onePager = entries.filter((e) => e.creationType === 'one-pager');
     expect(instagram).toHaveLength(3);
     expect(linkedin).toHaveLength(3);
     expect(onePager).toHaveLength(3);
-    const stages = [...new Set(entries.map(e => e.stage))].sort();
+    const stages = [...new Set(entries.map((e) => e.stage))].sort();
     expect(stages).toEqual(['copy', 'layout', 'styling']);
   });
 
   it('copy stage entries include voice-guide sections', () => {
     seedContextMapIfEmpty();
-    const copyEntries = getContextMap().filter(e => e.stage === 'copy');
+    const copyEntries = getContextMap().filter((e) => e.stage === 'copy');
     for (const entry of copyEntries) {
       expect(entry.sections).toContain('voice-guide:*');
     }
@@ -161,7 +161,7 @@ describe('deleteContextMapEntry', () => {
     const result = deleteContextMapEntry(entry.id);
     expect(result).toBe(true);
     const all = getContextMap();
-    expect(all.find(e => e.id === entry.id)).toBeUndefined();
+    expect(all.find((e) => e.id === entry.id)).toBeUndefined();
   });
 
   it('returns false for a nonexistent id', () => {
@@ -178,7 +178,9 @@ describe('insertContextLog', () => {
       stage: 'copy',
       injectedSections: ['voice-guide:what-is-fluid'],
       tokenEstimate: 2500,
-      gapToolCalls: [{ tool: 'read_brand_section', input: { slug: 'voice-and-style' }, timestamp: Date.now() }],
+      gapToolCalls: [
+        { tool: 'read_brand_section', input: { slug: 'voice-and-style' }, timestamp: Date.now() },
+      ],
     });
 
     expect(log.id).toBeTruthy();
@@ -207,9 +209,27 @@ describe('insertContextLog', () => {
 
 describe('getContextLogs', () => {
   it('returns entries filtered by creationType', () => {
-    insertContextLog({ generationId: 'g1', creationType: 'instagram', stage: 'copy', injectedSections: [], tokenEstimate: 100 });
-    insertContextLog({ generationId: 'g2', creationType: 'linkedin', stage: 'copy', injectedSections: [], tokenEstimate: 200 });
-    insertContextLog({ generationId: 'g3', creationType: 'instagram', stage: 'layout', injectedSections: [], tokenEstimate: 300 });
+    insertContextLog({
+      generationId: 'g1',
+      creationType: 'instagram',
+      stage: 'copy',
+      injectedSections: [],
+      tokenEstimate: 100,
+    });
+    insertContextLog({
+      generationId: 'g2',
+      creationType: 'linkedin',
+      stage: 'copy',
+      injectedSections: [],
+      tokenEstimate: 200,
+    });
+    insertContextLog({
+      generationId: 'g3',
+      creationType: 'instagram',
+      stage: 'layout',
+      injectedSections: [],
+      tokenEstimate: 300,
+    });
 
     const instagramLogs = getContextLogs({ creationType: 'instagram' });
     expect(instagramLogs.length).toBeGreaterThanOrEqual(2);
@@ -219,7 +239,13 @@ describe('getContextLogs', () => {
   });
 
   it('returns entries filtered by stage', () => {
-    insertContextLog({ generationId: 'g4', creationType: 'instagram', stage: 'styling', injectedSections: [], tokenEstimate: 400 });
+    insertContextLog({
+      generationId: 'g4',
+      creationType: 'instagram',
+      stage: 'styling',
+      injectedSections: [],
+      tokenEstimate: 400,
+    });
 
     const stylingLogs = getContextLogs({ stage: 'styling' });
     expect(stylingLogs.length).toBeGreaterThanOrEqual(1);
@@ -230,7 +256,13 @@ describe('getContextLogs', () => {
 
   it('respects the limit parameter', () => {
     for (let i = 0; i < 10; i++) {
-      insertContextLog({ generationId: `limit-g${i}`, creationType: 'one-pager', stage: 'copy', injectedSections: [], tokenEstimate: i * 100 });
+      insertContextLog({
+        generationId: `limit-g${i}`,
+        creationType: 'one-pager',
+        stage: 'copy',
+        injectedSections: [],
+        tokenEstimate: i * 100,
+      });
     }
     const limited = getContextLogs({ creationType: 'one-pager', limit: 3 });
     expect(limited.length).toBeLessThanOrEqual(3);

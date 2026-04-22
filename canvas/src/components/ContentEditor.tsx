@@ -46,7 +46,11 @@ function statusColor(status: string): string {
   }
 }
 
-function GroupSection({ group, contentTargetSel, contentPickEpoch }: {
+function GroupSection({
+  group,
+  contentTargetSel,
+  contentPickEpoch,
+}: {
   group: GroupField;
   contentTargetSel: string | null;
   contentPickEpoch: number;
@@ -54,12 +58,14 @@ function GroupSection({ group, contentTargetSel, contentPickEpoch }: {
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <div style={{
-      marginBottom: '0.5rem',
-      border: '1px solid #1e1e1e',
-      borderRadius: 6,
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        marginBottom: '0.5rem',
+        border: '1px solid #1e1e1e',
+        borderRadius: 6,
+        overflow: 'hidden',
+      }}
+    >
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -80,13 +86,15 @@ function GroupSection({ group, contentTargetSel, contentPickEpoch }: {
           textAlign: 'left',
         }}
       >
-        <span style={{
-          display: 'inline-block',
-          transition: 'transform 0.15s',
-          transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-          fontSize: '0.6rem',
-          color: '#666',
-        }}>
+        <span
+          style={{
+            display: 'inline-block',
+            transition: 'transform 0.15s',
+            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            fontSize: '0.6rem',
+            color: '#666',
+          }}
+        >
           &#9654;
         </span>
         {group.label}
@@ -130,22 +138,17 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
   } = useEditorStore();
 
   const carouselMode =
-    slotSchema != null &&
-    slotSchema.carouselCount != null &&
-    slotSchema.carouselCount > 1;
+    slotSchema != null && slotSchema.carouselCount != null && slotSchema.carouselCount > 1;
 
   const visibleFields = useMemo(
     () =>
-      slotSchema
-        ? filterFieldsForSlide(slotSchema.fields, activeCarouselSlide, carouselMode)
-        : [],
-    [slotSchema, activeCarouselSlide, carouselMode]
+      slotSchema ? filterFieldsForSlide(slotSchema.fields, activeCarouselSlide, carouselMode) : [],
+    [slotSchema, activeCarouselSlide, carouselMode],
   );
 
   const showBrush = useMemo(
-    () =>
-      brushVisibleForSlide(slotSchema?.brush, activeCarouselSlide, carouselMode),
-    [slotSchema?.brush, activeCarouselSlide, carouselMode]
+    () => brushVisibleForSlide(slotSchema?.brush, activeCarouselSlide, carouselMode),
+    [slotSchema?.brush, activeCarouselSlide, carouselMode],
   );
 
   const hasInitialized = useRef(false);
@@ -154,7 +157,7 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
 
   const contentTargetSel = useMemo(
     () => slotFieldSelFromLayoutPick(slotSchema, pickedTransform),
-    [slotSchema, pickedTransform]
+    [slotSchema, pickedTransform],
   );
 
   /** Slot schema field that matches the current artboard pick (text or image content). */
@@ -162,13 +165,12 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
     if (!slotSchema || !contentTargetSel) return null;
     const f = slotSchema.fields.find(
       (x): x is TextField | ImageField =>
-        (x.type === 'text' || x.type === 'image') && x.sel === contentTargetSel
+        (x.type === 'text' || x.type === 'image') && x.sel === contentTargetSel,
     );
     return f ?? null;
   }, [slotSchema, contentTargetSel]);
 
-  const hasLayoutPicks =
-    slotSchema != null && collectTransformTargets(slotSchema).length > 0;
+  const hasLayoutPicks = slotSchema != null && collectTransformTargets(slotSchema).length > 0;
 
   /** Artboard has an active pick — sidebar shows only that layer's controls (not the full slot list). */
   const artboardSelectionActive = Boolean(pickedTransform && hasLayoutPicks);
@@ -220,7 +222,11 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
       }
 
       /** Live text typed directly on the preview (contenteditable); keeps sidebar in sync. */
-      if (d.type === 'fluidArtboardTextInput' && typeof d.sel === 'string' && typeof d.value === 'string') {
+      if (
+        d.type === 'fluidArtboardTextInput' &&
+        typeof d.sel === 'string' &&
+        typeof d.value === 'string'
+      ) {
         if (!iframeEl?.contentWindow || e.source !== iframeEl.contentWindow) return;
         const mode = typeof d.mode === 'string' ? d.mode : 'text';
         updateSlotValue(d.sel, d.value, mode, { skipIframeEcho: true });
@@ -241,7 +247,7 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
         useEditorStore.setState({ isDirty: false });
       }
     },
-    [iframeEl, updateSlotValue, setPickedTransform]
+    [iframeEl, updateSlotValue, setPickedTransform],
   );
 
   useEffect(() => {
@@ -293,9 +299,7 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
   if (!iteration) {
     return (
       <div style={styles.container}>
-        <div style={styles.empty}>
-          Select an iteration to edit its content.
-        </div>
+        <div style={styles.empty}>Select an iteration to edit its content.</div>
       </div>
     );
   }
@@ -303,7 +307,11 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <div style={artboardSelectionActive ? { ...styles.header, ...styles.headerCompact } : styles.header}>
+      <div
+        style={
+          artboardSelectionActive ? { ...styles.header, ...styles.headerCompact } : styles.header
+        }
+      >
         <div style={styles.headerInfo}>
           <span style={styles.iterationLabel}>
             {carouselMode && !artboardSelectionActive
@@ -330,10 +338,7 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
       {/* Carousel selector (shown when carouselCount > 1) */}
       {slotSchema && slotSchema.carouselCount != null && slotSchema.carouselCount > 1 && (
         <div style={styles.section}>
-          <CarouselSelector
-            carouselCount={slotSchema.carouselCount}
-            iframeEl={iframeEl}
-          />
+          <CarouselSelector carouselCount={slotSchema.carouselCount} iframeEl={iframeEl} />
         </div>
       )}
 
@@ -341,7 +346,9 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
       {slotSchema && (
         <div
           ref={propertiesRef}
-          style={artboardSelectionActive ? { ...styles.section, ...styles.sectionFocus } : styles.section}
+          style={
+            artboardSelectionActive ? { ...styles.section, ...styles.sectionFocus } : styles.section
+          }
         >
           {!(artboardSelectionActive && pickedTransform) && (
             <div style={styles.sectionLabel}>Properties</div>
@@ -420,12 +427,12 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
       {!artboardSelectionActive && (
         <div style={styles.fieldsContainer}>
           {slotSchema == null ? (
-            <div style={styles.noSchema}>
-              No editable slots available for this asset.
-            </div>
+            <div style={styles.noSchema}>No editable slots available for this asset.</div>
           ) : visibleFields.length === 0 ? (
             <div style={styles.noSchema}>
-              {carouselMode ? 'No fields for this slide.' : 'No editable fields defined in the slot schema.'}
+              {carouselMode
+                ? 'No fields for this slide.'
+                : 'No editable fields defined in the slot schema.'}
             </div>
           ) : (
             <>
@@ -480,19 +487,13 @@ export function ContentEditor({ iteration, iframeEl }: ContentEditorProps) {
       {/* Export section */}
       <div style={styles.section}>
         <div style={styles.sectionLabel}>Export</div>
-        <ExportActions
-          iteration={iteration}
-          iframeEl={iframeEl}
-        />
+        <ExportActions iteration={iteration} iframeEl={iframeEl} />
       </div>
 
       {/* Save button */}
       {isDirty && (
         <div style={styles.saveBar}>
-          <button
-            style={styles.saveButton}
-            onClick={() => saveUserState()}
-          >
+          <button style={styles.saveButton} onClick={() => saveUserState()}>
             Save Changes
           </button>
         </div>

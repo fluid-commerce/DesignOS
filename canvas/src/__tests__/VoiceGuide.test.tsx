@@ -13,25 +13,119 @@ import { VoiceGuide } from '../components/VoiceGuide';
 
 // Mock doc data matching the API response shape
 const MOCK_DOCS = [
-  { id: 'id-1', slug: 'what-is-fluid', label: 'What Is Fluid', content: '# What Is Fluid\n\nFluid is a commerce platform.', sortOrder: 0, updatedAt: 1 },
-  { id: 'id-2', slug: 'the-problem', label: "The Problem We're Solving", content: '# The Problem\n\nRetailers struggle with fragmented tools.', sortOrder: 1, updatedAt: 2 },
-  { id: 'id-3', slug: 'why-wecommerce', label: 'Why WeCommerce Exists', content: '# Why WeCommerce Exists\n\nWeCommerce was built to unify.', sortOrder: 2, updatedAt: 3 },
-  { id: 'id-4', slug: 'voice-and-style', label: 'Voice and Style Guide', content: '# Voice and Style Guide\n\nOur tone is direct and confident.', sortOrder: 3, updatedAt: 4 },
-  { id: 'id-5', slug: 'builder', label: 'Builder', content: '# Builder\n\n## Section One\n\nBuilder overview content here.', sortOrder: 4, updatedAt: 5 },
-  { id: 'id-6', slug: 'checkout', label: 'Checkout', content: '# Checkout\n\nCheckout documentation.', sortOrder: 5, updatedAt: 6 },
-  { id: 'id-7', slug: 'droplets', label: 'Droplets', content: '# Droplets\n\nDroplets documentation.', sortOrder: 6, updatedAt: 7 },
-  { id: 'id-8', slug: 'fluid-connect', label: 'Fluid Connect', content: '# Fluid Connect\n\nFluid Connect documentation.', sortOrder: 7, updatedAt: 8 },
-  { id: 'id-9', slug: 'fluid-payments', label: 'Fluid Payments', content: '# Fluid Payments\n\nFluid Payments documentation.', sortOrder: 8, updatedAt: 9 },
-  { id: 'id-10', slug: 'fair-share', label: 'FairShare', content: '# FairShare\n\nFairShare documentation.', sortOrder: 9, updatedAt: 10 },
-  { id: 'id-11', slug: 'corporate-tools', label: 'Corporate Tools', content: '# Corporate Tools\n\nCorporate Tools documentation.', sortOrder: 10, updatedAt: 11 },
-  { id: 'id-12', slug: 'app-rep-tools', label: 'App Rep Tools', content: '# App Rep Tools\n\nApp Rep Tools documentation.', sortOrder: 11, updatedAt: 12 },
-  { id: 'id-13', slug: 'blitz-week', label: 'What Is Blitz Week', content: '# What Is Blitz Week\n\nBlitz Week documentation.', sortOrder: 12, updatedAt: 13 },
+  {
+    id: 'id-1',
+    slug: 'what-is-fluid',
+    label: 'What Is Fluid',
+    content: '# What Is Fluid\n\nFluid is a commerce platform.',
+    sortOrder: 0,
+    updatedAt: 1,
+  },
+  {
+    id: 'id-2',
+    slug: 'the-problem',
+    label: "The Problem We're Solving",
+    content: '# The Problem\n\nRetailers struggle with fragmented tools.',
+    sortOrder: 1,
+    updatedAt: 2,
+  },
+  {
+    id: 'id-3',
+    slug: 'why-wecommerce',
+    label: 'Why WeCommerce Exists',
+    content: '# Why WeCommerce Exists\n\nWeCommerce was built to unify.',
+    sortOrder: 2,
+    updatedAt: 3,
+  },
+  {
+    id: 'id-4',
+    slug: 'voice-and-style',
+    label: 'Voice and Style Guide',
+    content: '# Voice and Style Guide\n\nOur tone is direct and confident.',
+    sortOrder: 3,
+    updatedAt: 4,
+  },
+  {
+    id: 'id-5',
+    slug: 'builder',
+    label: 'Builder',
+    content: '# Builder\n\n## Section One\n\nBuilder overview content here.',
+    sortOrder: 4,
+    updatedAt: 5,
+  },
+  {
+    id: 'id-6',
+    slug: 'checkout',
+    label: 'Checkout',
+    content: '# Checkout\n\nCheckout documentation.',
+    sortOrder: 5,
+    updatedAt: 6,
+  },
+  {
+    id: 'id-7',
+    slug: 'droplets',
+    label: 'Droplets',
+    content: '# Droplets\n\nDroplets documentation.',
+    sortOrder: 6,
+    updatedAt: 7,
+  },
+  {
+    id: 'id-8',
+    slug: 'fluid-connect',
+    label: 'Fluid Connect',
+    content: '# Fluid Connect\n\nFluid Connect documentation.',
+    sortOrder: 7,
+    updatedAt: 8,
+  },
+  {
+    id: 'id-9',
+    slug: 'fluid-payments',
+    label: 'Fluid Payments',
+    content: '# Fluid Payments\n\nFluid Payments documentation.',
+    sortOrder: 8,
+    updatedAt: 9,
+  },
+  {
+    id: 'id-10',
+    slug: 'fair-share',
+    label: 'FairShare',
+    content: '# FairShare\n\nFairShare documentation.',
+    sortOrder: 9,
+    updatedAt: 10,
+  },
+  {
+    id: 'id-11',
+    slug: 'corporate-tools',
+    label: 'Corporate Tools',
+    content: '# Corporate Tools\n\nCorporate Tools documentation.',
+    sortOrder: 10,
+    updatedAt: 11,
+  },
+  {
+    id: 'id-12',
+    slug: 'app-rep-tools',
+    label: 'App Rep Tools',
+    content: '# App Rep Tools\n\nApp Rep Tools documentation.',
+    sortOrder: 11,
+    updatedAt: 12,
+  },
+  {
+    id: 'id-13',
+    slug: 'blitz-week',
+    label: 'What Is Blitz Week',
+    content: '# What Is Blitz Week\n\nBlitz Week documentation.',
+    sortOrder: 12,
+    updatedAt: 13,
+  },
 ];
 
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-    json: () => Promise.resolve(MOCK_DOCS),
-  }));
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(MOCK_DOCS),
+    }),
+  );
 });
 
 afterEach(() => {

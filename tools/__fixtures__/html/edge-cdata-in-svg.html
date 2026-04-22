@@ -1,0 +1,25 @@
+<!--
+  FIXTURE: Inline SVG with <![CDATA[...]]> containing a hex color.
+
+  CDATA content inside SVG <style> should be treated as CSS, but CDATA outside
+  of <style> should NOT. Regex can't distinguish. parse5 with SVG-aware parse
+  mode handles both cases.
+
+  Expected (parse5-post-migration): the hex inside SVG-style CDATA is
+  considered; the hex inside a <script>-like CDATA block (if present) is not.
+
+  Pre-migration: the regex naively flags/accepts depending on positioning.
+-->
+<!-- target: 1080x1080 -->
+<!DOCTYPE html>
+<html>
+<head><style>body { background: #000000; font-family: 'NeueHaasDisplay'; color: #FFFFFF; }</style></head>
+<body>
+  <svg viewBox="0 0 100 100">
+    <style type="text/css"><![CDATA[
+      .dot { fill: #FF8B58; }
+    ]]></style>
+    <circle class="dot" cx="50" cy="50" r="40"/>
+  </svg>
+</body>
+</html>

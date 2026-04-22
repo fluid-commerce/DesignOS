@@ -10,15 +10,17 @@ export function IdeaCard({ idea, onApply }: IdeaCardProps) {
   return (
     <button
       type="button"
-      onClick={() => onApply?.({
-        creationType: idea.creationType,
-        promptSuggestion: idea.promptSuggestion,
-        socialPostFormatId: idea.socialPostFormatId,
-        socialPostDimensionId: idea.socialPostDimensionId,
-        videoFormatId: idea.videoFormatId,
-        videoDimensionId: idea.videoDimensionId,
-        templateId: idea.templateId,
-      })}
+      onClick={() =>
+        onApply?.({
+          creationType: idea.creationType,
+          promptSuggestion: idea.promptSuggestion,
+          socialPostFormatId: idea.socialPostFormatId,
+          socialPostDimensionId: idea.socialPostDimensionId,
+          videoFormatId: idea.videoFormatId,
+          videoDimensionId: idea.videoDimensionId,
+          templateId: idea.templateId,
+        })
+      }
       style={{
         width: '100%',
         minWidth: 0,
@@ -35,8 +37,12 @@ export function IdeaCard({ idea, onApply }: IdeaCardProps) {
         fontFamily: 'inherit',
         transition: 'opacity 0.15s',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.opacity = '0.9';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.opacity = '1';
+      }}
     >
       {/* Preview thumbnail */}
       <div
@@ -53,20 +59,40 @@ export function IdeaCard({ idea, onApply }: IdeaCardProps) {
           marginBottom: '0.75rem',
         }}
       >
-        {idea.thumbnailUrl && (idea.thumbnailUrl.startsWith('data:image/') || /\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(idea.thumbnailUrl)) ? (
+        {idea.thumbnailUrl &&
+        (idea.thumbnailUrl.startsWith('data:image/') ||
+          /\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(idea.thumbnailUrl)) ? (
           <img
             src={idea.thumbnailUrl}
             alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 7 }}
           />
         ) : idea.templateId ? (
-          <svg width={48} height={48} viewBox="0 0 24 24" fill="none" stroke={TEXT_SECONDARY} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width={48}
+            height={48}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={TEXT_SECONDARY}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <line x1="3" y1="9" x2="21" y2="9" />
             <line x1="9" y1="9" x2="9" y2="21" />
           </svg>
         ) : (
-          <svg width={48} height={48} viewBox="0 0 24 24" fill="none" stroke={TEXT_SECONDARY} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width={48}
+            height={48}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={TEXT_SECONDARY}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <circle cx="8.5" cy="8.5" r="1.5" />
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />

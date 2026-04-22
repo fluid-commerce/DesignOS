@@ -37,7 +37,7 @@ function CampaignMosaic({ campaignId, totalCreations = 0 }: CampaignMosaicProps)
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -58,7 +58,9 @@ function CampaignMosaic({ campaignId, totalCreations = 0 }: CampaignMosaicProps)
       .catch(() => {
         if (!cancelled) setPreviewUrls([]);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [campaignId, visible]);
 
   const extraCount = totalCreations > 4 ? totalCreations - 4 : 0;
@@ -107,29 +109,33 @@ function CampaignMosaic({ campaignId, totalCreations = 0 }: CampaignMosaicProps)
                   title={`Preview ${i + 1}`}
                 />
                 {isLast && extraCount > 0 && (
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    backgroundColor: 'rgba(0,0,0,0.65)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    fontFamily: "'Inter', sans-serif",
-                  }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundColor: 'rgba(0,0,0,0.65)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
                     +{extraCount} more
                   </div>
                 )}
               </>
             ) : (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#1a1a1e',
-                border: '1px solid #222',
-              }} />
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: '#1a1a1e',
+                  border: '1px solid #222',
+                }}
+              />
             )}
           </div>
         );
@@ -144,21 +150,24 @@ function CampaignMosaic({ campaignId, totalCreations = 0 }: CampaignMosaicProps)
  */
 function buildMosaicSrcDoc(urls: PreviewUrl[], totalCreations: number): string {
   const extraCount = totalCreations > 4 ? totalCreations - 4 : 0;
-  const cells = Array.from({ length: 4 }).map((_, i) => {
-    const url = urls[i];
-    const isLast = i === 3;
-    if (url) {
-      const overlay = isLast && extraCount > 0
-        ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;font-family:sans-serif">+${extraCount} more</div>`
-        : '';
-      return `<div style="position:relative;overflow:hidden;background:#1a1a1e">
+  const cells = Array.from({ length: 4 })
+    .map((_, i) => {
+      const url = urls[i];
+      const isLast = i === 3;
+      if (url) {
+        const overlay =
+          isLast && extraCount > 0
+            ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;font-family:sans-serif">+${extraCount} more</div>`
+            : '';
+        return `<div style="position:relative;overflow:hidden;background:#1a1a1e">
         <iframe src="/api/iterations/${url.iterationId}/html"
           style="transform:scale(0.2);transform-origin:top left;width:500%;height:500%;border:none;display:block;pointer-events:none"></iframe>
         ${overlay}
       </div>`;
-    }
-    return `<div style="background:#1a1a1e;border:1px solid #222"></div>`;
-  }).join('');
+      }
+      return `<div style="background:#1a1a1e;border:1px solid #222"></div>`;
+    })
+    .join('');
 
   return `<!DOCTYPE html><html><head><style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -191,7 +200,7 @@ export function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) 
 
   const toggleChannel = (ch: string) => {
     setSelectedChannels((prev) =>
-      prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch]
+      prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch],
     );
   };
 
@@ -263,17 +272,17 @@ export function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) 
         }}
       >
         {/* Header — match .modal-header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '28px 36px 0 36px',
-          marginBottom: 24,
-          flexShrink: 0,
-        }}>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#fff' }}>
-            New Campaign
-          </h3>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '28px 36px 0 36px',
+            marginBottom: 24,
+            flexShrink: 0,
+          }}
+        >
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#fff' }}>New Campaign</h3>
           <button
             type="button"
             onClick={onClose}
@@ -306,242 +315,261 @@ export function NewCampaignModal({ onClose, onCreated }: NewCampaignModalProps) 
 
         {/* Body — match .modal-form padding */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 36px 36px 36px' }}>
-
-        {/* Campaign Name */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Campaign Name</label>
-          <input
-            autoFocus
-            type="text"
-            placeholder="e.g. Spring 2026 Launch"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') onClose(); }}
-            style={inputStyle}
-            onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
-            onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
-          />
-        </div>
-
-        {/* Brief */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Brief</label>
-          <textarea
-            placeholder="e.g. Q2 product launch campaign targeting independent sales reps on LinkedIn and Instagram..."
-            value={brief}
-            onChange={(e) => setBrief(e.target.value)}
-            style={{
-              ...inputStyle,
-              minHeight: 100,
-              resize: 'vertical',
-              lineHeight: '1.5',
-            }}
-            onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
-            onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
-          />
-        </div>
-
-        {/* Resources */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Resources</label>
-          <div style={{ fontSize: 11, color: '#2a2a2a', marginBottom: 12 }}>
-            Reference Links
+          {/* Campaign Name */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Campaign Name</label>
+            <input
+              autoFocus
+              type="text"
+              placeholder="e.g. Spring 2026 Launch"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleCreate();
+                if (e.key === 'Escape') onClose();
+              }}
+              style={inputStyle}
+              onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
+              onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
+            />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {refLinks.map((link, i) => (
-              <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={link}
-                  onChange={(e) => updateLink(i, e.target.value)}
-                  style={{ ...inputStyle, flex: 1 }}
-                  onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
-                  onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
-                />
-                <button
-                  onClick={() => removeLink(i)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#555',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                    padding: '0 4px',
-                    lineHeight: 1,
-                    flexShrink: 0,
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#888')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#555')}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={addLink}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#44B2FF',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              padding: '0.375rem 0',
-              marginTop: '0.25rem',
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            + Add Link
-          </button>
-        </div>
 
-        {/* Attach Files */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Attach Files</label>
-          <button
-            style={{
-              padding: '7px 16px',
-              background: 'none',
-              border: '1px solid #2a2a2e',
-              borderRadius: 6,
-              color: '#888',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif",
-              letterSpacing: '0.04em',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#44B2FF')}
-            onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2a2a2e')}
-          >
-            Choose Files
-          </button>
-        </div>
-
-        {/* Fluid DAM */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Fluid DAM</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
-            <span style={{ color: '#4ade80', fontSize: '0.85rem' }}>✦</span>
-            <span style={{ color: '#4ade80', fontSize: '0.8rem', fontWeight: 500 }}>Fluid DAM connected</span>
-          </div>
-          <button
-            style={{
-              width: '100%',
-              padding: '9px 16px',
-              backgroundColor: '#44B2FF',
-              border: 'none',
-              borderRadius: 6,
-              color: '#fff',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif",
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            Browse Assets
-          </button>
-        </div>
-
-        {/* Channel selection (styled to match) */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Channels</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {CHANNEL_OPTIONS.map((ch) => {
-              const active = selectedChannels.includes(ch.value);
-              return (
-                <button
-                  key={ch.value}
-                  onClick={() => toggleChannel(ch.value)}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 5,
-                    border: `1px solid ${active ? '#44B2FF' : '#2a2a2e'}`,
-                    backgroundColor: active ? 'rgba(68,178,255,0.12)' : 'transparent',
-                    color: active ? '#44B2FF' : '#666',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.12s',
-                    fontFamily: "'Inter', sans-serif",
-                  }}
-                >
-                  {ch.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Footer — match templates .modal-footer and .btn-generate */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginTop: 32,
-          paddingTop: 24,
-          borderTop: '1px solid #1a1a1a',
-        }}>
-          <div style={{ fontSize: 10, color: '#2a2a2a', lineHeight: 1.5 }}>
-            Saves the campaign so you can add creations and assets.
-          </div>
-          <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
-            <button
-              type="button"
-              onClick={onClose}
+          {/* Brief */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Brief</label>
+            <textarea
+              placeholder="e.g. Q2 product launch campaign targeting independent sales reps on LinkedIn and Instagram..."
+              value={brief}
+              onChange={(e) => setBrief(e.target.value)}
               style={{
-                padding: '11px 16px',
+                ...inputStyle,
+                minHeight: 100,
+                resize: 'vertical',
+                lineHeight: '1.5',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
+              onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
+            />
+          </div>
+
+          {/* Resources */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Resources</label>
+            <div style={{ fontSize: 11, color: '#2a2a2a', marginBottom: 12 }}>Reference Links</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {refLinks.map((link, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={link}
+                    onChange={(e) => updateLink(i, e.target.value)}
+                    style={{ ...inputStyle, flex: 1 }}
+                    onFocus={(e) => (e.target.style.borderColor = '#44B2FF')}
+                    onBlur={(e) => (e.target.style.borderColor = '#2a2a2e')}
+                  />
+                  <button
+                    onClick={() => removeLink(i)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#555',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      padding: '0 4px',
+                      lineHeight: 1,
+                      flexShrink: 0,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#888')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#555')}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={addLink}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#44B2FF',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                padding: '0.375rem 0',
+                marginTop: '0.25rem',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              + Add Link
+            </button>
+          </div>
+
+          {/* Attach Files */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Attach Files</label>
+            <button
+              style={{
+                padding: '7px 16px',
                 background: 'none',
                 border: '1px solid #2a2a2e',
-                borderRadius: 3,
+                borderRadius: 6,
                 color: '#888',
-                fontSize: 12,
-                fontWeight: 600,
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontFamily: "'Inter', sans-serif",
+                letterSpacing: '0.04em',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#44B2FF')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#2a2a2e')}
             >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleCreate}
-              disabled={!title.trim()}
-              style={{
-                padding: '11px 24px',
-                border: 'none',
-                borderRadius: 3,
-                background: title.trim() ? '#44B2FF' : '#1a1a1a',
-                color: title.trim() ? '#000' : '#333',
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                cursor: title.trim() ? 'pointer' : 'default',
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                if (title.trim()) e.currentTarget.style.background = '#5cc0ff';
-              }}
-              onMouseLeave={(e) => {
-                if (title.trim()) e.currentTarget.style.background = '#44B2FF';
-              }}
-            >
-              Save Campaign
+              Choose Files
             </button>
           </div>
-        </div>
+
+          {/* Fluid DAM */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Fluid DAM</label>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.625rem',
+              }}
+            >
+              <span style={{ color: '#4ade80', fontSize: '0.85rem' }}>✦</span>
+              <span style={{ color: '#4ade80', fontSize: '0.8rem', fontWeight: 500 }}>
+                Fluid DAM connected
+              </span>
+            </div>
+            <button
+              style={{
+                width: '100%',
+                padding: '9px 16px',
+                backgroundColor: '#44B2FF',
+                border: 'none',
+                borderRadius: 6,
+                color: '#fff',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: "'Inter', sans-serif",
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+              Browse Assets
+            </button>
+          </div>
+
+          {/* Channel selection (styled to match) */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Channels</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {CHANNEL_OPTIONS.map((ch) => {
+                const active = selectedChannels.includes(ch.value);
+                return (
+                  <button
+                    key={ch.value}
+                    onClick={() => toggleChannel(ch.value)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: 5,
+                      border: `1px solid ${active ? '#44B2FF' : '#2a2a2e'}`,
+                      backgroundColor: active ? 'rgba(68,178,255,0.12)' : 'transparent',
+                      color: active ? '#44B2FF' : '#666',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.12s',
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    {ch.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer — match templates .modal-footer and .btn-generate */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              marginTop: 32,
+              paddingTop: 24,
+              borderTop: '1px solid #1a1a1a',
+            }}
+          >
+            <div style={{ fontSize: 10, color: '#2a2a2a', lineHeight: 1.5 }}>
+              Saves the campaign so you can add creations and assets.
+            </div>
+            <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '11px 16px',
+                  background: 'none',
+                  border: '1px solid #2a2a2e',
+                  borderRadius: 3,
+                  color: '#888',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCreate}
+                disabled={!title.trim()}
+                style={{
+                  padding: '11px 24px',
+                  border: 'none',
+                  borderRadius: 3,
+                  background: title.trim() ? '#44B2FF' : '#1a1a1a',
+                  color: title.trim() ? '#000' : '#333',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  cursor: title.trim() ? 'pointer' : 'default',
+                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  if (title.trim()) e.currentTarget.style.background = '#5cc0ff';
+                }}
+                onMouseLeave={(e) => {
+                  if (title.trim()) e.currentTarget.style.background = '#44B2FF';
+                }}
+              >
+                Save Campaign
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -560,13 +588,36 @@ interface FilterSortBarProps {
   channels: string[];
 }
 
-export function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort, channels }: FilterSortBarProps) {
+export function FilterSortBar({
+  filterChannel,
+  onFilterChannel,
+  sortKey,
+  onSort,
+  channels,
+}: FilterSortBarProps) {
   const allChannels = ['all', ...Array.from(new Set(channels))];
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'nowrap', minWidth: 0 }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        flexWrap: 'nowrap',
+        minWidth: 0,
+      }}
+    >
       {/* Channel filter tabs */}
-      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', overflowX: 'auto', flexShrink: 1, minWidth: 0 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.25rem',
+          alignItems: 'center',
+          overflowX: 'auto',
+          flexShrink: 1,
+          minWidth: 0,
+        }}
+      >
         {allChannels.map((ch) => {
           const active = filterChannel === ch;
           return (
@@ -587,8 +638,12 @@ export function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort,
                 transition: 'all 0.12s',
                 fontFamily: "'Inter', sans-serif",
               }}
-              onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = '#888'; }}
-              onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = '#555'; }}
+              onMouseEnter={(e) => {
+                if (!active) e.currentTarget.style.color = '#888';
+              }}
+              onMouseLeave={(e) => {
+                if (!active) e.currentTarget.style.color = '#555';
+              }}
             >
               {ch}
             </button>
@@ -597,8 +652,26 @@ export function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort,
       </div>
 
       {/* Sort controls */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
-        <span style={{ fontSize: '0.7rem', color: '#444', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Sort:</span>
+      <div
+        style={{
+          marginLeft: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.375rem',
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            fontSize: '0.7rem',
+            color: '#444',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            fontWeight: 600,
+          }}
+        >
+          Sort:
+        </span>
         {[
           { key: 'updatedAt' as SortKey, label: 'Updated' },
           { key: 'createdAt' as SortKey, label: 'Created' },
@@ -621,8 +694,12 @@ export function FilterSortBar({ filterChannel, onFilterChannel, sortKey, onSort,
               transition: 'all 0.12s',
               fontFamily: "'Inter', sans-serif",
             }}
-            onMouseEnter={(e) => { if (sortKey !== key) e.currentTarget.style.color = '#888'; }}
-            onMouseLeave={(e) => { if (sortKey !== key) e.currentTarget.style.color = '#555'; }}
+            onMouseEnter={(e) => {
+              if (sortKey !== key) e.currentTarget.style.color = '#888';
+            }}
+            onMouseLeave={(e) => {
+              if (sortKey !== key) e.currentTarget.style.color = '#555';
+            }}
           >
             {label}
           </button>
@@ -661,7 +738,9 @@ export function CampaignDashboard() {
     for (const campaign of campaigns) {
       if (mosaicData[campaign.id] !== undefined) continue; // already fetched or fetching
       // Mark as fetching with empty array to prevent duplicate fetches
-      setMosaicData((prev) => (prev[campaign.id] !== undefined ? prev : { ...prev, [campaign.id]: [] }));
+      setMosaicData((prev) =>
+        prev[campaign.id] !== undefined ? prev : { ...prev, [campaign.id]: [] },
+      );
       fetch(`/api/campaigns/${campaign.id}/preview-urls`)
         .then((res) => (res.ok ? res.json() : Promise.resolve({ urls: [] })))
         .then((data: { urls: PreviewUrl[] } | PreviewUrl[]) => {
@@ -672,7 +751,7 @@ export function CampaignDashboard() {
           // Leave as empty array — card falls back to metadata display
         });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaigns]);
 
   // Hide the __standalone__ sentinel campaign from the dashboard
@@ -682,9 +761,10 @@ export function CampaignDashboard() {
   const allChannels = visibleCampaigns.flatMap((c) => c.channels);
 
   // Filter
-  const filtered = filterChannel === 'all'
-    ? visibleCampaigns
-    : visibleCampaigns.filter((c) => c.channels.includes(filterChannel));
+  const filtered =
+    filterChannel === 'all'
+      ? visibleCampaigns
+      : visibleCampaigns.filter((c) => c.channels.includes(filterChannel));
 
   // Sort
   const sorted = [...filtered].sort((a, b) => {
@@ -705,29 +785,36 @@ export function CampaignDashboard() {
    * Uses a pre-built mosaic srcDoc when preview URLs are available (lazy-loaded),
    * otherwise falls back to channel badges + date metadata card.
    */
-  const renderPreview = useCallback((item: DrillDownItem<Campaign>): PreviewDescriptor | null => {
-    const urls = mosaicData[item.id];
-    if (urls && urls.length > 0) {
+  const renderPreview = useCallback(
+    (item: DrillDownItem<Campaign>): PreviewDescriptor | null => {
+      const urls = mosaicData[item.id];
+      if (urls && urls.length > 0) {
+        return {
+          html: buildMosaicSrcDoc(urls, 0), // totalCreations unknown at this level; omit "+N more"
+          width: 320,
+          height: 320,
+        };
+      }
+      // Metadata fallback while mosaic loads
+      const channels = item.data.channels;
+      const date = new Date(item.data.createdAt);
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
       return {
-        html: buildMosaicSrcDoc(urls, 0), // totalCreations unknown at this level; omit "+N more"
         width: 320,
-        height: 320,
+        height: 180,
+        meta: {
+          icon: 'campaign',
+          badges: channels.length > 0 ? channels : undefined,
+          detail: `Created ${dateStr}`,
+        },
       };
-    }
-    // Metadata fallback while mosaic loads
-    const channels = item.data.channels;
-    const date = new Date(item.data.createdAt);
-    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    return {
-      width: 320,
-      height: 180,
-      meta: {
-        icon: 'campaign',
-        badges: channels.length > 0 ? channels : undefined,
-        detail: `Created ${dateStr}`,
-      },
-    };
-  }, [mosaicData]);
+    },
+    [mosaicData],
+  );
 
   const handleSelect = (item: DrillDownItem<Campaign>) => {
     navigateToCampaign(item.id);
@@ -744,26 +831,33 @@ export function CampaignDashboard() {
   );
 
   const emptyState = (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      minHeight: 300,
-      gap: '1rem',
-      color: '#555',
-    }}>
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-           stroke="#2a2a2e" strokeWidth="1.25" strokeLinecap="round">
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        minHeight: 300,
+        gap: '1rem',
+        color: '#555',
+      }}
+    >
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#2a2a2e"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+      >
         <rect x="2" y="3" width="20" height="14" rx="2" />
         <line x1="8" y1="21" x2="16" y2="21" />
         <line x1="12" y1="17" x2="12" y2="21" />
       </svg>
       <div style={{ fontSize: '0.9rem', color: '#555' }}>No campaigns yet</div>
-      <div style={{ fontSize: '0.8rem', color: '#3a3a3a' }}>
-        Create one to get started
-      </div>
+      <div style={{ fontSize: '0.8rem', color: '#3a3a3a' }}>Create one to get started</div>
       <button
         onClick={() => setShowNewCampaignModal(true)}
         style={{
@@ -788,21 +882,28 @@ export function CampaignDashboard() {
 
   if (loading && campaigns.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        color: '#555',
-        fontSize: '0.9rem',
-        gap: '0.75rem',
-        fontFamily: "'Inter', sans-serif",
-      }}>
-        <div style={{
-          width: 20, height: 20, borderRadius: '50%',
-          border: '2px solid #2a2a2e', borderTopColor: '#44B2FF',
-          animation: 'spin 0.8s linear infinite',
-        }} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          color: '#555',
+          fontSize: '0.9rem',
+          gap: '0.75rem',
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        <div
+          style={{
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            border: '2px solid #2a2a2e',
+            borderTopColor: '#44B2FF',
+            animation: 'spin 0.8s linear infinite',
+          }}
+        />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         Loading campaigns...
       </div>

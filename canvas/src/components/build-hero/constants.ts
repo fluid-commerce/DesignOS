@@ -27,9 +27,24 @@ export const VIDEO_FORMATS = [
 export type VideoFormatTag = 'story' | 'video';
 
 export const VIDEO_DIMENSIONS = [
-  { id: '1080-1920', dimensions: '1080\u00d71920', sublabel: 'Story / Reel / TikTok', formats: ['story', 'video'] as VideoFormatTag[] },
-  { id: '1920-1080', dimensions: '1920\u00d71080', sublabel: 'Landscape', formats: ['video'] as VideoFormatTag[] },
-  { id: '1080-1080', dimensions: '1080\u00d71080', sublabel: 'Square', formats: ['video'] as VideoFormatTag[] },
+  {
+    id: '1080-1920',
+    dimensions: '1080\u00d71920',
+    sublabel: 'Story / Reel / TikTok',
+    formats: ['story', 'video'] as VideoFormatTag[],
+  },
+  {
+    id: '1920-1080',
+    dimensions: '1920\u00d71080',
+    sublabel: 'Landscape',
+    formats: ['video'] as VideoFormatTag[],
+  },
+  {
+    id: '1080-1080',
+    dimensions: '1080\u00d71080',
+    sublabel: 'Square',
+    formats: ['video'] as VideoFormatTag[],
+  },
 ] as const;
 
 export const SUGGESTIONS = [

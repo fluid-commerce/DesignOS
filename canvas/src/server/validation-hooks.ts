@@ -25,10 +25,7 @@ export interface ValidationResult {
  * Run brand-compliance.cjs and dimension-check.cjs on an HTML file.
  * Returns structured results for injection into the agent conversation.
  */
-export function runValidation(
-  htmlPath: string,
-  platform: string,
-): ValidationResult {
+export function runValidation(htmlPath: string, platform: string): ValidationResult {
   const result: ValidationResult = {
     passed: true,
     blocking: [],
@@ -46,7 +43,7 @@ export function runValidation(
     const complianceOutput = execFileSync(
       'node',
       [path.join(TOOLS_DIR, 'brand-compliance.cjs'), htmlPath, '--context', context],
-      { encoding: 'utf-8', timeout: 15000 }
+      { encoding: 'utf-8', timeout: 15000 },
     );
 
     const complianceResult = JSON.parse(complianceOutput);
@@ -94,7 +91,7 @@ export function runValidation(
     const dimOutput = execFileSync(
       'node',
       [path.join(TOOLS_DIR, 'dimension-check.cjs'), htmlPath, '--target', dimTarget],
-      { encoding: 'utf-8', timeout: 10000 }
+      { encoding: 'utf-8', timeout: 10000 },
     );
     const dimResult = JSON.parse(dimOutput);
     if (dimResult.pass === false) {

@@ -124,7 +124,7 @@ function ImageSlotField({
     if (iframeRef?.contentWindow) {
       iframeRef.contentWindow.postMessage(
         { type: 'tmpl', action: 'img', sel: field.sel, value: url },
-        '*'
+        '*',
       );
     }
   };

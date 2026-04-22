@@ -51,10 +51,7 @@ export function isRawDamAsset(value: unknown): value is RawDamAsset {
  *
  * Source: adapted from fluid-mono useDamLibrary.ts flattenTree algorithm.
  */
-export function flattenDamTree(
-  tree: Record<string, unknown>,
-  depth = 0
-): RawDamAsset[] {
+export function flattenDamTree(tree: Record<string, unknown>, depth = 0): RawDamAsset[] {
   if (depth > 10) return [];
   const assets: RawDamAsset[] = [];
   for (const value of Object.values(tree)) {
@@ -72,9 +69,9 @@ export function flattenDamTree(
  * Returns the company_id number embedded in the token.
  */
 export function getCompanyIdFromToken(token: string): number {
-  const payload = JSON.parse(
-    Buffer.from(token.split('.')[1], 'base64').toString()
-  ) as { company_id: number };
+  const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()) as {
+    company_id: number;
+  };
   return payload.company_id;
 }
 
@@ -86,7 +83,7 @@ export function getCompanyIdFromToken(token: string): number {
  */
 export async function damQuery(
   token: string,
-  params: { path: string; cursor?: string; limit?: number }
+  params: { path: string; cursor?: string; limit?: number },
 ): Promise<DamQueryResponse> {
   const res = await fetch(`${DAM_BASE_URL}/dam/query`, {
     method: 'POST',
@@ -112,7 +109,7 @@ export async function damQuery(
 export async function listBrandElements(
   token: string,
   companyId: number,
-  folderName = 'brand_elements'
+  folderName = 'brand_elements',
 ): Promise<RawDamAsset[]> {
   const path = `${companyId}.${folderName}.*`;
   let cursor: string | undefined;

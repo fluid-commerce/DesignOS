@@ -122,7 +122,9 @@ async function downloadTemplateZip(templatePath: string, templateName: string) {
 
   // Fetch brand assets catalog to map name -> file_path for local paths in ZIP
   const catalogRes = await fetch('/api/brand-assets');
-  const catalog: Array<{ name: string; url: string }> = catalogRes.ok ? await catalogRes.json() : [];
+  const catalog: Array<{ name: string; url: string }> = catalogRes.ok
+    ? await catalogRes.json()
+    : [];
   const nameToPath = new Map<string, string>();
   for (const a of catalog) {
     // url is /api/brand-assets/serve/:name — extract name from the original catalog
@@ -156,9 +158,14 @@ async function downloadTemplateZip(templatePath: string, templateName: string) {
         // Determine extension from content-type
         const ct = assetRes.headers.get('content-type') || '';
         const extMap: Record<string, string> = {
-          'font/ttf': '.ttf', 'font/woff2': '.woff2', 'font/woff': '.woff',
-          'image/png': '.png', 'image/jpeg': '.jpg', 'image/svg+xml': '.svg',
-          'image/gif': '.gif', 'image/webp': '.webp',
+          'font/ttf': '.ttf',
+          'font/woff2': '.woff2',
+          'font/woff': '.woff',
+          'image/png': '.png',
+          'image/jpeg': '.jpg',
+          'image/svg+xml': '.svg',
+          'image/gif': '.gif',
+          'image/webp': '.webp',
         };
         const ext = extMap[ct] || '';
         zip.file(`assets/${name}${ext}`, blob);
@@ -263,28 +270,33 @@ function TemplatePreview({
         boxSizing: 'border-box',
       }}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setDropdownOpen(false); }}
+      onMouseLeave={() => {
+        setHovered(false);
+        setDropdownOpen(false);
+      }}
     >
-      <div style={{
-        width: innerW,
-        height: innerH,
-        overflow: 'hidden',
-        position: 'relative',
-        borderRadius: 2,
-      }}>
-      <iframe
-        src={`/templates/${templatePath}`}
+      <div
         style={{
-          width: layoutDims.iw,
-          height: layoutDims.ih,
-          border: 'none',
-          transform: `scale(${previewScale})`,
-          transformOrigin: 'top left',
-          pointerEvents: 'none',
+          width: innerW,
+          height: innerH,
+          overflow: 'hidden',
+          position: 'relative',
+          borderRadius: 2,
         }}
-        title={templateName}
-        loading="lazy"
-      />
+      >
+        <iframe
+          src={`/templates/${templatePath}`}
+          style={{
+            width: layoutDims.iw,
+            height: layoutDims.ih,
+            border: 'none',
+            transform: `scale(${previewScale})`,
+            transformOrigin: 'top left',
+            pointerEvents: 'none',
+          }}
+          title={templateName}
+          loading="lazy"
+        />
       </div>
       {/* Overlay */}
       <div
@@ -327,7 +339,10 @@ function TemplatePreview({
         {/* New from Template — with dropdown */}
         <div style={{ position: 'relative' }} ref={dropdownRef}>
           <button
-            onClick={(e) => { e.stopPropagation(); setDropdownOpen((v) => !v); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setDropdownOpen((v) => !v);
+            }}
             style={{
               fontSize: 11,
               fontWeight: 700,
@@ -409,7 +424,10 @@ function TemplatePreview({
         </div>
         {/* Download ZIP */}
         <button
-          onClick={(e) => { e.stopPropagation(); handleDownloadZip(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownloadZip();
+          }}
           style={{
             fontSize: 11,
             fontWeight: 700,
@@ -489,7 +507,15 @@ function SpecTable({
   isSocial?: boolean;
 }) {
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, marginBottom: 20, tableLayout: 'fixed' }}>
+    <table
+      style={{
+        width: '100%',
+        borderCollapse: 'collapse',
+        fontSize: 11,
+        marginBottom: 20,
+        tableLayout: 'fixed',
+      }}
+    >
       <colgroup>
         <col style={{ width: COL_SLOT }} />
         <col style={{ width: COL_SPEC }} />
@@ -498,24 +524,38 @@ function SpecTable({
       <thead>
         <tr>
           {headers.map((h, i) => (
-            <th key={i} style={thStyle}>{h}</th>
+            <th key={i} style={thStyle}>
+              {h}
+            </th>
           ))}
         </tr>
       </thead>
       <tbody>
         {rows.map((row, ri) => (
           <tr key={ri}>
-            <td style={{ ...tdStyle, color: '#44B2FF', fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <td
+              style={{
+                ...tdStyle,
+                color: '#44B2FF',
+                fontFamily: 'monospace',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
               {row.cells[0]}
             </td>
             <td style={{ ...tdStyle, color: '#555' }}>{row.cells[1]}</td>
             <td style={{ ...tdStyle, color: '#444' }}>
-              {isSocial
-                ? <ColorCell value={row.cells[2] ?? null} />
-                : (row.cells[1]?.includes('Fixed') ? <Chip label="fixed" variant="fixed" />
-                  : row.cells[1]?.includes('Optional') ? <Chip label="optional" variant="optional" />
-                  : <Chip label="flexible" variant="flexible" />)
-              }
+              {isSocial ? (
+                <ColorCell value={row.cells[2] ?? null} />
+              ) : row.cells[1]?.includes('Fixed') ? (
+                <Chip label="fixed" variant="fixed" />
+              ) : row.cells[1]?.includes('Optional') ? (
+                <Chip label="optional" variant="optional" />
+              ) : (
+                <Chip label="flexible" variant="flexible" />
+              )}
             </td>
           </tr>
         ))}
@@ -542,7 +582,9 @@ function EditableTextarea({
   const [saved, setSaved] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => { setDraft(value); }, [value]);
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
 
   const save = () => {
     if (draft !== value) {
@@ -557,19 +599,39 @@ function EditableTextarea({
   return (
     <div style={{ position: 'relative' }}>
       {saved && (
-        <span style={{ position: 'absolute', top: -16, right: 0, fontSize: '0.7rem', color: '#4ade80', fontWeight: 500 }}>
+        <span
+          style={{
+            position: 'absolute',
+            top: -16,
+            right: 0,
+            fontSize: '0.7rem',
+            color: '#4ade80',
+            fontWeight: 500,
+          }}
+        >
           Saved
         </span>
       )}
       <textarea
         value={editing ? draft : value}
         readOnly={!editing}
-        onClick={() => { if (!editing) { setEditing(true); setDraft(value); } }}
+        onClick={() => {
+          if (!editing) {
+            setEditing(true);
+            setDraft(value);
+          }
+        }}
         onChange={(e) => editing && setDraft(e.target.value)}
         onBlur={() => save()}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); }
-          if (e.key === 'Escape') { setDraft(value); setEditing(false); }
+          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            save();
+          }
+          if (e.key === 'Escape') {
+            setDraft(value);
+            setEditing(false);
+          }
         }}
         style={{
           width: '100%',
@@ -610,20 +672,26 @@ function TemplateRow({
 }: {
   t: DbTemplate;
   designRules: DesignRule[];
-  onUpdateTemplate: (id: string, fields: Partial<Pick<DbTemplate, 'description' | 'contentSlots' | 'extraTables'>>) => void;
+  onUpdateTemplate: (
+    id: string,
+    fields: Partial<Pick<DbTemplate, 'description' | 'contentSlots' | 'extraTables'>>,
+  ) => void;
   onUpdateDesignRule: (id: string, content: string) => void;
 }) {
   const isSocial = t.type === 'social';
-  const previewLayout = t.layout === 'letter' ? 'letter' : t.layout === 'landscape' ? 'landscape' : 'square';
+  const previewLayout =
+    t.layout === 'letter' ? 'letter' : t.layout === 'landscape' ? 'landscape' : 'square';
   const gridCols = t.layout === 'letter' ? '425px 1fr' : '480px 1fr';
   const [activeSlideTab, setActiveSlideTab] = useState(0);
 
   // Match archetype design rules for this template
-  const templateRules = designRules.filter(r => r.scope === 'archetype' && r.archetypeSlug === t.file);
+  const templateRules = designRules.filter(
+    (r) => r.scope === 'archetype' && r.archetypeSlug === t.file,
+  );
 
   // Detect slide-based extra tables (carousel pattern)
-  const slideTables = t.extraTables?.filter(et => /^Slide \d/.test(et.label)) ?? [];
-  const nonSlideTables = t.extraTables?.filter(et => !/^Slide \d/.test(et.label)) ?? [];
+  const slideTables = t.extraTables?.filter((et) => /^Slide \d/.test(et.label)) ?? [];
+  const nonSlideTables = t.extraTables?.filter((et) => !/^Slide \d/.test(et.label)) ?? [];
   const isCarousel = slideTables.length > 1;
 
   return (
@@ -639,11 +707,23 @@ function TemplateRow({
       {/* Left: preview */}
       <div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 16 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#44B2FF', textTransform: 'uppercase' }}>
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              color: '#44B2FF',
+              textTransform: 'uppercase',
+            }}
+          >
             {t.num}
           </span>
           <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{t.name}</span>
-          {t.dims && <span style={{ fontSize: 10, color: '#2a2a2a', fontFamily: 'monospace' }}>{t.dims}</span>}
+          {t.dims && (
+            <span style={{ fontSize: 10, color: '#2a2a2a', fontFamily: 'monospace' }}>
+              {t.dims}
+            </span>
+          )}
         </div>
         <TemplatePreview
           templatePath={t.previewPath}
@@ -669,8 +749,12 @@ function TemplateRow({
           <>
             <div style={specLabelStyle}>Content Slots</div>
             <SpecTable
-              headers={['Slot', isSocial ? 'Spec' : 'Type / Spec', isSocial ? 'Color' : 'Description']}
-              rows={t.contentSlots.map(s => ({ cells: [s.slot, s.spec, s.color] }))}
+              headers={[
+                'Slot',
+                isSocial ? 'Spec' : 'Type / Spec',
+                isSocial ? 'Color' : 'Description',
+              ]}
+              rows={t.contentSlots.map((s) => ({ cells: [s.slot, s.spec, s.color] }))}
               isSocial={isSocial}
             />
           </>
@@ -680,7 +764,14 @@ function TemplateRow({
         {isCarousel && (
           <>
             <div style={specLabelStyle}>Slides</div>
-            <div style={{ display: 'flex', gap: 2, marginBottom: 12, borderBottom: '1px solid #1a1a1a' }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 2,
+                marginBottom: 12,
+                borderBottom: '1px solid #1a1a1a',
+              }}
+            >
               {slideTables.map((st, idx) => {
                 const isActive = activeSlideTab === idx;
                 const shortLabel = st.label.replace(/^Slide /, '');
@@ -703,8 +794,12 @@ function TemplateRow({
                       marginBottom: -1,
                       transition: 'color 0.15s',
                     }}
-                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = '#666'; }}
-                    onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = '#444'; }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.color = '#666';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.color = '#444';
+                    }}
                   >
                     {shortLabel}
                   </button>
@@ -714,7 +809,9 @@ function TemplateRow({
             {slideTables[activeSlideTab] && (
               <SpecTable
                 headers={slideTables[activeSlideTab].headers || ['Slot', 'Spec', 'Color']}
-                rows={slideTables[activeSlideTab].rows.map(row => ({ cells: [row[0], row[1], row[2] ?? null] }))}
+                rows={slideTables[activeSlideTab].rows.map((row) => ({
+                  cells: [row[0], row[1], row[2] ?? null],
+                }))}
                 isSocial={true}
               />
             )}
@@ -727,7 +824,7 @@ function TemplateRow({
             <div style={specLabelStyle}>{et.label}</div>
             <SpecTable
               headers={et.headers || ['Slot', 'Spec', 'Color']}
-              rows={et.rows.map(row => ({ cells: [row[0], row[1], row[2] ?? null] }))}
+              rows={et.rows.map((row) => ({ cells: [row[0], row[1], row[2] ?? null] }))}
               isSocial={isSocial}
             />
           </div>
@@ -739,7 +836,9 @@ function TemplateRow({
             <div style={specLabelStyle}>Design Rules</div>
             {templateRules.map((rule) => (
               <div key={rule.id} style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#888', marginBottom: 6 }}>{rule.label}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#888', marginBottom: 6 }}>
+                  {rule.label}
+                </div>
                 <EditableTextarea
                   value={rule.content}
                   onSave={(content) => onUpdateDesignRule(rule.id, content)}
@@ -818,11 +917,20 @@ function DesignRulesPanel({
             color: expanded ? '#44B2FF' : '#555',
           }}
         >
-          <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M6 4L10 8L6 12"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-        <span style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>Social Media Design Rules</span>
+        <span style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>
+          Social Media Design Rules
+        </span>
         <span style={{ fontSize: 12, color: '#555', marginLeft: 4 }}>
-          Rules that apply to all social posts. Includes platform-specific guidelines for Instagram and LinkedIn.
+          Rules that apply to all social posts. Includes platform-specific guidelines for Instagram
+          and LinkedIn.
         </span>
       </div>
       {/* Content */}
@@ -834,7 +942,9 @@ function DesignRulesPanel({
         }}
       >
         <div style={{ padding: '1rem' }}>
-          {loading && <div style={{ color: '#555', fontSize: '0.85rem' }}>Loading design rules...</div>}
+          {loading && (
+            <div style={{ color: '#555', fontSize: '0.85rem' }}>Loading design rules...</div>
+          )}
 
           {!loading && rules.length === 0 && (
             <div style={{ color: '#555', fontSize: '0.85rem' }}>
@@ -850,8 +960,22 @@ function DesignRulesPanel({
               <p style={{ ...sectionHeadingStyle, marginTop: 0 }}>General Social Media</p>
               {globalRules.map((r) => (
                 <div key={r.id} style={{ marginBottom: '1.25rem' }}>
-                  <h3 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.375rem' }}>{r.label}</h3>
-                  <EditableTextarea value={r.content} onSave={(content) => onUpdateRule(r.id, content)} minHeight={120} />
+                  <h3
+                    style={{
+                      margin: 0,
+                      color: '#fff',
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
+                      marginBottom: '0.375rem',
+                    }}
+                  >
+                    {r.label}
+                  </h3>
+                  <EditableTextarea
+                    value={r.content}
+                    onSave={(content) => onUpdateRule(r.id, content)}
+                    minHeight={120}
+                  />
                 </div>
               ))}
             </section>
@@ -862,8 +986,22 @@ function DesignRulesPanel({
               <p style={sectionHeadingStyle}>Instagram</p>
               {instagramRules.map((r) => (
                 <div key={r.id} style={{ marginBottom: '1.25rem' }}>
-                  <h3 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.375rem' }}>{r.label}</h3>
-                  <EditableTextarea value={r.content} onSave={(content) => onUpdateRule(r.id, content)} minHeight={120} />
+                  <h3
+                    style={{
+                      margin: 0,
+                      color: '#fff',
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
+                      marginBottom: '0.375rem',
+                    }}
+                  >
+                    {r.label}
+                  </h3>
+                  <EditableTextarea
+                    value={r.content}
+                    onSave={(content) => onUpdateRule(r.id, content)}
+                    minHeight={120}
+                  />
                 </div>
               ))}
             </section>
@@ -874,8 +1012,22 @@ function DesignRulesPanel({
               <p style={sectionHeadingStyle}>LinkedIn</p>
               {linkedinRules.map((r) => (
                 <div key={r.id} style={{ marginBottom: '1.25rem' }}>
-                  <h3 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.375rem' }}>{r.label}</h3>
-                  <EditableTextarea value={r.content} onSave={(content) => onUpdateRule(r.id, content)} minHeight={120} />
+                  <h3
+                    style={{
+                      margin: 0,
+                      color: '#fff',
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
+                      marginBottom: '0.375rem',
+                    }}
+                  >
+                    {r.label}
+                  </h3>
+                  <EditableTextarea
+                    value={r.content}
+                    onSave={(content) => onUpdateRule(r.id, content)}
+                    minHeight={120}
+                  />
                 </div>
               ))}
             </section>
@@ -907,21 +1059,23 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
   // Fetch templates from DB
   useEffect(() => {
     Promise.all([
-      fetch('/api/db-templates?type=social').then(r => r.json()),
-      fetch('/api/db-templates?type=paid-ad').then(r => r.json()),
-      fetch('/api/db-templates?type=one-pager').then(r => r.json()),
-    ]).then(([social, paidAd, onePager]) => {
-      setSocialTemplates(social);
-      setPaidAdTemplates(paidAd);
-      setOnePagerTemplates(onePager);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+      fetch('/api/db-templates?type=social').then((r) => r.json()),
+      fetch('/api/db-templates?type=paid-ad').then((r) => r.json()),
+      fetch('/api/db-templates?type=one-pager').then((r) => r.json()),
+    ])
+      .then(([social, paidAd, onePager]) => {
+        setSocialTemplates(social);
+        setPaidAdTemplates(paidAd);
+        setOnePagerTemplates(onePager);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   // Fetch design rules
   useEffect(() => {
     fetch('/api/design-rules')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: DesignRule[]) => {
         setDesignRules(data);
         setRulesLoading(false);
@@ -930,12 +1084,15 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
   }, []);
 
   // Optimistic update for templates
-  const handleUpdateTemplate = (id: string, fields: Partial<Pick<DbTemplate, 'description' | 'contentSlots' | 'extraTables'>>) => {
+  const handleUpdateTemplate = (
+    id: string,
+    fields: Partial<Pick<DbTemplate, 'description' | 'contentSlots' | 'extraTables'>>,
+  ) => {
     const updateList = (list: DbTemplate[]) =>
-      list.map(t => t.id === id ? { ...t, ...fields } : t);
-    setSocialTemplates(prev => updateList(prev));
-    setPaidAdTemplates(prev => updateList(prev));
-    setOnePagerTemplates(prev => updateList(prev));
+      list.map((t) => (t.id === id ? { ...t, ...fields } : t));
+    setSocialTemplates((prev) => updateList(prev));
+    setPaidAdTemplates((prev) => updateList(prev));
+    setOnePagerTemplates((prev) => updateList(prev));
 
     fetch(`/api/db-templates/${id}`, {
       method: 'PUT',
@@ -943,16 +1100,22 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
       body: JSON.stringify(fields),
     }).catch(() => {
       // Revert on failure — re-fetch
-      fetch('/api/db-templates?type=social').then(r => r.json()).then(setSocialTemplates);
-      fetch('/api/db-templates?type=paid-ad').then(r => r.json()).then(setPaidAdTemplates);
-      fetch('/api/db-templates?type=one-pager').then(r => r.json()).then(setOnePagerTemplates);
+      fetch('/api/db-templates?type=social')
+        .then((r) => r.json())
+        .then(setSocialTemplates);
+      fetch('/api/db-templates?type=paid-ad')
+        .then((r) => r.json())
+        .then(setPaidAdTemplates);
+      fetch('/api/db-templates?type=one-pager')
+        .then((r) => r.json())
+        .then(setOnePagerTemplates);
     });
   };
 
   // Optimistic update for design rules
   const handleUpdateDesignRule = (id: string, content: string) => {
     const prev = designRules;
-    setDesignRules(r => r.map(rule => rule.id === id ? { ...rule, content } : rule));
+    setDesignRules((r) => r.map((rule) => (rule.id === id ? { ...rule, content } : rule)));
 
     fetch(`/api/design-rules/${id}`, {
       method: 'PUT',
@@ -983,26 +1146,39 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
           padding: '14px 1rem',
         }}
       >
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '10px',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '10px',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+          }}
+        >
           <div>
-            <h1 style={{
-              margin: 0,
-              fontSize: '26px',
-              fontWeight: 700,
-              color: '#e0e0e0',
-              letterSpacing: '-0.02em',
-            }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: '26px',
+                fontWeight: 700,
+                color: '#e0e0e0',
+                letterSpacing: '-0.02em',
+              }}
+            >
               Templates
             </h1>
-            <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
-              Designed examples that show how brand patterns come together for specific content types
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#888',
+                marginTop: 4,
+                marginBottom: 0,
+              }}
+            >
+              Designed examples that show how brand patterns come together for specific content
+              types
             </p>
           </div>
           {onCreateNew && (
@@ -1034,8 +1210,15 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a9fe0')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#44B2FF')}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
@@ -1044,11 +1227,11 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
           )}
         </div>
         <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
-          {([
+          {[
             { id: 'social' as const, label: 'Social' },
             { id: 'paid-ads' as const, label: 'Paid Ads' },
             { id: 'one-page' as const, label: 'One-Page' },
-          ]).map(({ id, label }) => {
+          ].map(({ id, label }) => {
             const isActive = activeTab === id;
             return (
               <button
@@ -1091,9 +1274,7 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
           boxSizing: 'border-box',
         }}
       >
-        {loading && (
-          <div style={{ color: '#555', fontSize: 14 }}>Loading templates...</div>
-        )}
+        {loading && <div style={{ color: '#555', fontSize: 14 }}>Loading templates...</div>}
 
         {/* Social tab */}
         {!loading && activeTab === 'social' && (
@@ -1108,8 +1289,12 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
             {/* Template listings */}
             {socialTemplates.length === 0 && (
               <div style={{ color: '#555', fontSize: 13, padding: '48px 0', textAlign: 'center' }}>
-                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>No templates yet</p>
-                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Templates are seeded automatically on first app startup.</p>
+                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>
+                  No templates yet
+                </p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>
+                  Templates are seeded automatically on first app startup.
+                </p>
               </div>
             )}
             {socialTemplates.map((t, i) => (
@@ -1121,7 +1306,9 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
                   onUpdateDesignRule={handleUpdateDesignRule}
                 />
                 {i < socialTemplates.length - 1 && (
-                  <hr style={{ border: 'none', borderTop: '1px solid #141414', margin: '56px 0' }} />
+                  <hr
+                    style={{ border: 'none', borderTop: '1px solid #141414', margin: '56px 0' }}
+                  />
                 )}
               </div>
             ))}
@@ -1133,8 +1320,12 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
           <div>
             {paidAdTemplates.length === 0 && (
               <div style={{ color: '#555', fontSize: 13, padding: '48px 0', textAlign: 'center' }}>
-                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>No ad templates yet</p>
-                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Templates are seeded automatically on first app startup.</p>
+                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>
+                  No ad templates yet
+                </p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>
+                  Templates are seeded automatically on first app startup.
+                </p>
               </div>
             )}
             {paidAdTemplates.map((t, i) => (
@@ -1146,7 +1337,9 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
                   onUpdateDesignRule={handleUpdateDesignRule}
                 />
                 {i < paidAdTemplates.length - 1 && (
-                  <hr style={{ border: 'none', borderTop: '1px solid #141414', margin: '56px 0' }} />
+                  <hr
+                    style={{ border: 'none', borderTop: '1px solid #141414', margin: '56px 0' }}
+                  />
                 )}
               </div>
             ))}
@@ -1158,8 +1351,12 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
           <div>
             {onePagerTemplates.length === 0 && (
               <div style={{ color: '#555', fontSize: 13, padding: '48px 0', textAlign: 'center' }}>
-                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>No one-pager templates yet</p>
-                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>Templates are seeded automatically on first app startup.</p>
+                <p style={{ margin: 0, fontWeight: 600, color: '#e0e0e0', fontSize: 14 }}>
+                  No one-pager templates yet
+                </p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: 12 }}>
+                  Templates are seeded automatically on first app startup.
+                </p>
               </div>
             )}
             {onePagerTemplates.map((t, i) => (
@@ -1171,7 +1368,9 @@ export function TemplatesScreen({ onCreateNew }: TemplatesScreenProps) {
                   onUpdateDesignRule={handleUpdateDesignRule}
                 />
                 {i < onePagerTemplates.length - 1 && (
-                  <hr style={{ border: 'none', borderTop: '1px solid #141414', margin: '56px 0' }} />
+                  <hr
+                    style={{ border: 'none', borderTop: '1px solid #141414', margin: '56px 0' }}
+                  />
                 )}
               </div>
             ))}

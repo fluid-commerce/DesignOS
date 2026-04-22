@@ -1,0 +1,10 @@
+{
+  "archetypeId": "wrong-dims-ig",
+  "platform": "instagram-square",
+  "width": 500,
+  "height": 500,
+  "fields": [
+    { "type": "text", "sel": ".headline", "label": "Headline", "mode": "text" }
+  ],
+  "brush": null
+}

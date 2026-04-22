@@ -29,7 +29,7 @@ const ARCHETYPE_SLUGS = [
 type ArchetypeSlug = typeof ARCHETYPE_SLUGS[number];
 
 // Expected interactive field counts (non-divider fields) per archetype
-const EXPECTED_FIELD_COUNTS: Record<ArchetypeSlug, number> = {
+const _EXPECTED_FIELD_COUNTS: Record<ArchetypeSlug, number> = {
   'hero-stat':           9,  // eyebrow, headline, body-copy, 3x stat num+label
   'hero-stat-split':     8,  // photo, eyebrow, headline, body-copy, 2x stat num+label
   'photo-bg-overlay':    3,  // photo, headline, subtext

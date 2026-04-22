@@ -46,7 +46,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
 
   const snapTargetSels = useMemo(
     () => (slotSchema ? collectTransformTargets(slotSchema).map((t) => t.sel) : []),
-    [slotSchema]
+    [slotSchema],
   );
   const artboardW = slotSchema?.width ?? 1080;
   const artboardH = slotSchema?.height ?? 1080;
@@ -152,7 +152,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
         t: Math.round(layout.t),
       };
     },
-    [iframeEl, slotValues, textBoxKey]
+    [iframeEl, slotValues, textBoxKey],
   );
 
   const onPointerDown = useCallback(
@@ -178,7 +178,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
         startT: lay.t,
       };
     },
-    [sel, box, readEl, iframeEl, readLayoutAtDragStart]
+    [sel, box, readEl, iframeEl, readLayoutAtDragStart],
   );
 
   const onPointerMove = useCallback(
@@ -210,14 +210,14 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
           const dim = snapDimensionToTargets(rawW, widthTargets, th, MIN_W);
           const edgeR = snapTranslate1D([rawR], edgeX, th);
           const mid = snapTranslate1D([rawCx], midX, th);
-          const wMid =
-            mid.guidePos != null ? 2 * (mid.guidePos - d.startL) : rawW;
+          const wMid = mid.guidePos != null ? 2 * (mid.guidePos - d.startL) : rawW;
 
           type CW = { dist: number; w: number; vx?: number };
-          const cDim: CW | null =
-            dim.dist <= th ? { dist: dim.dist, w: dim.value } : null;
+          const cDim: CW | null = dim.dist <= th ? { dist: dim.dist, w: dim.value } : null;
           const cEdge: CW | null =
-            edgeR.dist <= th ? { dist: edgeR.dist, w: rawW + edgeR.delta, vx: edgeR.guidePos } : null;
+            edgeR.dist <= th
+              ? { dist: edgeR.dist, w: rawW + edgeR.delta, vx: edgeR.guidePos }
+              : null;
           const cMid: CW | null =
             mid.dist <= th && wMid >= MIN_W ? { dist: mid.dist, w: wMid, vx: mid.guidePos } : null;
 
@@ -305,10 +305,11 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
           const hMid = mid.guidePos != null ? 2 * (mid.guidePos - d.startT) : rawH;
 
           type CH = { dist: number; h: number; hy?: number };
-          const cDim: CH | null =
-            dim.dist <= th ? { dist: dim.dist, h: dim.value } : null;
+          const cDim: CH | null = dim.dist <= th ? { dist: dim.dist, h: dim.value } : null;
           const cEdge: CH | null =
-            edgeB.dist <= th ? { dist: edgeB.dist, h: rawH + edgeB.delta, hy: edgeB.guidePos } : null;
+            edgeB.dist <= th
+              ? { dist: edgeB.dist, h: rawH + edgeB.delta, hy: edgeB.guidePos }
+              : null;
           const cMid: CH | null =
             mid.dist <= th && hMid >= 24 ? { dist: mid.dist, h: hMid, hy: mid.guidePos } : null;
 
@@ -327,15 +328,7 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
         });
       }
     },
-    [
-      sel,
-      iframeEl,
-      updateTextBox,
-      readEl,
-      snapTargetSels,
-      artboardW,
-      artboardH,
-    ]
+    [sel, iframeEl, updateTextBox, readEl, snapTargetSels, artboardW, artboardH],
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
@@ -379,7 +372,12 @@ export function TextBoxOverlay({ iframeEl, wrapRef }: TextBoxOverlayProps) {
 
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 25, pointerEvents: 'none' }}>
-      <svg width="100%" height="100%" style={{ overflow: 'visible', pointerEvents: 'none' }} aria-hidden>
+      <svg
+        width="100%"
+        height="100%"
+        style={{ overflow: 'visible', pointerEvents: 'none' }}
+        aria-hidden
+      >
         {guideVOverlay != null && overlayH > 0 && (
           <line
             x1={guideVOverlay}

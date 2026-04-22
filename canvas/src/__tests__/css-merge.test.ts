@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mergeCssLayers, extractStyleBlock, inlineResolvedCss, type MergeLayer } from '../server/css-merge';
+import {
+  mergeCssLayers,
+  extractStyleBlock,
+  inlineResolvedCss,
+  type MergeLayer,
+} from '../server/css-merge';
 
 describe('mergeCssLayers', () => {
   it('merges two layers — later overrides earlier per-property', () => {
@@ -16,7 +21,10 @@ describe('mergeCssLayers', () => {
   it('preserves @font-face rules from brand layer', () => {
     const layers: MergeLayer[] = [
       { label: 'global', css: 'body { color: white; }' },
-      { label: 'brand', css: "@font-face { font-family: 'NeueHaas'; src: url('/fonts/neuehaas.woff2'); }" },
+      {
+        label: 'brand',
+        css: "@font-face { font-family: 'NeueHaas'; src: url('/fonts/neuehaas.woff2'); }",
+      },
     ];
     const result = mergeCssLayers(layers);
     expect(result).toContain('@font-face');
@@ -117,7 +125,8 @@ describe('inlineResolvedCss', () => {
   });
 
   it('preserves inline style attributes', () => {
-    const html = '<html><head><style>old</style></head><body><div style="position:absolute;left:10px">Hi</div></body></html>';
+    const html =
+      '<html><head><style>old</style></head><body><div style="position:absolute;left:10px">Hi</div></body></html>';
     const result = inlineResolvedCss(html, 'body { color: red; }');
     expect(result).toContain('style="position:absolute;left:10px"');
   });

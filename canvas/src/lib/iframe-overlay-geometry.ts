@@ -10,7 +10,7 @@
 
 export type IframeClientRectMode = 'embedder' | 'document';
 
-let cachedModeIframe: WeakMap<HTMLIFrameElement, IframeClientRectMode> = new WeakMap();
+const cachedModeIframe: WeakMap<HTMLIFrameElement, IframeClientRectMode> = new WeakMap();
 
 /**
  * Detect how this browser reports rects for content inside `iframe`.
@@ -28,8 +28,7 @@ export function getIframeClientRectMode(iframe: HTMLIFrameElement): IframeClient
       const ir = iframe.getBoundingClientRect();
       const rr = root.getBoundingClientRect();
       /* Embeddng: root’s painted top-left matches the iframe’s border box in the parent frame. */
-      const aligned =
-        Math.abs(rr.left - ir.left) < 4 && Math.abs(rr.top - ir.top) < 4;
+      const aligned = Math.abs(rr.left - ir.left) < 4 && Math.abs(rr.top - ir.top) < 4;
       mode = aligned ? 'embedder' : 'document';
     }
   } catch {
@@ -52,7 +51,7 @@ export function clearIframeClientRectModeCache(iframe: HTMLIFrameElement): void 
 export function elementRectToWrapOverlay(
   iframe: HTMLIFrameElement,
   wrap: HTMLElement,
-  el: Element
+  el: Element,
 ): { x: number; y: number; w: number; h: number } {
   const er = el.getBoundingClientRect();
   const ir = iframe.getBoundingClientRect();
@@ -86,7 +85,7 @@ export function elementRectToWrapOverlay(
 export function elementRotatedOverlayInfo(
   iframe: HTMLIFrameElement,
   wrap: HTMLElement,
-  el: HTMLElement
+  el: HTMLElement,
 ): { cx: number; cy: number; w: number; h: number; rotDeg: number } | null {
   const ir = iframe.getBoundingClientRect();
   const wr = wrap.getBoundingClientRect();
@@ -106,7 +105,8 @@ export function elementRotatedOverlayInfo(
       const cs = win.getComputedStyle(el);
       const t = cs.transform;
       if (t && t !== 'none') {
-        const MatrixRO = (win as unknown as { DOMMatrixReadOnly?: typeof DOMMatrixReadOnly }).DOMMatrixReadOnly;
+        const MatrixRO = (win as unknown as { DOMMatrixReadOnly?: typeof DOMMatrixReadOnly })
+          .DOMMatrixReadOnly;
         if (typeof MatrixRO === 'function') {
           const m = new MatrixRO(t);
           rotDeg = (Math.atan2(m.b, m.a) * 180) / Math.PI;
@@ -141,7 +141,7 @@ export function elementRotatedOverlayInfo(
 /** Element bbox in iframe **layout** / template CSS pixels (for snapping, move math). */
 export function elementLayoutRectInIframe(
   iframe: HTMLIFrameElement,
-  el: Element
+  el: Element,
 ): { l: number; t: number; w: number; h: number } {
   const er = el.getBoundingClientRect();
   const ir = iframe.getBoundingClientRect();

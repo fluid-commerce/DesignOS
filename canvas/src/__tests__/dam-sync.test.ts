@@ -4,7 +4,12 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import { getDb, closeDb } from '../lib/db';
-import { getBrandAssets, upsertDamAsset, softDeleteRemovedDamAssets, type DamAssetRow } from '../server/db-api';
+import {
+  getBrandAssets,
+  upsertDamAsset,
+  softDeleteRemovedDamAssets,
+  type DamAssetRow,
+} from '../server/db-api';
 import { flattenDamTree, getCompanyIdFromToken, type RawDamAsset } from '../server/dam-client';
 import { runDamSync } from '../server/dam-sync';
 
@@ -61,9 +66,9 @@ describe('flattenDamTree', () => {
 
     const result = flattenDamTree(tree);
     expect(result).toHaveLength(3);
-    expect(result.map(a => a.code)).toContain('asset-001');
-    expect(result.map(a => a.code)).toContain('asset-002');
-    expect(result.map(a => a.code)).toContain('asset-003');
+    expect(result.map((a) => a.code)).toContain('asset-001');
+    expect(result.map((a) => a.code)).toContain('asset-002');
+    expect(result.map((a) => a.code)).toContain('asset-003');
   });
 
   it('handles empty tree', () => {
@@ -80,7 +85,7 @@ describe('flattenDamTree', () => {
     // Asset is at depth 12, beyond the cutoff of 10
     const result = flattenDamTree(current);
     // Should not find the asset since it's too deep
-    expect(result.some(a => a.code === 'deep-asset')).toBe(false);
+    expect(result.some((a) => a.code === 'deep-asset')).toBe(false);
   });
 
   it('does not include non-asset objects (missing variants array)', () => {
@@ -125,9 +130,9 @@ describe('upsertDamAsset', () => {
     upsertDamAsset(row);
 
     const db = getDb();
-    const saved = db.prepare(
-      'SELECT source, dam_asset_id FROM brand_assets WHERE dam_asset_id = ?'
-    ).get(row.damId) as { source: string; dam_asset_id: string } | undefined;
+    const saved = db
+      .prepare('SELECT source, dam_asset_id FROM brand_assets WHERE dam_asset_id = ?')
+      .get(row.damId) as { source: string; dam_asset_id: string } | undefined;
 
     expect(saved).toBeDefined();
     expect(saved!.source).toBe('dam');
@@ -149,17 +154,17 @@ describe('upsertDamAsset', () => {
     // Insert initial row
     upsertDamAsset(row);
     const db = getDb();
-    const before = db.prepare(
-      'SELECT last_synced_at FROM brand_assets WHERE dam_asset_id = ?'
-    ).get(row.damId) as { last_synced_at: number };
+    const before = db
+      .prepare('SELECT last_synced_at FROM brand_assets WHERE dam_asset_id = ?')
+      .get(row.damId) as { last_synced_at: number };
 
     // Wait briefly to ensure timestamps would differ if updated
     // Then call upsert again with same damModifiedAt — should skip
     upsertDamAsset({ ...row, name: 'Changed Name' });
 
-    const after = db.prepare(
-      'SELECT last_synced_at, name FROM brand_assets WHERE dam_asset_id = ?'
-    ).get(row.damId) as { last_synced_at: number; name: string };
+    const after = db
+      .prepare('SELECT last_synced_at, name FROM brand_assets WHERE dam_asset_id = ?')
+      .get(row.damId) as { last_synced_at: number; name: string };
 
     // last_synced_at should not have changed (skipped)
     expect(after.last_synced_at).toBe(before.last_synced_at);
@@ -190,9 +195,9 @@ describe('upsertDamAsset', () => {
     });
 
     const db = getDb();
-    const saved = db.prepare(
-      'SELECT name FROM brand_assets WHERE dam_asset_id = ?'
-    ).get(row.damId) as { name: string };
+    const saved = db
+      .prepare('SELECT name FROM brand_assets WHERE dam_asset_id = ?')
+      .get(row.damId) as { name: string };
 
     expect(saved.name).toBe('New Name');
   });
@@ -214,9 +219,7 @@ describe('upsertDamAsset', () => {
 
     // Soft-delete it
     const db = getDb();
-    db.prepare(
-      'UPDATE brand_assets SET dam_deleted = 1 WHERE dam_asset_id = ?'
-    ).run(row.damId);
+    db.prepare('UPDATE brand_assets SET dam_deleted = 1 WHERE dam_asset_id = ?').run(row.damId);
 
     // Now upsert with a newer modified date — should clear dam_deleted
     upsertDamAsset({
@@ -224,9 +227,9 @@ describe('upsertDamAsset', () => {
       damModifiedAt: '2024-12-01T00:00:00.000Z',
     });
 
-    const saved = db.prepare(
-      'SELECT dam_deleted FROM brand_assets WHERE dam_asset_id = ?'
-    ).get(row.damId) as { dam_deleted: number };
+    const saved = db
+      .prepare('SELECT dam_deleted FROM brand_assets WHERE dam_asset_id = ?')
+      .get(row.damId) as { dam_deleted: number };
 
     expect(saved.dam_deleted).toBe(0);
   });
@@ -259,15 +262,15 @@ describe('softDeleteRemovedDamAssets', () => {
     expect(count).toBeGreaterThanOrEqual(1);
 
     const db = getDb();
-    const rowC = db.prepare(
-      'SELECT dam_deleted FROM brand_assets WHERE dam_asset_id = ?'
-    ).get('delete-test-C') as { dam_deleted: number };
+    const rowC = db
+      .prepare('SELECT dam_deleted FROM brand_assets WHERE dam_asset_id = ?')
+      .get('delete-test-C') as { dam_deleted: number };
     expect(rowC.dam_deleted).toBe(1);
 
     // A and B should still be active
-    const rowA = db.prepare(
-      'SELECT dam_deleted FROM brand_assets WHERE dam_asset_id = ?'
-    ).get('delete-test-A') as { dam_deleted: number };
+    const rowA = db
+      .prepare('SELECT dam_deleted FROM brand_assets WHERE dam_asset_id = ?')
+      .get('delete-test-A') as { dam_deleted: number };
     expect(rowA.dam_deleted).toBe(0);
   });
 
@@ -276,18 +279,20 @@ describe('softDeleteRemovedDamAssets', () => {
     const db = getDb();
     const { nanoid } = await import('nanoid');
     const localId = nanoid();
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO brand_assets (id, name, category, file_path, mime_type, size_bytes, tags, created_at)
       VALUES (?, 'Local Asset', 'brushstrokes', 'brushstrokes/local-test.png', 'image/png', 500, '[]', ?)
-    `).run(localId, Date.now());
+    `,
+    ).run(localId, Date.now());
 
     // Soft-delete with empty set (all DAM assets gone)
     softDeleteRemovedDamAssets(new Set());
 
     // Local asset should be untouched (no dam_deleted column value change)
-    const row = db.prepare(
-      'SELECT dam_deleted FROM brand_assets WHERE id = ?'
-    ).get(localId) as { dam_deleted: number | null };
+    const row = db.prepare('SELECT dam_deleted FROM brand_assets WHERE id = ?').get(localId) as {
+      dam_deleted: number | null;
+    };
 
     // dam_deleted defaults to 0 for local assets; should remain unchanged
     expect(row.dam_deleted == null || row.dam_deleted === 0).toBe(true);
@@ -312,12 +317,10 @@ describe('getBrandAssets excludes dam_deleted rows', () => {
 
     // Soft-delete it
     const db = getDb();
-    db.prepare(
-      'UPDATE brand_assets SET dam_deleted = 1 WHERE dam_asset_id = ?'
-    ).run(row.damId);
+    db.prepare('UPDATE brand_assets SET dam_deleted = 1 WHERE dam_asset_id = ?').run(row.damId);
 
     const assets = getBrandAssets();
-    expect(assets.some(a => a.name === 'Hidden Asset')).toBe(false);
+    expect(assets.some((a) => a.name === 'Hidden Asset')).toBe(false);
   });
 });
 

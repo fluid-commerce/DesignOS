@@ -9,7 +9,10 @@ const STATUS_STYLES: Record<VersionStatus, { bg: string; color: string; label: s
   unmarked: { bg: '#6b728022', color: '#6b7280', label: 'Unmarked' },
 };
 
-const GENERATION_STYLES: Record<GenerationStatus, { bg: string; color: string; label: string; pulse?: boolean }> = {
+const GENERATION_STYLES: Record<
+  GenerationStatus,
+  { bg: string; color: string; label: string; pulse?: boolean }
+> = {
   pending: { bg: '#6b728022', color: '#6b7280', label: 'Pending' },
   generating: { bg: '#f59e0b22', color: '#f59e0b', label: 'Generating', pulse: true },
   complete: { bg: '#22c55e22', color: '#22c55e', label: 'Complete' },
@@ -27,7 +30,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     ? (GENERATION_STYLES[status as GenerationStatus] ?? GENERATION_STYLES.pending)
     : (STATUS_STYLES[status as VersionStatus] ?? STATUS_STYLES.unmarked);
 
-  const pulse = isGenerationStatus && (GENERATION_STYLES[status as GenerationStatus]?.pulse ?? false);
+  const pulse =
+    isGenerationStatus && (GENERATION_STYLES[status as GenerationStatus]?.pulse ?? false);
 
   return (
     <>
@@ -39,17 +43,19 @@ export function StatusBadge({ status }: StatusBadgeProps) {
           }
         `}</style>
       )}
-      <span style={{
-        display: 'inline-block',
-        padding: '2px 8px',
-        borderRadius: '9999px',
-        fontSize: '0.7rem',
-        fontWeight: 600,
-        backgroundColor: style.bg,
-        color: style.color,
-        textDecoration: (status as VersionStatus) === 'rejected' ? 'line-through' : 'none',
-        animation: pulse ? 'statusPulse 1.5s ease-in-out infinite' : 'none',
-      }}>
+      <span
+        style={{
+          display: 'inline-block',
+          padding: '2px 8px',
+          borderRadius: '9999px',
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          backgroundColor: style.bg,
+          color: style.color,
+          textDecoration: (status as VersionStatus) === 'rejected' ? 'line-through' : 'none',
+          animation: pulse ? 'statusPulse 1.5s ease-in-out infinite' : 'none',
+        }}
+      >
         {style.label}
       </span>
     </>

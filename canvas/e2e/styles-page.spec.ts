@@ -157,7 +157,7 @@ test.describe('Styles Page UI', () => {
     }).toPass({ timeout: 5000 });
   });
 
-  test('saving brand CSS persists via API', async ({ page, request }) => {
+  test('saving brand CSS persists via API', async ({ page: _page, request }) => {
     // Use the API directly to verify save works — more reliable than UI flash
     const testCss = `/* playwright-test-${Date.now()} */`;
 

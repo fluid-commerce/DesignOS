@@ -21,7 +21,13 @@ export function roundLayoutRotateDeg(n: number): number {
 }
 
 export function parseTransform(transform: string): ParsedTransform {
-  const result: ParsedTransform = { translateX: 0, translateY: 0, rotateDeg: 0, scaleX: 1, scaleY: 1 };
+  const result: ParsedTransform = {
+    translateX: 0,
+    translateY: 0,
+    rotateDeg: 0,
+    scaleX: 1,
+    scaleY: 1,
+  };
   if (!transform || transform === 'none') return result;
   const tx = transform.match(/translate\(([^,)]+),\s*([^)]+)\)/);
   if (tx) {
@@ -51,7 +57,13 @@ function getDOMMatrixReadOnlyCtor(win?: Window | null): typeof DOMMatrixReadOnly
  * apply `rotate(0deg)` on first move and wipe template CSS like `rotate(90deg)` on side labels.
  */
 export function parseTransformComputed(transform: string, win?: Window | null): ParsedTransform {
-  const identity: ParsedTransform = { translateX: 0, translateY: 0, rotateDeg: 0, scaleX: 1, scaleY: 1 };
+  const identity: ParsedTransform = {
+    translateX: 0,
+    translateY: 0,
+    rotateDeg: 0,
+    scaleX: 1,
+    scaleY: 1,
+  };
   const t = transform?.trim() || '';
   if (!t || t === 'none') return identity;
 
@@ -77,7 +89,13 @@ export function parseTransformComputed(transform: string, win?: Window | null): 
   return parseTransform(t);
 }
 
-export function buildTransformString(tx: number, ty: number, rot: number, sx: number, sy: number): string {
+export function buildTransformString(
+  tx: number,
+  ty: number,
+  rot: number,
+  sx: number,
+  sy: number,
+): string {
   const rtx = roundLayoutTranslatePx(tx);
   const rty = roundLayoutTranslatePx(ty);
   const rrot = roundLayoutRotateDeg(rot);

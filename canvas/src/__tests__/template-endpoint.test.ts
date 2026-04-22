@@ -94,7 +94,7 @@ describe('GET /api/templates', () => {
       return [];
     });
     vi.mocked(fs.readFile).mockResolvedValue(
-      '<img src="../../assets/logos/logo.svg"><link href="../../assets/fonts/font.woff2">'
+      '<img src="../../assets/logos/logo.svg"><link href="../../assets/fonts/font.woff2">',
     );
 
     const templates = await discoverTemplates('/fake/root');

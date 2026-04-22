@@ -58,7 +58,18 @@ import {
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
-import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty, migratePatternsToMarkdown, splitPatternEntries, seedGlobalVisualStyleIfEmpty, seedFontEnforcementIfEmpty, seedDesignRulesIfEmpty, seedTemplatesIfEmpty, seedContextMapIfEmpty, importSeedDataIfFresh } from './brand-seeder';
+import {
+  seedVoiceGuideIfEmpty,
+  seedBrandPatternsIfEmpty,
+  migratePatternsToMarkdown,
+  splitPatternEntries,
+  seedGlobalVisualStyleIfEmpty,
+  seedFontEnforcementIfEmpty,
+  seedDesignRulesIfEmpty,
+  seedTemplatesIfEmpty,
+  seedContextMapIfEmpty,
+  importSeedDataIfFresh,
+} from './brand-seeder';
 import { runDamSync } from './dam-sync';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
@@ -99,7 +110,7 @@ const CAMPAIGN_PATTERNS = [
   /\bseries\b/i,
   /\bmultiple\b/i,
   /\bseveral\b/i,
-  /\bposts\b/i,  // plural "posts" = campaign intent
+  /\bposts\b/i, // plural "posts" = campaign intent
 ];
 
 /** Infer the creation type from a single-creation prompt. */
@@ -116,9 +127,7 @@ function inferCreationType(prompt: string): string {
  * Also detects singularity — a prompt asking for one creation vs a full campaign.
  * Returns channels array, per-channel counts, singularity flag, and inferred type.
  */
-export function parseChannelHints(
-  prompt: string
-): {
+export function parseChannelHints(prompt: string): {
   channels: string[];
   creationCounts: Record<string, number>;
   isSingleCreation: boolean;
@@ -137,8 +146,8 @@ export function parseChannelHints(
 
   // Singularity check: a singular prompt creates exactly 1 creation
   // Campaign patterns override singularity
-  const isSingular = SINGULAR_PATTERNS.some(p => p.test(prompt));
-  const isCampaign = CAMPAIGN_PATTERNS.some(p => p.test(prompt));
+  const isSingular = SINGULAR_PATTERNS.some((p) => p.test(prompt));
+  const isCampaign = CAMPAIGN_PATTERNS.some((p) => p.test(prompt));
   const isSingleCreation = isSingular && !isCampaign;
 
   if (isSingleCreation) {
@@ -166,7 +175,9 @@ export function parseChannelHints(
  */
 function getOrCreateStandaloneCampaign(): string {
   const db = getDb();
-  const row = db.prepare("SELECT id FROM campaigns WHERE title = '__standalone__'").get() as { id: string } | undefined;
+  const row = db.prepare("SELECT id FROM campaigns WHERE title = '__standalone__'").get() as
+    | { id: string }
+    | undefined;
   if (row) return row.id;
   const campaign = createCampaign({ title: '__standalone__', channels: ['standalone'] });
   return campaign.id;
@@ -177,7 +188,7 @@ function getOrCreateStandaloneCampaign(): string {
  * e.g. { instagram: 3, linkedin: 3, 'one-pager': 1 } => 7 creation specs
  */
 function buildCreationList(
-  creationCounts: Record<string, number>
+  creationCounts: Record<string, number>,
 ): Array<{ title: string; creationType: string; slideCount: number }> {
   const creations: Array<{ title: string; creationType: string; slideCount: number }> = [];
   for (const [type, count] of Object.entries(creationCounts)) {
@@ -224,35 +235,36 @@ export function fluidWatcherPlugin(): Plugin {
 
       // Auto-scan brand assets into DB on startup, then seed patterns from markdown files
       const patternSeedsDir = path.join(projectRoot, 'pattern-seeds');
-      scanAndSeedBrandAssets(path.join(projectRoot, 'assets')).then(async () => {
-        await seedBrandPatternsIfEmpty(patternSeedsDir);
-        // Migrate existing HTML patterns to clean markdown (safe to call multiple times)
-        const migrated = await migratePatternsToMarkdown(patternSeedsDir);
-        if (migrated > 0) console.log(`[watcher] Migrated ${migrated} patterns to markdown`);
-        // Split large pattern entries into individual rules (idempotent)
-        const split = await splitPatternEntries(patternSeedsDir);
-        if (split > 0) console.log(`[watcher] Split ${split} pattern entries into individual rules`);
-      }).catch(err =>
-        console.error('[asset-scan] Failed:', err)
-      );
+      scanAndSeedBrandAssets(path.join(projectRoot, 'assets'))
+        .then(async () => {
+          await seedBrandPatternsIfEmpty(patternSeedsDir);
+          // Migrate existing HTML patterns to clean markdown (safe to call multiple times)
+          const migrated = await migratePatternsToMarkdown(patternSeedsDir);
+          if (migrated > 0) console.log(`[watcher] Migrated ${migrated} patterns to markdown`);
+          // Split large pattern entries into individual rules (idempotent)
+          const split = await splitPatternEntries(patternSeedsDir);
+          if (split > 0)
+            console.log(`[watcher] Split ${split} pattern entries into individual rules`);
+        })
+        .catch((err) => console.error('[asset-scan] Failed:', err));
 
       // Seed voice guide docs from source files (non-blocking)
-      seedVoiceGuideIfEmpty(path.join(projectRoot, 'voice-guide')).catch(err =>
-        console.warn('[watcher] Voice guide seeding failed:', err)
+      seedVoiceGuideIfEmpty(path.join(projectRoot, 'voice-guide')).catch((err) =>
+        console.warn('[watcher] Voice guide seeding failed:', err),
       );
 
       // Seed Design DNA: global visual style contract + per-deliverable design rules
-      seedGlobalVisualStyleIfEmpty().catch(err =>
-        console.warn('[watcher] Global visual style seeding failed:', err)
+      seedGlobalVisualStyleIfEmpty().catch((err) =>
+        console.warn('[watcher] Global visual style seeding failed:', err),
       );
-      seedFontEnforcementIfEmpty().catch(err =>
-        console.warn('[watcher] Font enforcement seeding failed:', err)
+      seedFontEnforcementIfEmpty().catch((err) =>
+        console.warn('[watcher] Font enforcement seeding failed:', err),
       );
-      seedDesignRulesIfEmpty().catch(err =>
-        console.warn('[watcher] Design rules seeding failed:', err)
+      seedDesignRulesIfEmpty().catch((err) =>
+        console.warn('[watcher] Design rules seeding failed:', err),
       );
-      seedTemplatesIfEmpty().catch(err =>
-        console.warn('[watcher] Templates seeding failed:', err)
+      seedTemplatesIfEmpty().catch((err) =>
+        console.warn('[watcher] Templates seeding failed:', err),
       );
       try {
         seedTemplateRoutingMetadata();
@@ -268,11 +280,15 @@ export function fluidWatcherPlugin(): Plugin {
       // Sync brand assets from Fluid DAM on startup (non-blocking)
       const damToken = process.env.VITE_FLUID_DAM_TOKEN;
       if (damToken) {
-        runDamSync(damToken, path.join(projectRoot, 'assets')).then(result => {
-          console.log(`[dam-sync] Startup sync: ${result.synced} synced, ${result.skipped} skipped, ${result.softDeleted} soft-deleted${result.errors.length ? `, ${result.errors.length} errors` : ''}`);
-        }).catch(err => {
-          console.warn('[dam-sync] Startup sync failed:', err);
-        });
+        runDamSync(damToken, path.join(projectRoot, 'assets'))
+          .then((result) => {
+            console.log(
+              `[dam-sync] Startup sync: ${result.synced} synced, ${result.skipped} skipped, ${result.softDeleted} soft-deleted${result.errors.length ? `, ${result.errors.length} errors` : ''}`,
+            );
+          })
+          .catch((err) => {
+            console.warn('[dam-sync] Startup sync failed:', err);
+          });
       }
 
       // SPA fallback: rewrite /app/* navigation routes to /app/ so Vite serves index.html
@@ -326,12 +342,18 @@ export function fluidWatcherPlugin(): Plugin {
           // Serve static files from templates/ (JS libs, etc.)
           const relative = pathname.slice(1) || '';
           const fullPath = path.resolve(templatesDir, relative);
-          if (!fullPath.startsWith(templatesDir + path.sep) && fullPath !== templatesDir) return next();
+          if (!fullPath.startsWith(templatesDir + path.sep) && fullPath !== templatesDir)
+            return next();
           const stat = await fs.stat(fullPath);
           if (!stat.isFile()) return next();
           const data = await fs.readFile(fullPath);
           const ext = path.extname(fullPath).toLowerCase();
-          const mime = ext === '.js' ? 'application/javascript' : ext === '.html' ? 'text/html; charset=utf-8' : serveFluidAsset(relative).contentType;
+          const mime =
+            ext === '.js'
+              ? 'application/javascript'
+              : ext === '.html'
+                ? 'text/html; charset=utf-8'
+                : serveFluidAsset(relative).contentType;
           res.writeHead(200, { 'Content-Type': mime });
           res.end(data);
           return;
@@ -388,7 +410,9 @@ export function fluidWatcherPlugin(): Plugin {
           });
           res.end(data);
         } catch {
-          console.error(`[watcher] Brand asset file not found: ${fullPath} (DB file_path: ${asset.file_path})`);
+          console.error(
+            `[watcher] Brand asset file not found: ${fullPath} (DB file_path: ${asset.file_path})`,
+          );
           res.writeHead(404, { 'Content-Type': 'text/plain' });
           res.end('Asset file not found on disk');
         }
@@ -475,10 +499,14 @@ export function fluidWatcherPlugin(): Plugin {
           if (!stat.isFile()) return next();
           const data = await fs.readFile(fullPath);
           const ext = path.extname(fullPath).toLowerCase();
-          const mime = ext === '.js' ? 'application/javascript'
-            : ext === '.css' ? 'text/css'
-            : ext === '.html' ? 'text/html; charset=utf-8'
-            : 'application/octet-stream';
+          const mime =
+            ext === '.js'
+              ? 'application/javascript'
+              : ext === '.css'
+                ? 'text/css'
+                : ext === '.html'
+                  ? 'text/html; charset=utf-8'
+                  : 'application/octet-stream';
           res.writeHead(200, { 'Content-Type': mime });
           res.end(data);
           return;
@@ -519,7 +547,8 @@ export function fluidWatcherPlugin(): Plugin {
           }
           // Static files under /templates/ (e.g. editor.html, editor.js, nav.js)
           let filePath = path.resolve(templatesDir, relative);
-          if (!filePath.startsWith(templatesDir + path.sep) && filePath !== templatesDir) return next();
+          if (!filePath.startsWith(templatesDir + path.sep) && filePath !== templatesDir)
+            return next();
           let stat = await fs.stat(filePath).catch(() => null);
           // Allow /templates/editor?t=... to serve editor.html
           if (!stat?.isFile() && !path.extname(relative)) {
@@ -539,10 +568,14 @@ export function fluidWatcherPlugin(): Plugin {
               html = html.replace(/<script src="nav\.js"><\/script>/g, '');
               data = html;
             }
-            const mime = ext === '.js' ? 'application/javascript'
-              : ext === '.css' ? 'text/css'
-              : ext === '.html' ? 'text/html; charset=utf-8'
-              : 'application/octet-stream';
+            const mime =
+              ext === '.js'
+                ? 'application/javascript'
+                : ext === '.css'
+                  ? 'text/css'
+                  : ext === '.html'
+                    ? 'text/html; charset=utf-8'
+                    : 'application/octet-stream';
             res.writeHead(200, { 'Content-Type': mime });
             res.end(data);
             return;
@@ -555,29 +588,58 @@ export function fluidWatcherPlugin(): Plugin {
 
       // Full-size preview screen: /preview/templates/:name.html — top bar, decorative bg, iframe, bottom bar with prev/next
       const previewTemplateOrder = [
-        't1-quote', 't2-app-highlight', 't3-partner-alert', 't4-fluid-ad',
-        't5-partner-announcement', 't6-employee-spotlight', 't7-carousel', 't8-quarterly-stats',
+        't1-quote',
+        't2-app-highlight',
+        't3-partner-alert',
+        't4-fluid-ad',
+        't5-partner-announcement',
+        't6-employee-spotlight',
+        't7-carousel',
+        't8-quarterly-stats',
       ];
-      const previewMeta: Record<string, { w: number; h: number; label: string; carouselTotal?: number }> = {
+      const previewMeta: Record<
+        string,
+        { w: number; h: number; label: string; carouselTotal?: number }
+      > = {
         't1-quote': { w: 1080, h: 1080, label: '01 Client Testimonial / Quote' },
         't2-app-highlight': { w: 1080, h: 1080, label: '02 App Feature / Product Highlight' },
         't3-partner-alert': { w: 1340, h: 630, label: '03 Partner Alert (Landscape)' },
         't4-fluid-ad': { w: 1080, h: 1080, label: '04 Fluid Capabilities — Instagram Ad' },
-        't5-partner-announcement': { w: 1340, h: 630, label: '05 Partner Announcement (Landscape)' },
+        't5-partner-announcement': {
+          w: 1340,
+          h: 630,
+          label: '05 Partner Announcement (Landscape)',
+        },
         't6-employee-spotlight': { w: 1080, h: 1080, label: '06 Employee Spotlight' },
         't7-carousel': { w: 1080, h: 1080, label: '07 Carousel — Insights', carouselTotal: 4 },
-        't8-quarterly-stats': { w: 1080, h: 1080, label: '08 Quarterly Stats — Carousel', carouselTotal: 4 },
+        't8-quarterly-stats': {
+          w: 1080,
+          h: 1080,
+          label: '08 Quarterly Stats — Carousel',
+          carouselTotal: 4,
+        },
       };
       srv.middlewares.use(async (req, res, next) => {
-        if (req.method !== 'GET' || !req.url?.startsWith('/preview/templates/') || !req.url.endsWith('.html')) return next();
+        if (
+          req.method !== 'GET' ||
+          !req.url?.startsWith('/preview/templates/') ||
+          !req.url.endsWith('.html')
+        )
+          return next();
         const fileName = req.url.replace('/preview/templates/', '').split('?')[0];
         const templateSlug = fileName.replace(/\.html$/, '');
         const meta = previewMeta[templateSlug] || { w: 1080, h: 1080, label: templateSlug };
         const idx = previewTemplateOrder.indexOf(templateSlug);
-        const prevSlug = idx >= 0 ? previewTemplateOrder[(idx - 1 + previewTemplateOrder.length) % previewTemplateOrder.length] : null;
-        const nextSlug = idx >= 0 ? previewTemplateOrder[(idx + 1) % previewTemplateOrder.length] : null;
-        const prevLabel = prevSlug ? previewMeta[prevSlug]?.label ?? prevSlug : null;
-        const nextLabel = nextSlug ? previewMeta[nextSlug]?.label ?? nextSlug : null;
+        const prevSlug =
+          idx >= 0
+            ? previewTemplateOrder[
+                (idx - 1 + previewTemplateOrder.length) % previewTemplateOrder.length
+              ]
+            : null;
+        const nextSlug =
+          idx >= 0 ? previewTemplateOrder[(idx + 1) % previewTemplateOrder.length] : null;
+        const prevLabel = prevSlug ? (previewMeta[prevSlug]?.label ?? prevSlug) : null;
+        const nextLabel = nextSlug ? (previewMeta[nextSlug]?.label ?? nextSlug) : null;
         const prevHref = prevSlug ? '/preview/templates/' + prevSlug + '.html' : '#';
         const nextHref = nextSlug ? '/preview/templates/' + nextSlug + '.html' : '#';
         // Template files live under templates/social/ (preview list is all social)
@@ -831,7 +893,7 @@ export function fluidWatcherPlugin(): Plugin {
             if (Array.isArray(body.creations)) {
               const result = createCampaignWithCreations(
                 { title: body.title, channels: body.channels },
-                body.creations
+                body.creations,
               );
               res.writeHead(201, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify(result));
@@ -849,7 +911,7 @@ export function fluidWatcherPlugin(): Plugin {
           if (url?.startsWith('/api/uploads/chat-image') && method === 'POST') {
             try {
               const contentType = req.headers['content-type'] ?? 'image/png';
-              const fileName = req.headers['x-filename'] as string ?? `upload-${nanoid()}.png`;
+              const fileName = (req.headers['x-filename'] as string) ?? `upload-${nanoid()}.png`;
               const uploadId = nanoid();
 
               // Accumulate body as Buffer
@@ -916,7 +978,10 @@ export function fluidWatcherPlugin(): Plugin {
           }
 
           // GET /api/brand-assets or GET /api/brand-assets?category=brushstrokes
-          if ((url === '/api/brand-assets' || url.startsWith('/api/brand-assets?')) && method === 'GET') {
+          if (
+            (url === '/api/brand-assets' || url.startsWith('/api/brand-assets?')) &&
+            method === 'GET'
+          ) {
             const searchParams = new URL(req.url!, 'http://localhost').searchParams;
             const category = searchParams.get('category') ?? undefined;
             const includeDeleted = searchParams.get('include_deleted') === 'true';
@@ -979,8 +1044,12 @@ export function fluidWatcherPlugin(): Plugin {
           // ── Brand Patterns ─────────────────────────────────────────────────
 
           // GET /api/brand-patterns or GET /api/brand-patterns?category=design-tokens
-          if ((url === '/api/brand-patterns' || url.startsWith('/api/brand-patterns?')) && method === 'GET') {
-            const category = new URL(req.url!, 'http://localhost').searchParams.get('category') ?? undefined;
+          if (
+            (url === '/api/brand-patterns' || url.startsWith('/api/brand-patterns?')) &&
+            method === 'GET'
+          ) {
+            const category =
+              new URL(req.url!, 'http://localhost').searchParams.get('category') ?? undefined;
             const patterns = getBrandPatterns(category);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(patterns));
@@ -1016,7 +1085,9 @@ export function fluidWatcherPlugin(): Plugin {
             if (typeof body.label === 'string') updates.label = body.label;
             if (Object.keys(updates).length === 0) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'at least one of content, weight, or label is required' }));
+              res.end(
+                JSON.stringify({ error: 'at least one of content, weight, or label is required' }),
+              );
               return;
             }
             updateBrandPattern(brandPatternSlugMatch[1], updates);
@@ -1050,7 +1121,8 @@ export function fluidWatcherPlugin(): Plugin {
           const designRulesArchetypeMatch = url.match(/^\/api\/design-rules\/archetype\/([^/?]+)/);
           if (designRulesArchetypeMatch && method === 'GET') {
             const slug = designRulesArchetypeMatch[1];
-            const platform = new URL(req.url!, 'http://localhost').searchParams.get('platform') ?? undefined;
+            const platform =
+              new URL(req.url!, 'http://localhost').searchParams.get('platform') ?? undefined;
             const rules = getDesignRulesByArchetype(slug, platform);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(rules));
@@ -1058,7 +1130,10 @@ export function fluidWatcherPlugin(): Plugin {
           }
 
           // GET /api/design-rules or GET /api/design-rules?scope=X&platform=Y
-          if ((url === '/api/design-rules' || url.startsWith('/api/design-rules?')) && method === 'GET') {
+          if (
+            (url === '/api/design-rules' || url.startsWith('/api/design-rules?')) &&
+            method === 'GET'
+          ) {
             const params = new URL(req.url!, 'http://localhost').searchParams;
             const scope = params.get('scope') ?? undefined;
             const platform = params.get('platform') ?? undefined;
@@ -1156,7 +1231,10 @@ export function fluidWatcherPlugin(): Plugin {
           }
 
           // GET /api/context-log — returns recent context log entries with optional filters
-          if ((url === '/api/context-log' || url.startsWith('/api/context-log?')) && method === 'GET') {
+          if (
+            (url === '/api/context-log' || url.startsWith('/api/context-log?')) &&
+            method === 'GET'
+          ) {
             const params = new URL(req.url!, 'http://localhost').searchParams;
             const creationType = params.get('creation_type') ?? undefined;
             const stage = params.get('stage') ?? undefined;
@@ -1209,8 +1287,12 @@ export function fluidWatcherPlugin(): Plugin {
           }
 
           // GET /api/db-templates or GET /api/db-templates?type=social
-          if ((url === '/api/db-templates' || url.startsWith('/api/db-templates?')) && method === 'GET') {
-            const type = new URL(req.url!, 'http://localhost').searchParams.get('type') ?? undefined;
+          if (
+            (url === '/api/db-templates' || url.startsWith('/api/db-templates?')) &&
+            method === 'GET'
+          ) {
+            const type =
+              new URL(req.url!, 'http://localhost').searchParams.get('type') ?? undefined;
             const templates = getTemplates(type);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(templates));
@@ -1314,7 +1396,9 @@ export function fluidWatcherPlugin(): Plugin {
             const body = JSON.parse(await readBody(req));
             if (!body.title || !body.creationType || body.slideCount == null) {
               res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'title, creationType, and slideCount are required' }));
+              res.end(
+                JSON.stringify({ error: 'title, creationType, and slideCount are required' }),
+              );
               return;
             }
             const creation = createCreation({
@@ -1348,7 +1432,10 @@ export function fluidWatcherPlugin(): Plugin {
                 res.end(JSON.stringify({ error: 'slideIndex is required' }));
                 return;
               }
-              const slide = createSlide({ creationId: creationSlidesMatch[1], slideIndex: body.slideIndex });
+              const slide = createSlide({
+                creationId: creationSlidesMatch[1],
+                slideIndex: body.slideIndex,
+              });
               console.log(`[api] Created slide ${slide.id} for creation ${creationSlidesMatch[1]}`);
               res.writeHead(201, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify(slide));
@@ -1372,7 +1459,12 @@ export function fluidWatcherPlugin(): Plugin {
             } catch (err) {
               console.error('[watcher] GET /api/slides/:id/iterations failed:', err);
               res.writeHead(500, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Failed to load iterations', detail: err instanceof Error ? err.message : String(err) }));
+              res.end(
+                JSON.stringify({
+                  error: 'Failed to load iterations',
+                  detail: err instanceof Error ? err.message : String(err),
+                }),
+              );
             }
             return;
           }
@@ -1390,7 +1482,9 @@ export function fluidWatcherPlugin(): Plugin {
               const body = JSON.parse(rawBody);
               if (body.iterationIndex == null || !body.htmlPath || !body.source) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'iterationIndex, htmlPath, and source are required' }));
+                res.end(
+                  JSON.stringify({ error: 'iterationIndex, htmlPath, and source are required' }),
+                );
                 return;
               }
               console.log(`[api] Creating iteration for slide ${targetSlideId}`);
@@ -1423,7 +1517,9 @@ export function fluidWatcherPlugin(): Plugin {
             // Use the db-api's getIterationById helper if available, or implement inline.
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare('SELECT * FROM iterations WHERE id = ?').get(iterationId) as Record<string, unknown> | undefined;
+            const row = db.prepare('SELECT * FROM iterations WHERE id = ?').get(iterationId) as
+              | Record<string, unknown>
+              | undefined;
             if (!row) {
               res.writeHead(404, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify({ error: 'Iteration not found' }));
@@ -1452,9 +1548,11 @@ export function fluidWatcherPlugin(): Plugin {
               try {
                 htmlContent = await fs.readFile(
                   path.resolve(srv.config.root, '..', iteration.htmlPath),
-                  'utf-8'
+                  'utf-8',
                 );
-              } catch { /* file may not exist */ }
+              } catch {
+                /* file may not exist */
+              }
             }
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ ...iteration, htmlContent }));
@@ -1467,14 +1565,18 @@ export function fluidWatcherPlugin(): Plugin {
             const iterationId = iterHtmlMatch[1];
             const { getDb } = await import('../lib/db.js');
             const db = getDb();
-            const row = db.prepare(
-              'SELECT html_path, user_state, slot_schema, template_id FROM iterations WHERE id = ?'
-            ).get(iterationId) as {
-              html_path: string;
-              user_state: string | null;
-              slot_schema: string | null;
-              template_id: string | null;
-            } | undefined;
+            const row = db
+              .prepare(
+                'SELECT html_path, user_state, slot_schema, template_id FROM iterations WHERE id = ?',
+              )
+              .get(iterationId) as
+              | {
+                  html_path: string;
+                  user_state: string | null;
+                  slot_schema: string | null;
+                  template_id: string | null;
+                }
+              | undefined;
             if (!row?.html_path) {
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('Not found');
@@ -1495,53 +1597,114 @@ export function fluidWatcherPlugin(): Plugin {
               templatePath = storedPath;
               found = true;
               const stat = await fs.stat(storedPath);
-              console.log(`[watcher] iter ${iterationId} resolved via strategy 1: ${storedPath} (${stat.size} bytes)`);
-            } catch { /* noop */ }
+              console.log(
+                `[watcher] iter ${iterationId} resolved via strategy 1: ${storedPath} (${stat.size} bytes)`,
+              );
+            } catch {
+              /* noop */
+            }
 
             // Strategy 2: stored html_path resolved against .fluid/ directory
             if (!found) {
               const fluidPath = path.resolve(fluidDir, row.html_path);
-              try { await fs.access(fluidPath); templatePath = fluidPath; found = true; } catch { /* noop */ }
+              try {
+                await fs.access(fluidPath);
+                templatePath = fluidPath;
+                found = true;
+              } catch {
+                /* noop */
+              }
             }
 
             // Strategy 3: canonical path .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
             // Hierarchy is hoisted so Strategy 7 can also use it
-            const hierarchy = !found ? db.prepare(`
+            const hierarchy = !found
+              ? (db
+                  .prepare(
+                    `
               SELECT c.campaign_id, s.creation_id, i.slide_id
               FROM iterations i
               JOIN slides s ON s.id = i.slide_id
               JOIN creations c ON c.id = s.creation_id
               WHERE i.id = ?
-            `).get(iterationId) as { campaign_id: string; creation_id: string; slide_id: string } | undefined : undefined;
+            `,
+                  )
+                  .get(iterationId) as
+                  | { campaign_id: string; creation_id: string; slide_id: string }
+                  | undefined)
+              : undefined;
             if (!found && hierarchy) {
-              const canonicalPath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, hierarchy.slide_id, `${iterationId}.html`);
-              try { await fs.access(canonicalPath); templatePath = canonicalPath; found = true; } catch { /* noop */ }
+              const canonicalPath = path.join(
+                fluidDir,
+                'campaigns',
+                hierarchy.campaign_id,
+                hierarchy.creation_id,
+                hierarchy.slide_id,
+                `${iterationId}.html`,
+              );
+              try {
+                await fs.access(canonicalPath);
+                templatePath = canonicalPath;
+                found = true;
+              } catch {
+                /* noop */
+              }
             }
 
             // Strategy 4: fallback to templates/social/ by basename
             if (!found) {
               const fallbackPath = path.join(socialTemplatesDir, path.basename(row.html_path));
-              try { await fs.access(fallbackPath); templatePath = fallbackPath; found = true; } catch { /* noop */ }
+              try {
+                await fs.access(fallbackPath);
+                templatePath = fallbackPath;
+                found = true;
+              } catch {
+                /* noop */
+              }
             }
 
             // Strategy 5: strip leading .fluid/ prefix and resolve from fluidDir
             if (!found && row.html_path.startsWith('.fluid/')) {
               const strippedPath = row.html_path.replace(/^\.fluid\//, '');
               const stripped = path.resolve(fluidDir, strippedPath);
-              try { await fs.access(stripped); templatePath = stripped; found = true; } catch { /* noop */ }
+              try {
+                await fs.access(stripped);
+                templatePath = stripped;
+                found = true;
+              } catch {
+                /* noop */
+              }
             }
 
             // Strategy 6: strip leading .fluid/ and resolve from projectRoot/.fluid/
             if (!found && row.html_path.startsWith('.fluid/')) {
               const fromRoot = path.resolve(projectRoot, row.html_path);
-              try { await fs.access(fromRoot); templatePath = fromRoot; found = true; } catch { /* noop */ }
+              try {
+                await fs.access(fromRoot);
+                templatePath = fromRoot;
+                found = true;
+              } catch {
+                /* noop */
+              }
             }
 
             // Strategy 7: skip slide directory level — some iterations were written
             // at campaign/creation/iter.html instead of campaign/creation/slide/iter.html
             if (!found && hierarchy) {
-              const noSlidePath = path.join(fluidDir, 'campaigns', hierarchy.campaign_id, hierarchy.creation_id, `${iterationId}.html`);
-              try { await fs.access(noSlidePath); templatePath = noSlidePath; found = true; } catch { /* noop */ }
+              const noSlidePath = path.join(
+                fluidDir,
+                'campaigns',
+                hierarchy.campaign_id,
+                hierarchy.creation_id,
+                `${iterationId}.html`,
+              );
+              try {
+                await fs.access(noSlidePath);
+                templatePath = noSlidePath;
+                found = true;
+              } catch {
+                /* noop */
+              }
             }
 
             if (!found) {
@@ -1550,16 +1713,24 @@ export function fluidWatcherPlugin(): Plugin {
                 `fluid: ${path.resolve(fluidDir, row.html_path)}`,
                 `canonical: .fluid/campaigns/.../${iterationId}.html`,
                 `template: ${path.join(socialTemplatesDir, path.basename(row.html_path))}`,
-                ...(row.html_path.startsWith('.fluid/') ? [`stripped: ${path.resolve(fluidDir, row.html_path.replace(/^\.fluid\//, ''))}`] : []),
+                ...(row.html_path.startsWith('.fluid/')
+                  ? [`stripped: ${path.resolve(fluidDir, row.html_path.replace(/^\.fluid\//, ''))}`]
+                  : []),
               ];
-              console.error(`[watcher] Iteration ${iterationId} html_path="${row.html_path}" — tried ${tried.length} strategies, none found:\n  ${tried.join('\n  ')}`);
+              console.error(
+                `[watcher] Iteration ${iterationId} html_path="${row.html_path}" — tried ${tried.length} strategies, none found:\n  ${tried.join('\n  ')}`,
+              );
               res.writeHead(404, { 'Content-Type': 'text/plain' });
-              res.end(`HTML file not found on disk (tried: stored="${row.html_path}", canonical=.fluid/campaigns/.../${iterationId}.html)`);
+              res.end(
+                `HTML file not found on disk (tried: stored="${row.html_path}", canonical=.fluid/campaigns/.../${iterationId}.html)`,
+              );
               return;
             }
             try {
               let html = await fs.readFile(templatePath, 'utf-8');
-              console.log(`[watcher] iter ${iterationId}: serving ${templatePath} (${html.length} chars, ${html.split('\n').length} lines)`);
+              console.log(
+                `[watcher] iter ${iterationId}: serving ${templatePath} (${html.length} chars, ${html.split('\n').length} lines)`,
+              );
               // Rewrite relative asset paths for serving via /fluid-assets/
               html = html.replace(/\.\.\/\.\.\/assets\//g, '/fluid-assets/');
               html = html.replace(/<script src="nav\.js"><\/script>/g, '');
@@ -1570,8 +1741,11 @@ export function fluidWatcherPlugin(): Plugin {
                 const baseHref = proto + '://' + host + '/';
                 html = html.replace(/<head[^>]*>/i, (m) => m + '<base href="' + baseHref + '">');
               }
-              const userState: Record<string, string> = row.user_state ? JSON.parse(row.user_state) : {};
-              const isZipExport = new URL(req.url!, 'http://localhost').searchParams.get('export') === 'zip';
+              const userState: Record<string, string> = row.user_state
+                ? JSON.parse(row.user_state)
+                : {};
+              const isZipExport =
+                new URL(req.url!, 'http://localhost').searchParams.get('export') === 'zip';
               const assetsDir = path.join(projectRoot, 'assets');
 
               if (isZipExport) {
@@ -1602,15 +1776,20 @@ export function fluidWatcherPlugin(): Plugin {
                     try {
                       await fs.access(fullAssetPath);
                       archive.file(fullAssetPath, { name: `assets/${asset.file_path}` });
-                    } catch { /* skip missing files */ }
+                    } catch {
+                      /* skip missing files */
+                    }
                   }
                 }
                 // Rewrite /api/brand-assets/serve/:name to relative assets/ paths
-                exportHtml = exportHtml.replace(/\/api\/brand-assets\/serve\/([^"'\s)]+)/g, (_full, encodedName) => {
-                  const name = decodeURIComponent(encodedName);
-                  const asset = getBrandAssetByName(name);
-                  return asset ? `assets/${asset.file_path}` : `assets/${name}`;
-                });
+                exportHtml = exportHtml.replace(
+                  /\/api\/brand-assets\/serve\/([^"'\s)]+)/g,
+                  (_full, encodedName) => {
+                    const name = decodeURIComponent(encodedName);
+                    const asset = getBrandAssetByName(name);
+                    return asset ? `assets/${asset.file_path}` : `assets/${name}`;
+                  },
+                );
 
                 // Handle legacy /fluid-assets/ URLs
                 exportHtml = exportHtml.replace(/\/fluid-assets\//g, 'assets/');
@@ -1628,7 +1807,9 @@ export function fluidWatcherPlugin(): Plugin {
                   try {
                     await fs.access(fullPath);
                     archive.file(fullPath, { name: `assets/${relPath}` });
-                  } catch { /* skip missing files */ }
+                  } catch {
+                    /* skip missing files */
+                  }
                 }
 
                 await archive.finalize();
@@ -1636,24 +1817,30 @@ export function fluidWatcherPlugin(): Plugin {
               }
 
               html = injectArtboardMarginGuide(html);
-              const initialValuesJson = JSON.stringify(userState).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+              const initialValuesJson = JSON.stringify(userState)
+                .replace(/</g, '\\u003c')
+                .replace(/>/g, '\\u003e');
               let pickTargets: TransformTarget[] = [];
               try {
                 const storedSchema = row.slot_schema ? JSON.parse(row.slot_schema) : null;
                 const schema = resolveSlotSchemaForIteration(
                   storedSchema,
                   row.template_id,
-                  row.html_path
+                  row.html_path,
                 );
                 if (schema) pickTargets = collectTransformTargets(schema);
               } catch {
                 pickTargets = [];
               }
-              const pickTargetsJson = JSON.stringify(pickTargets).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+              const pickTargetsJson = JSON.stringify(pickTargets)
+                .replace(/</g, '\\u003c')
+                .replace(/>/g, '\\u003e');
               // Apply saved slot values on load, then add postMessage listener for live edits
               const listenerScript =
                 '<script id="__tmpl_listener__">' +
-                'var PICK_TARGETS=' + pickTargetsJson + ';' +
+                'var PICK_TARGETS=' +
+                pickTargetsJson +
+                ';' +
                 'var __fluidLastOutline=null;' +
                 'var __fluidEditingEl=null;' +
                 '(function(){var h=document.head||document.documentElement;var id="__fluid_artboard_css";if(document.getElementById(id))return;var st=document.createElement("style");st.id=id;' +
@@ -1759,7 +1946,9 @@ export function fluidWatcherPlugin(): Plugin {
                 'else __fluidPlaceCaretFromPoint(-1,-1);' +
                 '}' +
                 '(function(){' +
-                'var initial=' + initialValuesJson + ';' +
+                'var initial=' +
+                initialValuesJson +
+                ';' +
                 'var TX_PREFIX="__transform__:";var TB_PREFIX="__textbox__:";' +
                 'for(var sel in initial){' +
                 'var v=initial[sel];' +
@@ -1947,7 +2136,10 @@ export function fluidWatcherPlugin(): Plugin {
               res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
               res.end(html);
             } catch (err) {
-              console.error(`[watcher] fs.readFile failed for iteration ${iterationId} at ${templatePath}:`, err);
+              console.error(
+                `[watcher] fs.readFile failed for iteration ${iterationId} at ${templatePath}:`,
+                err,
+              );
               res.writeHead(404, { 'Content-Type': 'text/plain' });
               res.end('HTML file not found on disk');
             }
@@ -2022,16 +2214,33 @@ export function fluidWatcherPlugin(): Plugin {
             const scopes: Record<string, string> = {};
             try {
               scopes.global = await fs.readFile(path.join(stylesDir, 'global.css'), 'utf-8');
-            } catch { scopes.global = '/* global.css not found */'; }
+            } catch {
+              scopes.global = '/* global.css not found */';
+            }
             try {
-              scopes.instagram = await fs.readFile(path.join(stylesDir, 'platforms', 'instagram.css'), 'utf-8');
-            } catch { scopes.instagram = ''; }
+              scopes.instagram = await fs.readFile(
+                path.join(stylesDir, 'platforms', 'instagram.css'),
+                'utf-8',
+              );
+            } catch {
+              scopes.instagram = '';
+            }
             try {
-              scopes.linkedin = await fs.readFile(path.join(stylesDir, 'platforms', 'linkedin.css'), 'utf-8');
-            } catch { scopes.linkedin = ''; }
+              scopes.linkedin = await fs.readFile(
+                path.join(stylesDir, 'platforms', 'linkedin.css'),
+                'utf-8',
+              );
+            } catch {
+              scopes.linkedin = '';
+            }
             try {
-              scopes['one-pager'] = await fs.readFile(path.join(stylesDir, 'platforms', 'one-pager.css'), 'utf-8');
-            } catch { scopes['one-pager'] = ''; }
+              scopes['one-pager'] = await fs.readFile(
+                path.join(stylesDir, 'platforms', 'one-pager.css'),
+                'utf-8',
+              );
+            } catch {
+              scopes['one-pager'] = '';
+            }
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(scopes));
             return;
@@ -2077,7 +2286,6 @@ export function fluidWatcherPlugin(): Plugin {
               return;
             }
           }
-
         } catch (err) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: String(err) }));
@@ -2138,7 +2346,6 @@ function readBody(req: import('http').IncomingMessage): Promise<string> {
   });
 }
 
-
 /**
  * MIME type map for static asset serving.
  */
@@ -2165,7 +2372,6 @@ export function serveFluidAsset(filePath: string): { contentType: string } {
   return { contentType: MIME_TYPES[ext] || 'application/octet-stream' };
 }
 
-
 /**
  * Discover templates from the project's templates/ directory.
  * Reads social/ and one-pagers/ subdirectories, excludes index.html,
@@ -2175,7 +2381,11 @@ export function serveFluidAsset(filePath: string): { contentType: string } {
 export async function discoverTemplates(projectRoot: string): Promise<TemplateInfo[]> {
   const templates: TemplateInfo[] = [];
 
-  const categories: Array<{ dir: string; category: 'social' | 'one-pager'; dims: { width: number; height: number } }> = [
+  const categories: Array<{
+    dir: string;
+    category: 'social' | 'one-pager';
+    dims: { width: number; height: number };
+  }> = [
     { dir: 'templates/social', category: 'social', dims: { width: 1080, height: 1080 } },
     { dir: 'templates/one-pagers', category: 'one-pager', dims: { width: 816, height: 1056 } },
   ];

@@ -7,7 +7,12 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { closeDb, getDb } from '../lib/db';
-import { getVoiceGuideDocs, getVoiceGuideDoc, updateVoiceGuideDoc, getBrandPatterns } from '../server/db-api';
+import {
+  getVoiceGuideDocs,
+  getVoiceGuideDoc,
+  updateVoiceGuideDoc,
+  getBrandPatterns,
+} from '../server/db-api';
 import { seedVoiceGuideIfEmpty, seedBrandPatternsIfEmpty } from '../server/brand-seeder';
 import path from 'node:path';
 import os from 'node:os';
@@ -106,7 +111,7 @@ describe('seedBrandPatternsIfEmpty', () => {
       expect(pattern.category).toBe('design-tokens');
     }
     // color-palette, typography, opacity-patterns should all be in design-tokens
-    const slugs = tokens.map(t => t.slug);
+    const slugs = tokens.map((t) => t.slug);
     expect(slugs).toContain('color-palette');
     expect(slugs).toContain('typography');
     expect(slugs).toContain('opacity-patterns');
@@ -115,7 +120,7 @@ describe('seedBrandPatternsIfEmpty', () => {
   it('getBrandPatterns with layout-archetype category returns layout-archetype rows', () => {
     const layouts = getBrandPatterns('layout-archetype');
     expect(layouts.length).toBeGreaterThan(0);
-    const slugs = layouts.map(l => l.slug);
+    const slugs = layouts.map((l) => l.slug);
     expect(slugs).toContain('layout-archetypes');
   });
 

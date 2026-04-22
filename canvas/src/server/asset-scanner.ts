@@ -12,17 +12,27 @@ import { getDb } from '../lib/db';
 /** Map file extension to MIME type. */
 function getMimeType(ext: string): string {
   switch (ext.toLowerCase()) {
-    case '.png':  return 'image/png';
+    case '.png':
+      return 'image/png';
     case '.jpg':
-    case '.jpeg': return 'image/jpeg';
-    case '.svg':  return 'image/svg+xml';
-    case '.webp': return 'image/webp';
-    case '.gif':  return 'image/gif';
-    case '.ttf':  return 'font/ttf';
-    case '.woff': return 'font/woff';
-    case '.woff2': return 'font/woff2';
-    case '.otf':  return 'font/otf';
-    default:      return 'application/octet-stream';
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.svg':
+      return 'image/svg+xml';
+    case '.webp':
+      return 'image/webp';
+    case '.gif':
+      return 'image/gif';
+    case '.ttf':
+      return 'font/ttf';
+    case '.woff':
+      return 'font/woff';
+    case '.woff2':
+      return 'font/woff2';
+    case '.otf':
+      return 'font/otf';
+    default:
+      return 'application/octet-stream';
   }
 }
 
@@ -31,19 +41,19 @@ function getMimeType(ext: string): string {
  * Directories not listed here default to 'decorations'.
  */
 const CATEGORY_MAP: Record<string, string> = {
-  'fonts': 'fonts',
-  'photos': 'images',
-  'logos': 'brand-elements',
-  'brushstrokes': 'decorations',
-  'circles': 'decorations',
-  'lines': 'decorations',
-  'scribbles': 'decorations',
-  'underlines': 'decorations',
-  'xs': 'decorations',
+  fonts: 'fonts',
+  photos: 'images',
+  logos: 'brand-elements',
+  brushstrokes: 'decorations',
+  circles: 'decorations',
+  lines: 'decorations',
+  scribbles: 'decorations',
+  underlines: 'decorations',
+  xs: 'decorations',
   // New semantic categories are also valid as-is
-  'images': 'images',
+  images: 'images',
   'brand-elements': 'brand-elements',
-  'decorations': 'decorations',
+  decorations: 'decorations',
 };
 
 /**
@@ -55,15 +65,15 @@ export async function scanAndSeedBrandAssets(assetsDir: string): Promise<void> {
   const db = getDb();
   const stmt = db.prepare(
     `INSERT OR IGNORE INTO brand_assets (id, name, category, file_path, mime_type, size_bytes, tags, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   );
 
   let categories: string[];
   try {
     const entries = await fs.readdir(assetsDir, { withFileTypes: true });
     categories = entries
-      .filter(e => e.isDirectory() && !e.name.startsWith('.'))
-      .map(e => e.name);
+      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
+      .map((e) => e.name);
   } catch {
     // Assets directory doesn't exist yet — nothing to scan
     return;
@@ -100,16 +110,7 @@ export async function scanAndSeedBrandAssets(assetsDir: string): Promise<void> {
 
       const semanticCategory = CATEGORY_MAP[category] ?? 'decorations';
 
-      stmt.run(
-        nanoid(),
-        name,
-        semanticCategory,
-        filePath,
-        mimeType,
-        sizeBytes,
-        '[]',
-        Date.now()
-      );
+      stmt.run(nanoid(), name, semanticCategory, filePath, mimeType, sizeBytes, '[]', Date.now());
     }
   }
 }

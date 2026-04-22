@@ -139,7 +139,11 @@ describe('Visual Tools', () => {
     expect(fs.readFileSync(absPath, 'utf-8')).toContain('Test creation');
 
     // Cleanup: remove the generated file
-    try { fs.rmSync(path.dirname(absPath), { recursive: true }); } catch {}
+    try {
+      fs.rmSync(path.dirname(absPath), { recursive: true });
+    } catch {
+      // best-effort cleanup
+    }
   });
 });
 
@@ -160,7 +164,11 @@ describe('Context Tools', () => {
 
     // Cleanup
     const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
-    try { fs.rmSync(path.resolve(PROJECT_ROOT, path.dirname(result.htmlPath)), { recursive: true }); } catch {}
+    try {
+      fs.rmSync(path.resolve(PROJECT_ROOT, path.dirname(result.htmlPath)), { recursive: true });
+    } catch {
+      // best-effort cleanup
+    }
   });
 
   it('getCreation returns null for invalid iteration', () => {

@@ -92,19 +92,35 @@ describe('campaign-types', () => {
 
   it('Iteration status is a VersionStatus type', () => {
     const statuses: Iteration['status'][] = ['winner', 'rejected', 'final', 'unmarked'];
-    statuses.forEach(s => expect(['winner', 'rejected', 'final', 'unmarked']).toContain(s));
+    statuses.forEach((s) => expect(['winner', 'rejected', 'final', 'unmarked']).toContain(s));
   });
 
   it('Iteration source can be ai or template', () => {
     const aiIter: Iteration = {
-      id: 'itr_001', slideId: 'sld_001', iterationIndex: 0,
-      htmlPath: '/test.html', slotSchema: null, aiBaseline: null,
-      userState: null, status: 'unmarked', source: 'ai', templateId: null, createdAt: Date.now(),
+      id: 'itr_001',
+      slideId: 'sld_001',
+      iterationIndex: 0,
+      htmlPath: '/test.html',
+      slotSchema: null,
+      aiBaseline: null,
+      userState: null,
+      status: 'unmarked',
+      source: 'ai',
+      templateId: null,
+      createdAt: Date.now(),
     };
     const tplIter: Iteration = {
-      id: 'itr_002', slideId: 'sld_001', iterationIndex: 1,
-      htmlPath: '/test2.html', slotSchema: null, aiBaseline: null,
-      userState: null, status: 'unmarked', source: 'template', templateId: 'tpl_001', createdAt: Date.now(),
+      id: 'itr_002',
+      slideId: 'sld_001',
+      iterationIndex: 1,
+      htmlPath: '/test2.html',
+      slotSchema: null,
+      aiBaseline: null,
+      userState: null,
+      status: 'unmarked',
+      source: 'template',
+      templateId: 'tpl_001',
+      createdAt: Date.now(),
     };
     expect(aiIter.source).toBe('ai');
     expect(tplIter.source).toBe('template');
@@ -129,12 +145,22 @@ describe('campaign-types', () => {
 
   it('CampaignAnnotation type can be pin or sidebar', () => {
     const pin: CampaignAnnotation = {
-      id: 'ann_pin', iterationId: 'itr_001', type: 'pin',
-      author: 'human', text: 'pin note', x: 10, y: 20, createdAt: Date.now(),
+      id: 'ann_pin',
+      iterationId: 'itr_001',
+      type: 'pin',
+      author: 'human',
+      text: 'pin note',
+      x: 10,
+      y: 20,
+      createdAt: Date.now(),
     };
     const sidebar: CampaignAnnotation = {
-      id: 'ann_side', iterationId: 'itr_001', type: 'sidebar',
-      author: 'human', text: 'sidebar note', createdAt: Date.now(),
+      id: 'ann_side',
+      iterationId: 'itr_001',
+      type: 'sidebar',
+      author: 'human',
+      text: 'sidebar note',
+      createdAt: Date.now(),
     };
     expect(pin.type).toBe('pin');
     expect(sidebar.type).toBe('sidebar');
@@ -167,7 +193,7 @@ describe('slot-schema', () => {
 
   it('FieldMode is text | pre | br', () => {
     const modes: FieldMode[] = ['text', 'pre', 'br'];
-    modes.forEach(m => expect(['text', 'pre', 'br']).toContain(m));
+    modes.forEach((m) => expect(['text', 'pre', 'br']).toContain(m));
   });
 
   it('ImageField has required fields', () => {
@@ -207,9 +233,7 @@ describe('slot-schema', () => {
     const schema: SlotSchema = {
       width: 1080,
       height: 1080,
-      fields: [
-        { type: 'text', sel: '.headline', label: 'Headline', mode: 'text' },
-      ],
+      fields: [{ type: 'text', sel: '.headline', label: 'Headline', mode: 'text' }],
       brush: '.movable-element',
       brushLabel: 'Logo',
       carouselCount: undefined,
@@ -238,7 +262,7 @@ describe('slot-schema', () => {
         sel: '.photo img',
         label: 'P',
         frameSel: '.portrait-frame',
-      })
+      }),
     ).toBe('.portrait-frame');
   });
 

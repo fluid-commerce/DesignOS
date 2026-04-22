@@ -6,8 +6,8 @@ import { AnnotationPin } from './AnnotationPin';
 import { AnnotationThread } from './AnnotationThread';
 
 interface CreationFrameProps {
-  html?: string;           // Deprecated: kept for backward compat with session views
-  iterationId?: string;    // Preferred: iframe loads via src URL
+  html?: string; // Deprecated: kept for backward compat with session views
+  iterationId?: string; // Preferred: iframe loads via src URL
   name: string;
   path: string;
   platform: string;
@@ -23,8 +23,14 @@ interface CreationFrameProps {
 
 function StarIcon({ filled }: { filled: boolean }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? '#facc15' : 'none'}
-         stroke={filled ? '#facc15' : '#666'} strokeWidth="2">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill={filled ? '#facc15' : 'none'}
+      stroke={filled ? '#facc15' : '#666'}
+      strokeWidth="2"
+    >
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   );
@@ -63,17 +69,14 @@ export function CreationFrame({
   const [pendingPin, setPendingPin] = useState<{ x: number; y: number } | null>(null);
   const [pinText, setPinText] = useState('');
 
-  const handleOverlayClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setPendingPin({ x, y });
-      setPinText('');
-      setShowPinInput(true);
-    },
-    []
-  );
+  const handleOverlayClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setPendingPin({ x, y });
+    setPinText('');
+    setShowPinInput(true);
+  }, []);
 
   const handlePinSubmit = () => {
     const text = pinText.trim();
@@ -92,7 +95,14 @@ export function CreationFrame({
 
   return (
     <div data-testid="creation-frame" style={{ position: 'relative' }}>
-      <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        style={{
+          marginBottom: '0.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <span style={{ color: '#ccc', fontSize: '0.85rem' }}>{name}</span>
         <button
           data-testid="star-toggle"
@@ -103,157 +113,166 @@ export function CreationFrame({
           <StarIcon filled={status === 'winner'} />
         </button>
       </div>
-      <div style={{
-        width: displayWidth,
-        height: displayHeight,
-        overflow: 'hidden',
-        borderRadius: '6px',
-        border: status === 'winner' ? '2px solid #22c55e' : '1px solid #333',
-        position: 'relative',
-        padding: m,
-        boxSizing: 'border-box',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <div style={{
-          width: innerW,
-          height: innerH,
+      <div
+        style={{
+          width: displayWidth,
+          height: displayHeight,
+          overflow: 'hidden',
+          borderRadius: '6px',
+          border: status === 'winner' ? '2px solid #22c55e' : '1px solid #333',
           position: 'relative',
-          overflow: 'visible',
-          borderRadius: 4,
-        }}>
-        {!hasContent ? (
-          <div style={{
-            width: dims.width,
-            height: dims.height,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#1e1e1e',
-            color: '#888',
-            fontSize: '14px',
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-            gap: '0.5rem',
-          }}>
-            <div style={{ fontSize: '1.2rem' }}>No preview available</div>
-          </div>
-        ) : useSrcMode ? (
-          <iframe
-            src={iframeSrc}
-            sandbox="allow-same-origin allow-scripts"
-            style={{
-              width: dims.width,
-              height: dims.height,
-              border: 'none',
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-            }}
-            title={name}
-          />
-        ) : (
-          <iframe
-            srcDoc={html}
-            sandbox="allow-same-origin allow-scripts"
-            style={{
-              width: dims.width,
-              height: dims.height,
-              border: 'none',
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-            }}
-            title={name}
-          />
-        )}
-        {/* Clickable overlay for placing pins */}
+          padding: m,
+          boxSizing: 'border-box',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <div
-          data-testid="pin-overlay"
-          onClick={handleOverlayClick}
           style={{
-            position: 'absolute',
-            inset: 0,
-            cursor: 'crosshair',
+            width: innerW,
+            height: innerH,
+            position: 'relative',
+            overflow: 'visible',
+            borderRadius: 4,
           }}
         >
-          {/* Render existing pins */}
-          {pins.map((pin) => (
-            <AnnotationPin
-              key={pin.id}
-              annotation={pin}
-              isActive={activePin === pin.id}
-              onClick={onPinClick}
-            />
-          ))}
-
-          {/* Active thread popover */}
-          {activePinData && (
-            <AnnotationThread
-              annotation={activePinData}
-              onReply={onReply}
-              onClose={() => onPinClick(activePinData.id)}
-            />
-          )}
-        </div>
-
-        {/* Pin text input popup */}
-        {showPinInput && pendingPin && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: 'absolute',
-              left: `${pendingPin.x}%`,
-              top: `${pendingPin.y}%`,
-              transform: 'translate(-50%, 8px)',
-              zIndex: 30,
-              backgroundColor: '#1e1e1e',
-              border: '1px solid #2a2a2e',
-              borderRadius: 6,
-              padding: '0.5rem',
-              display: 'flex',
-              gap: 4,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-            }}
-          >
-            <input
-              data-testid="pin-text-input"
-              autoFocus
-              type="text"
-              placeholder="Add annotation..."
-              value={pinText}
-              onChange={(e) => setPinText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handlePinSubmit();
-                if (e.key === 'Escape') { setShowPinInput(false); setPendingPin(null); }
-              }}
+          {!hasContent ? (
+            <div
               style={{
-                width: 180,
-                backgroundColor: '#1a1a1e',
-                border: '1px solid #2a2a2e',
-                borderRadius: 4,
-                color: '#e0e0e0',
-                padding: '4px 8px',
-                fontSize: '0.8rem',
-                outline: 'none',
-              }}
-            />
-            <button
-              onClick={handlePinSubmit}
-              style={{
-                backgroundColor: '#44B2FF',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 4,
-                padding: '4px 10px',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
+                width: dims.width,
+                height: dims.height,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#1e1e1e',
+                color: '#888',
+                fontSize: '14px',
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+                gap: '0.5rem',
               }}
             >
-              Pin
-            </button>
+              <div style={{ fontSize: '1.2rem' }}>No preview available</div>
+            </div>
+          ) : useSrcMode ? (
+            <iframe
+              src={iframeSrc}
+              sandbox="allow-same-origin allow-scripts"
+              style={{
+                width: dims.width,
+                height: dims.height,
+                border: 'none',
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+              }}
+              title={name}
+            />
+          ) : (
+            <iframe
+              srcDoc={html}
+              sandbox="allow-same-origin allow-scripts"
+              style={{
+                width: dims.width,
+                height: dims.height,
+                border: 'none',
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+              }}
+              title={name}
+            />
+          )}
+          {/* Clickable overlay for placing pins */}
+          <div
+            data-testid="pin-overlay"
+            onClick={handleOverlayClick}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              cursor: 'crosshair',
+            }}
+          >
+            {/* Render existing pins */}
+            {pins.map((pin) => (
+              <AnnotationPin
+                key={pin.id}
+                annotation={pin}
+                isActive={activePin === pin.id}
+                onClick={onPinClick}
+              />
+            ))}
+
+            {/* Active thread popover */}
+            {activePinData && (
+              <AnnotationThread
+                annotation={activePinData}
+                onReply={onReply}
+                onClose={() => onPinClick(activePinData.id)}
+              />
+            )}
           </div>
-        )}
+
+          {/* Pin text input popup */}
+          {showPinInput && pendingPin && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'absolute',
+                left: `${pendingPin.x}%`,
+                top: `${pendingPin.y}%`,
+                transform: 'translate(-50%, 8px)',
+                zIndex: 30,
+                backgroundColor: '#1e1e1e',
+                border: '1px solid #2a2a2e',
+                borderRadius: 6,
+                padding: '0.5rem',
+                display: 'flex',
+                gap: 4,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              }}
+            >
+              <input
+                data-testid="pin-text-input"
+                autoFocus
+                type="text"
+                placeholder="Add annotation..."
+                value={pinText}
+                onChange={(e) => setPinText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handlePinSubmit();
+                  if (e.key === 'Escape') {
+                    setShowPinInput(false);
+                    setPendingPin(null);
+                  }
+                }}
+                style={{
+                  width: 180,
+                  backgroundColor: '#1a1a1e',
+                  border: '1px solid #2a2a2e',
+                  borderRadius: 4,
+                  color: '#e0e0e0',
+                  padding: '4px 8px',
+                  fontSize: '0.8rem',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={handlePinSubmit}
+                style={{
+                  backgroundColor: '#44B2FF',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '4px 10px',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Pin
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

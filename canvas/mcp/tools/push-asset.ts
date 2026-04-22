@@ -18,7 +18,7 @@ import type { PushAssetInput, PushAssetInputLegacy, PushAssetResult } from '../t
 export async function pushAsset(
   fluidDir: string,
   input: PushAssetInput,
-  apiBase = 'http://localhost:5174'
+  apiBase = 'http://localhost:5174',
 ): Promise<PushAssetResult> {
   const {
     campaignId,
@@ -41,8 +41,6 @@ export async function pushAsset(
   if (slotSchema) body.slotSchema = slotSchema;
   if (templateId) body.templateId = templateId;
 
-  let iterationId: string;
-
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -51,11 +49,13 @@ export async function pushAsset(
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`push_asset: API returned ${res.status} ${res.statusText}${text ? ': ' + text : ''}`);
+    throw new Error(
+      `push_asset: API returned ${res.status} ${res.statusText}${text ? ': ' + text : ''}`,
+    );
   }
 
   const iteration = (await res.json()) as { id: string; iterationIndex: number };
-  iterationId = iteration.id;
+  const iterationId = iteration.id;
 
   // 2. Write HTML to disk at canonical path
   const htmlRelPath = `campaigns/${campaignId}/${assetId}/${frameId}/${iterationId}.html`;
@@ -92,7 +92,7 @@ export async function pushAsset(
 export function handleLegacyPushAsset(input: PushAssetInputLegacy): never {
   throw new Error(
     `[push_asset] DEPRECATED: sessionId/variationId params are no longer supported. ` +
-    `Please use campaignId/assetId/frameId instead. ` +
-    `Legacy input: sessionId=${input.sessionId}, variationId=${input.variationId}`
+      `Please use campaignId/assetId/frameId instead. ` +
+      `Legacy input: sessionId=${input.sessionId}, variationId=${input.variationId}`,
   );
 }

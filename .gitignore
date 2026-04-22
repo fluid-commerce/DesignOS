@@ -1,5 +1,6 @@
 .planning/
 canvas/node_modules/
+tools/node_modules/
 canvas/dist/
 canvas/.pid
 .fluid/

@@ -30,8 +30,16 @@ const PAGE_OPTIONS = ['voice-guide', 'patterns', 'templates', 'assets'];
 
 function TrashIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
     </svg>
@@ -89,13 +97,19 @@ export function SettingsScreen() {
     if (field === 'creation_type') updated.creation_type = value;
     else if (field === 'stage') updated.stage = value;
     else if (field === 'page') updated.page = value;
-    else if (field === 'sections') updated.sections = value.split(',').map((s) => s.trim()).filter(Boolean);
-    else if (field === 'priority') updated.priority = Math.min(100, Math.max(1, parseInt(value, 10) || entry.priority));
-    else if (field === 'max_tokens') updated.max_tokens = value === '' ? null : parseInt(value, 10) || null;
+    else if (field === 'sections')
+      updated.sections = value
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    else if (field === 'priority')
+      updated.priority = Math.min(100, Math.max(1, parseInt(value, 10) || entry.priority));
+    else if (field === 'max_tokens')
+      updated.max_tokens = value === '' ? null : parseInt(value, 10) || null;
 
     // Optimistic update
     const prevEntries = entries;
-    setEntries((es) => es.map((e) => e.id === id ? { ...e, ...updated } : e));
+    setEntries((es) => es.map((e) => (e.id === id ? { ...e, ...updated } : e)));
     cancelEdit();
 
     try {
@@ -150,7 +164,10 @@ export function SettingsScreen() {
     if (!entry) return cancelEdit();
 
     const sectionsValue = editField === 'sections' ? editValue : entry.sections.join(', ');
-    const sections = sectionsValue.split(',').map((s) => s.trim()).filter(Boolean);
+    const sections = sectionsValue
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
 
     cancelEdit();
 
@@ -170,7 +187,7 @@ export function SettingsScreen() {
       if (!res.ok) throw new Error('create failed');
       const created: ContextMapEntry = await res.json();
       // Replace temp entry with real one
-      setEntries((es) => es.map((e) => e.id === tempId ? created : e));
+      setEntries((es) => es.map((e) => (e.id === tempId ? created : e)));
       setSavedId(created.id);
       if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
       savedTimerRef.current = setTimeout(() => setSavedId(null), 2000);
@@ -224,7 +241,12 @@ export function SettingsScreen() {
 
     if (isEditing) {
       if (field === 'creation_type' || field === 'stage' || field === 'page') {
-        const options = field === 'creation_type' ? CREATION_TYPE_OPTIONS : field === 'page' ? PAGE_OPTIONS : STAGE_OPTIONS;
+        const options =
+          field === 'creation_type'
+            ? CREATION_TYPE_OPTIONS
+            : field === 'page'
+              ? PAGE_OPTIONS
+              : STAGE_OPTIONS;
         return (
           <td style={cellStyle}>
             <select
@@ -247,7 +269,9 @@ export function SettingsScreen() {
               }}
             >
               {options.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </td>
@@ -313,10 +337,7 @@ export function SettingsScreen() {
     }
 
     return (
-      <td
-        style={cellStyle}
-        onClick={() => startEdit(entry.id, field, displayValue)}
-      >
+      <td style={cellStyle} onClick={() => startEdit(entry.id, field, displayValue)}>
         {isSaved && editingId !== entry.id ? (
           <span style={{ color: '#7be0a0', fontSize: '0.72rem' }}>Saved</span>
         ) : (
@@ -329,20 +350,24 @@ export function SettingsScreen() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{
-      height: '100%',
-      overflowY: 'auto',
-      backgroundColor: '#0d0d0d',
-      color: '#e0e0e0',
-    }}>
-      <div style={{
-        maxWidth: 900,
-        margin: '0 auto',
-        paddingTop: 48,
-        paddingLeft: 24,
-        paddingRight: 24,
-        paddingBottom: 48,
-      }}>
+    <div
+      style={{
+        height: '100%',
+        overflowY: 'auto',
+        backgroundColor: '#0d0d0d',
+        color: '#e0e0e0',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 900,
+          margin: '0 auto',
+          paddingTop: 48,
+          paddingLeft: 24,
+          paddingRight: 24,
+          paddingBottom: 48,
+        }}
+      >
         {/* Page heading */}
         <h1 style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: '0 0 6px' }}>
           Pipeline Settings
@@ -366,35 +391,46 @@ export function SettingsScreen() {
 
           {/* Error states */}
           {loadError && (
-            <div style={{
-              padding: '10px 14px',
-              backgroundColor: '#2b1a1a',
-              border: '1px solid #5a2a2a',
-              borderRadius: 5,
-              color: '#e08080',
-              fontSize: '0.875rem',
-              marginBottom: 16,
-            }}>
+            <div
+              style={{
+                padding: '10px 14px',
+                backgroundColor: '#2b1a1a',
+                border: '1px solid #5a2a2a',
+                borderRadius: 5,
+                color: '#e08080',
+                fontSize: '0.875rem',
+                marginBottom: 16,
+              }}
+            >
               {loadError}
             </div>
           )}
           {saveError && (
-            <div style={{
-              padding: '10px 14px',
-              backgroundColor: '#2b1a1a',
-              border: '1px solid #5a2a2a',
-              borderRadius: 5,
-              color: '#e08080',
-              fontSize: '0.875rem',
-              marginBottom: 16,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}>
+            <div
+              style={{
+                padding: '10px 14px',
+                backgroundColor: '#2b1a1a',
+                border: '1px solid #5a2a2a',
+                borderRadius: 5,
+                color: '#e08080',
+                fontSize: '0.875rem',
+                marginBottom: 16,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <span>{saveError}</span>
               <button
                 onClick={() => setSaveError(null)}
-                style={{ background: 'none', border: 'none', color: '#e08080', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#e08080',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  lineHeight: 1,
+                }}
               >
                 ×
               </button>
@@ -403,18 +439,28 @@ export function SettingsScreen() {
 
           {/* Empty state */}
           {!loadError && entries.length === 0 && (
-            <div style={{
-              textAlign: 'center',
-              padding: '48px 24px',
-              backgroundColor: '#1a1a1e',
-              borderRadius: 6,
-              border: '1px solid #1e1e1e',
-            }}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#e0e0e0', margin: '0 0 8px' }}>
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '48px 24px',
+                backgroundColor: '#1a1a1e',
+                borderRadius: 6,
+                border: '1px solid #1e1e1e',
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: '#e0e0e0',
+                  margin: '0 0 8px',
+                }}
+              >
                 No context map entries
               </h3>
               <p style={{ fontSize: '0.875rem', color: '#555', margin: 0, lineHeight: 1.5 }}>
-                Add entries to define what brand context each stage receives. Without a map, agents self-discover context using DB tools.
+                Add entries to define what brand context each stage receives. Without a map, agents
+                self-discover context using DB tools.
               </p>
             </div>
           )}
@@ -422,15 +468,25 @@ export function SettingsScreen() {
           {/* Table */}
           {entries.length > 0 && (
             <div style={{ overflowX: 'auto' }}>
-              <table style={{
-                width: '100%',
-                borderCollapse: 'separate',
-                borderSpacing: '0 2px',
-                tableLayout: 'auto',
-              }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'separate',
+                  borderSpacing: '0 2px',
+                  tableLayout: 'auto',
+                }}
+              >
                 <thead>
                   <tr>
-                    {['Creation Type', 'Stage', 'Page', 'Sections', 'Priority', 'Token Budget', ''].map((header) => (
+                    {[
+                      'Creation Type',
+                      'Stage',
+                      'Page',
+                      'Sections',
+                      'Priority',
+                      'Token Budget',
+                      '',
+                    ].map((header) => (
                       <th
                         key={header}
                         style={{
@@ -464,14 +520,20 @@ export function SettingsScreen() {
                         {renderCell(entry, 'page', entry.page)}
                         {renderCell(entry, 'sections', entry.sections.join(', '))}
                         {renderCell(entry, 'priority', String(entry.priority))}
-                        {renderCell(entry, 'max_tokens', entry.max_tokens != null ? String(entry.max_tokens) : '')}
+                        {renderCell(
+                          entry,
+                          'max_tokens',
+                          entry.max_tokens != null ? String(entry.max_tokens) : '',
+                        )}
                         {/* Delete button cell */}
-                        <td style={{
-                          padding: '8px 4px',
-                          verticalAlign: 'top',
-                          backgroundColor: '#1a1a1e',
-                          width: 28,
-                        }}>
+                        <td
+                          style={{
+                            padding: '8px 4px',
+                            verticalAlign: 'top',
+                            backgroundColor: '#1a1a1e',
+                            width: 28,
+                          }}
+                        >
                           <button
                             aria-label="Delete entry"
                             onClick={() => setConfirmDeleteId(entry.id)}
@@ -502,9 +564,17 @@ export function SettingsScreen() {
                               borderLeft: '3px solid #e08080',
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.875rem' }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 12,
+                                fontSize: '0.875rem',
+                              }}
+                            >
                               <span style={{ color: '#e08080', flex: 1 }}>
-                                Remove this entry? This stage will fall back to agent self-discovery.
+                                Remove this entry? This stage will fall back to agent
+                                self-discovery.
                               </span>
                               <button
                                 onClick={() => handleDeleteConfirm(entry.id)}

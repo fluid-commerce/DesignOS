@@ -1,0 +1,11 @@
+dist
+node_modules
+coverage
+.vite
+playwright-report
+test-results
+*.db
+*.db-shm
+*.db-wal
+package-lock.json
+seed-data.json

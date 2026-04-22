@@ -33,11 +33,11 @@ export function PhotoReposition({ sel, previewSrc, onClose }: PhotoRepositionPro
       if (iframeRef?.contentWindow) {
         iframeRef.contentWindow.postMessage(
           { type: 'tmpl', sel, action: 'imgStyle', objectFit, objectPosition },
-          '*'
+          '*',
         );
       }
     },
-    [iframeRef, sel]
+    [iframeRef, sel],
   );
 
   const applyFocus = useCallback(
@@ -50,7 +50,7 @@ export function PhotoReposition({ sel, previewSrc, onClose }: PhotoRepositionPro
       setFocusY(y);
       applyStyle('cover', `${x}% ${y}%`);
     },
-    [applyStyle]
+    [applyStyle],
   );
 
   const handleMouseDown = useCallback(
@@ -60,7 +60,7 @@ export function PhotoReposition({ sel, previewSrc, onClose }: PhotoRepositionPro
       applyFocus(e.clientX, e.clientY);
       e.preventDefault();
     },
-    [mode, applyFocus]
+    [mode, applyFocus],
   );
 
   const handleMouseMove = useCallback(
@@ -68,7 +68,7 @@ export function PhotoReposition({ sel, previewSrc, onClose }: PhotoRepositionPro
       if (!isDragging.current) return;
       applyFocus(e.clientX, e.clientY);
     },
-    [applyFocus]
+    [applyFocus],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -150,9 +150,7 @@ export function PhotoReposition({ sel, previewSrc, onClose }: PhotoRepositionPro
         </div>
 
         <div style={styles.hint}>
-          {mode === 'cover'
-            ? 'Drag to set the focal point'
-            : 'Full image visible (letterboxed)'}
+          {mode === 'cover' ? 'Drag to set the focal point' : 'Full image visible (letterboxed)'}
         </div>
       </div>
     </div>

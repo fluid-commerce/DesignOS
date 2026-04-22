@@ -28,12 +28,14 @@ export function PromptReveal({ prompt, label = 'Prompt' }: PromptRevealProps) {
           gap: 4,
         }}
       >
-        <span style={{
-          display: 'inline-block',
-          transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-          transition: 'transform 0.15s',
-          fontSize: '0.6rem',
-        }}>
+        <span
+          style={{
+            display: 'inline-block',
+            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 0.15s',
+            fontSize: '0.6rem',
+          }}
+        >
           &#9654;
         </span>
         {label}

@@ -45,10 +45,10 @@ const ASSET_CATEGORIES = [
 ];
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  'fonts': 'Font files used by the generation pipeline for brand typography',
-  'images': 'Photography and illustrations used in generated assets',
+  fonts: 'Font files used by the generation pipeline for brand typography',
+  images: 'Photography and illustrations used in generated assets',
   'brand-elements': 'Core identity pieces — logos and wordmarks always present in output',
-  'decorations': 'Hand-drawn elements like circles, underlines, arrows, and brushstrokes',
+  decorations: 'Hand-drawn elements like circles, underlines, arrows, and brushstrokes',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -66,11 +66,11 @@ function getRelativeTime(ts: number): string {
 // ─── Empty state per category ─────────────────────────────────────────────────
 
 const CATEGORY_EMPTY_STATES: Record<string, { heading: string; body: string }> = {
-  'fonts': {
+  fonts: {
     heading: 'No fonts yet',
     body: 'No fonts yet. Sync from DAM or add font files manually.',
   },
-  'images': {
+  images: {
     heading: 'No images yet',
     body: 'Sync from DAM to import photography and illustrations.',
   },
@@ -78,7 +78,7 @@ const CATEGORY_EMPTY_STATES: Record<string, { heading: string; body: string }> =
     heading: 'No brand elements yet',
     body: 'Sync from DAM to import logos and wordmarks.',
   },
-  'decorations': {
+  decorations: {
     heading: 'No decorations yet',
     body: 'Sync from DAM to import hand-drawn circles, brushstrokes, and textures.',
   },
@@ -91,43 +91,101 @@ function CategoryEmptyState({ category }: { category: string }) {
   };
 
   // Category-appropriate SVG icons (40x40, stroke only, #555)
-  const icon = category === 'fonts' ? (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <text x="8" y="30" fontFamily="serif" fontSize="26" fill="none" stroke="#555" strokeWidth="1.5">A</text>
-    </svg>
-  ) : category === 'images' ? (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="8" width="32" height="24" rx="2" />
-      <path d="M4 26L13 16L20 22L27 14L36 26" />
-    </svg>
-  ) : category === 'brand-elements' ? (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 4L36 12V22C36 30 29 36 20 38C11 36 4 30 4 22V12L20 4Z" />
-    </svg>
-  ) : category === 'decorations' ? (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 32C12 32 16 24 20 16C24 8 28 6 30 8C32 10 30 14 26 18" />
-      <path d="M10 34L14 30" />
-      <circle cx="11" cy="33" r="2" />
-    </svg>
-  ) : (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="4" width="32" height="32" rx="3" />
-      <line x1="4" y1="14" x2="36" y2="14" />
-      <line x1="20" y1="14" x2="20" y2="36" />
-    </svg>
-  );
+  const icon =
+    category === 'fonts' ? (
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        stroke="#555"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <text
+          x="8"
+          y="30"
+          fontFamily="serif"
+          fontSize="26"
+          fill="none"
+          stroke="#555"
+          strokeWidth="1.5"
+        >
+          A
+        </text>
+      </svg>
+    ) : category === 'images' ? (
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        stroke="#555"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="8" width="32" height="24" rx="2" />
+        <path d="M4 26L13 16L20 22L27 14L36 26" />
+      </svg>
+    ) : category === 'brand-elements' ? (
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        stroke="#555"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M20 4L36 12V22C36 30 29 36 20 38C11 36 4 30 4 22V12L20 4Z" />
+      </svg>
+    ) : category === 'decorations' ? (
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        stroke="#555"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 32C12 32 16 24 20 16C24 8 28 6 30 8C32 10 30 14 26 18" />
+        <path d="M10 34L14 30" />
+        <circle cx="11" cy="33" r="2" />
+      </svg>
+    ) : (
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        stroke="#555"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="4" width="32" height="32" rx="3" />
+        <line x1="4" y1="14" x2="36" y2="14" />
+        <line x1="20" y1="14" x2="20" y2="36" />
+      </svg>
+    );
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '48px 24px',
-      textAlign: 'center',
-      marginBottom: '1.5rem',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '48px 24px',
+        textAlign: 'center',
+        marginBottom: '1.5rem',
+      }}
+    >
       {icon}
       <h4 style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0', margin: '12px 0 4px' }}>
         {state.heading}
@@ -144,34 +202,40 @@ function CategoryEmptyState({ category }: { category: string }) {
 function FontPreview({ url, name }: { url: string; name: string }) {
   const familyName = `preview-${name.replace(/[^a-zA-Z0-9]/g, '-')}`;
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 12,
-      boxSizing: 'border-box',
-      gap: 4,
-    }}>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 12,
+        boxSizing: 'border-box',
+        gap: 4,
+      }}
+    >
       <style>{`@font-face { font-family: '${familyName}'; src: url('${url}'); }`}</style>
-      <span style={{
-        fontFamily: `'${familyName}', sans-serif`,
-        fontSize: '1.5rem',
-        color: '#ccc',
-        lineHeight: 1.2,
-        textAlign: 'center',
-        wordBreak: 'break-word',
-      }}>
+      <span
+        style={{
+          fontFamily: `'${familyName}', sans-serif`,
+          fontSize: '1.5rem',
+          color: '#ccc',
+          lineHeight: 1.2,
+          textAlign: 'center',
+          wordBreak: 'break-word',
+        }}
+      >
         Aa Bb Cc
       </span>
-      <span style={{
-        fontFamily: `'${familyName}', sans-serif`,
-        fontSize: '0.75rem',
-        color: '#777',
-        textAlign: 'center',
-      }}>
+      <span
+        style={{
+          fontFamily: `'${familyName}', sans-serif`,
+          fontSize: '0.75rem',
+          color: '#777',
+          textAlign: 'center',
+        }}
+      >
         0123456789
       </span>
     </div>
@@ -210,7 +274,7 @@ export function AssetsScreen() {
       if (!res.ok) return;
       const data = await res.json();
       setBrandAssets(Array.isArray(data) ? data : []);
-      return Array.isArray(data) ? data as BrandAssetUI[] : [];
+      return Array.isArray(data) ? (data as BrandAssetUI[]) : [];
     } catch {
       return [];
     }
@@ -316,7 +380,7 @@ export function AssetsScreen() {
 
   const saveDescription = async (id: string, description: string) => {
     const prev = brandAssets;
-    setBrandAssets(a => a.map(asset => asset.id === id ? { ...asset, description } : asset));
+    setBrandAssets((a) => a.map((asset) => (asset.id === id ? { ...asset, description } : asset)));
     setEditingDescId(null);
     try {
       const res = await fetch(`/api/brand-assets/${id}`, {
@@ -350,49 +414,66 @@ export function AssetsScreen() {
   };
 
   // Filtered brand assets (exclude dam-deleted from count calculation)
-  const filteredBrandAssets = activeCategory === 'all'
-    ? brandAssets
-    : brandAssets.filter(a => a.category === activeCategory);
+  const filteredBrandAssets =
+    activeCategory === 'all'
+      ? brandAssets
+      : brandAssets.filter((a) => a.category === activeCategory);
 
   const getCategoryCount = (categoryId: string) => {
-    if (categoryId === 'all') return brandAssets.filter(a => !a.damDeleted).length;
-    return brandAssets.filter(a => a.category === categoryId && !a.damDeleted).length;
+    if (categoryId === 'all') return brandAssets.filter((a) => !a.damDeleted).length;
+    return brandAssets.filter((a) => a.category === categoryId && !a.damDeleted).length;
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      minHeight: 0,
-      overflowY: 'auto',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
+        overflowY: 'auto',
+      }}
+    >
       {/* ── Fixed header bar ── */}
-      <div style={{
-        flexShrink: 0,
-        borderBottom: '1px solid #1e1e1e',
-        backgroundColor: '#0d0d0d',
-        padding: '14px 1rem',
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '10px',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-        }}>
+      <div
+        style={{
+          flexShrink: 0,
+          borderBottom: '1px solid #1e1e1e',
+          backgroundColor: '#0d0d0d',
+          padding: '14px 1rem',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '10px',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+          }}
+        >
           <div>
-            <h1 style={{
-              margin: 0,
-              fontSize: '26px',
-              fontWeight: 700,
-              color: '#e0e0e0',
-              letterSpacing: '-0.02em',
-            }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: '26px',
+                fontWeight: 700,
+                color: '#e0e0e0',
+                letterSpacing: '-0.02em',
+              }}
+            >
               Assets
             </h1>
-            <p style={{ fontSize: 14, fontWeight: 400, color: '#888', marginTop: 4, marginBottom: 0 }}>
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                color: '#888',
+                marginTop: 4,
+                marginBottom: 0,
+              }}
+            >
               Fonts, images, logos, and decorative elements available to the generation pipeline
             </p>
           </div>
@@ -426,7 +507,7 @@ export function AssetsScreen() {
         {/* Category tabs in header bar */}
         {brandAssets.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
-            {ASSET_CATEGORIES.map(cat => {
+            {ASSET_CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
               const count = getCategoryCount(cat.id);
               return (
@@ -457,403 +538,436 @@ export function AssetsScreen() {
       </div>
 
       {/* ── Scrollable content ── */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '1.5rem 1.5rem 2rem',
-      }}>
-
-      {/* ── Error banner ── */}
-      {error && (
-        <div style={{
-          padding: '10px 12px',
-          marginBottom: '1rem',
-          backgroundColor: 'rgba(200, 80, 80, 0.15)',
-          color: '#e88',
-          borderRadius: 6,
-          fontSize: '0.8125rem',
-        }}>
-          {error}
-        </div>
-      )}
-
-      {/* ── Brand Assets section ── */}
-      <h2 style={{
-        margin: '0 0 12px',
-        fontSize: '1.1rem',
-        fontWeight: 600,
-        color: '#e0e0e0',
-      }}>
-        Brand Assets
-      </h2>
-
-      {/* Sync status bar (hidden when no-token) */}
-      {syncStatus !== 'no-token' && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '8px 12px',
-          borderRadius: 6,
-          backgroundColor: syncStatus === 'error'
-            ? 'rgba(200, 80, 80, 0.15)'
-            : 'rgba(255, 255, 255, 0.03)',
-          fontSize: '0.8125rem',
-          marginBottom: '1rem',
-          gap: '0.75rem',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {syncStatus === 'syncing' ? <SyncSpinner /> : <CloudSyncIcon />}
-            <span style={{ color: syncStatus === 'error' ? '#e88' : '#555' }}>
-              {syncStatusText()}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={handleSync}
-            disabled={syncStatus === 'syncing'}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '1.5rem 1.5rem 2rem',
+        }}
+      >
+        {/* ── Error banner ── */}
+        {error && (
+          <div
             style={{
-              padding: '8px 16px',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              color: '#0d0d0d',
-              backgroundColor: '#44B2FF',
-              border: 'none',
+              padding: '10px 12px',
+              marginBottom: '1rem',
+              backgroundColor: 'rgba(200, 80, 80, 0.15)',
+              color: '#e88',
               borderRadius: 6,
-              cursor: syncStatus === 'syncing' ? 'not-allowed' : 'pointer',
-              opacity: syncStatus === 'syncing' ? 0.5 : 1,
-              flexShrink: 0,
+              fontSize: '0.8125rem',
             }}
           >
-            Sync now
-          </button>
-        </div>
-      )}
+            {error}
+          </div>
+        )}
 
-      {/* Category description (tabs moved to header) */}
-      {activeCategory !== 'all' && CATEGORY_DESCRIPTIONS[activeCategory] && (
-        <p style={{
-          fontSize: 12,
-          fontWeight: 400,
-          color: '#888',
-          padding: '0 0 16px 0',
-          margin: 0,
-        }}>
-          {CATEGORY_DESCRIPTIONS[activeCategory]}
-        </p>
-      )}
+        {/* ── Brand Assets section ── */}
+        <h2
+          style={{
+            margin: '0 0 12px',
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            color: '#e0e0e0',
+          }}
+        >
+          Brand Assets
+        </h2>
 
-      {/* Brand assets grid */}
-      {brandAssets.length === 0 && syncStatus !== 'no-token' ? (
-        <div style={{
-          padding: '2.5rem 1.5rem',
-          textAlign: 'center',
-          color: '#666',
-          fontSize: '0.875rem',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 8,
-          border: '1px dashed #333',
-          marginBottom: '1.5rem',
-        }}>
-          <p style={{ margin: '0 0 0.5rem' }}>No brand assets yet.</p>
-          <p style={{ margin: 0 }}>Brand assets sync automatically from the Fluid DAM Brand Elements folder on startup. Configure VITE_FLUID_DAM_TOKEN to enable sync.</p>
-        </div>
-      ) : filteredBrandAssets.length > 0 ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-        }}>
-          {filteredBrandAssets.map((a) => (
-            <div
-              key={a.id}
+        {/* Sync status bar (hidden when no-token) */}
+        {syncStatus !== 'no-token' && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '8px 12px',
+              borderRadius: 6,
+              backgroundColor:
+                syncStatus === 'error' ? 'rgba(200, 80, 80, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+              fontSize: '0.8125rem',
+              marginBottom: '1rem',
+              gap: '0.75rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {syncStatus === 'syncing' ? <SyncSpinner /> : <CloudSyncIcon />}
+              <span style={{ color: syncStatus === 'error' ? '#e88' : '#555' }}>
+                {syncStatusText()}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSync}
+              disabled={syncStatus === 'syncing'}
               style={{
-                position: 'relative',
-                borderRadius: 8,
-                overflow: 'hidden',
-                backgroundColor: '#1a1a1e',
-                border: '1px solid #2a2a2e',
+                padding: '8px 16px',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                color: '#0d0d0d',
+                backgroundColor: '#44B2FF',
+                border: 'none',
+                borderRadius: 6,
+                cursor: syncStatus === 'syncing' ? 'not-allowed' : 'pointer',
+                opacity: syncStatus === 'syncing' ? 0.5 : 1,
+                flexShrink: 0,
               }}
             >
-              <div style={{
-                aspectRatio: '1',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#111',
-                backgroundImage: `linear-gradient(45deg, #1a1a1e 25%, transparent 25%), linear-gradient(-45deg, #1a1a1e 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1e 75%), linear-gradient(-45deg, transparent 75%, #1a1a1e 75%)`,
-                backgroundSize: '16px 16px',
-                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
-              }}>
-                {isImage(a.mimeType, a.url) ? (
-                  <img
-                    src={a.url}
-                    alt={a.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      display: 'block',
-                      padding: 12,
-                      boxSizing: 'border-box' as const,
-                    }}
-                  />
-                ) : isFont(a.mimeType, a.url) ? (
-                  <FontPreview url={a.url} name={a.name ?? 'font'} />
-                ) : (
-                  <span style={{ color: '#555', fontSize: '0.75rem' }}>File</span>
-                )}
-                {/* Removed from DAM badge */}
-                {a.source === 'dam' && a.damDeleted && (
-                  <span
-                    title="This asset was removed from the Fluid DAM Brand Elements folder. You can delete it manually."
-                    style={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      padding: '4px 8px',
-                      fontSize: '0.8125rem',
-                      fontWeight: 500,
-                      background: 'rgba(255,180,50,0.15)',
-                      color: '#cc9',
-                      borderRadius: 999,
-                    }}
-                  >
-                    Removed from DAM
-                  </span>
-                )}
-                {/* DAM source badge */}
-                {a.source === 'dam' && !a.damDeleted && (
-                  <span style={{
-                    position: 'absolute',
-                    bottom: 8,
-                    left: 8,
-                    fontSize: '0.8125rem',
-                    fontWeight: 500,
-                    color: 'rgba(68,178,255,0.7)',
-                    pointerEvents: 'none',
-                  }}>
-                    DAM
-                  </span>
-                )}
-              </div>
-              <div style={{ padding: '8px 10px' }}>
-                <span
-                  title={a.name}
+              Sync now
+            </button>
+          </div>
+        )}
+
+        {/* Category description (tabs moved to header) */}
+        {activeCategory !== 'all' && CATEGORY_DESCRIPTIONS[activeCategory] && (
+          <p
+            style={{
+              fontSize: 12,
+              fontWeight: 400,
+              color: '#888',
+              padding: '0 0 16px 0',
+              margin: 0,
+            }}
+          >
+            {CATEGORY_DESCRIPTIONS[activeCategory]}
+          </p>
+        )}
+
+        {/* Brand assets grid */}
+        {brandAssets.length === 0 && syncStatus !== 'no-token' ? (
+          <div
+            style={{
+              padding: '2.5rem 1.5rem',
+              textAlign: 'center',
+              color: '#666',
+              fontSize: '0.875rem',
+              backgroundColor: 'rgba(255,255,255,0.03)',
+              borderRadius: 8,
+              border: '1px dashed #333',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <p style={{ margin: '0 0 0.5rem' }}>No brand assets yet.</p>
+            <p style={{ margin: 0 }}>
+              Brand assets sync automatically from the Fluid DAM Brand Elements folder on startup.
+              Configure VITE_FLUID_DAM_TOKEN to enable sync.
+            </p>
+          </div>
+        ) : filteredBrandAssets.length > 0 ? (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            {filteredBrandAssets.map((a) => (
+              <div
+                key={a.id}
+                style={{
+                  position: 'relative',
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  backgroundColor: '#1a1a1e',
+                  border: '1px solid #2a2a2e',
+                }}
+              >
+                <div
                   style={{
-                    display: 'block',
-                    fontSize: '0.75rem',
-                    color: '#aaa',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    aspectRatio: '1',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#111',
+                    backgroundImage: `linear-gradient(45deg, #1a1a1e 25%, transparent 25%), linear-gradient(-45deg, #1a1a1e 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1e 75%), linear-gradient(-45deg, transparent 75%, #1a1a1e 75%)`,
+                    backgroundSize: '16px 16px',
+                    backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
                   }}
                 >
-                  {a.name}
-                </span>
-                {/* Inline description editing */}
-                {editingDescId === a.id ? (
-                  <textarea
-                    autoFocus
-                    value={editDescContent}
-                    onChange={e => setEditDescContent(e.target.value)}
-                    onBlur={() => saveDescription(a.id, editDescContent)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        saveDescription(a.id, editDescContent);
-                      }
-                      if (e.key === 'Escape') {
-                        setEditingDescId(null);
-                      }
-                    }}
-                    style={{
-                      width: '100%',
-                      marginTop: 4,
-                      fontSize: 11,
-                      color: '#aaa',
-                      backgroundColor: '#111',
-                      border: '1px solid #333',
-                      borderRadius: 4,
-                      padding: '4px 6px',
-                      resize: 'none',
-                      boxSizing: 'border-box',
-                      fontFamily: 'inherit',
-                      lineHeight: 1.4,
-                      minHeight: 48,
-                      outline: 'none',
-                    }}
-                  />
-                ) : savedDescId === a.id ? (
-                  <span style={{
-                    display: 'block',
-                    marginTop: 4,
-                    fontSize: 11,
-                    color: '#44B2FF',
-                    fontWeight: 500,
-                  }}>
-                    Saved
-                  </span>
-                ) : (
+                  {isImage(a.mimeType, a.url) ? (
+                    <img
+                      src={a.url}
+                      alt={a.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        display: 'block',
+                        padding: 12,
+                        boxSizing: 'border-box' as const,
+                      }}
+                    />
+                  ) : isFont(a.mimeType, a.url) ? (
+                    <FontPreview url={a.url} name={a.name ?? 'font'} />
+                  ) : (
+                    <span style={{ color: '#555', fontSize: '0.75rem' }}>File</span>
+                  )}
+                  {/* Removed from DAM badge */}
+                  {a.source === 'dam' && a.damDeleted && (
+                    <span
+                      title="This asset was removed from the Fluid DAM Brand Elements folder. You can delete it manually."
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        padding: '4px 8px',
+                        fontSize: '0.8125rem',
+                        fontWeight: 500,
+                        background: 'rgba(255,180,50,0.15)',
+                        color: '#cc9',
+                        borderRadius: 999,
+                      }}
+                    >
+                      Removed from DAM
+                    </span>
+                  )}
+                  {/* DAM source badge */}
+                  {a.source === 'dam' && !a.damDeleted && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: 8,
+                        left: 8,
+                        fontSize: '0.8125rem',
+                        fontWeight: 500,
+                        color: 'rgba(68,178,255,0.7)',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      DAM
+                    </span>
+                  )}
+                </div>
+                <div style={{ padding: '8px 10px' }}>
                   <span
-                    onClick={() => {
-                      setEditingDescId(a.id);
-                      setEditDescContent(a.description ?? '');
-                    }}
+                    title={a.name}
                     style={{
                       display: 'block',
-                      marginTop: 4,
-                      fontSize: 11,
-                      color: a.description ? '#888' : '#555',
-                      fontStyle: a.description ? 'normal' : 'italic',
-                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      color: '#aaa',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {a.description ?? 'Add description...'}
+                    {a.name}
                   </span>
-                )}
+                  {/* Inline description editing */}
+                  {editingDescId === a.id ? (
+                    <textarea
+                      autoFocus
+                      value={editDescContent}
+                      onChange={(e) => setEditDescContent(e.target.value)}
+                      onBlur={() => saveDescription(a.id, editDescContent)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          saveDescription(a.id, editDescContent);
+                        }
+                        if (e.key === 'Escape') {
+                          setEditingDescId(null);
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        marginTop: 4,
+                        fontSize: 11,
+                        color: '#aaa',
+                        backgroundColor: '#111',
+                        border: '1px solid #333',
+                        borderRadius: 4,
+                        padding: '4px 6px',
+                        resize: 'none',
+                        boxSizing: 'border-box',
+                        fontFamily: 'inherit',
+                        lineHeight: 1.4,
+                        minHeight: 48,
+                        outline: 'none',
+                      }}
+                    />
+                  ) : savedDescId === a.id ? (
+                    <span
+                      style={{
+                        display: 'block',
+                        marginTop: 4,
+                        fontSize: 11,
+                        color: '#44B2FF',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Saved
+                    </span>
+                  ) : (
+                    <span
+                      onClick={() => {
+                        setEditingDescId(a.id);
+                        setEditDescContent(a.description ?? '');
+                      }}
+                      style={{
+                        display: 'block',
+                        marginTop: 4,
+                        fontSize: 11,
+                        color: a.description ? '#888' : '#555',
+                        fontStyle: a.description ? 'normal' : 'italic',
+                        cursor: 'pointer',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {a.description ?? 'Add description...'}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : brandAssets.length > 0 ? (
-        <CategoryEmptyState category={activeCategory} />
-      ) : null}
+            ))}
+          </div>
+        ) : brandAssets.length > 0 ? (
+          <CategoryEmptyState category={activeCategory} />
+        ) : null}
 
-      {/* ── Divider ── */}
-      <div style={{ borderTop: '1px solid #2a2a2e', marginTop: 24, marginBottom: 24 }} />
+        {/* ── Divider ── */}
+        <div style={{ borderTop: '1px solid #2a2a2e', marginTop: 24, marginBottom: 24 }} />
 
-      {/* ── Saved Assets section ── */}
-      <h2 style={{
-        margin: '0 0 12px',
-        fontSize: '1.1rem',
-        fontWeight: 600,
-        color: '#e0e0e0',
-      }}>
-        Saved Assets
-      </h2>
+        {/* ── Saved Assets section ── */}
+        <h2
+          style={{
+            margin: '0 0 12px',
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            color: '#e0e0e0',
+          }}
+        >
+          Saved Assets
+        </h2>
 
-      {loading ? (
-        <div style={{ color: '#888', fontSize: '0.875rem' }}>Loading assets…</div>
-      ) : assets.length === 0 ? (
-        <div style={{
-          padding: '2.5rem 1.5rem',
-          textAlign: 'center',
-          color: '#666',
-          fontSize: '0.875rem',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 8,
-          border: '1px dashed #333',
-        }}>
-          <p style={{ margin: '0 0 0.5rem' }}>No saved assets yet.</p>
-          <p style={{ margin: 0 }}>Use "Add from Fluid DAM" to browse and save assets to your library.</p>
-        </div>
-      ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-          gap: '1rem',
-        }}>
-          {assets.map((a) => (
-            <div
-              key={a.id}
-              style={{
-                position: 'relative',
-                borderRadius: 8,
-                overflow: 'hidden',
-                backgroundColor: '#1a1a1e',
-                border: '1px solid #2a2a2e',
-              }}
-            >
-              <div style={{
-                aspectRatio: '1',
-                backgroundColor: '#111',
-                backgroundImage: `linear-gradient(45deg, #1a1a1e 25%, transparent 25%), linear-gradient(-45deg, #1a1a1e 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1e 75%), linear-gradient(-45deg, transparent 75%, #1a1a1e 75%)`,
-                backgroundSize: '16px 16px',
-                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                {isImage(a.mimeType, a.url) ? (
-                  <img
-                    src={a.url}
-                    alt={a.name ?? 'Asset'}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      display: 'block',
-                      padding: 12,
-                      boxSizing: 'border-box' as const,
-                    }}
-                  />
-                ) : isFont(a.mimeType, a.url) ? (
-                  <FontPreview url={a.url} name={a.name ?? 'font'} />
-                ) : (
-                  <span style={{ color: '#555', fontSize: '0.75rem' }}>File</span>
-                )}
-              </div>
-              <div style={{
-                padding: '8px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '6px',
-              }}>
-                <span
-                  title={a.name ?? a.url}
+        {loading ? (
+          <div style={{ color: '#888', fontSize: '0.875rem' }}>Loading assets…</div>
+        ) : assets.length === 0 ? (
+          <div
+            style={{
+              padding: '2.5rem 1.5rem',
+              textAlign: 'center',
+              color: '#666',
+              fontSize: '0.875rem',
+              backgroundColor: 'rgba(255,255,255,0.03)',
+              borderRadius: 8,
+              border: '1px dashed #333',
+            }}
+          >
+            <p style={{ margin: '0 0 0.5rem' }}>No saved assets yet.</p>
+            <p style={{ margin: 0 }}>
+              Use "Add from Fluid DAM" to browse and save assets to your library.
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '1rem',
+            }}
+          >
+            {assets.map((a) => (
+              <div
+                key={a.id}
+                style={{
+                  position: 'relative',
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  backgroundColor: '#1a1a1e',
+                  border: '1px solid #2a2a2e',
+                }}
+              >
+                <div
                   style={{
-                    flex: 1,
-                    minWidth: 0,
-                    fontSize: '0.75rem',
-                    color: '#aaa',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {a.name ?? 'Asset'}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleRemove(a.id)}
-                  disabled={deletingId === a.id}
-                  title="Remove"
-                  style={{
-                    flexShrink: 0,
-                    width: 24,
-                    height: 24,
-                    padding: 0,
+                    aspectRatio: '1',
+                    backgroundColor: '#111',
+                    backgroundImage: `linear-gradient(45deg, #1a1a1e 25%, transparent 25%), linear-gradient(-45deg, #1a1a1e 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1e 75%), linear-gradient(-45deg, transparent 75%, #1a1a1e 75%)`,
+                    backgroundSize: '16px 16px',
+                    backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: 'none',
-                    border: 'none',
-                    color: '#666',
-                    cursor: deletingId === a.id ? 'wait' : 'pointer',
-                    borderRadius: 4,
                   }}
                 >
-                  <TrashIcon />
-                </button>
+                  {isImage(a.mimeType, a.url) ? (
+                    <img
+                      src={a.url}
+                      alt={a.name ?? 'Asset'}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        display: 'block',
+                        padding: 12,
+                        boxSizing: 'border-box' as const,
+                      }}
+                    />
+                  ) : isFont(a.mimeType, a.url) ? (
+                    <FontPreview url={a.url} name={a.name ?? 'font'} />
+                  ) : (
+                    <span style={{ color: '#555', fontSize: '0.75rem' }}>File</span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    padding: '8px 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '6px',
+                  }}
+                >
+                  <span
+                    title={a.name ?? a.url}
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      fontSize: '0.75rem',
+                      color: '#aaa',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {a.name ?? 'Asset'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(a.id)}
+                    disabled={deletingId === a.id}
+                    title="Remove"
+                    style={{
+                      flexShrink: 0,
+                      width: 24,
+                      height: 24,
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'none',
+                      border: 'none',
+                      color: '#666',
+                      cursor: deletingId === a.id ? 'wait' : 'pointer',
+                      borderRadius: 4,
+                    }}
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      <FluidDAMModal
-        isOpen={damOpen}
-        onSelect={handleDAMSelect}
-        onCancel={() => setDamOpen(false)}
-        onError={(msg) => setError(msg)}
-      />
+        <FluidDAMModal
+          isOpen={damOpen}
+          onSelect={handleDAMSelect}
+          onCancel={() => setDamOpen(false)}
+          onError={(msg) => setError(msg)}
+        />
       </div>
     </div>
   );
@@ -863,7 +977,16 @@ export function AssetsScreen() {
 
 function PlusIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
@@ -872,7 +995,16 @@ function PlusIcon() {
 
 function TrashIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <line x1="10" y1="11" x2="10" y2="17" />

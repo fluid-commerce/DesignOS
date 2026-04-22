@@ -1,5 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
-import { BG_CARD, BG_SECONDARY, BORDER, BORDER_HOVER, TEXT_PRIMARY, TEXT_SECONDARY } from '../tokens';
+import {
+  BG_CARD,
+  BG_SECONDARY,
+  BORDER,
+  BORDER_HOVER,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from '../tokens';
 import { ChevronDownIcon } from './Icons';
 
 export interface DropdownOption {
@@ -141,7 +148,14 @@ export function Dropdown({
               >
                 <span style={{ display: 'block' }}>{opt.dimensions ?? opt.label}</span>
                 {opt.sublabel && (
-                  <span style={{ display: 'block', fontSize: '0.75rem', color: TEXT_SECONDARY, marginTop: 2 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: '0.75rem',
+                      color: TEXT_SECONDARY,
+                      marginTop: 2,
+                    }}
+                  >
                     {opt.sublabel}
                   </span>
                 )}

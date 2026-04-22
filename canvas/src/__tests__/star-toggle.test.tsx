@@ -22,7 +22,11 @@ describe('Star toggle in CreationFrame', () => {
   it('clicking star on unmarked variation calls onStatusChange with winner', () => {
     const onStatusChange = vi.fn();
     render(
-      <CreationFrame {...baseProps} status={'unmarked' as VersionStatus} onStatusChange={onStatusChange} />
+      <CreationFrame
+        {...baseProps}
+        status={'unmarked' as VersionStatus}
+        onStatusChange={onStatusChange}
+      />,
     );
 
     const starButton = screen.getByTestId('star-toggle');
@@ -34,7 +38,11 @@ describe('Star toggle in CreationFrame', () => {
   it('clicking star on winner variation calls onStatusChange with unmarked', () => {
     const onStatusChange = vi.fn();
     render(
-      <CreationFrame {...baseProps} status={'winner' as VersionStatus} onStatusChange={onStatusChange} />
+      <CreationFrame
+        {...baseProps}
+        status={'winner' as VersionStatus}
+        onStatusChange={onStatusChange}
+      />,
     );
 
     const starButton = screen.getByTestId('star-toggle');
@@ -44,9 +52,7 @@ describe('Star toggle in CreationFrame', () => {
   });
 
   it('star renders filled color (#facc15) when status is winner', () => {
-    render(
-      <CreationFrame {...baseProps} status={'winner' as VersionStatus} />
-    );
+    render(<CreationFrame {...baseProps} status={'winner' as VersionStatus} />);
 
     const svg = screen.getByTestId('star-toggle').querySelector('svg');
     expect(svg).toBeTruthy();
@@ -55,9 +61,7 @@ describe('Star toggle in CreationFrame', () => {
   });
 
   it('star renders outline (#666) when status is unmarked', () => {
-    render(
-      <CreationFrame {...baseProps} status={'unmarked' as VersionStatus} />
-    );
+    render(<CreationFrame {...baseProps} status={'unmarked' as VersionStatus} />);
 
     const svg = screen.getByTestId('star-toggle').querySelector('svg');
     expect(svg).toBeTruthy();
@@ -79,7 +83,11 @@ describe('handleStatusChange in App.tsx does NOT auto-reject', () => {
   it('star toggle sends only one status change per click', () => {
     const onStatusChange = vi.fn();
     render(
-      <CreationFrame {...baseProps} status={'unmarked' as VersionStatus} onStatusChange={onStatusChange} />
+      <CreationFrame
+        {...baseProps}
+        status={'unmarked' as VersionStatus}
+        onStatusChange={onStatusChange}
+      />,
     );
 
     const starButton = screen.getByTestId('star-toggle');

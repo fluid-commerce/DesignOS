@@ -21,7 +21,9 @@ export function IdeasGetStarted({ selectedAssets, onApplyIdea }: IdeasGetStarted
       .catch(() => {
         if (!cancelled) setTemplates([]);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const ideas = useMemo(
@@ -33,19 +35,43 @@ export function IdeasGetStarted({ selectedAssets, onApplyIdea }: IdeasGetStarted
   if (ideas.length === 0) {
     return (
       <div style={{ width: '100%', maxWidth: 896, paddingTop: '2.5rem', paddingBottom: '2rem' }}>
-        <h2 style={{ margin: 0, marginBottom: '0.5rem', fontSize: '1.125rem', fontWeight: 600, color: TEXT_PRIMARY }}>
+        <h2
+          style={{
+            margin: 0,
+            marginBottom: '0.5rem',
+            fontSize: '1.125rem',
+            fontWeight: 600,
+            color: TEXT_PRIMARY,
+          }}
+        >
           Ideas Get Started
         </h2>
         <p style={{ margin: 0, fontSize: '0.875rem', color: TEXT_SECONDARY }}>
-          Add assets above with the + button or save assets in the Assets tab. Templates will appear here when available.
+          Add assets above with the + button or save assets in the Assets tab. Templates will appear
+          here when available.
         </p>
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: 896, position: 'relative', paddingTop: '2.5rem', paddingBottom: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+    <div
+      style={{
+        width: '100%',
+        maxWidth: 896,
+        position: 'relative',
+        paddingTop: '2.5rem',
+        paddingBottom: '2rem',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '0.75rem',
+        }}
+      >
         <h2 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600, color: TEXT_PRIMARY }}>
           Discover and remix ideas
         </h2>

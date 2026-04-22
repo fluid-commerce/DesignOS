@@ -4,7 +4,8 @@ import type { ChatMessageUI, ToolCallUI } from '../store/chat';
 function ToolCallBlock({ tc }: { tc: ToolCallUI }) {
   const [expanded, setExpanded] = useState(false);
 
-  const statusIcon = tc.status === 'pending' ? '\u23F3' : tc.status === 'error' ? '\u274C' : '\u2705';
+  const statusIcon =
+    tc.status === 'pending' ? '\u23F3' : tc.status === 'error' ? '\u274C' : '\u2705';
   const label = (tc.tool ?? 'unknown').replace(/_/g, ' ');
 
   return (
@@ -15,12 +16,8 @@ function ToolCallBlock({ tc }: { tc: ToolCallUI }) {
         {tc.hasImage && <span className="chat-tool-badge">screenshot</span>}
         <span className="chat-tool-expand">{expanded ? '\u25BE' : '\u25B8'}</span>
       </div>
-      {expanded && tc.result && (
-        <pre className="chat-tool-result">{tc.result}</pre>
-      )}
-      {expanded && tc.error && (
-        <pre className="chat-tool-result chat-tool-error">{tc.error}</pre>
-      )}
+      {expanded && tc.result && <pre className="chat-tool-result">{tc.result}</pre>}
+      {expanded && tc.error && <pre className="chat-tool-result chat-tool-error">{tc.error}</pre>}
     </div>
   );
 }
@@ -31,9 +28,7 @@ export function ChatMessage({ message }: { message: ChatMessageUI }) {
   return (
     <div className={`chat-message chat-message-${message.role}`}>
       <div className="chat-message-role">{isUser ? 'You' : 'Agent'}</div>
-      {message.content && (
-        <div className="chat-message-content">{message.content}</div>
-      )}
+      {message.content && <div className="chat-message-content">{message.content}</div>}
       {message.toolCalls.length > 0 && (
         <div className="chat-tool-calls">
           {message.toolCalls.map((tc, idx) => (
