@@ -1,0 +1,25 @@
+<!--
+  FIXTURE: Asset references in multiple positions — src attrs, href attrs, and
+  url() tokens inside style attributes and inside <style> blocks. Exercises
+  watcher.ts:73-78 asset-path rewriting.
+
+  Expected (parse5-post-migration): every `../../assets/...` is rewritten to
+  the resolved absolute path, including those inside CSS url() tokens and
+  inline style attributes. Regex tends to miss url() inside attribute
+  strings when whitespace or quoting is unusual.
+-->
+<!-- target: 1080x1080 -->
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preload" href="../../assets/fonts/NeueHaas.woff2" as="font">
+  <style>
+    body { background: #000000; font-family: 'NeueHaasDisplay'; color: #FFFFFF; }
+    .bg { background-image: url( "../../assets/textures/paper.png" ); }
+  </style>
+</head>
+<body>
+  <img src="../../assets/logos/wordmark.svg" alt="Wordmark">
+  <div class="brush" style="background-image: url('../../assets/brushes/stroke-1.svg'); background-size: contain;"></div>
+</body>
+</html>

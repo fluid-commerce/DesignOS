@@ -1,0 +1,23 @@
+<!--
+  FIXTURE: Multiple <style> blocks (one in <head>, one inside <body>), and a
+  <pre> block containing literal CSS text that happens to include a hex color.
+
+  The <pre> content should NOT be interpreted as CSS. Current validator
+  scans the whole file with a hex regex and flags the pre content.
+
+  Expected (parse5-post-migration): only the two <style> blocks' text nodes
+  are scanned for hex; <pre> is ignored.
+
+  Pre-migration: false positive on #DEADBE in the <pre>.
+-->
+<!-- target: 1080x1080 -->
+<!DOCTYPE html>
+<html>
+<head>
+  <style>body { background: #000000; color: #FFFFFF; font-family: 'NeueHaasDisplay'; }</style>
+</head>
+<body>
+  <pre>Example CSS snippet: .foo { color: #DEADBE; }</pre>
+  <style>.accent { color: #FF8B58; }</style>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "fluid-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CLI tools for Fluid DesignOS — validators, importers, scaffolders. Tests use node:test.",
+  "scripts": {
+    "test": "node --test '__tests__/**/*.test.cjs'"
+  }
+}

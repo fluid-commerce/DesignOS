@@ -1,0 +1,17 @@
+<!--
+  FIXTURE: The phrase `target: 1080x1080` appears inside a data attribute,
+  NOT as an actual HTML comment. dimension-check.cjs's regex sees the text
+  anywhere and falsely concludes the canvas dimensions are set.
+
+  Expected (parse5-post-migration): dimension-check looks only at comment
+  nodes, so this file reports MISSING the dimension directive.
+
+  Pre-migration: may pass dimension-check falsely.
+-->
+<!DOCTYPE html>
+<html>
+<head><style>body { background: #000000; font-family: 'NeueHaasDisplay'; color: #FFFFFF; }</style></head>
+<body>
+  <div data-note="target: 1080x1080 (not a real directive)"></div>
+</body>
+</html>
