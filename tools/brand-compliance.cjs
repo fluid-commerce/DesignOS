@@ -12,6 +12,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const pc = require('picocolors');
 
 const DB_PATH = process.env.FLUID_DB_PATH || path.resolve(__dirname, '../canvas/.fluid/fluid.db');
 
@@ -614,23 +615,18 @@ const output = {
 process.stdout.write(JSON.stringify(output, null, 2) + '\n');
 
 // Human summary to stderr
-const supportsColor = process.stderr.isTTY;
-const red = supportsColor ? '\x1b[31m' : '';
-const yellow = supportsColor ? '\x1b[33m' : '';
-const blue = supportsColor ? '\x1b[34m' : '';
-const gray = supportsColor ? '\x1b[90m' : '';
-const reset = supportsColor ? '\x1b[0m' : '';
+const colorForSeverity = (s) =>
+  s === 'error' ? pc.red : s === 'warning' ? pc.yellow : s === 'info' ? pc.blue : pc.gray;
 
 process.stderr.write(`\nBrand Compliance Check: ${path.basename(filePath)} (context: ${context})\n`);
 
 if (violations.length === 0) {
-  process.stderr.write(`  ${blue}No violations found${reset}\n\n`);
+  process.stderr.write(`  ${pc.blue('No violations found')}\n\n`);
 } else {
   for (const v of violations) {
-    const color = v.severity === 'error' ? red : v.severity === 'warning' ? yellow : v.severity === 'info' ? blue : gray;
-    process.stderr.write(`  ${color}${v.severity.toUpperCase()}${reset} [${v.rule}] Line ${v.line}:${v.column} — ${v.message}\n`);
+    process.stderr.write(`  ${colorForSeverity(v.severity)(v.severity.toUpperCase())} [${v.rule}] Line ${v.line}:${v.column} — ${v.message}\n`);
   }
-  process.stderr.write(`\n  ${red}${output.summary.errors} errors${reset}, ${yellow}${output.summary.warnings} warnings${reset}, ${blue}${output.summary.info} info${reset}, ${gray}${output.summary.hints} hints${reset}\n\n`);
+  process.stderr.write(`\n  ${pc.red(`${output.summary.errors} errors`)}, ${pc.yellow(`${output.summary.warnings} warnings`)}, ${pc.blue(`${output.summary.info} info`)}, ${pc.gray(`${output.summary.hints} hints`)}\n\n`);
 }
 
 // Exit code

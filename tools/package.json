@@ -5,5 +5,8 @@
   "description": "CLI tools for Fluid DesignOS — validators, importers, scaffolders. Tests use node:test.",
   "scripts": {
     "test": "node --test '__tests__/**/*.test.cjs'"
+  },
+  "dependencies": {
+    "picocolors": "^1.1.1"
   }
 }

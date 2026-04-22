@@ -14,6 +14,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const pc = require('picocolors');
 
 // Known target dimensions — authoritative values from brand specs
 const KNOWN_DIMENSIONS = {
@@ -223,16 +224,10 @@ const result = {
 process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 
 // Human summary
-const supportsColor = process.stderr.isTTY;
-const red = supportsColor ? '\x1b[31m' : '';
-const green = supportsColor ? '\x1b[32m' : '';
-const yellow = supportsColor ? '\x1b[33m' : '';
-const reset = supportsColor ? '\x1b[0m' : '';
-
 process.stderr.write(`\nDimension Check: ${path.basename(filePath)}\n`);
 
 if (!dimensions.width || !dimensions.height) {
-  process.stderr.write(`  ${yellow}WARNING${reset}: Could not extract dimensions from file\n`);
+  process.stderr.write(`  ${pc.yellow('WARNING')}: Could not extract dimensions from file\n`);
 } else {
   process.stderr.write(`  Found: ${dimensions.width}x${dimensions.height} (from ${dimensions.source})\n`);
 }
@@ -240,15 +235,15 @@ if (!dimensions.width || !dimensions.height) {
 if (target) {
   process.stderr.write(`  Target: ${target.width}x${target.height} (${targetName})\n`);
 } else {
-  process.stderr.write(`  ${yellow}WARNING${reset}: No target specified or auto-detected\n`);
+  process.stderr.write(`  ${pc.yellow('WARNING')}: No target specified or auto-detected\n`);
 }
 
 if (match === true) {
-  process.stderr.write(`  ${green}PASS${reset} — Dimensions match\n\n`);
+  process.stderr.write(`  ${pc.green('PASS')} — Dimensions match\n\n`);
 } else if (match === false) {
-  process.stderr.write(`  ${red}FAIL${reset} — Expected ${target.width}x${target.height}, found ${dimensions.width}x${dimensions.height}\n\n`);
+  process.stderr.write(`  ${pc.red('FAIL')} — Expected ${target.width}x${target.height}, found ${dimensions.width}x${dimensions.height}\n\n`);
 } else {
-  process.stderr.write(`  ${yellow}UNKNOWN${reset} — Could not compare (missing target or dimensions)\n\n`);
+  process.stderr.write(`  ${pc.yellow('UNKNOWN')} — Could not compare (missing target or dimensions)\n\n`);
 }
 
 process.exit(match === false ? 1 : 0);
