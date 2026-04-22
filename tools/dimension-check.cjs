@@ -14,6 +14,43 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const pc = require('picocolors');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+const { parse: parseHtml } = require('parse5');
+
+// ─── parse5 AST helpers ───────────────────────────────────────────────────────
+
+function buildAst(htmlString) {
+  return parseHtml(htmlString, { sourceCodeLocationInfo: true });
+}
+
+function findAll(node, predicate, out = []) {
+  if (predicate(node)) out.push(node);
+  if (node.childNodes) for (const c of node.childNodes) findAll(c, predicate, out);
+  return out;
+}
+
+function findFirst(node, predicate) {
+  if (predicate(node)) return node;
+  if (node.childNodes) {
+    for (const c of node.childNodes) {
+      const f = findFirst(c, predicate);
+      if (f) return f;
+    }
+  }
+  return null;
+}
+
+const getAttr = (el, name) => el.attrs?.find(a => a.name === name)?.value;
+
+function getTextContent(node) {
+  if (!node.childNodes) return '';
+  return node.childNodes
+    .filter(c => c.nodeName === '#text')
+    .map(c => c.value)
+    .join('');
+}
 
 // Known target dimensions — authoritative values from brand specs
 const KNOWN_DIMENSIONS = {
@@ -26,22 +63,55 @@ function loadRules() {
   return { dimensions: KNOWN_DIMENSIONS };
 }
 
+/**
+ * extractDimensions — parse5 AST-based dimension extraction.
+ *
+ * Replaces the previous regex-based implementation. Key improvement: comment
+ * detection now only looks at AST nodes with nodeName '#comment', so the text
+ * `target: 1080x1080` inside a data-* attribute (or any non-comment context)
+ * is never matched. The previous regex operated on the raw HTML string, which
+ * could be tricked by attribute values that contain the pattern.
+ *
+ * Strategy (in order of priority):
+ *   1. HTML comment node with `target: WxH` pattern
+ *   2. <body> element style attribute
+ *   3. <div> with class matching container|wrapper|canvas|post, style attribute
+ *   4. <style> text content — CSS rule for body/.container/etc.
+ *   5. <meta name="viewport"> content attribute
+ */
 function extractDimensions(content) {
   const found = { width: null, height: null, source: null };
+  const doc = buildAst(content);
 
-  // 1. Check for explicit dimension comment: <!-- target: 1080x1080 -->
-  const commentMatch = content.match(/<!--\s*(?:target|dimensions?|size)\s*:\s*(\d+)\s*x\s*(\d+)\s*-->/i);
-  if (commentMatch) {
-    found.width = parseInt(commentMatch[1]);
-    found.height = parseInt(commentMatch[2]);
-    found.source = 'html-comment';
-    return found;
+  // 1. HTML comment nodes only — NOT arbitrary text matching the pattern.
+  //
+  //    We use a tighter regex that matches a DIRECTIVE-style comment: the
+  //    keyword (target/dimensions/size) must appear at the start of the
+  //    comment (after optional whitespace), and the comment must end
+  //    immediately after the dimensions (after optional whitespace).
+  //
+  //    This prevents fixture-description comments like:
+  //      <!-- FIXTURE: The phrase `target: 1080x1080` appears inside ... -->
+  //    from being treated as dimension directives. A real directive comment
+  //    is tightly formatted as:
+  //      <!-- target: 1080x1080 -->
+  const commentNodes = findAll(doc, n => n.nodeName === '#comment');
+  for (const c of commentNodes) {
+    const text = c.data || '';
+    // Anchored: comment text must start and end with the dimension directive
+    const m = text.match(/^\s*(?:target|dimensions?|size)\s*:\s*(\d+)\s*x\s*(\d+)\s*$/i);
+    if (m) {
+      found.width = parseInt(m[1]);
+      found.height = parseInt(m[2]);
+      found.source = 'html-comment';
+      return found;
+    }
   }
 
-  // 2. Check body/container inline style width/height
-  const bodyStyleMatch = content.match(/<body[^>]*style\s*=\s*["']([^"']*)["']/i);
-  if (bodyStyleMatch) {
-    const style = bodyStyleMatch[1];
+  // 2. <body> element inline style
+  const bodyEl = findFirst(doc, n => n.nodeName === 'body');
+  if (bodyEl) {
+    const style = getAttr(bodyEl, 'style') || '';
     const w = style.match(/width\s*:\s*(\d+)px/i);
     const h = style.match(/height\s*:\s*(\d+)px/i);
     if (w && h) {
@@ -52,10 +122,13 @@ function extractDimensions(content) {
     }
   }
 
-  // 3. Check container/wrapper div inline styles
-  const containerMatch = content.match(/<div[^>]*(?:class\s*=\s*["'][^"']*(?:container|wrapper|canvas|post)[^"']*["'][^>]*)?style\s*=\s*["']([^"']*)["']/i);
-  if (containerMatch) {
-    const style = containerMatch[1];
+  // 3. Container/wrapper div inline styles
+  const containerClassPattern = /container|wrapper|canvas|post/i;
+  const divEls = findAll(doc, n => n.nodeName === 'div');
+  for (const div of divEls) {
+    const cls = getAttr(div, 'class') || '';
+    if (!containerClassPattern.test(cls)) continue;
+    const style = getAttr(div, 'style') || '';
     const w = style.match(/width\s*:\s*(\d+)px/i);
     const h = style.match(/height\s*:\s*(\d+)px/i);
     if (w && h) {
@@ -66,11 +139,10 @@ function extractDimensions(content) {
     }
   }
 
-  // 4. Check CSS width/height in style block
-  const styleBlock = content.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-  if (styleBlock) {
-    const css = styleBlock[1];
-    // Look for body, .container, .post, .canvas etc.
+  // 4. <style> block CSS rules — text content only, regex on CSS text
+  const styleEls = findAll(doc, n => n.nodeName === 'style');
+  for (const styleEl of styleEls) {
+    const css = getTextContent(styleEl);
     const bodyCSS = css.match(/(?:body|\.container|\.wrapper|\.canvas|\.post)\s*\{([^}]*)\}/i);
     if (bodyCSS) {
       const w = bodyCSS[1].match(/width\s*:\s*(\d+)px/i);
@@ -84,10 +156,12 @@ function extractDimensions(content) {
     }
   }
 
-  // 5. Check meta viewport
-  const viewportMatch = content.match(/<meta[^>]*name\s*=\s*["']viewport["'][^>]*content\s*=\s*["']([^"']*)["']/i);
-  if (viewportMatch) {
-    const vp = viewportMatch[1];
+  // 5. <meta name="viewport"> content attribute
+  const metaEls = findAll(doc, n => n.nodeName === 'meta');
+  for (const meta of metaEls) {
+    const name = getAttr(meta, 'name') || '';
+    if (name.toLowerCase() !== 'viewport') continue;
+    const vp = getAttr(meta, 'content') || '';
     const w = vp.match(/width\s*=\s*(\d+)/i);
     const h = vp.match(/height\s*=\s*(\d+)/i);
     if (w && h) {
@@ -133,50 +207,21 @@ function parseCustomTarget(targetStr) {
 }
 
 // --- Main ---
-if (process.argv.includes('--help') || process.argv.includes('-h')) {
-  process.stderr.write(`dimension-check.cjs (CLI-03) — Validate HTML asset dimensions
+const argv = yargs(hideBin(process.argv))
+  .scriptName('dimension-check')
+  .usage('dimension-check.cjs (CLI-03) — Validate HTML asset dimensions\n\nUsage: $0 <file> [options]')
+  .command('$0 <file>', 'Validate HTML asset dimensions', (y) =>
+    y.positional('file', { describe: 'Path to .html file', type: 'string' })
+  )
+  .option('target', {
+    describe: 'Target dimensions: instagram, linkedin_landscape, linkedin_tall, or WxH (e.g. 800x600). Auto-detected if not specified.',
+    type: 'string',
+  })
+  .strict()
+  .help()
+  .parseSync();
 
-Usage: node tools/dimension-check.cjs <file.html> [--target <target>]
-
-Targets:
-  instagram           1080x1080
-  linkedin_landscape  1200x627
-  linkedin_tall       1340x630
-  WIDTHxHEIGHT        Custom dimensions (e.g., 800x600)
-  (auto)              Auto-detect from file content
-
-Extracts dimensions from:
-  - HTML comments: <!-- target: 1080x1080 -->
-  - Body/container inline styles
-  - CSS style blocks
-  - Meta viewport
-
-Output:
-  stdout: JSON results
-  stderr: Human-readable summary
-
-Exit codes:
-  0  Dimensions match target
-  1  Dimension mismatch
-  2  Tool error (no dimensions found, missing file)
-`);
-  process.exit(0);
-}
-
-const allArgs = process.argv.slice(2);
-const args = allArgs.filter(a => !a.startsWith('--'));
-const targetIdx = allArgs.indexOf('--target');
-let targetOverride = null;
-if (targetIdx !== -1 && allArgs[targetIdx + 1]) {
-  targetOverride = allArgs[targetIdx + 1];
-}
-
-if (args.length === 0) {
-  process.stderr.write('Error: No file path provided.\nUsage: node tools/dimension-check.cjs <file.html> [--target instagram|WxH]\n');
-  process.exit(2);
-}
-
-const filePath = path.resolve(args[0]);
+const filePath = path.resolve(argv.file);
 if (!fs.existsSync(filePath)) {
   process.stderr.write(`Error: File not found: ${filePath}\n`);
   process.exit(2);
@@ -189,13 +234,13 @@ const dimensions = extractDimensions(content);
 let targetName = null;
 let target = null;
 
-if (targetOverride) {
-  if (rules.dimensions[targetOverride]) {
-    targetName = targetOverride;
-    target = rules.dimensions[targetOverride];
+if (argv.target) {
+  if (rules.dimensions[argv.target]) {
+    targetName = argv.target;
+    target = rules.dimensions[argv.target];
   } else {
-    target = parseCustomTarget(targetOverride);
-    targetName = targetOverride;
+    target = parseCustomTarget(argv.target);
+    targetName = argv.target;
   }
 } else {
   targetName = autoDetectTarget(content, dimensions, rules);
@@ -223,16 +268,10 @@ const result = {
 process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 
 // Human summary
-const supportsColor = process.stderr.isTTY;
-const red = supportsColor ? '\x1b[31m' : '';
-const green = supportsColor ? '\x1b[32m' : '';
-const yellow = supportsColor ? '\x1b[33m' : '';
-const reset = supportsColor ? '\x1b[0m' : '';
-
 process.stderr.write(`\nDimension Check: ${path.basename(filePath)}\n`);
 
 if (!dimensions.width || !dimensions.height) {
-  process.stderr.write(`  ${yellow}WARNING${reset}: Could not extract dimensions from file\n`);
+  process.stderr.write(`  ${pc.yellow('WARNING')}: Could not extract dimensions from file\n`);
 } else {
   process.stderr.write(`  Found: ${dimensions.width}x${dimensions.height} (from ${dimensions.source})\n`);
 }
@@ -240,15 +279,15 @@ if (!dimensions.width || !dimensions.height) {
 if (target) {
   process.stderr.write(`  Target: ${target.width}x${target.height} (${targetName})\n`);
 } else {
-  process.stderr.write(`  ${yellow}WARNING${reset}: No target specified or auto-detected\n`);
+  process.stderr.write(`  ${pc.yellow('WARNING')}: No target specified or auto-detected\n`);
 }
 
 if (match === true) {
-  process.stderr.write(`  ${green}PASS${reset} — Dimensions match\n\n`);
+  process.stderr.write(`  ${pc.green('PASS')} — Dimensions match\n\n`);
 } else if (match === false) {
-  process.stderr.write(`  ${red}FAIL${reset} — Expected ${target.width}x${target.height}, found ${dimensions.width}x${dimensions.height}\n\n`);
+  process.stderr.write(`  ${pc.red('FAIL')} — Expected ${target.width}x${target.height}, found ${dimensions.width}x${dimensions.height}\n\n`);
 } else {
-  process.stderr.write(`  ${yellow}UNKNOWN${reset} — Could not compare (missing target or dimensions)\n\n`);
+  process.stderr.write(`  ${pc.yellow('UNKNOWN')} — Could not compare (missing target or dimensions)\n\n`);
 }
 
 process.exit(match === false ? 1 : 0);

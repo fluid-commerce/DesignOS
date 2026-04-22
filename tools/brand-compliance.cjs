@@ -12,6 +12,59 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const pc = require('picocolors');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+const { parse: parseHtml } = require('parse5');
+
+// ─── parse5 AST helpers ───────────────────────────────────────────────────────
+
+function buildAst(htmlString) {
+  return parseHtml(htmlString, { sourceCodeLocationInfo: true });
+}
+
+function findAll(node, predicate, out = []) {
+  if (predicate(node)) out.push(node);
+  if (node.childNodes) for (const c of node.childNodes) findAll(c, predicate, out);
+  return out;
+}
+
+function findFirst(node, predicate) {
+  if (predicate(node)) return node;
+  if (node.childNodes) {
+    for (const c of node.childNodes) {
+      const f = findFirst(c, predicate);
+      if (f) return f;
+    }
+  }
+  return null;
+}
+
+const getAttr = (el, name) => el.attrs?.find(a => a.name === name)?.value;
+
+/** Text content of a node: all immediate #text children joined. */
+function getTextContent(node) {
+  if (!node.childNodes) return '';
+  return node.childNodes
+    .filter(c => c.nodeName === '#text')
+    .map(c => c.value)
+    .join('');
+}
+
+/** All <style> element nodes in the document. */
+function styleElements(doc) {
+  return findAll(doc, n => n.nodeName === 'style');
+}
+
+/** All <img> element nodes in the document. */
+function imgElements(doc) {
+  return findAll(doc, n => n.nodeName === 'img');
+}
+
+/** Start line (1-indexed) of a node, or 1 as fallback. */
+function getStartLine(node) {
+  return node.sourceCodeLocation?.startLine ?? 1;
+}
 
 const DB_PATH = process.env.FLUID_DB_PATH || path.resolve(__dirname, '../canvas/.fluid/fluid.db');
 
@@ -144,12 +197,23 @@ function normalizeHex(hex) {
   return hex;
 }
 
-function checkHexColors(lines, rules, context) {
+/**
+ * checkHexColors — scans only <style> element text nodes for hex color values.
+ *
+ * Migrated from line-based regex to parse5 AST walk. Previously scanned every
+ * line of the entire file, including <meta> attributes, <pre> blocks, HTML
+ * comments, etc. — all false-positive surfaces that are NOT CSS. Now restricts
+ * to the text content of <style> elements only, where hex values are actually
+ * brand-controlled.
+ *
+ * Comment nodes are automatically excluded because they are AST nodes with
+ * nodeName '#comment', never '#text' children of a <style> element.
+ */
+function checkHexColors(ast, rules, context) {
   const violations = [];
   const allowedHex = new Set();
 
   // Add colors based on context
-  // Use context-specific lists if they exist, otherwise fall back to the shared allowed_hex list
   if (context === 'social' || context === 'all') {
     const socialColors = (rules.colors.social && rules.colors.social.allowed_hex) || rules.colors.allowed_hex || [];
     socialColors.forEach(h => allowedHex.add(normalizeHex(h)));
@@ -161,28 +225,30 @@ function checkHexColors(lines, rules, context) {
 
   const hexRegex = /#([0-9a-fA-F]{3,6})\b/g;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    let match;
-    hexRegex.lastIndex = 0;
-    while ((match = hexRegex.exec(line)) !== null) {
-      const rawHex = '#' + match[1];
-      const normalized = normalizeHex(rawHex);
+  for (const styleEl of styleElements(ast)) {
+    const styleStartLine = getStartLine(styleEl);
+    const cssText = getTextContent(styleEl);
+    const cssLines = cssText.split('\n');
 
-      // Skip if it's in a comment or code snippet display
-      const before = line.substring(0, match.index);
-      if (before.includes('<!--') && !before.includes('-->')) continue;
-
-      if (!allowedHex.has(normalized)) {
-        violations.push({
-          line: i + 1,
-          column: match.index + 1,
-          rule: 'color-non-brand-hex',
-          severity: severityFromWeight(90, rules.thresholds),
-          weight: 90,
-          message: `Non-brand hex color "${rawHex}" (normalized: ${normalized}). Allowed: ${[...allowedHex].join(', ')}`,
-          found: rawHex,
-        });
+    for (let i = 0; i < cssLines.length; i++) {
+      const line = cssLines[i];
+      let match;
+      hexRegex.lastIndex = 0;
+      while ((match = hexRegex.exec(line)) !== null) {
+        const rawHex = '#' + match[1];
+        const normalized = normalizeHex(rawHex);
+        if (!allowedHex.has(normalized)) {
+          violations.push({
+            // styleStartLine is 1-indexed; cssLines[0] is on that line
+            line: styleStartLine + i,
+            column: match.index + 1,
+            rule: 'color-non-brand-hex',
+            severity: severityFromWeight(90, rules.thresholds),
+            weight: 90,
+            message: `Non-brand hex color "${rawHex}" (normalized: ${normalized}). Allowed: ${[...allowedHex].join(', ')}`,
+            found: rawHex,
+          });
+        }
       }
     }
   }
@@ -190,7 +256,14 @@ function checkHexColors(lines, rules, context) {
   return violations;
 }
 
-function checkFontFamilies(lines, rules, context) {
+/**
+ * checkFontFamilies — scans only <style> element text nodes for font-family declarations.
+ *
+ * Migrated from line-based regex to parse5 AST walk. Restricts scanning to
+ * <style> text content only, avoiding false positives from font names in
+ * HTML attributes, comments, or <pre> blocks.
+ */
+function checkFontFamilies(ast, rules, context) {
   const violations = [];
 
   const allowedFamilies = context === 'social'
@@ -201,32 +274,37 @@ function checkFontFamilies(lines, rules, context) {
 
   const fontFamilyRegex = /font-family\s*:\s*([^;}{]+)/gi;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    let match;
-    fontFamilyRegex.lastIndex = 0;
-    while ((match = fontFamilyRegex.exec(line)) !== null) {
-      const familyDecl = match[1].trim();
-      // Extract individual family names
-      const families = familyDecl.split(',').map(f =>
-        f.trim().replace(/["']/g, '').trim()
-      ).filter(f => f && f !== 'sans-serif' && f !== 'serif' && f !== 'monospace' && f !== 'cursive'
-        && !f.startsWith('var(') && f !== '-apple-system' && f !== 'BlinkMacSystemFont' && f !== 'system-ui' && f !== 'Arial' && f !== 'Segoe UI');
+  for (const styleEl of styleElements(ast)) {
+    const styleStartLine = getStartLine(styleEl);
+    const cssText = getTextContent(styleEl);
+    const cssLines = cssText.split('\n');
 
-      for (const family of families) {
-        const isAllowed = allowedFamilies.some(af =>
-          af.toLowerCase() === family.toLowerCase()
-        );
-        if (!isAllowed) {
-          violations.push({
-            line: i + 1,
-            column: match.index + 1,
-            rule: 'font-non-brand-family',
-            severity: severityFromWeight(85, rules.thresholds),
-            weight: 85,
-            message: `Non-brand font family "${family}". Allowed for ${context}: ${allowedFamilies.join(', ')}`,
-            found: family,
-          });
+    for (let i = 0; i < cssLines.length; i++) {
+      const line = cssLines[i];
+      let match;
+      fontFamilyRegex.lastIndex = 0;
+      while ((match = fontFamilyRegex.exec(line)) !== null) {
+        const familyDecl = match[1].trim();
+        const families = familyDecl.split(',').map(f =>
+          f.trim().replace(/["']/g, '').trim()
+        ).filter(f => f && f !== 'sans-serif' && f !== 'serif' && f !== 'monospace' && f !== 'cursive'
+          && !f.startsWith('var(') && f !== '-apple-system' && f !== 'BlinkMacSystemFont' && f !== 'system-ui' && f !== 'Arial' && f !== 'Segoe UI');
+
+        for (const family of families) {
+          const isAllowed = allowedFamilies.some(af =>
+            af.toLowerCase() === family.toLowerCase()
+          );
+          if (!isAllowed) {
+            violations.push({
+              line: styleStartLine + i,
+              column: match.index + 1,
+              rule: 'font-non-brand-family',
+              severity: severityFromWeight(85, rules.thresholds),
+              weight: 85,
+              message: `Non-brand font family "${family}". Allowed for ${context}: ${allowedFamilies.join(', ')}`,
+              found: family,
+            });
+          }
         }
       }
     }
@@ -301,51 +379,78 @@ function checkSocialBackground(lines, rules, context) {
   return violations;
 }
 
-function checkInlineStyles(lines, rules, context) {
+/**
+ * checkInlineStyles — uses parse5 AST to find elements with a style= attribute.
+ *
+ * Migrated from line-based regex (which needed a state machine to skip <style>
+ * blocks) to AST node walking. The AST naturally separates element attributes
+ * from <style> text content — no false positives possible from CSS property
+ * declarations inside <style> blocks.
+ */
+function checkInlineStyles(ast, rules, context) {
   const violations = [];
-  let insideStyleBlock = false;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (/<style[\s>]/i.test(line)) insideStyleBlock = true;
-    if (/<\/style>/i.test(line)) { insideStyleBlock = false; continue; }
-    if (insideStyleBlock) continue;
-    if (/(?<![a-zA-Z-])style\s*=\s*["'][^"']+["']/i.test(line)) {
-      violations.push({
-        line: i + 1, column: 1,
-        rule: 'style-no-inline',
-        severity: severityFromWeight(90, rules.thresholds),
-        weight: 90,
-        message: 'Inline style attribute found. All styling must be in <style> blocks using CSS classes.',
-        found: line.trim().slice(0, 80),
-      });
-    }
+
+  // Walk all elements that have a 'style' attribute
+  const elementsWithStyle = findAll(
+    ast,
+    n => n.tagName && n.nodeName !== 'style' && n.attrs?.some(a => a.name === 'style')
+  );
+
+  for (const el of elementsWithStyle) {
+    const styleValue = getAttr(el, 'style') || '';
+    // Only flag non-empty style attributes
+    if (!styleValue.trim()) continue;
+
+    const line = getStartLine(el);
+    violations.push({
+      line,
+      column: el.sourceCodeLocation?.startCol ?? 1,
+      rule: 'style-no-inline',
+      severity: severityFromWeight(90, rules.thresholds),
+      weight: 90,
+      message: 'Inline style attribute found. All styling must be in <style> blocks using CSS classes.',
+      found: `<${el.tagName} style="${styleValue.slice(0, 60)}">`,
+    });
   }
+
   return violations;
 }
 
-function checkDecorativeImgTags(lines, rules, context) {
+/**
+ * checkDecorativeImgTags — uses parse5 AST to find <img> elements and read
+ * their attributes correctly.
+ *
+ * Migrated from regex `<img\b[^>]*>` to AST node walking. The regex stops at
+ * the first '>' in an attribute value (e.g. alt="arrow > right"), causing it
+ * to miss subsequent attributes like class="decorative". parse5 reads the full
+ * element and exposes attrs as a structured array, fixing this bug.
+ */
+function checkDecorativeImgTags(ast, rules, context) {
   const violations = [];
   const decorativeClassPattern = /brush|texture|decorative|circle|sketch|overlay/i;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const imgMatches = line.matchAll(/<img\b[^>]*>/gi);
-    for (const m of imgMatches) {
-      const tag = m[0];
-      const hasEmptyAlt = /alt\s*=\s*["']\s*["']/i.test(tag);
-      const hasNoAlt = !/alt\s*=/i.test(tag);
-      const hasDecorativeClass = decorativeClassPattern.test(tag);
-      if (hasEmptyAlt || hasNoAlt || hasDecorativeClass) {
-        violations.push({
-          line: i + 1, column: m.index + 1,
-          rule: 'img-no-decorative',
-          severity: severityFromWeight(85, rules.thresholds),
-          weight: 85,
-          message: 'Decorative element uses <img> tag. Use <div> with background-image + background-size: contain instead.',
-          found: tag.slice(0, 100),
-        });
-      }
+
+  for (const img of imgElements(ast)) {
+    const altAttr = getAttr(img, 'alt');
+    const classAttr = getAttr(img, 'class') || '';
+
+    const hasEmptyAlt = altAttr !== null && altAttr !== undefined && altAttr.trim() === '';
+    const hasNoAlt = altAttr === null || altAttr === undefined;
+    const hasDecorativeClass = decorativeClassPattern.test(classAttr);
+
+    if (hasEmptyAlt || hasNoAlt || hasDecorativeClass) {
+      const line = getStartLine(img);
+      violations.push({
+        line,
+        column: img.sourceCodeLocation?.startCol ?? 1,
+        rule: 'img-no-decorative',
+        severity: severityFromWeight(85, rules.thresholds),
+        weight: 85,
+        message: 'Decorative element uses <img> tag. Use <div> with background-image + background-size: contain instead.',
+        found: `<img src="${getAttr(img, 'src') || ''}" alt="${altAttr ?? ''}" class="${classAttr}">`,
+      });
     }
   }
+
   return violations;
 }
 
@@ -376,9 +481,15 @@ function checkHeadlineLetterSpacing(lines, rules, context) {
   return violations;
 }
 
-function checkTitleTag(lines, rules, context) {
-  const joined = lines.join('\n');
-  if (/<title[^>]*>.*<\/title>/is.test(joined)) return [];
+/**
+ * checkTitleTag — uses parse5 AST to find the <title> element inside <head>.
+ *
+ * Migrated from regex to AST walk. The regex /<title[^>]*>.*<\/title>/is
+ * could false-negative on multi-line title content. AST walk is unambiguous.
+ */
+function checkTitleTag(ast, rules, context) {
+  const titleEl = findFirst(ast, n => n.nodeName === 'title');
+  if (titleEl) return [];
   return [{
     line: 1, column: 1,
     rule: 'html-title-missing',
@@ -526,46 +637,22 @@ function checkBodyCopyColor(lines, rules, context) {
 }
 
 // --- Main ---
-if (process.argv.includes('--help') || process.argv.includes('-h')) {
-  process.stderr.write(`brand-compliance.cjs (CLI-02) — Validate HTML/CSS against brand tokens
+const argv = yargs(hideBin(process.argv))
+  .scriptName('brand-compliance')
+  .usage('brand-compliance.cjs (CLI-02) — Validate HTML/CSS against brand tokens\n\nUsage: $0 <file> [options]')
+  .command('$0 <file>', 'Validate HTML/CSS against brand tokens', (y) =>
+    y.positional('file', { describe: 'Path to .html/.liquid file', type: 'string' })
+  )
+  .option('context', {
+    describe: 'Scope rules to social or website context (auto-detected if not specified)',
+    choices: ['social', 'website', 'all'],
+    type: 'string',
+  })
+  .strict()
+  .help()
+  .parseSync();
 
-Usage: node tools/brand-compliance.cjs <file> [--context social|website]
-
-Options:
-  --context social|website  Scope rules to social or website context
-                            (auto-detected from file content if not specified)
-  --help, -h               Show this help message
-
-Output:
-  stdout: JSON array of violations
-  stderr: Human-readable summary
-
-Exit codes:
-  0  No errors (may have warnings/info)
-  1  Errors found (weight >= 81)
-  2  Tool error (missing file)
-
-Brand rules are loaded from SQLite DB at:
-  ${DB_PATH}
-  (override with FLUID_DB_PATH env var)
-`);
-  process.exit(0);
-}
-
-const args = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const flags = process.argv.slice(2);
-const contextIdx = flags.indexOf('--context');
-let contextOverride = null;
-if (contextIdx !== -1 && flags[contextIdx + 1]) {
-  contextOverride = flags[contextIdx + 1];
-}
-
-if (args.length === 0) {
-  process.stderr.write('Error: No file path provided.\nUsage: node tools/brand-compliance.cjs <file> [--context social|website]\n');
-  process.exit(2);
-}
-
-const filePath = path.resolve(args[0]);
+const filePath = path.resolve(argv.file);
 if (!fs.existsSync(filePath)) {
   process.stderr.write(`Error: File not found: ${filePath}\n`);
   process.exit(2);
@@ -574,17 +661,24 @@ if (!fs.existsSync(filePath)) {
 const rules = loadRulesFromDb();
 const content = fs.readFileSync(filePath, 'utf-8');
 const lines = content.split('\n');
-const context = contextOverride || detectContext(content);
+const context = argv.context || detectContext(content);
+
+// Build the parse5 AST once; pass it to HTML-structure-dependent checks.
+// Line-based regex checks that operate on CSS text or full-document text
+// still receive `lines` as before.
+const ast = buildAst(content);
 
 const violations = [
-  ...checkHexColors(lines, rules, context),
-  ...checkFontFamilies(lines, rules, context),
+  // AST-based checks (HTML-structure-dependent):
+  ...checkHexColors(ast, rules, context),
+  ...checkFontFamilies(ast, rules, context),
+  ...checkInlineStyles(ast, rules, context),
+  ...checkDecorativeImgTags(ast, rules, context),
+  ...checkTitleTag(ast, rules, context),
+  // Regex-based checks (CSS rule shape / full-document text — parse5 doesn't help here):
   ...checkMultipleAccentColors(lines, rules, context),
   ...checkSocialBackground(lines, rules, context),
-  ...checkInlineStyles(lines, rules, context),
-  ...checkDecorativeImgTags(lines, rules, context),
   ...checkHeadlineLetterSpacing(lines, rules, context),
-  ...checkTitleTag(lines, rules, context),
   ...checkMinimumElementGap(lines, rules, context),
   ...checkMultilingualAccents(lines, rules, context),
   ...checkCopyWordCount(lines, rules, context),
@@ -614,23 +708,18 @@ const output = {
 process.stdout.write(JSON.stringify(output, null, 2) + '\n');
 
 // Human summary to stderr
-const supportsColor = process.stderr.isTTY;
-const red = supportsColor ? '\x1b[31m' : '';
-const yellow = supportsColor ? '\x1b[33m' : '';
-const blue = supportsColor ? '\x1b[34m' : '';
-const gray = supportsColor ? '\x1b[90m' : '';
-const reset = supportsColor ? '\x1b[0m' : '';
+const colorForSeverity = (s) =>
+  s === 'error' ? pc.red : s === 'warning' ? pc.yellow : s === 'info' ? pc.blue : pc.gray;
 
 process.stderr.write(`\nBrand Compliance Check: ${path.basename(filePath)} (context: ${context})\n`);
 
 if (violations.length === 0) {
-  process.stderr.write(`  ${blue}No violations found${reset}\n\n`);
+  process.stderr.write(`  ${pc.blue('No violations found')}\n\n`);
 } else {
   for (const v of violations) {
-    const color = v.severity === 'error' ? red : v.severity === 'warning' ? yellow : v.severity === 'info' ? blue : gray;
-    process.stderr.write(`  ${color}${v.severity.toUpperCase()}${reset} [${v.rule}] Line ${v.line}:${v.column} — ${v.message}\n`);
+    process.stderr.write(`  ${colorForSeverity(v.severity)(v.severity.toUpperCase())} [${v.rule}] Line ${v.line}:${v.column} — ${v.message}\n`);
   }
-  process.stderr.write(`\n  ${red}${output.summary.errors} errors${reset}, ${yellow}${output.summary.warnings} warnings${reset}, ${blue}${output.summary.info} info${reset}, ${gray}${output.summary.hints} hints${reset}\n\n`);
+  process.stderr.write(`\n  ${pc.red(`${output.summary.errors} errors`)}, ${pc.yellow(`${output.summary.warnings} warnings`)}, ${pc.blue(`${output.summary.info} info`)}, ${pc.gray(`${output.summary.hints} hints`)}\n\n`);
 }
 
 // Exit code

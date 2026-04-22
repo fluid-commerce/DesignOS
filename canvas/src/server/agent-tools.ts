@@ -142,9 +142,7 @@ export function listArchetypes(): { slug: string; name: string; slots: string[] 
       try {
         const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
         slots = (schema.slots ?? []).map((s: any) => s.label ?? s.selector);
-      } catch {
-        // malformed schema.json — fall back to empty slot list
-      }
+      } catch {}
     }
     return {
       slug: d.name,
@@ -317,8 +315,9 @@ export async function renderPreviewTool(
   html: string,
   width: number,
   height: number,
+  signal?: AbortSignal,
 ): Promise<{ base64: string }> {
-  const base64 = await renderPreview(html, width, height);
+  const base64 = await renderPreview(html, width, height, signal);
   return { base64 };
 }
 
@@ -404,9 +403,7 @@ export function saveCreation(
     // on-disk state stays consistent with the DB.
     try {
       fs.unlinkSync(htmlAbsPath);
-    } catch {
-      // best-effort cleanup — original DB error is what matters
-    }
+    } catch {}
     throw err;
   }
 

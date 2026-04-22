@@ -19,6 +19,8 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -1383,13 +1385,28 @@ function runTask2Tests() {
 // Entry Point
 // ---------------------------------------------------------------------------
 
-const args = process.argv.slice(2);
+const argv = yargs(hideBin(process.argv))
+  .scriptName('feedback-ingest')
+  .usage('feedback-ingest.cjs — Ingest feedback annotations into the DB\n\nUsage: $0 [options]')
+  .option('test', {
+    describe: 'Run internal self-tests and exit',
+    type: 'boolean',
+    default: false,
+  })
+  .option('dry-run', {
+    describe: 'Parse and validate feedback without writing to the DB',
+    type: 'boolean',
+    default: false,
+  })
+  .strict()
+  .help()
+  .parseSync();
 
-if (args.includes('--test')) {
+if (argv.test) {
   const task1Pass = runTests();
   const task2Pass = runTask2Tests();
   process.exit(task1Pass && task2Pass ? 0 : 1);
-} else if (args.includes('--dry-run')) {
+} else if (argv.dryRun) {
   main({ dryRun: true });
 } else {
   main({ dryRun: false });

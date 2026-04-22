@@ -12,6 +12,7 @@
  */
 
 import type { SlotSchema } from './slot-schema';
+import { SlotSchemaZ } from './slot-schema';
 
 // ─── Template Metadata ────────────────────────────────────────────────────────
 
@@ -645,14 +646,8 @@ export function inferTemplateIdFromHtmlPath(
 }
 
 function isUsableStoredSlotSchema(s: unknown): s is SlotSchema {
-  if (!s || typeof s !== 'object') return false;
-  const o = s as SlotSchema;
-  return (
-    typeof o.width === 'number' &&
-    typeof o.height === 'number' &&
-    Array.isArray(o.fields) &&
-    o.fields.length > 0
-  );
+  const parsed = SlotSchemaZ.safeParse(s);
+  return parsed.success && parsed.data.fields.length > 0;
 }
 
 /**

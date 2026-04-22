@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { useCallback, useState } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useCampaignStore, type CreateViewportTab } from '../store/campaign';
 import { Breadcrumb } from './Breadcrumb';
 import { LeftNav } from './LeftNav';
@@ -83,193 +85,211 @@ function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
 
 /** Create New choice modal — New Asset vs New Campaign (matches templates Create New modal) */
 function CreateNewChoiceModal({
+  open,
   onClose,
   onOpenAsset,
   onOpenCampaign,
 }: {
+  open: boolean;
   onClose: () => void;
   onOpenAsset: () => void;
   onOpenCampaign: () => void;
 }) {
   const [mode, setMode] = useState<'asset' | 'campaign'>('asset');
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9000,
-        background: 'rgba(0,0,0,0.7)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+    <Dialog.Root
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
       }}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: 560,
-          maxHeight: '88vh',
-          overflow: 'hidden',
-          background: '#111',
-          border: '1px solid #1e1e1e',
-          borderRadius: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        }}
-      >
-        <div
+      <Dialog.Portal>
+        <Dialog.Overlay
           style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9000,
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        />
+        <Dialog.Content
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 9001,
+            width: 560,
+            maxHeight: '88vh',
+            overflow: 'hidden',
+            background: '#111',
+            border: '1px solid #1e1e1e',
+            borderRadius: 0,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '28px 36px 0 36px',
-            marginBottom: 24,
-            flexShrink: 0,
+            flexDirection: 'column',
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
+          <VisuallyHidden.Root asChild>
+            <Dialog.Title>Create New</Dialog.Title>
+          </VisuallyHidden.Root>
+          <VisuallyHidden.Root asChild>
+            <Dialog.Description>Choose to create a new asset or campaign.</Dialog.Description>
+          </VisuallyHidden.Root>
           <div
             style={{
               display: 'flex',
-              gap: '2px',
-              flexShrink: 0,
-              borderRadius: 0,
-              overflow: 'hidden',
-            }}
-          >
-            {(['asset', 'campaign'] as const).map((m) => {
-              const isActive = mode === m;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMode(m)}
-                  style={{
-                    padding: '8px 14px',
-                    minHeight: 36,
-                    boxSizing: 'border-box',
-                    fontSize: '0.75rem',
-                    fontWeight: isActive ? 600 : 400,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    color: isActive ? '#e0e0e0' : '#666',
-                    backgroundColor: isActive ? '#1a1a1e' : 'transparent',
-                    border: 'none',
-                    borderRadius: 0,
-                    borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'color 0.15s, background-color 0.15s',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) e.currentTarget.style.color = '#aaa';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.color = '#666';
-                  }}
-                >
-                  {m === 'asset' ? 'New Asset' : 'New Campaign'}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              width: 28,
-              height: 28,
-              display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              border: 'none',
-              background: 'transparent',
-              color: '#444',
-              cursor: 'pointer',
-              borderRadius: 3,
-              fontSize: 18,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#aaa';
-              e.currentTarget.style.background = '#1a1a1a';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#444';
-              e.currentTarget.style.background = 'transparent';
+              justifyContent: 'space-between',
+              padding: '28px 36px 0 36px',
+              marginBottom: 24,
+              flexShrink: 0,
             }}
           >
-            ×
-          </button>
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 36px 36px 36px' }}>
-          {mode === 'asset' ? (
-            <>
-              <p style={{ margin: '0 0 12px', fontSize: 11, color: '#2a2a2a', lineHeight: 1.5 }}>
-                Create a new social post, one-pager, or other asset from a template or from scratch.
-              </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: '2px',
+                flexShrink: 0,
+                borderRadius: 0,
+                overflow: 'hidden',
+              }}
+            >
+              {(['asset', 'campaign'] as const).map((m) => {
+                const isActive = mode === m;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMode(m)}
+                    style={{
+                      padding: '8px 14px',
+                      minHeight: 36,
+                      boxSizing: 'border-box',
+                      fontSize: '0.75rem',
+                      fontWeight: isActive ? 600 : 400,
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                      color: isActive ? '#e0e0e0' : '#666',
+                      backgroundColor: isActive ? '#1a1a1e' : 'transparent',
+                      border: 'none',
+                      borderRadius: 0,
+                      borderBottom: isActive ? '2px solid #44B2FF' : '2px solid transparent',
+                      cursor: 'pointer',
+                      transition: 'color 0.15s, background-color 0.15s',
+                      fontFamily: 'inherit',
+                      outline: 'none',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.color = '#aaa';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.color = '#666';
+                    }}
+                  >
+                    {m === 'asset' ? 'New Asset' : 'New Campaign'}
+                  </button>
+                );
+              })}
+            </div>
+            <Dialog.Close asChild>
               <button
                 type="button"
-                onClick={() => {
-                  onOpenAsset();
-                  onClose();
-                }}
                 style={{
-                  padding: '11px 24px',
+                  width: 28,
+                  height: 28,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   border: 'none',
-                  borderRadius: 3,
-                  background: '#44B2FF',
-                  color: '#000',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
+                  background: 'transparent',
+                  color: '#444',
                   cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#5cc0ff')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = '#44B2FF')}
-              >
-                Open template gallery
-              </button>
-            </>
-          ) : (
-            <>
-              <p style={{ margin: '0 0 12px', fontSize: 11, color: '#2a2a2a', lineHeight: 1.5 }}>
-                Create a new campaign to organize your creations and assets.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  onOpenCampaign();
-                  onClose();
-                }}
-                style={{
-                  padding: '11px 24px',
-                  border: 'none',
                   borderRadius: 3,
-                  background: '#44B2FF',
-                  color: '#000',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
+                  fontSize: 18,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#5cc0ff')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = '#44B2FF')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#aaa';
+                  e.currentTarget.style.background = '#1a1a1a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#444';
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
-                Create campaign
+                ×
               </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+            </Dialog.Close>
+          </div>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0 36px 36px 36px' }}>
+            {mode === 'asset' ? (
+              <>
+                <p style={{ margin: '0 0 12px', fontSize: 11, color: '#2a2a2a', lineHeight: 1.5 }}>
+                  Create a new social post, one-pager, or other asset from a template or from
+                  scratch.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenAsset();
+                    onClose();
+                  }}
+                  style={{
+                    padding: '11px 24px',
+                    border: 'none',
+                    borderRadius: 3,
+                    background: '#44B2FF',
+                    color: '#000',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#5cc0ff')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = '#44B2FF')}
+                >
+                  Open template gallery
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ margin: '0 0 12px', fontSize: 11, color: '#2a2a2a', lineHeight: 1.5 }}>
+                  Create a new campaign to organize your creations and assets.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenCampaign();
+                    onClose();
+                  }}
+                  style={{
+                    padding: '11px 24px',
+                    border: 'none',
+                    borderRadius: 3,
+                    background: '#44B2FF',
+                    color: '#000',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#5cc0ff')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = '#44B2FF')}
+                >
+                  Create campaign
+                </button>
+              </>
+            )}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -628,8 +648,9 @@ export function AppShell({
       )}
 
       {/* Create New choice modal — New Asset | New Campaign (also from Templates tab) */}
-      {(activeNavTab === 'my-creations' || activeNavTab === 'templates') && showCreateNewModal && (
+      {(activeNavTab === 'my-creations' || activeNavTab === 'templates') && (
         <CreateNewChoiceModal
+          open={showCreateNewModal}
           onClose={() => setShowCreateNewModal(false)}
           onOpenAsset={() => onNewCreation?.()}
           onOpenCampaign={() => setShowNewCampaignModal(true)}

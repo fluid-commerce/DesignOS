@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export interface SavedAsset {
   id: string;
@@ -9,84 +9,26 @@ export interface SavedAsset {
   createdAt?: number;
 }
 
-/** Simple module-level cache so multiple components share the same fetch. */
-let cachedAssets: SavedAsset[] | null = null;
-let inflight: Promise<SavedAsset[]> | null = null;
-const listeners = new Set<() => void>();
-
-function notifyListeners() {
-  for (const fn of listeners) fn();
-}
-
-async function fetchAssetsOnce(force = false): Promise<SavedAsset[]> {
-  if (!force && cachedAssets !== null) return cachedAssets;
-  if (!force && inflight) return inflight;
-  inflight = fetch('/api/assets')
-    .then((res) => {
-      if (!res.ok) throw new Error('Failed to load assets');
-      return res.json();
-    })
-    .then((data: unknown) => {
-      const arr = Array.isArray(data) ? (data as SavedAsset[]) : [];
-      cachedAssets = arr;
-      inflight = null;
-      notifyListeners();
-      return arr;
-    })
-    .catch((err) => {
-      inflight = null;
-      throw err;
-    });
-  return inflight;
+async function fetchAssets(): Promise<SavedAsset[]> {
+  const res = await fetch('/api/assets');
+  if (!res.ok) throw new Error('Failed to load assets');
+  const data = await res.json();
+  return Array.isArray(data) ? (data as SavedAsset[]) : [];
 }
 
 /**
- * Shared hook for /api/assets. Fetches once on mount and caches across
- * components. Call `invalidate()` to re-fetch (e.g. after adding/removing).
+ * Shared hook for /api/assets. Uses @tanstack/react-query for dedup, caching,
+ * and invalidation. Call `invalidate()` to re-fetch (e.g. after adding/removing).
+ *
+ * Return shape is unchanged: { assets, loading, error, invalidate }
  */
 export function useAssets() {
-  const [assets, setAssets] = useState<SavedAsset[]>(cachedAssets ?? []);
-  const [loading, setLoading] = useState(cachedAssets === null);
-  const [error, setError] = useState<string | null>(null);
-  const mountedRef = useRef(true);
-
-  const refresh = useCallback(async (force = false) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchAssetsOnce(force);
-      if (mountedRef.current) {
-        setAssets(data);
-      }
-    } catch (e) {
-      if (mountedRef.current) {
-        setError(e instanceof Error ? e.message : 'Failed to load assets');
-        setAssets([]);
-      }
-    } finally {
-      if (mountedRef.current) setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    // Subscribe to cross-component cache updates
-    const onUpdate = () => {
-      if (mountedRef.current && cachedAssets) {
-        setAssets(cachedAssets);
-        setLoading(false);
-      }
-    };
-    listeners.add(onUpdate);
-    refresh();
-    return () => {
-      mountedRef.current = false;
-      listeners.delete(onUpdate);
-    };
-  }, [refresh]);
-
-  /** Force re-fetch from server (e.g. after add/remove). */
-  const invalidate = useCallback(() => refresh(true), [refresh]);
-
-  return { assets, loading, error, invalidate };
+  const client = useQueryClient();
+  const q = useQuery({ queryKey: ['assets'], queryFn: fetchAssets });
+  return {
+    assets: q.data ?? [],
+    loading: q.isPending,
+    error: q.error ? (q.error instanceof Error ? q.error.message : String(q.error)) : null,
+    invalidate: () => client.invalidateQueries({ queryKey: ['assets'] }),
+  };
 }

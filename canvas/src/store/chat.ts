@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useCampaignStore } from './campaign';
 
 const ACTIVE_CHAT_KEY = 'fluid.activeChatId';
@@ -17,9 +18,7 @@ function writeActiveChatId(id: string | null): void {
   try {
     if (id) localStorage.setItem(ACTIVE_CHAT_KEY, id);
     else localStorage.removeItem(ACTIVE_CHAT_KEY);
-  } catch {
-    // localStorage unavailable (private mode / quota) — state is best-effort
-  }
+  } catch {}
 }
 
 export interface ChatMessageUI {
@@ -173,99 +172,85 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const abortController = new AbortController();
     set({ abortController });
 
-    try {
-      const res = await fetch(`/api/chats/${chatId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, uiContext }),
-        signal: abortController.signal,
-      });
-
-      if (!res.ok || !res.body) {
-        get()._finishStreaming();
-        return;
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let eventType = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (line.startsWith('event: ')) {
-            eventType = line.slice(7).trim();
-          } else if (line.startsWith('data: ')) {
-            let data: any;
-            try {
-              data = JSON.parse(line.slice(6));
-            } catch {
-              // Drop malformed SSE payloads rather than killing the stream reader.
-              continue;
-            }
-            const store = get();
-
-            if (eventType === 'text') {
-              store._appendTextDelta(data.text ?? data.delta);
-            } else if (eventType === 'tool_start') {
-              store._addToolCall({
-                id: data.toolUseId ?? data.id,
-                tool: data.name ?? data.tool,
-                input: data.input,
-                status: 'pending',
-              });
-            } else if (eventType === 'tool_result') {
-              store._updateToolResult(
-                data.toolUseId ?? data.id,
-                typeof data.result === 'object'
-                  ? JSON.stringify(data.result)
-                  : (data.result ?? data.summary ?? ''),
-                data.hasImage,
-                data.error,
-              );
-            } else if (eventType === 'creation_ready') {
-              // Creation saved — refresh campaign data so the canvas picks it up
-              // immediately instead of waiting on file-watcher latency.
-              //
-              // Only refetch creations if the save happened inside the campaign
-              // the user is currently viewing — otherwise we'd overwrite their
-              // visible creations list with a different campaign's creations.
-              const campaignStore = useCampaignStore.getState();
-              campaignStore.fetchCampaigns();
-              if (data.campaignId && data.campaignId === campaignStore.activeCampaignId) {
-                campaignStore.fetchCreations(data.campaignId);
-              }
-            } else if (eventType === 'validation_result') {
-              // Append validation result as info in the chat
-              if (data.result) {
-                store._appendTextDelta(`\n\n📋 ${data.result}`);
-              }
-            } else if (eventType === 'done') {
-              store._finishStreaming();
-            } else if (eventType === 'error') {
-              store._appendTextDelta(`\n\nError: ${data.error}`);
-              store._finishStreaming();
-            }
-          }
+    function handleSSE(eventType: string, data: any) {
+      const store = get();
+      if (eventType === 'text') {
+        store._appendTextDelta(data.text ?? data.delta);
+      } else if (eventType === 'tool_start') {
+        store._addToolCall({
+          id: data.toolUseId ?? data.id,
+          tool: data.name ?? data.tool,
+          input: data.input,
+          status: 'pending',
+        });
+      } else if (eventType === 'tool_result') {
+        store._updateToolResult(
+          data.toolUseId ?? data.id,
+          typeof data.result === 'object'
+            ? JSON.stringify(data.result)
+            : (data.result ?? data.summary ?? ''),
+          data.hasImage,
+          data.error,
+        );
+      } else if (eventType === 'creation_ready') {
+        // Creation saved — refresh campaign data so the canvas picks it up
+        // immediately instead of waiting on file-watcher latency.
+        //
+        // Only refetch creations if the save happened inside the campaign
+        // the user is currently viewing — otherwise we'd overwrite their
+        // visible creations list with a different campaign's creations.
+        const campaignStore = useCampaignStore.getState();
+        campaignStore.fetchCampaigns();
+        if (data.campaignId && data.campaignId === campaignStore.activeCampaignId) {
+          campaignStore.fetchCreations(data.campaignId);
         }
-      }
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        get()._appendTextDelta(`\n\nConnection error: ${err.message}`);
+      } else if (eventType === 'validation_result') {
+        // Append validation result as info in the chat
+        if (data.result) {
+          store._appendTextDelta(`\n\n📋 ${data.result}`);
+        }
+      } else if (eventType === 'done') {
+        store._finishStreaming();
+      } else if (eventType === 'error') {
+        store._appendTextDelta(`\n\nError: ${data.error}`);
+        store._finishStreaming();
       }
     }
 
-    // Always finish streaming when the connection ends
-    if (get().isStreaming) {
-      get()._finishStreaming();
-    }
+    await fetchEventSource(`/api/chats/${chatId}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      body: JSON.stringify({ content, uiContext }),
+      signal: abortController.signal,
+      openWhenHidden: true,
+      onmessage: (msg) => {
+        if (!msg.event) return;
+        try {
+          const data = JSON.parse(msg.data);
+          handleSSE(msg.event, data);
+        } catch {
+          // Drop malformed SSE payloads rather than killing the stream.
+        }
+      },
+      onerror: (err) => {
+        if (err?.name !== 'AbortError') {
+          get()._appendTextDelta(`\n\nConnection error: ${err.message}`);
+        }
+        get()._finishStreaming();
+        // Throw to disable the library's built-in reconnect/retry.
+        throw err;
+      },
+      onclose: () => {
+        // If the server closed cleanly without a `done` event, still finalize.
+        if (get().isStreaming) get()._finishStreaming();
+      },
+    }).catch((err: any) => {
+      // fetchEventSource rejects when onerror throws — already handled above.
+      // Only handle unexpected errors that bypass onerror (e.g. AbortError).
+      if (err?.name !== 'AbortError' && get().isStreaming) {
+        get()._finishStreaming();
+      }
+    });
 
     get().loadChats();
   },

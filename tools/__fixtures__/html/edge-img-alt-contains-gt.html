@@ -1,0 +1,21 @@
+<!--
+  FIXTURE: <img> whose alt attribute contains a literal '>' character.
+
+  Regex `<img\b[^>]*>` stops at the first '>' inside the alt, so the current
+  validator in brand-compliance.cjs:331 misses the rest of the attributes and
+  undercounts or misclassifies this tag. A proper HTML parser (parse5) reads
+  the tag correctly.
+
+  Expected (parse5-post-migration): this <img> IS a decorative img with an
+  empty-ish alt — should flag rule 'img-no-decorative'.
+
+  Pre-migration behavior: regex matches up to the first '>', yielding tag text
+  `<img src="x.png" alt="arrow >` — confused but may not flag, or flags wrong attrs.
+-->
+<!DOCTYPE html>
+<html>
+<head><style>body { background: #000000; }</style></head>
+<body>
+  <img src="x.png" alt="arrow > right" class="decorative">
+</body>
+</html>

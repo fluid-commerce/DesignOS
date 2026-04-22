@@ -52,12 +52,20 @@ export async function shutdownBrowser(): Promise<void> {
   }
 }
 
-export async function renderPreview(html: string, width: number, height: number): Promise<string> {
+export async function renderPreview(
+  html: string,
+  width: number,
+  height: number,
+  signal?: AbortSignal,
+): Promise<string> {
+  if (signal?.aborted) throw new Error('render_preview aborted');
   const ctx = await ensureBrowser();
+  if (signal?.aborted) throw new Error('render_preview aborted');
   const page = await ctx.newPage();
 
   try {
     await page.setViewportSize({ width, height });
+    if (signal?.aborted) throw new Error('render_preview aborted');
 
     // Rewrite /fluid-assets/ URLs to absolute file paths
     const assetsDir = path.join(PROJECT_ROOT, 'assets');
@@ -107,9 +115,11 @@ export async function renderPreview(html: string, width: number, height: number)
         waitUntil: 'networkidle',
         timeout: 10000,
       });
+      if (signal?.aborted) throw new Error('render_preview aborted');
 
       // Brief pause for fonts/images to load
       await page.waitForTimeout(200);
+      if (signal?.aborted) throw new Error('render_preview aborted');
 
       // JPEG at 75% quality — 3-5x smaller than PNG, sufficient for layout checks
       const screenshot = await page.screenshot({ type: 'jpeg', quality: 75 });
@@ -118,9 +128,7 @@ export async function renderPreview(html: string, width: number, height: number)
       // Always clean up the temp file, even if rendering threw.
       try {
         await fs.unlink(tmpFile);
-      } catch {
-        // best-effort temp cleanup
-      }
+      } catch {}
     }
   } catch (err) {
     // Non-fatal — creation still saves, just without visual self-check

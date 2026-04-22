@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback, useRef, type CSSProperties } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/query-client';
 import { AppShell } from './components/AppShell';
 import { ContentEditor } from './components/ContentEditor';
 import { CampaignDashboard, FilterSortBar, type SortKey } from './components/CampaignDashboard';
@@ -849,6 +851,7 @@ export function App() {
   };
 
   return (
+    <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
       {editTemplateError && (
         <div
@@ -916,6 +919,7 @@ export function App() {
         />
       )}
     </ErrorBoundary>
+    </QueryClientProvider>
   );
 }
 

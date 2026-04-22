@@ -13,6 +13,8 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
 const DEFAULT_OUTPUT_DIR = path.resolve(__dirname, '..', 'templates', 'gold-standard');
 
@@ -409,48 +411,24 @@ ${schemaJSON}
 }
 
 // --- Main ---
-if (process.argv.includes('--help') || process.argv.includes('-h')) {
-  process.stderr.write(`scaffold.cjs (CLI-04) — Generate Gold Standard .liquid skeleton
+const argv = yargs(hideBin(process.argv))
+  .scriptName('scaffold')
+  .usage('scaffold.cjs (CLI-04) — Generate Gold Standard .liquid skeleton\n\nUsage: $0 <section-name> [options]')
+  .command('$0 <section-name>', 'Generate a Gold Standard .liquid skeleton', (y) =>
+    y.positional('section-name', { describe: 'Name for the section (e.g. hero, feature-grid)', type: 'string' })
+  )
+  .option('output', {
+    describe: 'Write to specific path (default: templates/gold-standard/<name>.liquid)',
+    type: 'string',
+  })
+  .strict()
+  .help()
+  .parseSync();
 
-Usage: node tools/scaffold.cjs <section-name> [--output path]
-
-Generates a .liquid file with all required schema settings pre-filled:
-  - 13 font size options per text element (mobile + desktop)
-  - 13 color options per text element
-  - 5 font weight options
-  - 4 font family options
-  - 7 button settings (show, text, url, style, color, size, weight)
-  - 5 section settings (bg color, bg image, padding y mobile/desktop, radius)
-  - 7 container settings (bg, image, radius, padding x/y mobile/desktop)
-
-The generated skeleton passes schema-validation.cjs with zero errors.
-
-Options:
-  --output path  Write to specific path (default: templates/gold-standard/<name>.liquid)
-
-Output:
-  stdout: JSON summary
-  stderr: Human-readable summary
-`);
-  process.exit(0);
-}
-
-const allArgs = process.argv.slice(2);
-const args = allArgs.filter(a => !a.startsWith('--'));
-const outputIdx = allArgs.indexOf('--output');
-let outputPath = null;
-if (outputIdx !== -1 && allArgs[outputIdx + 1]) {
-  outputPath = path.resolve(allArgs[outputIdx + 1]);
-}
-
-if (args.length === 0) {
-  process.stderr.write('Error: No section name provided.\nUsage: node tools/scaffold.cjs <section-name> [--output path]\n');
-  process.exit(2);
-}
-
-const sectionName = args[0];
+const sectionName = argv['section-name'];
 const kebab = toKebab(sectionName);
 
+let outputPath = argv.output ? path.resolve(argv.output) : null;
 if (!outputPath) {
   if (!fs.existsSync(DEFAULT_OUTPUT_DIR)) {
     fs.mkdirSync(DEFAULT_OUTPUT_DIR, { recursive: true });
