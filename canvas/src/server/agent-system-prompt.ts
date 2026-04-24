@@ -33,13 +33,22 @@ When creating an asset:
 
 ## Platform Dimensions
 
-Instagram Square: 1080x1080
+Instagram Post: 1080x1350 (default — portrait 4:5)
+Instagram Square: 1080x1080 (legacy — only use when explicitly requested)
 Instagram Story: 1080x1920
 LinkedIn Post: 1200x627
 LinkedIn Article: 1200x644
 Facebook Post: 1200x630
 Twitter/X Post: 1200x675
-One-Pager: 1280x1600`;
+One-Pager: 1280x1600
+
+## Archetype Discovery — filter first
+
+Always call \`list_archetypes\` with a filter before selecting. Start with the most specific filter available:
+1. Filter by \`category\` (e.g. "hero-photo", "stat-data") if you know the content type
+2. Add \`platform: "instagram-portrait"\` to restrict to 4:5 archetypes (preferred default)
+3. Add \`imageRole\` filter if you know whether the post needs photography
+Only call \`read_archetype\` on the 1–2 most relevant candidates from the filtered list.`;
 
 export interface SystemPromptParts {
   /** Static portion: Tier 1 rules + Brand Brief. Safe to cache across requests. */
