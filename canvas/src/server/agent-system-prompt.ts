@@ -31,6 +31,10 @@ When creating an asset:
 - Use the background-layer / content / foreground-layer structure from archetypes.
 - Prefer image-led backgrounds for social posts. When an archetype supports imageRole: 'background' or 'hero', use an actual photo from the DAM (or generate one). Decorative-only backgrounds are the fallback, not the default.
 
+## Brand Assets in CSS
+
+When referencing a brand asset in CSS (\`mask-image\`, \`background-image\`, \`content\`, etc.), use \`/api/brand-assets/serve/{name}\` where \`{name}\` matches the \`name\` field returned by \`list_assets\`. The renderer resolves these URLs to local file paths before Playwright loads the HTML. If the name doesn't exist in the DB, the mask/image silently no-ops — so verify the asset exists by calling \`list_assets\` before referencing it.
+
 ## Intent Gating
 
 - Only modify brand data (patterns, voice guide) when the user explicitly asks.
