@@ -47,7 +47,30 @@ export function handleHealthRoute(req: IncomingMessage, res: ServerResponse): bo
   const spendToday = dailySpendUsd();
 
   // ── anthropic ────────────────────────────────────────────────────────────────
-  const anthropicStatus: AnthropicStatus = process.env.ANTHROPIC_API_KEY ? 'ok' : 'api_key_missing';
+  // Phase 25: if ANTHROPIC_API_KEY is absent, check for a local Claude CLI
+  // session (credentials file written by `claude login`). If present and
+  // non-empty, report 'ok' — the Agent SDK will use those credentials.
+  // The credentials file is at ~/.claude/.credentials.json (written by the
+  // Claude CLI after `claude login`).
+  let anthropicStatus: AnthropicStatus;
+  if (process.env.ANTHROPIC_API_KEY) {
+    anthropicStatus = 'ok';
+  } else {
+    // Try to read the Claude CLI credentials file.
+    const credPath = path.join(
+      process.env.HOME ?? process.env.USERPROFILE ?? '',
+      '.claude',
+      '.credentials.json',
+    );
+    try {
+      const credContent = fsSync.readFileSync(credPath, 'utf-8').trim();
+      // Non-empty credentials file means a login session exists.
+      anthropicStatus = credContent.length > 0 ? 'ok' : 'api_key_missing';
+    } catch {
+      // File not found or not readable → no login session.
+      anthropicStatus = 'api_key_missing';
+    }
+  }
 
   // ── gemini ───────────────────────────────────────────────────────────────────
   let geminiStatus: GeminiStatus;
