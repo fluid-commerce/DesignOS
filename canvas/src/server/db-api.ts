@@ -8,6 +8,8 @@
  */
 
 import { nanoid } from 'nanoid';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { getDb } from '../lib/db';
 import { slugify } from '../lib/slugify';
 import type {
@@ -18,6 +20,11 @@ import type {
   CampaignAnnotation,
 } from '../lib/campaign-types';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
+
+// Project root for resolving relative html_path values. Mirrors the computation
+// used by agent-tools.saveCreation and the watcher, so cleanup resolves exactly
+// the same paths the runtime writes/serves from.
+const DB_API_PROJECT_ROOT = path.resolve(import.meta.dirname, '..', '..', '..');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -1757,4 +1764,238 @@ export function dailySpendUsd(sinceTs?: number): number {
     )
     .get(startOfDay) as { total: number };
   return result.total;
+}
+
+// ─── Stale iteration cleanup ────────────────────────────────────────────────
+
+/**
+ * Resolve an iteration's html_path to an on-disk file, trying the canonical
+ * strategies the watcher uses to serve HTML. Returns the first resolved
+ * absolute path, or null if none of the strategies locate the file.
+ *
+ * The watcher (canvas/src/server/watcher.ts, /api/iterations/:id/html) tries
+ * 7 fallback strategies for historical/legacy shape reasons. For cleanup
+ * purposes we check the four that map to canonical on-disk shapes actual
+ * rows are written with today:
+ *   1. html_path resolved against PROJECT_ROOT (default agent-tools shape)
+ *   2. html_path resolved against .fluid/ (legacy writers)
+ *   3. canonical `.fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html`
+ *   7. slide-less shape: `.fluid/campaigns/{cId}/{creationId}/{iterId}.html`
+ * Strategies 5/6 are duplicates of 1/2 with .fluid/ stripping. Strategy 4
+ * (templates/social by basename) is for template rows which wouldn't exist in
+ * iterations in the abandoned-save state we're targeting. Skipping them here
+ * keeps cleanup conservative — a file found by any skipped strategy would
+ * mean we'd incorrectly mark a valid iteration stale.
+ */
+export function resolveIterationHtmlPath(
+  row: { id: string; html_path: string; slide_id?: string | null },
+  projectRoot: string = DB_API_PROJECT_ROOT,
+): string | null {
+  if (!row.html_path) return null;
+  const fluidDir = path.resolve(projectRoot, '.fluid');
+
+  // Strategy 1: resolve against project root
+  const stored = path.resolve(projectRoot, row.html_path);
+  if (fs.existsSync(stored)) return stored;
+
+  // Strategy 2: resolve against .fluid/
+  const fluidPath = path.resolve(fluidDir, row.html_path);
+  if (fs.existsSync(fluidPath)) return fluidPath;
+
+  // Look up full hierarchy for strategies 3 and 7
+  const db = getDb();
+  const hierarchy = db
+    .prepare(
+      `
+      SELECT c.campaign_id, s.creation_id, i.slide_id
+      FROM iterations i
+      JOIN slides s ON s.id = i.slide_id
+      JOIN creations c ON c.id = s.creation_id
+      WHERE i.id = ?
+      `,
+    )
+    .get(row.id) as
+    | { campaign_id: string; creation_id: string; slide_id: string }
+    | undefined;
+
+  if (hierarchy) {
+    // Strategy 3: canonical .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
+    const canonical = path.join(
+      fluidDir,
+      'campaigns',
+      hierarchy.campaign_id,
+      hierarchy.creation_id,
+      hierarchy.slide_id,
+      `${row.id}.html`,
+    );
+    if (fs.existsSync(canonical)) return canonical;
+
+    // Strategy 7: slide-less shape
+    const noSlide = path.join(
+      fluidDir,
+      'campaigns',
+      hierarchy.campaign_id,
+      hierarchy.creation_id,
+      `${row.id}.html`,
+    );
+    if (fs.existsSync(noSlide)) return noSlide;
+  }
+
+  return null;
+}
+
+/**
+ * Delete iteration rows whose `html_path` points to a file that no longer
+ * exists on disk, then cascade-delete now-empty slides/creations/campaigns.
+ *
+ * Why: saveCreation is only semi-atomic. A file write is done before the DB
+ * transaction. Historically, abandoned test runs, crashed saves, or hand-wired
+ * test fixtures have left iteration rows pointing to files that were never
+ * created or were cleaned up out of band. The Campaigns view then renders
+ * cards that load "HTML file not found on disk" in place of the preview.
+ *
+ * Safety:
+ *   - `minAgeMs` (default 10 minutes) protects rows mid-save. saveCreation
+ *     writes the file before the DB transaction, but validation / image
+ *     generation can keep a row in an "in-flight" state for several seconds.
+ *     Anything younger than `minAgeMs` is left alone.
+ *   - The singleton `__standalone__` sentinel campaign is never deleted, even
+ *     if all of its child creations are cleaned up. It's a logical bucket
+ *     used by campaignless saves; a re-created sentinel would get a new ID
+ *     and break any UI currently filtered to the old one.
+ *   - Resolution uses the same four strategies the watcher uses to serve
+ *     HTML (see resolveIterationHtmlPath). An iteration is only flagged stale
+ *     when ALL strategies fail.
+ *   - When `dryRun`, the function reports what would be deleted and performs
+ *     no mutations.
+ */
+export function cleanupStaleIterations(opts?: {
+  dryRun?: boolean;
+  minAgeMs?: number;
+}): {
+  iterationsDeleted: number;
+  slidesDeleted: number;
+  creationsDeleted: number;
+  campaignsDeleted: number;
+  details: Array<{ id: string; html_path: string; age_ms: number }>;
+} {
+  const dryRun = opts?.dryRun ?? false;
+  const minAgeMs = opts?.minAgeMs ?? 10 * 60 * 1000; // 10 minutes
+  const now = Date.now();
+
+  const db = getDb();
+  const rows = db
+    .prepare(
+      'SELECT id, html_path, slide_id, created_at FROM iterations WHERE html_path IS NOT NULL',
+    )
+    .all() as Array<{
+    id: string;
+    html_path: string;
+    slide_id: string | null;
+    created_at: number;
+  }>;
+
+  const staleDetails: Array<{ id: string; html_path: string; age_ms: number }> = [];
+  for (const row of rows) {
+    const resolved = resolveIterationHtmlPath(row);
+    if (resolved !== null) continue; // file found — not stale
+    const age = now - (row.created_at ?? 0);
+    if (age <= minAgeMs) continue; // too young — may be an in-flight save
+    staleDetails.push({ id: row.id, html_path: row.html_path, age_ms: age });
+  }
+
+  if (staleDetails.length === 0 || dryRun) {
+    return {
+      iterationsDeleted: 0,
+      slidesDeleted: 0,
+      creationsDeleted: 0,
+      campaignsDeleted: 0,
+      details: staleDetails,
+    };
+  }
+
+  const staleIds = staleDetails.map((s) => s.id);
+
+  let iterationsDeleted = 0;
+  let slidesDeleted = 0;
+  let creationsDeleted = 0;
+  let campaignsDeleted = 0;
+
+  const tx = db.transaction(() => {
+    // Find affected parents BEFORE deleting the iterations so we can scope
+    // the cascade checks.
+    const placeholders = staleIds.map(() => '?').join(',');
+    const affectedSlides = db
+      .prepare(`SELECT DISTINCT slide_id FROM iterations WHERE id IN (${placeholders})`)
+      .all(...staleIds) as Array<{ slide_id: string }>;
+    const slideIds = affectedSlides.map((r) => r.slide_id).filter(Boolean);
+
+    const iterDelete = db
+      .prepare(`DELETE FROM iterations WHERE id IN (${placeholders})`)
+      .run(...staleIds);
+    iterationsDeleted = iterDelete.changes;
+
+    // Cascade: delete annotations attached to the deleted iterations.
+    db.prepare(`DELETE FROM annotations WHERE iteration_id IN (${placeholders})`).run(
+      ...staleIds,
+    );
+
+    // Slides with zero surviving iterations → delete.
+    const affectedCreationIds = new Set<string>();
+    for (const slideId of slideIds) {
+      const remaining = db
+        .prepare('SELECT COUNT(*) as c FROM iterations WHERE slide_id = ?')
+        .get(slideId) as { c: number };
+      if (remaining.c === 0) {
+        const slide = db
+          .prepare('SELECT creation_id FROM slides WHERE id = ?')
+          .get(slideId) as { creation_id: string } | undefined;
+        if (slide) affectedCreationIds.add(slide.creation_id);
+        db.prepare('DELETE FROM slides WHERE id = ?').run(slideId);
+        slidesDeleted += 1;
+      }
+    }
+
+    // Creations with zero surviving slides → delete.
+    const affectedCampaignIds = new Set<string>();
+    for (const creationId of affectedCreationIds) {
+      const remaining = db
+        .prepare('SELECT COUNT(*) as c FROM slides WHERE creation_id = ?')
+        .get(creationId) as { c: number };
+      if (remaining.c === 0) {
+        const creation = db
+          .prepare('SELECT campaign_id FROM creations WHERE id = ?')
+          .get(creationId) as { campaign_id: string } | undefined;
+        if (creation) affectedCampaignIds.add(creation.campaign_id);
+        db.prepare('DELETE FROM creations WHERE id = ?').run(creationId);
+        creationsDeleted += 1;
+      }
+    }
+
+    // Campaigns with zero surviving creations → delete, EXCEPT the singleton
+    // __standalone__ sentinel which must persist.
+    for (const campaignId of affectedCampaignIds) {
+      const campaign = db
+        .prepare('SELECT title FROM campaigns WHERE id = ?')
+        .get(campaignId) as { title: string } | undefined;
+      if (!campaign) continue;
+      if (campaign.title === STANDALONE_CAMPAIGN_TITLE) continue;
+      const remaining = db
+        .prepare('SELECT COUNT(*) as c FROM creations WHERE campaign_id = ?')
+        .get(campaignId) as { c: number };
+      if (remaining.c === 0) {
+        db.prepare('DELETE FROM campaigns WHERE id = ?').run(campaignId);
+        campaignsDeleted += 1;
+      }
+    }
+  });
+  tx();
+
+  return {
+    iterationsDeleted,
+    slidesDeleted,
+    creationsDeleted,
+    campaignsDeleted,
+    details: staleDetails,
+  };
 }

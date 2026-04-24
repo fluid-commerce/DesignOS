@@ -491,6 +491,19 @@ export function saveCreation(
   fs.mkdirSync(path.dirname(htmlAbsPath), { recursive: true });
   fs.writeFileSync(htmlAbsPath, mergedHtml, 'utf-8');
 
+  // Post-write sanity check. If the write silently produced a 0-byte file
+  // (disk full, truncated stream, permission quirk), throw BEFORE starting
+  // the DB transaction so no orphan iteration row gets written. The catch
+  // below the transaction also unlinks the file on DB failure; for this
+  // path we unlink here since the transaction hasn't started yet.
+  const written = fs.statSync(htmlAbsPath);
+  if (written.size === 0) {
+    try {
+      fs.unlinkSync(htmlAbsPath);
+    } catch {}
+    throw new Error(`HTML file write produced 0 bytes: ${htmlAbsPath}`);
+  }
+
   const aiBaseline = slotSchema
     ? JSON.stringify(Object.fromEntries(Object.keys(slotSchema).map((k) => [k, null])))
     : null;
