@@ -49,16 +49,6 @@ BEGIN {
 NR == 1 { next }
 
 {
-    # TSV columns: level page_num block_num par_num line_num word_num
-    #              left top width height conf text
-    level = $1
-    left  = $5+0   # actually: left in col 7 for word-level
-    top   = $6+0
-    wid   = $7+0
-    ht    = $8+0
-    conf  = $9+0
-    text  = $10
-
     # tesseract TSV: col indices (1-based)
     # 1=level 2=page_num 3=block_num 4=par_num 5=line_num 6=word_num
     # 7=left  8=top       9=width    10=height  11=conf    12=text
@@ -87,7 +77,10 @@ NR == 1 { next }
 
 END {
     if (line_count == 0) {
-        print "block 0 \"(no text detected above threshold)\" zone=unknown bbox=0,0,0,0 fontsize≈0 conf=0"
+        # Explicit sentinel: "image processed, no text above thresholds" —
+        # distinguishable from "awk didn't run at all". Downstream consumers
+        # that parse `block {N}` as a positive integer are unaffected.
+        print "# empty"
         exit
     }
 
