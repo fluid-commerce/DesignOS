@@ -1,0 +1,40 @@
+{
+  "archetypeId": "vintage-scrapbook",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "photo-collage",
+    "mood": ["editorial", "curated", "lifestyle", "vintage"],
+    "contentDensity": "sparse",
+    "imageRole": "grid",
+    "imageHints": {
+      "suggestedAspect": "square or portrait (each cell ~534 x 663px)",
+      "suggestedSubject": "mix of wide shots and detail shots from a consistent visual theme",
+      "treatment": "consistent color temperature across all 4 images is critical for cohesion",
+      "damPreference": ["lifestyle", "product", "fashion", "editorial"]
+    },
+    "useCases": [
+      "Fashion or lifestyle collection reveal posts with multiple photography angles",
+      "Brand moodboard or aesthetic intro posts",
+      "Product lifestyle posts showing context and detail in one frame",
+      "Seasonal campaign anchor posts"
+    ],
+    "avoidCases": [
+      "When photos have inconsistent lighting or color temperature",
+      "When a strong text message needs to be communicated (images dominate this layout)",
+      "When only 1–2 images are available"
+    ],
+    "slotCount": 6
+  },
+  "fields": [
+    { "type": "image", "sel": ".photo-tl", "label": "Photo — Top Left",     "dims": "534 x 663px" },
+    { "type": "image", "sel": ".photo-tr", "label": "Photo — Top Right",    "dims": "534 x 663px" },
+    { "type": "image", "sel": ".photo-bl", "label": "Photo — Bottom Left",  "dims": "534 x 663px" },
+    { "type": "image", "sel": ".photo-br", "label": "Photo — Bottom Right", "dims": "534 x 663px" },
+    { "type": "text",  "sel": ".collection-name",   "label": "Collection / Brand Name", "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".collection-season", "label": "Season / Subtitle",       "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

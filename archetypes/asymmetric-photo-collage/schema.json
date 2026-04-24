@@ -1,0 +1,39 @@
+{
+  "archetypeId": "asymmetric-photo-collage",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "photo-collage",
+    "mood": ["editorial", "dynamic", "fashion", "modern"],
+    "contentDensity": "sparse",
+    "imageRole": "grid",
+    "imageHints": {
+      "suggestedAspect": "photo-large: tall portrait (660x1350); smaller: portrait or square",
+      "suggestedSubject": "fashion, portrait, or product with consistent visual mood",
+      "treatment": "3-photo split with left-dominant composition; headline overlays the large photo near bottom",
+      "damPreference": ["fashion", "portrait", "lifestyle", "product"]
+    },
+    "useCases": [
+      "Fashion collection posts combining a hero look with two detail shots",
+      "Portrait feature posts with an environmental and close-up complement",
+      "Product hero + context photography",
+      "New collection arrival announcements with an editorial feel"
+    ],
+    "avoidCases": [
+      "When photos are visually unrelated or from different shoots",
+      "When the headline needs to be legible against complex photography (white text requires sufficient contrast area in photo-large)",
+      "When all three photos have similar compositions (the large/small contrast is the point)"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "image", "sel": ".photo-large img",        "label": "Large Photo (left)",    "dims": "660 x 1350px" },
+    { "type": "image", "sel": ".photo-small-top img",    "label": "Small Photo Top",       "dims": "412 x 666px" },
+    { "type": "image", "sel": ".photo-small-bottom img", "label": "Small Photo Bottom",    "dims": "412 x 676px" },
+    { "type": "text",  "sel": ".headline-overlay",       "label": "Headline",              "mode": "pre",  "rows": 2 },
+    { "type": "text",  "sel": ".sub-label",              "label": "Sub Label / Season",    "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

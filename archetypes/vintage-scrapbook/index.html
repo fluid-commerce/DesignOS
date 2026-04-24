@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!-- archetype: vintage-scrapbook | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Beige_and_Gray_Minimalist_Vintage_Scrapbook_Photo_Collage -->
+<!-- Layout: 2x2 photo grid with gutters, metadata text bottom-left -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    overflow: hidden;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background: #111;
+  }
+
+  .background-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .foreground-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .photo-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    background: #1a1a1a;
+    z-index: 2;
+  }
+
+  .grid-cell {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .grid-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* SLOT: .collection-name */
+  .collection-name {
+    position: absolute;
+    left: 36px;
+    bottom: 52px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 3;
+  }
+
+  /* SLOT: .collection-season */
+  .collection-season {
+    position: absolute;
+    left: 36px;
+    bottom: 24px;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 3;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <div class="photo-grid">
+    <!-- SLOT: photo-tl -->
+    <div class="grid-cell">
+      <img class="photo-tl" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+    </div>
+    <!-- SLOT: photo-tr -->
+    <div class="grid-cell">
+      <img class="photo-tr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+    </div>
+    <!-- SLOT: photo-bl -->
+    <div class="grid-cell">
+      <img class="photo-bl" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+    </div>
+    <!-- SLOT: photo-br -->
+    <div class="grid-cell">
+      <img class="photo-br" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+    </div>
+  </div>
+
+  <!-- SLOT: collection-name -->
+  <div class="collection-name">SWEET GALLERY</div>
+
+  <!-- SLOT: collection-season -->
+  <div class="collection-season">Spring Collection 2026</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>
