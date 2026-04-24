@@ -2,24 +2,108 @@
  * phase-24-dispatch-4.test.ts
  *
  * Tests for Phase 24 Dispatch 4:
- * 1. Store reducer: tool_start pushes to activeTools
- * 2. Store reducer: tool_result removes from activeTools (tool_end path)
- * 3. Store reducer: permission_prompt adds to pendingPermissions
- * 4. Store reducer: budget_warning sets budgetWarnings
- * 5. Store action: respondToPermission removes from pendingPermissions optimistically
- * 6. GET /api/health — returns valid shape with env var checks
- * 7. GET /api/chats/:id/usage-rollup — returns correct sums from DB
- * 8. POST /api/chats/:id/messages — accepts uploadedAssetIds (backward compat)
+ * - Store reducer: dispatcher-style tool_start (has `tier`) pushes to activeTools
+ * - Store reducer: tool_end removes from activeTools (NOT tool_result)
+ * - Store reducer: tool_result does NOT touch activeTools (it's the model-facing
+ *   result block, not the dispatcher lifecycle end)
+ * - Store reducer: agent-style tool_start (has `toolUseId`, no `tier`) does NOT
+ *   push to activeTools (disambiguates the two payload shapes that share a name)
+ * - Store reducer: permission_prompt adds to pendingPermissions
+ * - Store reducer: budget_warning sets budgetWarnings
+ * - Store action: respondToPermission removes from pendingPermissions optimistically
+ * - Store action: dismissBudgetWarning clears the slot
+ * - GET /api/health — returns valid shape with env var checks
+ * - GET /api/chats/:id/usage-rollup — returns correct sums from DB
+ * - POST /api/chats/:id/messages — accepts uploadedAssetIds (backward compat)
  */
 
 // @vitest-environment node
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs';
 import { nanoid } from 'nanoid';
 import { closeDb, getDb } from '../../lib/db';
+import { makeSSEResponse, type SSEEvent } from '../helpers/sse-fixtures';
+
+// ─── Mock fetch-event-source for node test env ────────────────────────────────
+//
+// Mirrors the mock in chat-store-sse.test.ts so the store's SSE handler is
+// exercised end-to-end (not via synthetic setState calls that would bypass
+// the reducer).
+
+vi.mock('@microsoft/fetch-event-source', async () => {
+  const parse = (await import(
+    '@microsoft/fetch-event-source/lib/cjs/parse.js' as string
+  )) as any;
+  const EventStreamContentType = 'text/event-stream';
+
+  async function fetchEventSource(
+    input: string,
+    options: {
+      method?: string;
+      headers?: Record<string, string>;
+      body?: string;
+      signal?: AbortSignal;
+      openWhenHidden?: boolean;
+      onmessage?: (ev: { event: string; data: string; id: string; retry?: number }) => void;
+      onerror?: (err: any) => void;
+      onclose?: () => void;
+      fetch?: typeof globalThis.fetch;
+    },
+  ): Promise<void> {
+    const fetchFn = options.fetch ?? globalThis.fetch;
+    const signal = options.signal;
+    if (signal?.aborted) return;
+
+    let response: Response;
+    try {
+      response = await fetchFn(input, {
+        method: options.method,
+        headers: options.headers,
+        body: options.body,
+        signal,
+      });
+    } catch (err: any) {
+      if (!signal?.aborted) {
+        try {
+          options.onerror?.(err);
+        } catch {
+          /* onerror re-throws to disable retry — swallow here */
+        }
+      }
+      return;
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!contentType.startsWith(EventStreamContentType)) return;
+
+    try {
+      await parse.getBytes(
+        response.body,
+        parse.getLines(
+          parse.getMessages(
+            () => {},
+            () => {},
+            options.onmessage,
+          ),
+        ),
+      );
+      options.onclose?.();
+    } catch (err: any) {
+      if (!signal?.aborted) {
+        try {
+          options.onerror?.(err);
+        } catch {
+          /* swallow re-throw */
+        }
+      }
+    }
+  }
+
+  return { fetchEventSource, EventStreamContentType };
+});
 
 // ─── Test DB setup ────────────────────────────────────────────────────────────
 
@@ -40,15 +124,57 @@ afterAll(() => {
   fs.rmSync(testDir, { recursive: true, force: true });
 });
 
-// ─── Part 1-5: chat store SSE reducer tests ───────────────────────────────────
-// These tests exercise the store logic in isolation using setState/getState
-// (no actual SSE streaming needed — we test the reducer paths directly).
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// We import the store after the DB is set up. The store itself is isomorphic
-// (runs in node); we only need zustand's getState / setState.
+/**
+ * Mock global.fetch so the SSE POST returns `sseResponse` and all other calls
+ * (e.g. loadChats GET, usage-rollup GET) return an empty JSON array. Usage-
+ * rollup specifically is fired at the end of every sendMessage via the `done`
+ * event handler; we return `{}` for it so the store's optional-chaining parse
+ * doesn't throw.
+ */
+function mockFetchWithSSE(sseResponse: Response): void {
+  vi.mocked(global.fetch).mockImplementation((input: RequestInfo | URL) => {
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : (input as Request).url;
+    if (url.includes('/messages')) return Promise.resolve(sseResponse);
+    if (url.includes('/usage-rollup')) {
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({ total_usd: 0, images_generated: 0, turns: 0 }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      );
+    }
+    return Promise.resolve(
+      new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+  });
+}
 
-describe('useChatStore Phase-24 D4 reducers', () => {
-  // Lazy import to defer module loading until the DB env var is set.
+/** Drive a sequence of SSE events through the real store and wait for isStreaming=false. */
+async function runStoreWithEvents(
+  useChatStore: (typeof import('../../store/chat'))['useChatStore'],
+  events: SSEEvent[],
+): Promise<void> {
+  const sseResponse = makeSSEResponse([...events, { event: 'done', data: {} }]);
+  mockFetchWithSSE(sseResponse);
+  useChatStore.getState().sendMessage('test message');
+  await vi.waitFor(() => {
+    expect(useChatStore.getState().isStreaming).toBe(false);
+  }, { timeout: 2000 });
+}
+
+// ─── Part A: chat store SSE reducer tests (real event-driven) ─────────────────
+
+describe('useChatStore Phase-24 D4 SSE reducers', () => {
   let useChatStore: (typeof import('../../store/chat'))['useChatStore'];
 
   beforeAll(async () => {
@@ -56,8 +182,12 @@ describe('useChatStore Phase-24 D4 reducers', () => {
   });
 
   beforeEach(() => {
-    // Reset relevant Phase-24 state between tests
+    // Partial state reset — zustand's setState accepts partial updates.
+    // We cast to `unknown` first because the chats:[] etc. object doesn't
+    // satisfy the full ChatState type (it omits the action functions on
+    // purpose — setState only overwrites the listed keys).
     useChatStore.setState({
+      chats: [],
       activeChatId: 'test-chat',
       messages: [],
       isStreaming: false,
@@ -66,93 +196,139 @@ describe('useChatStore Phase-24 D4 reducers', () => {
       pendingPermissions: {},
       budgetWarnings: {},
       usageRollups: {},
-    } as Parameters<(typeof useChatStore)['setState']>[0]);
+    } as unknown as Parameters<(typeof useChatStore)['setState']>[0]);
+    vi.spyOn(global, 'fetch');
   });
 
-  it('1. tool_start SSE path pushes activity into activeTools[chatId]', () => {
-    const now = Date.now();
-    // Simulate what handleSSE('tool_start', ...) does inside the store
-    useChatStore.setState((s) => ({
-      activeTools: {
-        ...s.activeTools,
-        'test-chat': [
-          ...(s.activeTools['test-chat'] ?? []),
-          {
-            key: `generate_image@${now}`,
-            tool: 'generate_image',
-            startedAt: now,
-            tier: 'ask-first' as const,
-            estCostUsd: 0.04,
-          },
-        ],
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('dispatcher tool_start (has tier) pushes activity to activeTools', async () => {
+    await runStoreWithEvents(useChatStore, [
+      {
+        event: 'tool_start',
+        data: {
+          tool: 'generate_image',
+          tier: 'ask-first',
+          est_cost_usd: 0.04,
+          est_duration_sec: 8,
+        },
       },
-    }));
+      // NOTE: no tool_end → after stream closes, activity remains (this test
+      // asserts the push side; the next test asserts the remove side).
+    ]);
 
     const tools = useChatStore.getState().activeTools['test-chat'] ?? [];
     expect(tools).toHaveLength(1);
     expect(tools[0].tool).toBe('generate_image');
     expect(tools[0].tier).toBe('ask-first');
     expect(tools[0].estCostUsd).toBe(0.04);
+    expect(tools[0].estDurationSec).toBe(8);
   });
 
-  it('2. tool_result SSE path removes the matching tool from activeTools (pops oldest)', () => {
-    const now = Date.now();
-    // Pre-populate
-    useChatStore.setState({
-      activeTools: {
-        'test-chat': [
-          { key: `generate_image@${now}`, tool: 'generate_image', startedAt: now, tier: 'ask-first' as const },
-          { key: `search_brand_images@${now + 1}`, tool: 'search_brand_images', startedAt: now + 1, tier: 'always-allow' as const },
-        ],
-      },
-    });
+  it('tool_end removes the matching activeTool (NOT tool_result)', async () => {
+    await runStoreWithEvents(useChatStore, [
+      // Dispatcher start
+      { event: 'tool_start', data: { tool: 'generate_image', tier: 'ask-first' } },
+      // tool_result fires (agent streams result back to model) — must NOT remove
+      { event: 'tool_result', data: { toolUseId: 'tu-1', result: 'ok' } },
+      // tool_end fires (dispatcher lifecycle end) — MUST remove
+      { event: 'tool_end', data: { tool: 'generate_image', duration_sec: 2.1, outcome: 'ok' } },
+    ]);
 
-    // Simulate tool_result for generate_image → remove it (oldest match)
-    const toolName = 'generate_image';
-    useChatStore.setState((s) => {
-      const existing = s.activeTools['test-chat'] ?? [];
-      const idx = existing.findIndex((a) => a.tool === toolName);
-      if (idx === -1) return {};
-      const updated = [...existing.slice(0, idx), ...existing.slice(idx + 1)];
-      return { activeTools: { ...s.activeTools, 'test-chat': updated } };
-    });
+    const tools = useChatStore.getState().activeTools['test-chat'] ?? [];
+    expect(tools).toHaveLength(0);
+  });
+
+  it('tool_result alone does NOT remove from activeTools (regression guard)', async () => {
+    await runStoreWithEvents(useChatStore, [
+      { event: 'tool_start', data: { tool: 'generate_image', tier: 'ask-first' } },
+      // tool_result without tool_end — the activity MUST still be present
+      { event: 'tool_result', data: { toolUseId: 'tu-1', result: 'ok' } },
+    ]);
 
     const tools = useChatStore.getState().activeTools['test-chat'] ?? [];
     expect(tools).toHaveLength(1);
-    expect(tools[0].tool).toBe('search_brand_images');
+    expect(tools[0].tool).toBe('generate_image');
   });
 
-  it('3. permission_prompt SSE path pushes to pendingPermissions[chatId]', () => {
-    const perm = {
-      promptId: 'prompt-abc',
-      chatId: 'test-chat',
-      tool: 'generate_image',
-      argsPreview: '{"prompt":"a cat"}',
-      reason: 'Image generation costs $0.04',
-      estCostUsd: 0.04,
-      openedAt: Date.now(),
-    };
-
-    useChatStore.setState((s) => ({
-      pendingPermissions: {
-        ...s.pendingPermissions,
-        'test-chat': [...(s.pendingPermissions['test-chat'] ?? []), perm],
+  it('agent-style tool_start (toolUseId, no tier) does NOT push to activeTools', async () => {
+    // This is the agent.ts payload shape — it drives the inline toolCalls list
+    // on the assistant message, but it is NOT the dispatcher lifecycle signal,
+    // so activeTools must stay empty.
+    await runStoreWithEvents(useChatStore, [
+      {
+        event: 'tool_start',
+        data: { toolUseId: 'tu-42', name: 'search_brand_images', input: { query: 'dog' } },
       },
-    }));
+    ]);
+
+    const tools = useChatStore.getState().activeTools['test-chat'] ?? [];
+    expect(tools).toHaveLength(0);
+    // But the message-level toolCall WAS added
+    const assistantMsg = useChatStore.getState().messages.find((m) => m.role === 'assistant');
+    expect(assistantMsg?.toolCalls).toHaveLength(1);
+    expect(assistantMsg?.toolCalls[0].id).toBe('tu-42');
+    expect(assistantMsg?.toolCalls[0].tool).toBe('search_brand_images');
+  });
+
+  it('tool_end pops the oldest matching entry when the same tool is active twice', async () => {
+    await runStoreWithEvents(useChatStore, [
+      { event: 'tool_start', data: { tool: 'generate_image', tier: 'ask-first', est_cost_usd: 0.04 } },
+      { event: 'tool_start', data: { tool: 'generate_image', tier: 'ask-first', est_cost_usd: 0.05 } },
+      // Single tool_end should remove exactly one — the oldest (first-pushed)
+      { event: 'tool_end', data: { tool: 'generate_image', duration_sec: 1, outcome: 'ok' } },
+    ]);
+
+    const tools = useChatStore.getState().activeTools['test-chat'] ?? [];
+    expect(tools).toHaveLength(1);
+    // The surviving entry is the second one (est_cost_usd 0.05)
+    expect(tools[0].estCostUsd).toBe(0.05);
+  });
+
+  it('tool_progress updates progressPct on the matching activeTool', async () => {
+    await runStoreWithEvents(useChatStore, [
+      { event: 'tool_start', data: { tool: 'generate_image', tier: 'ask-first' } },
+      // tool-dispatch.ts emits `pct`, not `progress_pct`
+      { event: 'tool_progress', data: { tool: 'generate_image', pct: 42 } },
+    ]);
+
+    const tools = useChatStore.getState().activeTools['test-chat'] ?? [];
+    expect(tools).toHaveLength(1);
+    expect(tools[0].progressPct).toBe(42);
+  });
+
+  it('permission_prompt pushes to pendingPermissions', async () => {
+    await runStoreWithEvents(useChatStore, [
+      {
+        event: 'permission_prompt',
+        data: {
+          promptId: 'perm-xyz',
+          tool: 'generate_image',
+          args_preview: '{"prompt":"a cat"}',
+          est_cost_usd: 0.04,
+          reason: "Tool 'generate_image' requires user approval before running.",
+        },
+      },
+    ]);
 
     const perms = useChatStore.getState().pendingPermissions['test-chat'] ?? [];
     expect(perms).toHaveLength(1);
-    expect(perms[0].promptId).toBe('prompt-abc');
+    expect(perms[0].promptId).toBe('perm-xyz');
     expect(perms[0].tool).toBe('generate_image');
+    expect(perms[0].argsPreview).toBe('{"prompt":"a cat"}');
     expect(perms[0].estCostUsd).toBe(0.04);
+    expect(perms[0].reason).toMatch(/approval/);
   });
 
-  it('4. budget_warning SSE path sets budgetWarnings[chatId]', () => {
-    const warning = { remainingUsd: 1.5, capUsd: 10.0, seenAt: Date.now() };
-
-    useChatStore.setState((s) => ({
-      budgetWarnings: { ...s.budgetWarnings, 'test-chat': warning },
-    }));
+  it('budget_warning sets budgetWarnings[chatId]', async () => {
+    await runStoreWithEvents(useChatStore, [
+      {
+        event: 'budget_warning',
+        data: { remaining_usd: 1.5, cap_usd: 10.0, blocked: false, warning: 'Approaching cap' },
+      },
+    ]);
 
     const bw = useChatStore.getState().budgetWarnings['test-chat'];
     expect(bw).toBeDefined();
@@ -160,8 +336,8 @@ describe('useChatStore Phase-24 D4 reducers', () => {
     expect(bw?.capUsd).toBe(10.0);
   });
 
-  it('5. respondToPermission removes the prompt from pendingPermissions optimistically', async () => {
-    // Seed a pending permission
+  it('respondToPermission removes the prompt from pendingPermissions optimistically', async () => {
+    // Seed a pending permission directly (we're testing the action, not the reducer)
     useChatStore.setState({
       pendingPermissions: {
         'test-chat': [
@@ -177,9 +353,7 @@ describe('useChatStore Phase-24 D4 reducers', () => {
       },
     });
 
-    // Mock fetch to return 200 OK
-    const origFetch = global.fetch;
-    vi.spyOn(global, 'fetch').mockResolvedValueOnce(
+    vi.mocked(global.fetch).mockResolvedValueOnce(
       new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -190,11 +364,9 @@ describe('useChatStore Phase-24 D4 reducers', () => {
 
     const perms = useChatStore.getState().pendingPermissions['test-chat'] ?? [];
     expect(perms).toHaveLength(0);
-
-    global.fetch = origFetch;
   });
 
-  it('5b. dismissBudgetWarning removes the warning from budgetWarnings', () => {
+  it('dismissBudgetWarning clears the slot for the chat', () => {
     useChatStore.setState({
       budgetWarnings: {
         'test-chat': { remainingUsd: 1.0, capUsd: 10.0, seenAt: Date.now() },

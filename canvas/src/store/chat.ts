@@ -239,45 +239,85 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (eventType === 'text') {
         store._appendTextDelta(data.text ?? data.delta);
       } else if (eventType === 'tool_start') {
-        // Existing tool call tracking (for the message toolCalls list)
-        store._addToolCall({
-          id: data.toolUseId ?? data.id,
-          tool: data.name ?? data.tool,
-          input: data.input,
-          status: 'pending',
-        });
-        // Phase 24: track active tool in per-chat activeTools
-        const toolName: string = data.name ?? data.tool ?? 'unknown';
-        const startedAt: number = data.startedAt ?? Date.now();
-        const toolKey = `${toolName}@${startedAt}`;
-        const activity: ToolActivity = {
-          key: toolKey,
-          tool: toolName,
-          startedAt,
-          tier: (data.tier as ToolTier | undefined) ?? 'always-allow',
-          estCostUsd: data.est_cost_usd,
-          estDurationSec: data.est_duration_sec,
-        };
-        set((s) => ({
-          activeTools: {
-            ...s.activeTools,
-            [chatId!]: [...(s.activeTools[chatId!] ?? []), activity],
-          },
-        }));
+        // `tool_start` is emitted from two different places with different
+        // payload shapes:
+        //
+        //  (a) agent.ts (existing, pre-Phase-24): { toolUseId, name, input }
+        //      — wires into the message's toolCalls list for the inline
+        //        tool-call disclosure triangles under each assistant message.
+        //
+        //  (b) tool-dispatch.ts (Phase 24): { tool, tier, est_cost_usd,
+        //      est_duration_sec } — wires into the Phase-24 activeTools chip
+        //      indicator. No toolUseId, so it MUST NOT be fed into
+        //      _addToolCall (which would create a toolCall with id=undefined
+        //      that tool_result could never match).
+        //
+        // Discriminate by presence of `toolUseId` (agent.ts) vs `tier`
+        // (tool-dispatch.ts). A payload with both is theoretically possible
+        // but not emitted today — we key off toolUseId first.
+        if (data.toolUseId !== undefined || data.id !== undefined) {
+          // (a) agent.ts shape — message toolCalls list
+          store._addToolCall({
+            id: data.toolUseId ?? data.id,
+            tool: data.name ?? data.tool,
+            input: data.input,
+            status: 'pending',
+          });
+        }
+        if (data.tier !== undefined) {
+          // (b) tool-dispatch.ts shape — activeTools chip
+          const toolName: string = data.tool ?? data.name ?? 'unknown';
+          const startedAt: number = Date.now();
+          const activity: ToolActivity = {
+            key: `${toolName}@${startedAt}`,
+            tool: toolName,
+            startedAt,
+            tier: data.tier as ToolTier,
+            estCostUsd: data.est_cost_usd,
+            estDurationSec: data.est_duration_sec,
+          };
+          set((s) => ({
+            activeTools: {
+              ...s.activeTools,
+              [chatId!]: [...(s.activeTools[chatId!] ?? []), activity],
+            },
+          }));
+        }
       } else if (eventType === 'tool_progress') {
-        // Update progress pct on the matching active tool
-        const toolName: string = data.name ?? data.tool ?? 'unknown';
+        // tool-dispatch.ts emits: { tool, pct, ...detail }
+        const toolName: string = data.tool ?? data.name ?? 'unknown';
+        const pct: number | undefined =
+          typeof data.pct === 'number' ? data.pct : data.progress_pct;
+        if (pct !== undefined) {
+          set((s) => {
+            const existing = s.activeTools[chatId!] ?? [];
+            // Update the oldest matching entry — dispatcher doesn't carry a
+            // unique invocation id, so if the same tool is running twice
+            // concurrently, we update the first one. Acceptable for D4.
+            const idx = existing.findIndex((a) => a.tool === toolName);
+            if (idx === -1) return {};
+            const updated = [...existing];
+            updated[idx] = { ...updated[idx], progressPct: pct };
+            return { activeTools: { ...s.activeTools, [chatId!]: updated } };
+          });
+        }
+      } else if (eventType === 'tool_end') {
+        // tool-dispatch.ts emits: { tool, duration_sec, outcome }
+        // This is the activeTools lifecycle END signal. Remove the oldest
+        // matching entry (pop FIFO since dispatcher has no invocation id).
+        const toolName: string = data.tool ?? data.name ?? 'unknown';
         set((s) => {
           const existing = s.activeTools[chatId!] ?? [];
-          const updated = existing.map((a) =>
-            a.tool === toolName && data.progress_pct !== undefined
-              ? { ...a, progressPct: data.progress_pct as number }
-              : a,
-          );
+          const idx = existing.findIndex((a) => a.tool === toolName);
+          if (idx === -1) return {};
+          const updated = [...existing.slice(0, idx), ...existing.slice(idx + 1)];
           return { activeTools: { ...s.activeTools, [chatId!]: updated } };
         });
       } else if (eventType === 'tool_result') {
-        // Existing tool result update
+        // `tool_result` is agent.ts emitting the Anthropic tool_result block
+        // back to the model. It is NOT the activeTools lifecycle — that's
+        // `tool_end` above. We only update the message-level toolCalls list
+        // (status + result body) here.
         store._updateToolResult(
           data.toolUseId ?? data.id,
           typeof data.result === 'object'
@@ -286,15 +326,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
           data.hasImage,
           data.error,
         );
-        // Phase 24: remove from activeTools (match on tool name, pop oldest match)
-        const toolName: string = data.name ?? data.tool ?? 'unknown';
-        set((s) => {
-          const existing = s.activeTools[chatId!] ?? [];
-          const idx = existing.findIndex((a) => a.tool === toolName);
-          if (idx === -1) return {};
-          const updated = [...existing.slice(0, idx), ...existing.slice(idx + 1)];
-          return { activeTools: { ...s.activeTools, [chatId!]: updated } };
-        });
       } else if (eventType === 'permission_prompt') {
         const perm: PendingPermission = {
           promptId: data.promptId ?? data.prompt_id,
