@@ -21,6 +21,12 @@
   .frame-wrap.square {
     width: 270px; height: 270px;
   }
+  .frame-wrap.linkedin {
+    width: 360px; height: 188px;
+  }
+  .frame-wrap.onepager {
+    width: 245px; height: 317px;
+  }
   .frame-wrap iframe {
     width: 1080px; height: 1350px;
     transform: scale(0.25);
@@ -31,6 +37,14 @@
   .frame-wrap.square iframe {
     width: 1080px; height: 1080px;
     transform: scale(0.25);
+  }
+  .frame-wrap.linkedin iframe {
+    width: 1200px; height: 627px;
+    transform: scale(0.3);
+  }
+  .frame-wrap.onepager iframe {
+    width: 612px; height: 792px;
+    transform: scale(0.4);
   }
   .card-right { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 320px; }
   .card-right label { font-size: 13px; font-weight: 500; color: #777; }
@@ -85,6 +99,19 @@ const archetypes = [
   { slug: 'minimal-photo-top',     label: 'Minimal Photo Top',               desc: 'Photo top half, headline + subheader bottom' },
   { slug: 'data-dashboard',        label: 'Data Dashboard',                  desc: '2x2 stat grid, centered headline' },
 
+  // ── Phase 21 legacy (1200×627 LinkedIn landscape) ──────────────────────────
+  { slug: 'hero-stat-li',          label: 'Hero Stat (LinkedIn)',            desc: 'LinkedIn landscape variant — eyebrow + headline + 3 stats' },
+  { slug: 'data-dashboard-li',     label: 'Data Dashboard (LinkedIn)',       desc: 'LinkedIn landscape — 2x2 stat grid with centered headline' },
+  { slug: 'minimal-statement-li',  label: 'Minimal Statement (LinkedIn)',    desc: 'LinkedIn landscape — bold statement + subheader' },
+  { slug: 'split-photo-text-li',   label: 'Split Photo / Text (LinkedIn)',   desc: 'LinkedIn landscape — photo left, headline + body right' },
+  { slug: 'quote-testimonial-li',  label: 'Quote Testimonial (LinkedIn)',    desc: 'LinkedIn landscape — pull quote + attribution row' },
+  { slug: 'article-preview-li',    label: 'Article Preview (LinkedIn)',      desc: 'LinkedIn landscape — article title + excerpt + author row' },
+
+  // ── Phase 21 legacy (612×792 one-pager / US Letter) ────────────────────────
+  { slug: 'case-study-op',         label: 'Case Study (One-Pager)',          desc: 'US Letter — case study layout with results and narrative zones' },
+  { slug: 'company-overview-op',   label: 'Company Overview (One-Pager)',    desc: 'US Letter — company summary + key facts + services grid' },
+  { slug: 'product-feature-op',    label: 'Product Feature (One-Pager)',     desc: 'US Letter — product hero + feature breakdown + specs' },
+
   // ── Phase 23 new (1080×1350 instagram-portrait) ────────────────────────────
   // Stat / Data
   { slug: 'hero-stat-45',          label: 'Hero Stat 4:5',                   desc: 'Portrait 4:5 variant — headline + body + 3-stat row' },
@@ -125,18 +152,29 @@ const archetypes = [
 
 const grid = document.getElementById('grid');
 
-// These legacy slugs are square (1080x1080) — all others are portrait (1080x1350)
-const squareSlugs = new Set(['stat-hero-single','hero-stat','hero-stat-li','hero-stat-split','data-dashboard','data-dashboard-li','minimal-statement','minimal-statement-li','minimal-photo-top','photo-bg-overlay','split-photo-text','split-photo-text-li','split-photo-quote','quote-testimonial','quote-testimonial-li','article-preview-li','case-study-op','company-overview-op','product-feature-op']);
+// Legacy square (1080×1080) slugs — all Phase 19 archetypes without a suffix
+const squareSlugs = new Set([
+  'stat-hero-single','hero-stat','hero-stat-split','data-dashboard',
+  'minimal-statement','minimal-photo-top','photo-bg-overlay',
+  'split-photo-text','split-photo-quote','quote-testimonial',
+]);
+
+function frameClass(slug) {
+  if (slug.endsWith('-li')) return 'linkedin';   // 1200×627
+  if (slug.endsWith('-op')) return 'onepager';   // 612×792
+  if (squareSlugs.has(slug)) return 'square';    // 1080×1080
+  return '';                                      // default: 1080×1350 portrait
+}
 
 archetypes.forEach(a => {
-  const isSquare = squareSlugs.has(a.slug);
+  const cls = frameClass(a.slug);
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
     <div class="card-left">
       <div class="card-label">${a.label}</div>
       <div class="status">${a.desc}</div>
-      <div class="frame-wrap${isSquare ? ' square' : ''}">
+      <div class="frame-wrap${cls ? ' ' + cls : ''}">
         <iframe src="${a.slug}/index.html" loading="lazy"></iframe>
       </div>
     </div>
