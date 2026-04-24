@@ -1,6 +1,7 @@
 import { getDb } from '../lib/db';
 import { nanoid } from 'nanoid';
 import { runAgent, cancelChat } from './agent';
+import { resolvePermissionResponse } from './tool-dispatch';
 import type { IncomingMessage, ServerResponse } from 'http';
 
 function json(res: ServerResponse, data: any, status = 200): void {
@@ -186,6 +187,58 @@ export async function handleChatRoutes(
       return true;
     }
     cancelChat(chatId);
+    json(res, { success: true });
+    return true;
+  }
+
+  // POST /api/chats/:id/permission-response — resolve a pending permission prompt
+  const permMatch = pathname.match(/^\/api\/chats\/([^/]+)\/permission-response$/);
+  if (method === 'POST' && permMatch) {
+    const chatId = permMatch[1];
+    const db = getDb();
+    const chat = db.prepare(`SELECT id FROM chats WHERE id = ?`).get(chatId);
+    if (!chat) {
+      json(res, { error: 'Chat not found' }, 404);
+      return true;
+    }
+
+    let body: any;
+    try {
+      body = await readBody(req);
+    } catch (err: any) {
+      json(res, { error: err?.message ?? 'Failed to read body' }, 413);
+      return true;
+    }
+    if (body === INVALID_JSON) {
+      json(res, { error: 'Invalid JSON body' }, 400);
+      return true;
+    }
+
+    const { promptId, decision } = body ?? {};
+    if (typeof promptId !== 'string' || promptId.length === 0) {
+      json(res, { error: 'promptId is required and must be a non-empty string' }, 400);
+      return true;
+    }
+    const validDecisions = new Set(['approve_once', 'approve_session', 'deny']);
+    if (typeof decision !== 'string' || !validDecisions.has(decision)) {
+      json(
+        res,
+        { error: 'decision must be one of: approve_once, approve_session, deny' },
+        400,
+      );
+      return true;
+    }
+
+    const resolved = resolvePermissionResponse(
+      chatId,
+      promptId,
+      decision as 'approve_once' | 'approve_session' | 'deny',
+    );
+    if (!resolved) {
+      json(res, { error: 'Prompt not found or already resolved' }, 404);
+      return true;
+    }
+
     json(res, { success: true });
     return true;
   }
