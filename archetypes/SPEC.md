@@ -490,15 +490,94 @@ components/testimonial-block/   # quote + name + title (3 fields)
 
 ## Section 9: Platform Dimensions Reference
 
-| Platform | Width (px) | Height (px) | Phase |
-|----------|------------|-------------|-------|
-| Instagram Square | 1080 | 1080 | 19 |
-| LinkedIn Landscape | 1200 | 627 | 21 |
-| One-Pager (US Letter) | 612 | 792 | 21 |
+| Platform | Width (px) | Height (px) | Phase | `schema.platform` value |
+|----------|------------|-------------|-------|------------------------|
+| Instagram Portrait (4:5) | 1080 | 1350 | 23 | `instagram-portrait` |
+| Instagram Square | 1080 | 1080 | 19 | `instagram-square` |
+| LinkedIn Landscape | 1200 | 627 | 21 | `linkedin-landscape` |
+| One-Pager (US Letter) | 612 | 792 | 21 | `one-pager` |
 
-**Phase 19 scope:** Instagram Square only (`1080 × 1080`). LinkedIn and One-Pager archetypes are Phase 21.
+**Phase 23 default:** Instagram Portrait (`1080 × 1350`) is the standard for all new archetypes. Instagram Square is legacy — only use on explicit request.
 
-All Phase 19 archetypes MUST use `"width": 1080, "height": 1080` in `schema.json` and `width: 1080px; height: 1080px` on `body` in `index.html`.
+New Phase 23 archetypes MUST use `"width": 1080, "height": 1350` in `schema.json`, `width: 1080px; height: 1350px` on `body` in `index.html`, and `"platform": "instagram-portrait"` as a top-level field.
+
+---
+
+## Section 10: Self-Documenting Metadata (Phase 23 — instagram-portrait archetypes)
+
+Phase 23 introduces a `meta` object in `schema.json` for all `instagram-portrait` archetypes. The `meta` object makes archetypes self-documenting so `list_archetypes()` can surface them with rich discovery signals without loading HTML.
+
+**This section is forward-only.** Existing archetypes (Phases 19–22) are unaffected and do not need to add `meta`.
+
+### Required `meta` fields (instagram-portrait only)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `category` | `string` | Functional category for filtering (e.g., `"hero-photo"`, `"quote-testimonial"`) |
+| `imageRole` | `"none" \| "accent" \| "background" \| "hero" \| "grid"` | How image assets are used in the layout |
+| `useCases` | `string[]` (≥1) | Concrete scenarios where this archetype excels |
+| `slotCount` | `number` (integer, ≥1) | Total number of editable slots (text + image fields) |
+
+### Recommended `meta` fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `mood` | `string[]` | Descriptive mood tags (e.g., `["editorial", "bold"]`) |
+| `contentDensity` | `"sparse" \| "moderate" \| "dense"` | How much content the layout can hold |
+| `imageHints` | `object` | Guidance for selecting images from the DAM |
+| `avoidCases` | `string[]` | When NOT to use this archetype |
+
+### Full `meta` example
+
+```json
+{
+  "archetypeId": "photo-darken-headline",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "hero-photo",
+    "mood": ["editorial", "cinematic", "bold"],
+    "contentDensity": "sparse",
+    "imageRole": "background",
+    "imageHints": {
+      "suggestedAspect": "4:5 or wider",
+      "suggestedSubject": "single person, landscape, or abstract texture",
+      "treatment": "darken overlay 40–60% for text legibility",
+      "damPreference": ["lifestyle", "people", "abstract"]
+    },
+    "useCases": [
+      "Brand manifesto / mission statement",
+      "Launch hero with dramatic mood",
+      "Hiring post with team photo"
+    ],
+    "avoidCases": [
+      "Data-heavy content",
+      "Posts needing multiple bullet points",
+      "Brands without strong photography in DAM"
+    ],
+    "slotCount": 3
+  },
+  "fields": [],
+  "brush": null,
+  "brushAdditional": []
+}
+```
+
+### Valid category values (Phase 23)
+
+| Category string | Slug group |
+|----------------|------------|
+| `"stat-data"` | hero-stat-45, big-number-card, stat-comparison |
+| `"quote-testimonial"` | photocentric-quote, typographic-quote, book-quote-highlight |
+| `"announcement"` | coming-soon-minimal, website-launch-mockup, event-promo |
+| `"photo-collage"` | vintage-scrapbook, fashion-moodboard, memory-grid-4up, asymmetric-photo-collage |
+| `"hero-photo"` | photo-darken-headline, split-photo-feature |
+| `"tips-howto"` | numbered-tips-cover, how-to-step-card |
+| `"personal-about"` | about-me-portrait, hiring-portrait-cta |
+| `"product"` | product-hero-backlit, product-feature-grid, product-callout-macro |
+| `"motivational"` | affirmation-note, handwritten-quote-photo |
+| `"carousel-cover"` | carousel-cover-typographic |
 
 ---
 
