@@ -1,0 +1,33 @@
+{
+  "archetypeId": "coming-soon-minimal",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "announcement",
+    "mood": ["minimal", "anticipatory", "premium", "restrained"],
+    "contentDensity": "sparse",
+    "imageRole": "none",
+    "useCases": [
+      "Pre-launch teaser posts with a specific launch date",
+      "Brand or product reveal countdowns",
+      "New collection or service drop announcements",
+      "Rebrand reveal teasers"
+    ],
+    "avoidCases": [
+      "When the launch date is not yet confirmed (remove credibility without a date)",
+      "Live announcements — this layout implies future delivery",
+      "When you have a product photo or mockup to show (use website-launch-mockup)"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "text", "sel": ".brand-name",            "label": "Brand Name",       "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".coming-soon-headline",  "label": "Headline",         "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".teaser-line",           "label": "Teaser Line",      "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".launch-date",           "label": "Launch Date",      "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".url-line",              "label": "URL / Handle",     "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}
