@@ -1,0 +1,32 @@
+{
+  "archetypeId": "big-number-card",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "stat-data",
+    "mood": ["bold", "minimal", "impactful"],
+    "contentDensity": "sparse",
+    "imageRole": "none",
+    "useCases": [
+      "Single landmark achievement posts (milestone customers, revenue, downloads)",
+      "Campaign wrap-up posts leading with one headline number",
+      "Anniversary posts celebrating a single big number",
+      "Product launch reach or adoption metrics"
+    ],
+    "avoidCases": [
+      "When you need to compare two or more metrics side by side (use stat-comparison)",
+      "When the stat requires extensive context to be meaningful",
+      "When the number is below 4 digits or a percentage that needs visual proof"
+    ],
+    "slotCount": 4
+  },
+  "fields": [
+    { "type": "text", "sel": ".context-label",   "label": "Context Label",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".big-number",       "label": "Big Number",       "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".unit-label",       "label": "Unit / What",      "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".supporting-copy",  "label": "Supporting Copy",  "mode": "pre",  "rows": 2 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

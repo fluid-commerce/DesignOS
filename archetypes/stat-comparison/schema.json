@@ -1,0 +1,37 @@
+{
+  "archetypeId": "stat-comparison",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "stat-data",
+    "mood": ["proof-driven", "before-after", "analytical"],
+    "contentDensity": "moderate",
+    "imageRole": "none",
+    "useCases": [
+      "Before/after results posts for products or services",
+      "Client transformation stories anchored by two metrics",
+      "A/B test or campaign variant result reveals",
+      "Year-over-year performance comparisons"
+    ],
+    "avoidCases": [
+      "When comparing more than two states (use hero-stat-45 with 3 stats)",
+      "When the transformation is qualitative and not easily quantified",
+      "When the difference between values is not meaningful or large enough to be visually dramatic"
+    ],
+    "slotCount": 8
+  },
+  "fields": [
+    { "type": "text", "sel": ".section-label",  "label": "Section Label",   "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".headline",        "label": "Headline",        "mode": "pre",  "rows": 2 },
+    { "type": "text", "sel": ".before-label",    "label": "Before Label",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".before-value",    "label": "Before Value",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".before-desc",     "label": "Before Metric",   "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".after-label",     "label": "After Label",     "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".after-value",     "label": "After Value",     "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".after-desc",      "label": "After Metric",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".bottom-note",     "label": "Bottom Note",     "mode": "pre",  "rows": 2 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

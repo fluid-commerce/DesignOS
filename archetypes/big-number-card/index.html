@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!-- archetype: big-number-card | target: 1080x1350 (instagram-portrait) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    overflow: hidden;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background: #111;
+  }
+
+  .background-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .foreground-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* SLOT: .context-label */
+  .context-label {
+    position: absolute;
+    left: 68px;
+    top: 108px;
+    width: 944px;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+
+  /* SLOT: .big-number */
+  .big-number {
+    position: absolute;
+    left: 60px;
+    top: 340px;
+    width: 960px;
+    font-size: 320px;
+    font-weight: 900;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .unit-label */
+  .unit-label {
+    position: absolute;
+    left: 68px;
+    top: 850px;
+    width: 600px;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: rgba(255, 255, 255, 0.75);
+    z-index: 2;
+  }
+
+  /* SLOT: .supporting-copy */
+  .supporting-copy {
+    position: absolute;
+    left: 68px;
+    bottom: 160px;
+    width: 850px;
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: context-label -->
+  <p class="context-label">Year in review · 2024</p>
+
+  <!-- SLOT: big-number -->
+  <p class="big-number">47K</p>
+
+  <!-- SLOT: unit-label -->
+  <p class="unit-label">customers served</p>
+
+  <!-- SLOT: supporting-copy -->
+  <p class="supporting-copy">From 12 countries, across 4 product lines, in a single year.</p>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>
