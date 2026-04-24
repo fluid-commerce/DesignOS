@@ -1,5 +1,6 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { handleChatRoutes } from './chat-routes';
+import { handleHealthRoute } from './health-route';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
@@ -361,6 +362,14 @@ export function fluidWatcherPlugin(): Plugin {
         } catch {
           /* file not found or not readable */
         }
+        next();
+      });
+
+      // Health check: GET /api/health
+      srv.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith('/api/health')) return next();
+        const handled = handleHealthRoute(req, res);
+        if (handled) return;
         next();
       });
 

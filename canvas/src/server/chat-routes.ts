@@ -4,6 +4,18 @@ import { runAgent, cancelChat } from './agent';
 import { resolvePermissionResponse } from './tool-dispatch';
 import type { IncomingMessage, ServerResponse } from 'http';
 
+// ─── Usage rollup types ──────────────────────────────────────────────────────
+
+export interface UsageRollup {
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens: number;
+  cache_write_tokens: number;
+  turns: number;
+  images_generated: number;
+  total_usd: number;
+}
+
 function json(res: ServerResponse, data: any, status = 200): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
@@ -147,11 +159,17 @@ export async function handleChatRoutes(
       json(res, { error: 'Invalid JSON body' }, 400);
       return true;
     }
-    const { content, uiContext } = body;
+    const { content, uiContext: rawUiContext, uploadedAssetIds } = body;
     if (!content || typeof content !== 'string') {
       json(res, { error: 'content is required' }, 400);
       return true;
     }
+
+    // Thread uploadedAssetIds into uiContext so the agent can reference them.
+    const uiContext =
+      Array.isArray(uploadedAssetIds) && uploadedAssetIds.length > 0
+        ? { ...(rawUiContext ?? {}), uploadedAssetIds }
+        : (rawUiContext ?? null);
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -165,7 +183,7 @@ export async function handleChatRoutes(
     // truly unexpected situations (e.g., synchronous bugs), so treat that as
     // last-resort fallback and guard against writing to an already-closed socket.
     try {
-      await runAgent(chatId, content, uiContext ?? null, res);
+      await runAgent(chatId, content, uiContext, res);
     } catch (err: any) {
       if (!res.writableEnded) {
         res.write(`event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`);
@@ -240,6 +258,81 @@ export async function handleChatRoutes(
     }
 
     json(res, { success: true });
+    return true;
+  }
+
+  // GET /api/chats/:id/usage-rollup — per-session cost + token summary
+  const rollupMatch = pathname.match(/^\/api\/chats\/([^/]+)\/usage-rollup$/);
+  if (method === 'GET' && rollupMatch) {
+    const chatId = rollupMatch[1];
+    const db = getDb();
+
+    const chat = db.prepare(`SELECT id FROM chats WHERE id = ?`).get(chatId);
+    if (!chat) {
+      json(res, { error: 'Chat not found' }, 404);
+      return true;
+    }
+
+    // Sum cost and count images from tool_audit_log
+    const costRow = db
+      .prepare(
+        `SELECT COALESCE(SUM(cost_usd_est), 0) as total_usd FROM tool_audit_log WHERE session_id = ?`,
+      )
+      .get(chatId) as { total_usd: number };
+
+    const imagesRow = db
+      .prepare(
+        `SELECT COUNT(*) as cnt FROM tool_audit_log
+         WHERE session_id = ? AND tool = 'generate_image' AND outcome = 'ok'`,
+      )
+      .get(chatId) as { cnt: number };
+
+    // Count distinct turn batches: each agent_run_complete event represents one turn
+    const turnsRow = db
+      .prepare(
+        `SELECT COUNT(*) as cnt FROM chat_events
+         WHERE chat_id = ? AND event_type = 'agent_run_complete'`,
+      )
+      .get(chatId) as { cnt: number };
+
+    // Try to extract token counts from the latest agent_run_complete event detail_json.
+    // The event stores usage in detail_json. We sum across all turns.
+    const tokenEvents = db
+      .prepare(
+        `SELECT detail_json FROM chat_events
+         WHERE chat_id = ? AND event_type = 'agent_run_complete'`,
+      )
+      .all(chatId) as Array<{ detail_json: string | null }>;
+
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let cacheReadTokens = 0;
+    let cacheWriteTokens = 0;
+
+    for (const row of tokenEvents) {
+      if (!row.detail_json) continue;
+      try {
+        const detail = JSON.parse(row.detail_json) as Record<string, unknown>;
+        inputTokens += (detail.input_tokens as number | undefined) ?? 0;
+        outputTokens += (detail.output_tokens as number | undefined) ?? 0;
+        cacheReadTokens += (detail.cache_read_input_tokens as number | undefined) ?? 0;
+        cacheWriteTokens += (detail.cache_creation_input_tokens as number | undefined) ?? 0;
+      } catch {
+        // Malformed detail — skip.
+      }
+    }
+
+    const rollup: UsageRollup = {
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      cache_read_tokens: cacheReadTokens,
+      cache_write_tokens: cacheWriteTokens,
+      turns: turnsRow.cnt,
+      images_generated: imagesRow.cnt,
+      total_usd: costRow.total_usd,
+    };
+
+    json(res, rollup);
     return true;
   }
 
