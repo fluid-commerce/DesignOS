@@ -9,26 +9,8 @@
   body {
     width: 1080px;
     height: 1350px;
-    overflow: hidden;
     position: relative;
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
     background: #111;
-  }
-
-  .background-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .foreground-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
   }
 
   /* 4-panel asymmetric grid:
@@ -79,7 +61,7 @@
     font-size: 22px;
     font-weight: 400;
     letter-spacing: 0.12em;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-body);
     z-index: 3;
   }
 </style>
