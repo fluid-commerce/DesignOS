@@ -1,0 +1,42 @@
+{
+  "archetypeId": "book-quote-highlight",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "quote-testimonial",
+    "mood": ["editorial", "literary", "annotated", "personal"],
+    "contentDensity": "dense",
+    "imageRole": "accent",
+    "imageHints": {
+      "suggestedAspect": "portrait orientation (2:3)",
+      "suggestedSubject": "book cover, product packaging, or branded card",
+      "treatment": "image fills left column; serves as visual anchor not background",
+      "damPreference": ["product", "books", "editorial"]
+    },
+    "useCases": [
+      "Book review posts with an annotated callout format",
+      "Product review posts adapted for courses, tools, or experiences",
+      "Quote highlight posts pairing a visual item with key impressions",
+      "Recommended reading or resources posts with personal commentary"
+    ],
+    "avoidCases": [
+      "When the review item has no strong visual (no cover or product photo)",
+      "When you need more than 3 annotation callouts (layout becomes cluttered)",
+      "When the excerpt is longer than 3 lines of text at this scale"
+    ],
+    "slotCount": 8
+  },
+  "fields": [
+    { "type": "text",  "sel": ".review-header", "label": "Review Header",   "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".rating-label",  "label": "Rating",          "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".cover-image img","label": "Cover / Product Image", "dims": "380 x 600px" },
+    { "type": "text",  "sel": ".callout-1",     "label": "Callout 1",       "mode": "text", "rows": 2 },
+    { "type": "text",  "sel": ".callout-2",     "label": "Callout 2",       "mode": "text", "rows": 2 },
+    { "type": "text",  "sel": ".callout-3",     "label": "Callout 3",       "mode": "text", "rows": 2 },
+    { "type": "text",  "sel": ".excerpt-label", "label": "Excerpt Label",   "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".excerpt-text",  "label": "Excerpt Quote",   "mode": "pre",  "rows": 3 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

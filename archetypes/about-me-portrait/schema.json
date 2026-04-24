@@ -1,0 +1,41 @@
+{
+  "archetypeId": "about-me-portrait",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "personal-about",
+    "mood": ["personal", "approachable", "playful", "authentic"],
+    "contentDensity": "moderate",
+    "imageRole": "hero",
+    "imageHints": {
+      "suggestedAspect": "portrait with face centered (crops to rounded arch shape)",
+      "suggestedSubject": "headshot or half-body portrait with clear background",
+      "treatment": "photo crops to a large rounded arch; face should be in upper 60% of photo",
+      "damPreference": ["people", "portrait", "headshot"]
+    },
+    "useCases": [
+      "Personal brand introduction posts for new followers",
+      "Meet-the-founder or team member spotlight posts",
+      "Content creator or influencer intro posts",
+      "Brand ambassador introduction posts"
+    ],
+    "avoidCases": [
+      "When the person has no clear portrait photo with neutral background",
+      "When the 4 interest tags are not concise single words or short phrases",
+      "Business or B2B brands that need a more professional tone (use hiring-portrait-cta)"
+    ],
+    "slotCount": 7
+  },
+  "fields": [
+    { "type": "image", "sel": ".portrait-photo img", "label": "Portrait Photo",  "dims": "720 x 820px" },
+    { "type": "text",  "sel": ".person-name",        "label": "Person Name",     "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".tag-1",              "label": "Interest Tag 1",  "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".tag-2",              "label": "Interest Tag 2",  "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".tag-3",              "label": "Interest Tag 3",  "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".tag-4",              "label": "Interest Tag 4",  "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".about-tagline",      "label": "Tagline",         "mode": "pre",  "rows": 2 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -52,9 +52,13 @@ function getTextContent(node) {
     .join('');
 }
 
-// Known target dimensions — authoritative values from brand specs
+// Known target dimensions — authoritative values from brand specs.
+// Must stay in sync with canvas/src/server/agent-tools.ts KNOWN_PLATFORMS
+// and canvas/src/server/validation-hooks.ts platform→target mapping.
 const KNOWN_DIMENSIONS = {
-  instagram: { width: 1080, height: 1080 },
+  instagram: { width: 1080, height: 1350 },          // 4:5 portrait — new default
+  instagram_portrait: { width: 1080, height: 1350 }, // explicit alias
+  instagram_square: { width: 1080, height: 1080 },   // legacy 1:1
   linkedin_landscape: { width: 1200, height: 627 },
   linkedin_tall: { width: 1340, height: 630 },
 };
@@ -187,12 +191,21 @@ function autoDetectTarget(content, dimensions, rules) {
     }
   }
 
-  // Try to detect from content hints
-  if (/instagram/i.test(content)) return 'instagram';
+  // Try to detect from content hints.
+  // For Instagram: distinguish portrait (4:5, 1080x1350) from square (1:1, 1080x1080)
+  // by comparing found height to width. Height-ambiguous cases default to square
+  // for backward compatibility with legacy fixtures.
+  if (/instagram/i.test(content)) {
+    if (dimensions.width === 1080 && dimensions.height === 1350) return 'instagram_portrait';
+    if (dimensions.width === 1080 && dimensions.height === 1080) return 'instagram_square';
+    return 'instagram';
+  }
   if (/linkedin/i.test(content)) {
     if (dimensions.height && dimensions.height > 628) return 'linkedin_tall';
     return 'linkedin_landscape';
   }
+  if (dimensions.width === 1080 && dimensions.height === 1350) return 'instagram_portrait';
+  if (dimensions.width === 1080 && dimensions.height === 1080) return 'instagram_square';
   if (/1080/i.test(content)) return 'instagram';
 
   return null;

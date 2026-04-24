@@ -274,3 +274,172 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Attach button ─────────────────────────────────────────────────────────── */
+
+.chat-attach-btn {
+  background: none;
+  border: 1px solid var(--border, #2a2a2e);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.chat-attach-btn:hover {
+  color: #aaa;
+  border-color: #444;
+}
+
+.chat-attach-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.chat-attach-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #444;
+  border-top-color: #44b2ff;
+  border-radius: 50%;
+  animation: chat-spin 0.7s linear infinite;
+}
+
+@keyframes chat-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Upload preview chip ───────────────────────────────────────────────────── */
+
+.chat-upload-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: #1a1a1e;
+  border-top: 1px solid var(--border, #1e1e1e);
+  flex-shrink: 0;
+}
+
+.chat-upload-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #2a2a2e;
+  flex-shrink: 0;
+}
+
+.chat-upload-name {
+  font-size: 12px;
+  color: #ccc;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-upload-remove {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.chat-upload-remove:hover {
+  color: #ef4444;
+}
+
+/* ── Budget warning banner ─────────────────────────────────────────────────── */
+
+.chat-budget-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #1a1500;
+  border-bottom: 1px solid #3a2a00;
+  flex-shrink: 0;
+}
+
+.chat-budget-warning-text {
+  font-size: 11px;
+  color: #f59e0b;
+  flex: 1;
+}
+
+.chat-budget-warning-dismiss {
+  background: none;
+  border: none;
+  color: #f59e0b;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+}
+
+.chat-budget-warning-dismiss:hover {
+  opacity: 1;
+}
+
+/* ── Active tool indicator ─────────────────────────────────────────────────── */
+
+.chat-active-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.chat-active-tool-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #aaa;
+  padding: 4px 8px;
+  background: #1a1a1e;
+  border: 1px solid #2a2a2e;
+  border-radius: 12px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.chat-active-tool-spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #333;
+  border-top-color: #44b2ff;
+  border-radius: 50%;
+  animation: chat-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.chat-active-tool-pct {
+  font-size: 10px;
+  color: #666;
+  margin-left: 2px;
+}
+
+/* ── Usage rollup footer ───────────────────────────────────────────────────── */
+
+.chat-usage-footer {
+  padding: 6px 16px;
+  font-size: 11px;
+  color: #555;
+  border-top: 1px solid var(--border, #1e1e1e);
+  flex-shrink: 0;
+  text-align: center;
+}

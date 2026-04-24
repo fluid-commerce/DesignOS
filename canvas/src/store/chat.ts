@@ -4,6 +4,43 @@ import { useCampaignStore } from './campaign';
 
 const ACTIVE_CHAT_KEY = 'fluid.activeChatId';
 
+// ─── Phase 24 Dispatch 4 types ────────────────────────────────────────────────
+
+export type ToolTier = 'always-allow' | 'ask-first' | 'never-allow-by-default';
+
+export interface ToolActivity {
+  /** Unique key: "${tool}@${startedAt}" */
+  key: string;
+  tool: string;
+  startedAt: number;
+  tier: ToolTier;
+  estCostUsd?: number;
+  estDurationSec?: number;
+  progressPct?: number;
+}
+
+export interface PendingPermission {
+  promptId: string;
+  chatId: string;
+  tool: string;
+  argsPreview: string;
+  reason: string;
+  estCostUsd?: number;
+  openedAt: number;
+}
+
+export interface BudgetWarning {
+  remainingUsd: number;
+  capUsd: number;
+  seenAt: number;
+}
+
+export interface UsageRollup {
+  totalUsd: number;
+  imagesGenerated: number;
+  turns: number;
+}
+
 function readActiveChatId(): string | null {
   if (typeof localStorage === 'undefined') return null;
   try {
@@ -54,12 +91,33 @@ interface ChatState {
   isStreaming: boolean;
   abortController: AbortController | null;
 
+  // ── Phase 24 Dispatch 4 state ────────────────────────────────────────────
+  /** keyed by chatId → list of currently-running tool invocations */
+  activeTools: Record<string, ToolActivity[]>;
+  /** keyed by chatId → permission prompts awaiting user decision */
+  pendingPermissions: Record<string, PendingPermission[]>;
+  /** keyed by chatId → most recent budget warning */
+  budgetWarnings: Record<string, BudgetWarning>;
+  /** keyed by chatId → last fetched usage rollup */
+  usageRollups: Record<string, UsageRollup>;
+
   loadChats: () => Promise<void>;
   createChat: () => Promise<string>;
   openChat: (chatId: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
-  sendMessage: (content: string, uiContext?: any) => Promise<void>;
+  sendMessage: (content: string, uiContext?: any, uploadedAssetIds?: string[]) => Promise<void>;
   cancelGeneration: () => void;
+
+  /** Respond to a pending permission prompt. */
+  respondToPermission: (
+    chatId: string,
+    promptId: string,
+    decision: 'approve_once' | 'approve_session' | 'deny',
+  ) => Promise<void>;
+  /** Dismiss a budget warning for the given chat. */
+  dismissBudgetWarning: (chatId: string) => void;
+  /** Manually refresh the usage rollup for a chat. */
+  fetchUsageRollup: (chatId: string) => Promise<void>;
 
   _appendTextDelta: (delta: string) => void;
   _addToolCall: (tc: ToolCallUI) => void;
@@ -73,6 +131,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isStreaming: false,
   abortController: null,
+  activeTools: {},
+  pendingPermissions: {},
+  budgetWarnings: {},
+  usageRollups: {},
 
   loadChats: async () => {
     const res = await fetch('/api/chats');
@@ -142,7 +204,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
 
-  sendMessage: async (content: string, uiContext?: any) => {
+  sendMessage: async (content: string, uiContext?: any, uploadedAssetIds?: string[]) => {
     const state = get();
     let chatId = state.activeChatId;
 
@@ -177,13 +239,85 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (eventType === 'text') {
         store._appendTextDelta(data.text ?? data.delta);
       } else if (eventType === 'tool_start') {
-        store._addToolCall({
-          id: data.toolUseId ?? data.id,
-          tool: data.name ?? data.tool,
-          input: data.input,
-          status: 'pending',
+        // `tool_start` is emitted from two different places with different
+        // payload shapes:
+        //
+        //  (a) agent.ts (existing, pre-Phase-24): { toolUseId, name, input }
+        //      — wires into the message's toolCalls list for the inline
+        //        tool-call disclosure triangles under each assistant message.
+        //
+        //  (b) tool-dispatch.ts (Phase 24): { tool, tier, est_cost_usd,
+        //      est_duration_sec } — wires into the Phase-24 activeTools chip
+        //      indicator. No toolUseId, so it MUST NOT be fed into
+        //      _addToolCall (which would create a toolCall with id=undefined
+        //      that tool_result could never match).
+        //
+        // Discriminate by presence of `toolUseId` (agent.ts) vs `tier`
+        // (tool-dispatch.ts). A payload with both is theoretically possible
+        // but not emitted today — we key off toolUseId first.
+        if (data.toolUseId !== undefined || data.id !== undefined) {
+          // (a) agent.ts shape — message toolCalls list
+          store._addToolCall({
+            id: data.toolUseId ?? data.id,
+            tool: data.name ?? data.tool,
+            input: data.input,
+            status: 'pending',
+          });
+        }
+        if (data.tier !== undefined) {
+          // (b) tool-dispatch.ts shape — activeTools chip
+          const toolName: string = data.tool ?? data.name ?? 'unknown';
+          const startedAt: number = Date.now();
+          const activity: ToolActivity = {
+            key: `${toolName}@${startedAt}`,
+            tool: toolName,
+            startedAt,
+            tier: data.tier as ToolTier,
+            estCostUsd: data.est_cost_usd,
+            estDurationSec: data.est_duration_sec,
+          };
+          set((s) => ({
+            activeTools: {
+              ...s.activeTools,
+              [chatId!]: [...(s.activeTools[chatId!] ?? []), activity],
+            },
+          }));
+        }
+      } else if (eventType === 'tool_progress') {
+        // tool-dispatch.ts emits: { tool, pct, ...detail }
+        const toolName: string = data.tool ?? data.name ?? 'unknown';
+        const pct: number | undefined =
+          typeof data.pct === 'number' ? data.pct : data.progress_pct;
+        if (pct !== undefined) {
+          set((s) => {
+            const existing = s.activeTools[chatId!] ?? [];
+            // Update the oldest matching entry — dispatcher doesn't carry a
+            // unique invocation id, so if the same tool is running twice
+            // concurrently, we update the first one. Acceptable for D4.
+            const idx = existing.findIndex((a) => a.tool === toolName);
+            if (idx === -1) return {};
+            const updated = [...existing];
+            updated[idx] = { ...updated[idx], progressPct: pct };
+            return { activeTools: { ...s.activeTools, [chatId!]: updated } };
+          });
+        }
+      } else if (eventType === 'tool_end') {
+        // tool-dispatch.ts emits: { tool, duration_sec, outcome }
+        // This is the activeTools lifecycle END signal. Remove the oldest
+        // matching entry (pop FIFO since dispatcher has no invocation id).
+        const toolName: string = data.tool ?? data.name ?? 'unknown';
+        set((s) => {
+          const existing = s.activeTools[chatId!] ?? [];
+          const idx = existing.findIndex((a) => a.tool === toolName);
+          if (idx === -1) return {};
+          const updated = [...existing.slice(0, idx), ...existing.slice(idx + 1)];
+          return { activeTools: { ...s.activeTools, [chatId!]: updated } };
         });
       } else if (eventType === 'tool_result') {
+        // `tool_result` is agent.ts emitting the Anthropic tool_result block
+        // back to the model. It is NOT the activeTools lifecycle — that's
+        // `tool_end` above. We only update the message-level toolCalls list
+        // (status + result body) here.
         store._updateToolResult(
           data.toolUseId ?? data.id,
           typeof data.result === 'object'
@@ -192,6 +326,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
           data.hasImage,
           data.error,
         );
+      } else if (eventType === 'permission_prompt') {
+        const perm: PendingPermission = {
+          promptId: data.promptId ?? data.prompt_id,
+          chatId: chatId!,
+          tool: data.tool,
+          argsPreview: data.args_preview ?? '',
+          reason: data.reason ?? '',
+          estCostUsd: data.est_cost_usd,
+          openedAt: Date.now(),
+        };
+        set((s) => ({
+          pendingPermissions: {
+            ...s.pendingPermissions,
+            [chatId!]: [...(s.pendingPermissions[chatId!] ?? []), perm],
+          },
+        }));
+      } else if (eventType === 'budget_warning') {
+        const warning: BudgetWarning = {
+          remainingUsd: data.remaining_usd ?? 0,
+          capUsd: data.cap_usd ?? 0,
+          seenAt: Date.now(),
+        };
+        set((s) => ({ budgetWarnings: { ...s.budgetWarnings, [chatId!]: warning } }));
       } else if (eventType === 'creation_ready') {
         // Creation saved — refresh campaign data so the canvas picks it up
         // immediately instead of waiting on file-watcher latency.
@@ -211,16 +368,23 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
       } else if (eventType === 'done') {
         store._finishStreaming();
+        // Refresh usage rollup after turn completes
+        if (chatId) store.fetchUsageRollup(chatId);
       } else if (eventType === 'error') {
         store._appendTextDelta(`\n\nError: ${data.error}`);
         store._finishStreaming();
       }
     }
 
+    const messageBody: Record<string, unknown> = { content, uiContext };
+    if (uploadedAssetIds && uploadedAssetIds.length > 0) {
+      messageBody.uploadedAssetIds = uploadedAssetIds;
+    }
+
     await fetchEventSource(`/api/chats/${chatId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-      body: JSON.stringify({ content, uiContext }),
+      body: JSON.stringify(messageBody),
       signal: abortController.signal,
       openWhenHidden: true,
       onmessage: (msg) => {
@@ -262,6 +426,58 @@ export const useChatStore = create<ChatState>((set, get) => ({
       fetch(`/api/chats/${activeChatId}/cancel`, { method: 'POST' });
     }
     get()._finishStreaming();
+  },
+
+  respondToPermission: async (
+    chatId: string,
+    promptId: string,
+    decision: 'approve_once' | 'approve_session' | 'deny',
+  ) => {
+    const res = await fetch(`/api/chats/${chatId}/permission-response`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ promptId, decision }),
+    });
+    if (res.ok) {
+      // Optimistically remove from pendingPermissions
+      set((s) => {
+        const existing = s.pendingPermissions[chatId] ?? [];
+        return {
+          pendingPermissions: {
+            ...s.pendingPermissions,
+            [chatId]: existing.filter((p) => p.promptId !== promptId),
+          },
+        };
+      });
+    }
+  },
+
+  dismissBudgetWarning: (chatId: string) => {
+    set((s) => {
+      const updated = { ...s.budgetWarnings };
+      delete updated[chatId];
+      return { budgetWarnings: updated };
+    });
+  },
+
+  fetchUsageRollup: async (chatId: string) => {
+    try {
+      const res = await fetch(`/api/chats/${chatId}/usage-rollup`);
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        total_usd: number;
+        images_generated: number;
+        turns: number;
+      };
+      const rollup: UsageRollup = {
+        totalUsd: data.total_usd,
+        imagesGenerated: data.images_generated,
+        turns: data.turns,
+      };
+      set((s) => ({ usageRollups: { ...s.usageRollups, [chatId]: rollup } }));
+    } catch {
+      // Non-fatal — rollup is best-effort
+    }
   },
 
   _appendTextDelta: (delta: string) => {

@@ -1,0 +1,87 @@
+.permission-prompt {
+  border: 1px solid #3a3a44;
+  border-radius: 8px;
+  background: #161620;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.permission-prompt-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-bottom: 4px;
+}
+
+.permission-prompt-reason {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.permission-prompt-args {
+  background: #0d0d0d;
+  border: 1px solid #1e1e1e;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #aaa;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.permission-prompt-cost {
+  font-size: 11px;
+  color: #f59e0b;
+  margin-bottom: 10px;
+}
+
+.permission-prompt-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.permission-prompt-btn {
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s;
+}
+
+.permission-prompt-btn--deny {
+  background: #1a1a1e;
+  color: #ef4444;
+  border-color: #3a1a1a;
+}
+
+.permission-prompt-btn--deny:hover {
+  background: #2a1a1a;
+}
+
+.permission-prompt-btn--once {
+  background: #1a2233;
+  color: #44b2ff;
+  border-color: #1a3355;
+}
+
+.permission-prompt-btn--once:hover {
+  background: #1e2d45;
+}
+
+.permission-prompt-btn--session {
+  background: #1a2633;
+  color: #6ee7b7;
+  border-color: #1a3a2a;
+}
+
+.permission-prompt-btn--session:hover {
+  background: #1e3040;
+}

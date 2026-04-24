@@ -1,0 +1,41 @@
+{
+  "archetypeId": "event-promo",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "announcement",
+    "mood": ["energetic", "community", "urban", "bold"],
+    "contentDensity": "moderate",
+    "imageRole": "background",
+    "imageHints": {
+      "suggestedAspect": "4:5 or portrait (fills full canvas)",
+      "suggestedSubject": "event venue, market scene, crowd, or lifestyle environment",
+      "treatment": "photo at 45% opacity behind bold typography — needs enough contrast",
+      "damPreference": ["lifestyle", "events", "people", "spaces"]
+    },
+    "useCases": [
+      "Pop-up market or event save-the-date announcements",
+      "In-person event invitations with date, time, and location",
+      "Workshop or class announcement posts",
+      "Brand activation or experience event promos"
+    ],
+    "avoidCases": [
+      "Virtual or online events where location is not relevant",
+      "Events with more than 3 key info items (band becomes cramped)",
+      "When no atmospheric photo is available (use coming-soon-minimal)"
+    ],
+    "slotCount": 7
+  },
+  "fields": [
+    { "type": "image", "sel": ".event-photo img",    "label": "Event / Venue Photo",  "dims": "1080 x 1350px" },
+    { "type": "text",  "sel": ".presenter-line",     "label": "Presenter Line",       "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".event-name",         "label": "Event Name",           "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".event-description",  "label": "Event Description",    "mode": "pre",  "rows": 2 },
+    { "type": "text",  "sel": ".event-date",         "label": "Date",                 "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".event-time",         "label": "Time / Hours",         "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".event-location",     "label": "Location / Address",   "mode": "text", "rows": 2 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

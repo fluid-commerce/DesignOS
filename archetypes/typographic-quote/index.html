@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!-- archetype: typographic-quote | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Black_White_Minimalist_Simple_Typographic_Healing_Quote_Inst -->
+<!-- OCR: asymmetric layout — large headline-scale quote left-center, body right -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .series-label */
+  .series-label {
+    position: absolute;
+    left: 68px;
+    top: 60px;
+    width: 600px;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+  }
+
+  /* SLOT: .handle-label */
+  .handle-label {
+    position: absolute;
+    right: 68px;
+    top: 60px;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+  }
+
+  /* SLOT: .display-quote */
+  .display-quote {
+    position: absolute;
+    left: 68px;
+    top: 200px;
+    width: 580px;
+    font-size: 140px;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .body-quote */
+  .body-quote {
+    position: absolute;
+    right: 68px;
+    top: 300px;
+    width: 360px;
+    font-size: 34px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    z-index: 2;
+  }
+
+  /* SLOT: .signature-text */
+  .signature-text {
+    position: absolute;
+    left: 68px;
+    bottom: 120px;
+    width: 700px;
+    font-size: 60px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.1;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: series-label -->
+  <div class="series-label">Quote of the week</div>
+
+  <!-- SLOT: handle-label -->
+  <div class="handle-label">@yourbrand</div>
+
+  <!-- SLOT: display-quote -->
+  <p class="display-quote">Heal and let go</p>
+
+  <!-- SLOT: body-quote -->
+  <p class="body-quote">Some days feel light and grounded. Other days feel heavy. Both are part of the process — healing is not about constant progress, it is about returning to yourself.</p>
+
+  <!-- SLOT: signature-text -->
+  <p class="signature-text">Return to yourself</p>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

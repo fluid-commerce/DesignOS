@@ -1,0 +1,48 @@
+{
+  "archetypeId": "product-feature-grid",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "product",
+    "mood": ["editorial", "commercial", "clean", "collection"],
+    "contentDensity": "dense",
+    "imageRole": "grid",
+    "imageHints": {
+      "suggestedAspect": "square or portrait for each product cell",
+      "suggestedSubject": "individual product packshots with consistent background",
+      "treatment": "4-item grid requires visual consistency — same background and lighting across all 4",
+      "damPreference": ["product", "packshot", "studio"]
+    },
+    "useCases": [
+      "New collection announcement posts showing 4 items",
+      "Product lineup or range overview posts",
+      "Gift guide posts with 4 product picks",
+      "Seasonal edit posts with curated product selection"
+    ],
+    "avoidCases": [
+      "When products have wildly different sizes or shapes (grid won't look cohesive)",
+      "When fewer than 4 products are available (use product-hero-backlit for 1)",
+      "When detailed product descriptions are needed (each cell only holds name + price)"
+    ],
+    "slotCount": 14
+  },
+  "fields": [
+    { "type": "text",  "sel": ".collection-title", "label": "Collection Title",   "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".collection-sub",   "label": "Subtitle",           "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".item-1-photo",     "label": "Item 1 Photo",       "dims": "~460 x 440px" },
+    { "type": "text",  "sel": ".item-1-name",      "label": "Item 1 Name",        "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".item-1-price",     "label": "Item 1 Price",       "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".item-2-photo",     "label": "Item 2 Photo",       "dims": "~460 x 440px" },
+    { "type": "text",  "sel": ".item-2-name",      "label": "Item 2 Name",        "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".item-2-price",     "label": "Item 2 Price",       "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".item-3-photo",     "label": "Item 3 Photo",       "dims": "~460 x 440px" },
+    { "type": "text",  "sel": ".item-3-name",      "label": "Item 3 Name",        "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".item-3-price",     "label": "Item 3 Price",       "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".item-4-photo",     "label": "Item 4 Photo",       "dims": "~460 x 440px" },
+    { "type": "text",  "sel": ".item-4-name",      "label": "Item 4 Name",        "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".item-4-price",     "label": "Item 4 Price",       "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!-- archetype: numbered-tips-cover | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Beige_Professional_Minimalist_How_to_Carousel (cover slide) -->
+<!-- Layout: series label top-left, bold number count + headline, swipe CTA bottom-right, optional accent photo -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .series-label */
+  .series-label {
+    position: absolute;
+    left: 68px;
+    top: 108px;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+  }
+
+  /* SLOT: .how-to-script */
+  .how-to-script {
+    position: absolute;
+    left: 68px;
+    top: 300px;
+    font-size: 100px;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+
+  /* SLOT: .tips-headline */
+  .tips-headline {
+    position: absolute;
+    left: 68px;
+    top: 440px;
+    width: 750px;
+    font-size: 110px;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .tips-count */
+  .tips-count {
+    position: absolute;
+    left: 68px;
+    top: 840px;
+    font-size: 34px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.55);
+    z-index: 2;
+  }
+
+  /* SLOT: cover-accent-photo */
+  .cover-accent-photo {
+    position: absolute;
+    right: 68px;
+    top: 320px;
+    width: 380px;
+    height: 480px;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .cover-accent-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 16px;
+  }
+
+  /* SLOT: .swipe-cta */
+  .swipe-cta {
+    position: absolute;
+    right: 68px;
+    bottom: 108px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: series-label -->
+  <div class="series-label">PRODUCTIVITY TIPS</div>
+
+  <!-- SLOT: how-to-script -->
+  <div class="how-to-script">How to</div>
+
+  <!-- SLOT: tips-headline -->
+  <p class="tips-headline">Start your day with focus</p>
+
+  <!-- SLOT: tips-count -->
+  <div class="tips-count">5 actionable tips inside →</div>
+
+  <!-- SLOT: cover-accent-photo -->
+  <div class="cover-accent-photo">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+  </div>
+
+  <!-- SLOT: swipe-cta -->
+  <div class="swipe-cta">SWIPE →</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

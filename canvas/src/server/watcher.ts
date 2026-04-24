@@ -1,5 +1,6 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { handleChatRoutes } from './chat-routes';
+import { handleHealthRoute } from './health-route';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
@@ -32,6 +33,7 @@ import {
   getBrandAssetByName,
   getBrandAssetByFilePath,
   insertUploadedAsset,
+  searchBrandAssets,
   getVoiceGuideDocs,
   getVoiceGuideDoc,
   updateVoiceGuideDoc,
@@ -55,6 +57,7 @@ import {
   getBrandStyleByScope,
   upsertBrandStyle,
   deleteBrandStyle,
+  cleanupStaleIterations,
 } from './db-api';
 import { getDb } from '../lib/db';
 import { scanAndSeedBrandAssets } from './asset-scanner';
@@ -74,6 +77,56 @@ import { runDamSync } from './dam-sync';
 import { collectTransformTargets, type TransformTarget } from '../lib/slot-schema';
 import { resolveSlotSchemaForIteration, stripHtmlExt } from '../lib/template-configs';
 import { injectArtboardMarginGuide, PREVIEW_CHROME_PADDING_PX } from '../lib/preview-utils';
+
+// ─── Missing-creation placeholder ───────────────────────────────────────────
+// Served in place of a 404 plaintext body when an iteration's html_path can't
+// be resolved on disk. Keeps the 404 status so HEAD requests still signal
+// missing, but gives the iframe a self-contained, dark-themed card instead
+// of raw "HTML file not found on disk" text.
+function missingCreationHtml(iterationId: string, reason?: string): string {
+  const safeId = iterationId.replace(/[^A-Za-z0-9_-]/g, '');
+  const safeReason = (reason ?? 'file missing').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Creation unavailable</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #1a1a1e; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #e6e6e8;
+  }
+  .card {
+    max-width: 360px; padding: 24px 28px; text-align: center;
+    background: #232328; border: 1px solid #33333a; border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  }
+  .card .badge {
+    display: inline-block; width: 28px; height: 28px; border-radius: 50%;
+    background: #3a3a42; margin-bottom: 12px; line-height: 28px;
+    font-size: 14px; color: #a8a8b0;
+  }
+  .card h1 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: #f3f3f5; }
+  .card p { margin: 0; font-size: 13px; color: #9a9aa3; line-height: 1.4; }
+  .card .meta {
+    margin-top: 14px; font-size: 11px; color: #6a6a73;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all;
+  }
+</style>
+</head>
+<body>
+  <div class="card" role="status" aria-live="polite">
+    <div class="badge" aria-hidden="true">!</div>
+    <h1>Creation unavailable</h1>
+    <p>${safeReason}</p>
+    <div class="meta">${safeId}</div>
+  </div>
+</body>
+</html>`;
+}
 
 // ─── Creation dimensions by type ────────────────────────────────────────────
 const CREATION_DIMENSIONS: Record<string, { width: number; height: number }> = {
@@ -166,21 +219,6 @@ export function parseChannelHints(prompt: string): {
     creationCounts: { ...DEFAULT_CHANNEL_COUNTS },
     isSingleCreation: false,
   };
-}
-
-/**
- * Get or create the singleton "__standalone__" sentinel campaign.
- * Standalone creations (single-asset prompts) are filed under this campaign
- * to satisfy the NOT NULL FK constraint on creations.campaign_id.
- */
-function getOrCreateStandaloneCampaign(): string {
-  const db = getDb();
-  const row = db.prepare("SELECT id FROM campaigns WHERE title = '__standalone__'").get() as
-    | { id: string }
-    | undefined;
-  if (row) return row.id;
-  const campaign = createCampaign({ title: '__standalone__', channels: ['standalone'] });
-  return campaign.id;
 }
 
 /**
@@ -360,6 +398,14 @@ export function fluidWatcherPlugin(): Plugin {
         } catch {
           /* file not found or not readable */
         }
+        next();
+      });
+
+      // Health check: GET /api/health
+      srv.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith('/api/health')) return next();
+        const handled = handleHealthRoute(req, res);
+        if (handled) return;
         next();
       });
 
@@ -905,6 +951,29 @@ export function fluidWatcherPlugin(): Plugin {
             return;
           }
 
+          // ── Admin ───────────────────────────────────────────────────────
+          // POST /api/admin/cleanup-stale-creations — delete iteration rows
+          // whose html_path no longer exists on disk (with minAgeMs guard),
+          // then cascade-delete empty slides/creations/campaigns.
+          // Gated by FLUID_ADMIN_ENABLED=true. Pass ?dryRun=1 to preview.
+          if (url === '/api/admin/cleanup-stale-creations' && method === 'POST') {
+            if (process.env.FLUID_ADMIN_ENABLED !== 'true') {
+              res.writeHead(403, { 'Content-Type': 'application/json' });
+              res.end(
+                JSON.stringify({
+                  error: 'Admin endpoints are disabled. Set FLUID_ADMIN_ENABLED=true.',
+                }),
+              );
+              return;
+            }
+            const qs = new URL(req.url!, 'http://localhost').searchParams;
+            const dryRun = qs.get('dryRun') === '1' || qs.get('dryRun') === 'true';
+            const result = cleanupStaleIterations({ dryRun });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ dryRun, ...result }));
+            return;
+          }
+
           // ── Brand assets (catalog served via /fluid-assets/) ───────────────
 
           // POST /api/uploads/chat-image — persist a chat sidebar image upload
@@ -978,6 +1047,7 @@ export function fluidWatcherPlugin(): Plugin {
           }
 
           // GET /api/brand-assets or GET /api/brand-assets?category=brushstrokes
+          // Phase 24: also supports ?q=<query>&limit=<n> for scored search
           if (
             (url === '/api/brand-assets' || url.startsWith('/api/brand-assets?')) &&
             method === 'GET'
@@ -985,9 +1055,19 @@ export function fluidWatcherPlugin(): Plugin {
             const searchParams = new URL(req.url!, 'http://localhost').searchParams;
             const category = searchParams.get('category') ?? undefined;
             const includeDeleted = searchParams.get('include_deleted') === 'true';
-            const assets = includeDeleted ? getAllBrandAssets(category) : getBrandAssets(category);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(assets));
+            const q = searchParams.get('q');
+            if (q) {
+              // Scored search — returns BrandAssetSearchResult[]
+              const limitParam = parseInt(searchParams.get('limit') ?? '10', 10);
+              const limit = Number.isFinite(limitParam) ? Math.min(limitParam, 25) : 10;
+              const results = searchBrandAssets(q, category, limit);
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(results));
+            } else {
+              const assets = includeDeleted ? getAllBrandAssets(category) : getBrandAssets(category);
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(assets));
+            }
             return;
           }
 
@@ -1720,10 +1800,8 @@ export function fluidWatcherPlugin(): Plugin {
               console.error(
                 `[watcher] Iteration ${iterationId} html_path="${row.html_path}" — tried ${tried.length} strategies, none found:\n  ${tried.join('\n  ')}`,
               );
-              res.writeHead(404, { 'Content-Type': 'text/plain' });
-              res.end(
-                `HTML file not found on disk (tried: stored="${row.html_path}", canonical=.fluid/campaigns/.../${iterationId}.html)`,
-              );
+              res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+              res.end(missingCreationHtml(iterationId, 'HTML file not found on disk'));
               return;
             }
             try {
@@ -2140,8 +2218,8 @@ export function fluidWatcherPlugin(): Plugin {
                 `[watcher] fs.readFile failed for iteration ${iterationId} at ${templatePath}:`,
                 err,
               );
-              res.writeHead(404, { 'Content-Type': 'text/plain' });
-              res.end('HTML file not found on disk');
+              res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+              res.end(missingCreationHtml(iterationId, 'HTML file not found on disk'));
             }
             return;
           }

@@ -1,0 +1,33 @@
+{
+  "archetypeId": "affirmation-note",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "motivational",
+    "mood": ["calm", "affirming", "minimalist", "reflective"],
+    "contentDensity": "sparse",
+    "imageRole": "none",
+    "useCases": [
+      "Daily affirmation or reminder series posts",
+      "Mindset or personal development content posts",
+      "Weekly motivational series with consistent format",
+      "Self-care or wellness brand regular content"
+    ],
+    "avoidCases": [
+      "When the affirmation text is more than 6–7 words (headline may wrap awkwardly)",
+      "When the post is data-driven or news-based",
+      "When the brand requires a photo to contextualize the message"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "text", "sel": ".note-category",    "label": "Category Label",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".note-date",        "label": "Date",              "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".affirmation-text", "label": "Affirmation",       "mode": "pre",  "rows": 2 },
+    { "type": "text", "sel": ".affirmation-body", "label": "Body / Elaboration","mode": "pre",  "rows": 3 },
+    { "type": "text", "sel": ".note-handle",      "label": "Handle / Brand",    "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

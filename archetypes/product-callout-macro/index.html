@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<!-- archetype: product-callout-macro | target: 1080x1350 (instagram-portrait) -->
+<!-- Layout: large product photo fills top 60%, bottom zone has callout headline + feature bullets + CTA -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: macro-photo */
+  .macro-photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 700px;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .macro-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* SLOT: .product-callout */
+  .product-callout {
+    position: absolute;
+    left: 68px;
+    top: 740px;
+    width: 944px;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .feature-1 */
+  .feature-1 {
+    position: absolute;
+    left: 68px;
+    top: 980px;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 2;
+  }
+
+  /* SLOT: .feature-2 */
+  .feature-2 {
+    position: absolute;
+    left: 68px;
+    top: 1038px;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 2;
+  }
+
+  /* SLOT: .feature-3 */
+  .feature-3 {
+    position: absolute;
+    left: 68px;
+    top: 1096px;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 2;
+  }
+
+  /* SLOT: .product-cta */
+  .product-cta {
+    position: absolute;
+    left: 68px;
+    bottom: 80px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: macro-photo -->
+  <div class="macro-photo">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+  </div>
+
+  <!-- SLOT: product-callout -->
+  <p class="product-callout">Built for the ones who refuse to settle</p>
+
+  <!-- SLOT: feature-1 -->
+  <div class="feature-1">· Handcrafted from recycled materials</div>
+
+  <!-- SLOT: feature-2 -->
+  <div class="feature-2">· Ships in 3 business days worldwide</div>
+
+  <!-- SLOT: feature-3 -->
+  <div class="feature-3">· 2-year quality guarantee</div>
+
+  <!-- SLOT: product-cta -->
+  <div class="product-cta">SHOP NOW → link in bio</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

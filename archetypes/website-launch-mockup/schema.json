@@ -1,0 +1,39 @@
+{
+  "archetypeId": "website-launch-mockup",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "announcement",
+    "mood": ["bold", "professional", "launch-energy"],
+    "contentDensity": "moderate",
+    "imageRole": "accent",
+    "imageHints": {
+      "suggestedAspect": "4:5 or portrait (fills right column)",
+      "suggestedSubject": "website screenshot, app screen, device mockup, or product thumbnail",
+      "treatment": "image serves as visual proof of the thing being announced",
+      "damPreference": ["screenshots", "product", "mockup"]
+    },
+    "useCases": [
+      "Website or app launch announcement posts",
+      "Digital product drop posts (template, course, tool)",
+      "Portfolio case study reveal posts",
+      "Rebrand or redesign reveal posts showing the new design"
+    ],
+    "avoidCases": [
+      "Pre-launch teasers where you don't want to show the product yet (use coming-soon-minimal)",
+      "Physical product launches without a screen or digital element",
+      "When the image is low-resolution or a wireframe"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "text",  "sel": ".announcement-type", "label": "Announcement Type", "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".launch-headline",   "label": "Launch Headline",   "mode": "pre",  "rows": 2 },
+    { "type": "image", "sel": ".mockup-screen img", "label": "Screen / Mockup",   "dims": "560 x 700px" },
+    { "type": "text",  "sel": ".launch-url",        "label": "URL",               "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".cta-text",          "label": "CTA Text",          "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -1,0 +1,40 @@
+{
+  "archetypeId": "product-hero-backlit",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "product",
+    "mood": ["premium", "minimal", "product-focused"],
+    "contentDensity": "sparse",
+    "imageRole": "hero",
+    "imageHints": {
+      "suggestedAspect": "square or landscape (object-fit: contain to show full product)",
+      "suggestedSubject": "single product on neutral or transparent background",
+      "treatment": "product displayed with object-fit: contain so full product is visible",
+      "damPreference": ["product", "packshot", "studio"]
+    },
+    "useCases": [
+      "Menu item or product spotlight posts with pricing",
+      "Product launch announcement with hero photography",
+      "Single product promotion posts",
+      "New inventory arrival or restock announcements"
+    ],
+    "avoidCases": [
+      "When the product image has a complex background (use a clean packshot)",
+      "When multiple products need to be shown (use product-feature-grid)",
+      "When no price or CTA is relevant to the post"
+    ],
+    "slotCount": 6
+  },
+  "fields": [
+    { "type": "text",  "sel": ".brand-label",           "label": "Brand Name",          "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".product-name-display",  "label": "Product Name",        "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".product-photo img",     "label": "Product Photo",       "dims": "720 x 640px" },
+    { "type": "text",  "sel": ".product-description",   "label": "Product Description", "mode": "pre",  "rows": 2 },
+    { "type": "text",  "sel": ".product-price",         "label": "Price",               "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".footer-cta",            "label": "Footer / URL",        "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

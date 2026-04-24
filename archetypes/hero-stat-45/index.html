@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- archetype: hero-stat-45 | target: 1080x1350 (instagram-portrait) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .eyebrow */
+  .eyebrow {
+    position: absolute;
+    left: 68px;
+    top: 108px;
+    width: 944px;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    position: absolute;
+    left: 68px;
+    top: 168px;
+    width: 944px;
+    font-size: 130px;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .body-copy */
+  .body-copy {
+    position: absolute;
+    left: 68px;
+    top: 600px;
+    width: 700px;
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.75);
+    z-index: 2;
+  }
+
+  .stat-row {
+    position: absolute;
+    left: 68px;
+    right: 68px;
+    bottom: 140px;
+    display: flex;
+    gap: 60px;
+    z-index: 2;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* SLOT: .stat-1-num */
+  .stat-1-num,
+  .stat-2-num,
+  .stat-3-num {
+    font-size: 96px;
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+  }
+
+  /* SLOT: .stat-1-label */
+  .stat-1-label,
+  .stat-2-label,
+  .stat-3-label {
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.5);
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: eyebrow -->
+  <p class="eyebrow">Annual growth highlights</p>
+
+  <!-- SLOT: headline -->
+  <p class="headline">The numbers tell the story</p>
+
+  <!-- SLOT: body-copy -->
+  <p class="body-copy">Three metrics that defined the year and set the trajectory for what comes next in our industry.</p>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <!-- SLOT: stat-1-num -->
+      <div class="stat-1-num">94%</div>
+      <!-- SLOT: stat-1-label -->
+      <div class="stat-1-label">Client retention</div>
+    </div>
+    <div class="stat-item">
+      <!-- SLOT: stat-2-num -->
+      <div class="stat-2-num">3.2x</div>
+      <!-- SLOT: stat-2-label -->
+      <div class="stat-2-label">Revenue growth</div>
+    </div>
+    <div class="stat-item">
+      <!-- SLOT: stat-3-num -->
+      <div class="stat-3-num">48h</div>
+      <!-- SLOT: stat-3-label -->
+      <div class="stat-3-label">Avg. turnaround</div>
+    </div>
+  </div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

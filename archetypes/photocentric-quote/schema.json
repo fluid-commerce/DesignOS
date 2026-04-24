@@ -1,0 +1,38 @@
+{
+  "archetypeId": "photocentric-quote",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "quote-testimonial",
+    "mood": ["editorial", "intimate", "personal"],
+    "contentDensity": "sparse",
+    "imageRole": "hero",
+    "imageHints": {
+      "suggestedAspect": "4:3 or wider (crops to top 56% of canvas)",
+      "suggestedSubject": "portrait, lifestyle moment, or contextual environment",
+      "treatment": "photo fills upper zone, text panel sits below with dark background",
+      "damPreference": ["people", "lifestyle", "portrait"]
+    },
+    "useCases": [
+      "Founder or executive quotes paired with a portrait photo",
+      "Client testimonial posts with a lifestyle photo of the client",
+      "Inspirational quote posts where the visual context matters",
+      "Team spotlight posts combining person photo with their quote"
+    ],
+    "avoidCases": [
+      "When no strong photo asset is available (use typographic-quote instead)",
+      "Quotes longer than 2–3 sentences — text panel becomes too crowded",
+      "When the quote needs extensive attribution context"
+    ],
+    "slotCount": 4
+  },
+  "fields": [
+    { "type": "image", "sel": ".photo img", "label": "Portrait / Lifestyle Photo", "dims": "1080 x 760px" },
+    { "type": "text", "sel": ".quote-mark",  "label": "Quote Mark",               "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".quote-text",  "label": "Quote Text",               "mode": "pre",  "rows": 4 },
+    { "type": "text", "sel": ".attribution", "label": "Attribution",              "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

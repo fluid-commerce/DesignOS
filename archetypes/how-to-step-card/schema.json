@@ -1,0 +1,40 @@
+{
+  "archetypeId": "how-to-step-card",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "tips-howto",
+    "mood": ["educational", "structured", "clear", "practical"],
+    "contentDensity": "moderate",
+    "imageRole": "accent",
+    "imageHints": {
+      "suggestedAspect": "portrait or square",
+      "suggestedSubject": "action photo or lifestyle image contextual to the step topic",
+      "treatment": "rounded-corner left-column photo supports the step; text is primary",
+      "damPreference": ["lifestyle", "people", "work", "wellness"]
+    },
+    "useCases": [
+      "Individual carousel slide content cards for tip series",
+      "Standalone single-tip educational posts",
+      "Step cards in how-to instructional carousels",
+      "Onboarding or tutorial content delivery"
+    ],
+    "avoidCases": [
+      "Cover slides (use numbered-tips-cover instead)",
+      "When the step body is more than 3–4 sentences",
+      "When the topic has no clear, actionable single step"
+    ],
+    "slotCount": 6
+  },
+  "fields": [
+    { "type": "text",  "sel": ".series-label",   "label": "Series Label",    "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".step-photo img", "label": "Step Photo",      "dims": "440 x 560px" },
+    { "type": "text",  "sel": ".step-number",    "label": "Step Number",     "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".step-headline",  "label": "Step Headline",   "mode": "pre",  "rows": 3 },
+    { "type": "text",  "sel": ".step-body",      "label": "Step Body",       "mode": "pre",  "rows": 4 },
+    { "type": "text",  "sel": ".page-indicator", "label": "Page Indicator",  "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

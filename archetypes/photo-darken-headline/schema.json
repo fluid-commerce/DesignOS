@@ -1,0 +1,39 @@
+{
+  "archetypeId": "photo-darken-headline",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "hero-photo",
+    "mood": ["editorial", "cinematic", "bold", "dramatic"],
+    "contentDensity": "sparse",
+    "imageRole": "background",
+    "imageHints": {
+      "suggestedAspect": "4:5 or wider",
+      "suggestedSubject": "single person, landscape, or abstract texture with a clear uncluttered area at the bottom",
+      "treatment": "gradient darkens the bottom 35% to 80% opacity for text legibility",
+      "damPreference": ["lifestyle", "people", "landscape", "abstract"]
+    },
+    "useCases": [
+      "Brand manifesto or mission statement posts",
+      "Launch hero posts with dramatic mood",
+      "Hiring or team posts with a lifestyle photo",
+      "Campaign anchor posts where the photo sets the emotional tone"
+    ],
+    "avoidCases": [
+      "Data-heavy content requiring multiple text elements",
+      "Posts needing bullet points or structured information",
+      "Brands without strong photography in the DAM",
+      "Photos with complex or text-heavy backgrounds"
+    ],
+    "slotCount": 4
+  },
+  "fields": [
+    { "type": "image", "sel": ".hero-photo img", "label": "Hero / Background Photo", "dims": "1080 x 1350px" },
+    { "type": "text",  "sel": ".eyebrow",        "label": "Eyebrow",                 "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".headline",       "label": "Headline",                "mode": "pre",  "rows": 3 },
+    { "type": "text",  "sel": ".sub-copy",       "label": "Sub Copy / CTA",          "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

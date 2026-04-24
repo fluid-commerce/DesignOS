@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!-- archetype: stat-comparison | target: 1080x1350 (instagram-portrait) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .section-label */
+  .section-label {
+    position: absolute;
+    left: 68px;
+    top: 108px;
+    width: 944px;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.45);
+    z-index: 2;
+  }
+
+  /* SLOT: .headline */
+  .headline {
+    position: absolute;
+    left: 68px;
+    top: 168px;
+    width: 944px;
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  .comparison-grid {
+    position: absolute;
+    left: 68px;
+    right: 68px;
+    top: 480px;
+    display: flex;
+    gap: 40px;
+    z-index: 2;
+  }
+
+  .comparison-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* SLOT: .before-label */
+  .before-label,
+  .after-label {
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* SLOT: .before-value */
+  .before-value,
+  .after-value {
+    font-size: 140px;
+    font-weight: 900;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    color: #ffffff;
+  }
+
+  /* SLOT: .before-desc */
+  .before-desc,
+  .after-desc {
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .divider {
+    position: absolute;
+    left: 540px;
+    top: 480px;
+    bottom: 220px;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+    z-index: 2;
+  }
+
+  /* SLOT: .bottom-note */
+  .bottom-note {
+    position: absolute;
+    left: 68px;
+    bottom: 108px;
+    width: 850px;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: section-label -->
+  <p class="section-label">Before vs. After</p>
+
+  <!-- SLOT: headline -->
+  <p class="headline">The transformation in numbers</p>
+
+  <div class="divider"></div>
+  <div class="comparison-grid">
+    <div class="comparison-col">
+      <!-- SLOT: before-label -->
+      <div class="before-label">Before</div>
+      <!-- SLOT: before-value -->
+      <div class="before-value">12%</div>
+      <!-- SLOT: before-desc -->
+      <div class="before-desc">conversion rate</div>
+    </div>
+    <div class="comparison-col">
+      <!-- SLOT: after-label -->
+      <div class="after-label">After</div>
+      <!-- SLOT: after-value -->
+      <div class="after-value">38%</div>
+      <!-- SLOT: after-desc -->
+      <div class="after-desc">conversion rate</div>
+    </div>
+  </div>
+
+  <!-- SLOT: bottom-note -->
+  <p class="bottom-note">90-day engagement sprint. Same audience, stronger creative.</p>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

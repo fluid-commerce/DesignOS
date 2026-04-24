@@ -455,6 +455,43 @@ function initSchema(db: Database.Database): void {
     // idempotent migration: ignore "column/index already exists" errors
   }
 
+  // Migration (Phase 24): add metadata column to brand_assets.
+  // Stores JSON-serialized per-row metadata.
+  // Populated by Phase 24+ for generated assets: prompt, model, aspect_ratio, idempotency_key, etc.
+  try {
+    db.exec('ALTER TABLE brand_assets ADD COLUMN metadata TEXT');
+  } catch {
+    // idempotent migration: ignore "column/index already exists" errors
+  }
+
+  // Migration (Phase 25): add sdk_session_id to chats.
+  // Maps our chatId to the Claude Agent SDK session UUID used by query(resume).
+  // Null until the first query() call for that chat; set on first turn.
+  try {
+    db.exec('ALTER TABLE chats ADD COLUMN sdk_session_id TEXT');
+  } catch {
+    // idempotent migration: ignore "column/index already exists" errors
+  }
+
+  // Phase 24: tool_audit_log — append-only audit trail for all tool invocations.
+  // Survives chat deletion (session_id FK is intentionally nullable).
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS tool_audit_log (
+      id TEXT PRIMARY KEY,
+      session_id TEXT,
+      tool TEXT NOT NULL,
+      args_hash TEXT,
+      tier TEXT NOT NULL,
+      decision TEXT NOT NULL,
+      cost_usd_est REAL DEFAULT 0,
+      outcome TEXT,
+      timestamp INTEGER NOT NULL,
+      detail_json TEXT
+    );
+    CREATE INDEX IF NOT EXISTS tool_audit_log_session ON tool_audit_log(session_id);
+    CREATE INDEX IF NOT EXISTS tool_audit_log_timestamp ON tool_audit_log(timestamp);
+  `);
+
   // Seed brand_styles with Fluid defaults if table is empty
   const styleCount = (db.prepare('SELECT COUNT(*) as c FROM brand_styles').get() as any)?.c ?? 0;
   if (styleCount === 0) {

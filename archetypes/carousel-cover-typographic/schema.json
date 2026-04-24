@@ -1,0 +1,33 @@
+{
+  "archetypeId": "carousel-cover-typographic",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "carousel-cover",
+    "mood": ["bold", "editorial", "educational", "scroll-stopping"],
+    "contentDensity": "sparse",
+    "imageRole": "none",
+    "useCases": [
+      "Carousel series cover slides for educational or thought-leadership content",
+      "List-based content teasers (5 ways to X, 3 rules for Y)",
+      "Thought-leadership carousel openers",
+      "Content series brand anchor posts"
+    ],
+    "avoidCases": [
+      "Single-frame standalone posts (the swipe CTA makes no sense without following slides)",
+      "When the headline is more than 6–7 words at this display size",
+      "When a lifestyle or product photo should anchor the cover (use numbered-tips-cover)"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "text", "sel": ".topic-tag",         "label": "Topic Tag",        "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".cover-number-hint", "label": "Number Hint",      "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".cover-headline",    "label": "Cover Headline",   "mode": "pre",  "rows": 3 },
+    { "type": "text", "sel": ".cover-sub",         "label": "Subtitle",         "mode": "pre",  "rows": 2 },
+    { "type": "text", "sel": ".swipe-badge-label", "label": "Swipe CTA",        "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<!-- archetype: product-feature-grid | target: 1080x1350 (instagram-portrait) -->
+<!-- Layout: headline top, 2x2 feature items with photo + name + price each -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .collection-title */
+  .collection-title {
+    position: absolute;
+    left: 68px;
+    top: 80px;
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .collection-sub */
+  .collection-sub {
+    position: absolute;
+    left: 68px;
+    top: 148px;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+  }
+
+  .product-grid {
+    position: absolute;
+    left: 68px;
+    right: 68px;
+    top: 240px;
+    bottom: 100px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 24px;
+    z-index: 2;
+  }
+
+  .product-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+
+  .product-item-img {
+    flex: 1;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .product-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-item-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  /* SLOT: .item-1-name */
+  .item-1-name,
+  .item-2-name,
+  .item-3-name,
+  .item-4-name {
+    font-size: 26px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  /* SLOT: .item-1-price */
+  .item-1-price,
+  .item-2-price,
+  .item-3-price,
+  .item-4-price {
+    font-size: 26px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: collection-title -->
+  <div class="collection-title">New Collection</div>
+
+  <!-- SLOT: collection-sub -->
+  <div class="collection-sub">Spring Drop · Limited quantities</div>
+
+  <div class="product-grid">
+    <div class="product-item">
+      <!-- SLOT: item-1-photo -->
+      <div class="product-item-img">
+        <img class="item-1-photo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+      </div>
+      <div class="product-item-info">
+        <!-- SLOT: item-1-name -->
+        <div class="item-1-name">Item One</div>
+        <!-- SLOT: item-1-price -->
+        <div class="item-1-price">$45</div>
+      </div>
+    </div>
+    <div class="product-item">
+      <!-- SLOT: item-2-photo -->
+      <div class="product-item-img">
+        <img class="item-2-photo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+      </div>
+      <div class="product-item-info">
+        <!-- SLOT: item-2-name -->
+        <div class="item-2-name">Item Two</div>
+        <!-- SLOT: item-2-price -->
+        <div class="item-2-price">$38</div>
+      </div>
+    </div>
+    <div class="product-item">
+      <!-- SLOT: item-3-photo -->
+      <div class="product-item-img">
+        <img class="item-3-photo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+      </div>
+      <div class="product-item-info">
+        <!-- SLOT: item-3-name -->
+        <div class="item-3-name">Item Three</div>
+        <!-- SLOT: item-3-price -->
+        <div class="item-3-price">$62</div>
+      </div>
+    </div>
+    <div class="product-item">
+      <!-- SLOT: item-4-photo -->
+      <div class="product-item-img">
+        <img class="item-4-photo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+      </div>
+      <div class="product-item-info">
+        <!-- SLOT: item-4-name -->
+        <div class="item-4-name">Item Four</div>
+        <!-- SLOT: item-4-price -->
+        <div class="item-4-price">$55</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

@@ -23,3 +23,8 @@ canvas/.env
 .env.local
 # Overnight review snapshots (dated)
 tools/overnight-review-[0-9]*.html
+# OCR working artifacts (per-archetype, not source-controlled)
+archetypes/*/.ocr-notes.txt
+# Phase 24: AI-generated images (never commit generated content)
+assets/generated/
+canvas/assets/generated/

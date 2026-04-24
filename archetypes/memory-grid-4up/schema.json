@@ -1,0 +1,40 @@
+{
+  "archetypeId": "memory-grid-4up",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "photo-collage",
+    "mood": ["intimate", "nostalgic", "curated", "lifestyle"],
+    "contentDensity": "sparse",
+    "imageRole": "grid",
+    "imageHints": {
+      "suggestedAspect": "photo-main: landscape (702x800px); photo-side: portrait (370x800px); bottom: landscape (702x538 and 370x538)",
+      "suggestedSubject": "memory-type or lifestyle photos with consistent visual theme",
+      "treatment": "asymmetric layout gives the main photo visual prominence; side/bottom photos provide context",
+      "damPreference": ["lifestyle", "people", "travel", "events"]
+    },
+    "useCases": [
+      "Event or trip recap posts with 4 hero moments",
+      "Product collection posts showing environmental and detail shots",
+      "Monthly or seasonal recap posts",
+      "Team or behind-the-scenes multi-photo storytelling"
+    ],
+    "avoidCases": [
+      "When all 4 photos are the same orientation or scale (defeats the asymmetric purpose)",
+      "When a text-heavy message needs to be primary",
+      "When fewer than 4 images are available"
+    ],
+    "slotCount": 6
+  },
+  "fields": [
+    { "type": "image", "sel": ".photo-main",         "label": "Main Photo (large)",  "dims": "702 x 800px" },
+    { "type": "image", "sel": ".photo-side",         "label": "Side Photo",          "dims": "370 x 800px" },
+    { "type": "image", "sel": ".photo-bottom-left",  "label": "Bottom Left Photo",   "dims": "702 x 538px" },
+    { "type": "image", "sel": ".photo-bottom-right", "label": "Bottom Right Photo",  "dims": "370 x 538px" },
+    { "type": "text",  "sel": ".caption-text",       "label": "Caption",             "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".date-label",         "label": "Date / Season",       "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!-- archetype: carousel-cover-typographic | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Post_de_Instagram_Portada_Carrusel_Aesthetic_Moderno_Blanco + how-to cover pattern -->
+<!-- Layout: topic tag top-left, large headline center-left, swipe badge bottom-right -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .topic-tag */
+  .topic-tag {
+    position: absolute;
+    left: 68px;
+    top: 108px;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+  }
+
+  /* SLOT: .cover-number-hint */
+  .cover-number-hint {
+    position: absolute;
+    left: 68px;
+    top: 300px;
+    font-size: 200px;
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.08);
+    z-index: 2;
+  }
+
+  /* SLOT: .cover-headline */
+  .cover-headline {
+    position: absolute;
+    left: 68px;
+    top: 380px;
+    width: 880px;
+    font-size: 130px;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .cover-sub */
+  .cover-sub {
+    position: absolute;
+    left: 68px;
+    bottom: 300px;
+    width: 800px;
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.55);
+    z-index: 2;
+  }
+
+  .swipe-badge {
+    position: absolute;
+    right: 68px;
+    bottom: 108px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2;
+  }
+
+  /* SLOT: .swipe-badge-label */
+  .swipe-badge-label {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.45);
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: topic-tag -->
+  <div class="topic-tag">CONTENT STRATEGY</div>
+
+  <!-- SLOT: cover-number-hint -->
+  <div class="cover-number-hint">5</div>
+
+  <!-- SLOT: cover-headline -->
+  <p class="cover-headline">Ways to grow without burning out</p>
+
+  <!-- SLOT: cover-sub -->
+  <p class="cover-sub">A practical framework for building sustainable momentum — no hustle required.</p>
+
+  <div class="swipe-badge">
+    <!-- SLOT: swipe-badge-label -->
+    <div class="swipe-badge-label">SWIPE TO READ →</div>
+  </div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

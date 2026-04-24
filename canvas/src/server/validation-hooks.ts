@@ -86,7 +86,13 @@ export function runValidation(htmlPath: string, platform: string): ValidationRes
   }
 
   // Run dimension-check.cjs (same execFileSync rationale as above).
-  const dimTarget = platform === 'linkedin' ? 'linkedin_landscape' : platform;
+  // Map canvas/MCP platform slugs → dimension-check target keys.
+  // Keep in sync with tools/dimension-check.cjs KNOWN_DIMENSIONS.
+  const dimTarget =
+    platform === 'linkedin' ? 'linkedin_landscape'
+    : platform === 'instagram-portrait' ? 'instagram_portrait'
+    : platform === 'instagram-square' ? 'instagram_square'
+    : platform;
   try {
     const dimOutput = execFileSync(
       'node',

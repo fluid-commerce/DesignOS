@@ -69,12 +69,18 @@ describe('Brand Discovery Tools', () => {
     }
   });
 
-  it('listArchetypes returns entries from filesystem', () => {
+  it('listArchetypes returns entries from filesystem with rich meta projection', () => {
+    // Phase 23: 'slots' was replaced with richer meta fields (category, mood,
+    // imageRole, slotCount, useCases) to support filter-first agent discovery.
     const result = listArchetypes();
     expect(Array.isArray(result)).toBe(true);
     expect(result.length).toBeGreaterThan(0);
     expect(result[0]).toHaveProperty('slug');
-    expect(result[0]).toHaveProperty('slots');
+    expect(result[0]).toHaveProperty('platform');
+    expect(result[0]).toHaveProperty('category');
+    expect(result[0]).toHaveProperty('imageRole');
+    expect(result[0]).toHaveProperty('slotCount');
+    expect(result[0]).toHaveProperty('useCases');
   });
 
   it('readArchetype returns HTML and schema for valid slug', () => {

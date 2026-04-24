@@ -12,9 +12,34 @@ cd canvas && npm install && npm run dev
 - **Template library:** http://localhost:5174/
 - **Brand assets served at:** `/fluid-assets/*`
 
-Environment variables (`.env` at repo root):
-- `ANTHROPIC_API_KEY` — required for generation
+## Running Locally — Claude Authentication
+
+The agent runtime uses `@anthropic-ai/claude-agent-sdk`. Two auth paths are supported:
+
+**Option A — API key (CI + production):**
+```bash
+# Add to .env at repo root (or export in your shell)
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+**Option B — Claude CLI login (local dev, one-time setup):**
+```bash
+# Install the Claude CLI if not already present, then:
+claude login
+# Follow the OAuth flow. Credentials are saved to ~/.claude/.credentials.json
+# No API key provisioning needed; the SDK picks up the session automatically.
+```
+
+API key takes precedence if both are set. `GET /api/health` returns `anthropic: 'ok'`
+for either path.
+
+## Other Environment Variables
+
 - `VITE_FLUID_DAM_TOKEN` — optional, for DAM picker integration
+- `GEMINI_API_KEY` — required for AI image generation (generate_image tool)
+- `FLUID_AGENT_MODEL` — override the Claude model (default: `claude-sonnet-4-6`)
+- `FLUID_DISPATCH_TRUSTED` — set to `true` to bypass ask-first tool permission prompts
+- `FLUID_DAILY_COST_CAP_USD` — daily spend cap for image generation (default: `10.00`)
 
 ## Tech Stack
 
@@ -23,7 +48,7 @@ Environment variables (`.env` at repo root):
 | Frontend | React 19, TypeScript 5.6, Zustand 5, Vite 6 |
 | Backend | Vite middleware plugin (no Express) |
 | Database | SQLite (better-sqlite3, WAL mode) |
-| AI | Anthropic SDK with tool use, SSE streaming |
+| AI | Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`) with MCP tool servers, SSE streaming |
 | Testing | Vitest + Playwright |
 | Styling | Plain CSS (no Tailwind in the app itself) |
 

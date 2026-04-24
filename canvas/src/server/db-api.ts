@@ -8,6 +8,8 @@
  */
 
 import { nanoid } from 'nanoid';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { getDb } from '../lib/db';
 import { slugify } from '../lib/slugify';
 import type {
@@ -18,6 +20,11 @@ import type {
   CampaignAnnotation,
 } from '../lib/campaign-types';
 import { resolveSlotSchemaForIteration } from '../lib/template-configs';
+
+// Project root for resolving relative html_path values. Mirrors the computation
+// used by agent-tools.saveCreation and the watcher, so cleanup resolves exactly
+// the same paths the runtime writes/serves from.
+const DB_API_PROJECT_ROOT = path.resolve(import.meta.dirname, '..', '..', '..');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -129,6 +136,37 @@ export function getCampaign(id: string): Campaign | undefined {
     | Record<string, unknown>
     | undefined;
   return row ? rowToCampaign(row) : undefined;
+}
+
+/**
+ * Sentinel title for the singleton standalone campaign. Standalone creations
+ * (single-asset saves without an explicit campaign) are filed under this
+ * campaign so they satisfy the `creations.campaign_id` NOT NULL constraint
+ * while remaining grouped together for the Creations tab UI.
+ */
+export const STANDALONE_CAMPAIGN_TITLE = '__standalone__';
+
+/**
+ * Returns the ID of the singleton "__standalone__" sentinel campaign, creating
+ * it on first call. Idempotent — subsequent calls always return the same ID.
+ *
+ * Used by:
+ *   - agent-tools.saveCreation, to route campaignless saves to a single bucket
+ *     instead of spawning a fresh "Agent Campaign ..." row per save.
+ *   - watcher / UI flows that need to attach standalone creations to a known
+ *     campaign before the user has picked one.
+ */
+export function getOrCreateStandaloneCampaignId(): string {
+  const db = getDb();
+  const row = db.prepare('SELECT id FROM campaigns WHERE title = ?').get(
+    STANDALONE_CAMPAIGN_TITLE,
+  ) as { id: string } | undefined;
+  if (row) return row.id;
+  const campaign = createCampaign({
+    title: STANDALONE_CAMPAIGN_TITLE,
+    channels: ['standalone'],
+  });
+  return campaign.id;
 }
 
 // ─── Creation ───────────────────────────────────────────────────────────────
@@ -1509,4 +1547,455 @@ export function deleteBrandStyle(scope: string): boolean {
     .prepare("UPDATE brand_styles SET css_content = '', updated_at = ? WHERE scope = ?")
     .run(Date.now(), scope);
   return result.changes > 0;
+}
+
+// ─── Phase 24: Generated assets + tool audit helpers ──────────────────────────
+
+/**
+ * Insert a Gemini-generated image as a brand asset with source='generated'.
+ * metadata JSON captures prompt, model, aspect_ratio, idempotency_key, etc.
+ */
+export function insertGeneratedAsset(params: {
+  id: string;
+  name: string;
+  filePath: string;
+  mimeType: string;
+  sizeBytes: number;
+  metadata: Record<string, unknown>;
+}): BrandAsset {
+  const db = getDb();
+  db.prepare(
+    `INSERT INTO brand_assets (id, name, category, file_path, mime_type, size_bytes, tags, description, source, dam_deleted, metadata, created_at)
+     VALUES (?, ?, 'images', ?, ?, ?, '[]', NULL, 'generated', 0, ?, ?)`,
+  ).run(
+    params.id,
+    params.name,
+    params.filePath,
+    params.mimeType,
+    params.sizeBytes,
+    JSON.stringify(params.metadata),
+    Date.now(),
+  );
+
+  return {
+    id: params.id,
+    name: params.name,
+    category: 'images',
+    url: `/api/brand-assets/serve/${encodeURIComponent(params.name)}`,
+    mimeType: params.mimeType,
+    sizeBytes: params.sizeBytes,
+    tags: [],
+    source: 'generated',
+    damDeleted: false,
+    description: null,
+  };
+}
+
+/**
+ * Look up a generated brand asset by idempotency key stored in its metadata JSON.
+ * Uses SQLite's native json_extract with a bound parameter (injection-safe).
+ * Returns a minimal shape sufficient for the idempotency hit-path in generateImageTool.
+ */
+export function findAssetByIdempotencyKey(
+  key: string,
+): { id: string; name: string; url: string; filePath: string; mimeType: string } | null {
+  const db = getDb();
+  const row = db
+    .prepare(
+      "SELECT id, name, file_path, mime_type FROM brand_assets WHERE json_extract(metadata, '$.idempotency_key') = ? LIMIT 1",
+    )
+    .get(key) as { id: string; name: string; file_path: string; mime_type: string } | undefined;
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    url: `/api/brand-assets/serve/${encodeURIComponent(row.name)}`,
+    filePath: row.file_path,
+    mimeType: row.mime_type,
+  };
+}
+
+/**
+ * Promote a generated (or uploaded) asset to the curated brand library.
+ * Changes source from 'generated' or 'upload' to 'local' so it appears
+ * alongside DAM assets in searches.
+ *
+ * Preferred over modifying promoteUploadToLibrary — that function has
+ * explicit 'upload'-only semantics. This helper has the broader predicate.
+ */
+export function promoteAssetToLibrary(assetId: string): void {
+  const db = getDb();
+  db.prepare(
+    "UPDATE brand_assets SET source = 'local' WHERE id = ? AND source IN ('upload', 'generated')",
+  ).run(assetId);
+}
+
+export interface BrandAssetSearchResult {
+  id: string;
+  name: string;
+  category: string;
+  filePath: string;
+  mimeType: string;
+  description: string | null;
+  score: number;
+  url: string;
+}
+
+/**
+ * Text-score search over brand_assets name, description, and tags.
+ * Scoring per query token:
+ *   +3 if token matches name (case-insensitive)
+ *   +2 if token matches description
+ *   +1 if token matches tags JSON string
+ *   +1 if category matches category filter
+ * Returns score-sorted descending, capped at limit (default 10, max 25).
+ */
+export function searchBrandAssets(
+  query: string,
+  category?: string,
+  limit: number = 10,
+): BrandAssetSearchResult[] {
+  const db = getDb();
+  const effectiveLimit = Math.min(limit, 25);
+  const tokens = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length > 0);
+
+  if (tokens.length === 0) return [];
+
+  // Fetch candidate rows (filtered by category when provided, excluding deleted)
+  const rows = (
+    category
+      ? (db
+          .prepare(
+            'SELECT id, name, category, file_path, mime_type, description, tags FROM brand_assets WHERE category = ? AND (dam_deleted = 0 OR dam_deleted IS NULL)',
+          )
+          .all(category) as Record<string, unknown>[])
+      : (db
+          .prepare(
+            'SELECT id, name, category, file_path, mime_type, description, tags FROM brand_assets WHERE (dam_deleted = 0 OR dam_deleted IS NULL)',
+          )
+          .all() as Record<string, unknown>[])
+  );
+
+  const scored: BrandAssetSearchResult[] = [];
+
+  for (const row of rows) {
+    const nameLower = (row.name as string).toLowerCase();
+    const descLower = ((row.description as string | null) ?? '').toLowerCase();
+    const tagsLower = (row.tags as string).toLowerCase();
+    const catLower = (row.category as string).toLowerCase();
+
+    let score = 0;
+    for (const token of tokens) {
+      if (nameLower.includes(token)) score += 3;
+      if (descLower.includes(token)) score += 2;
+      if (tagsLower.includes(token)) score += 1;
+    }
+    if (category && catLower === category.toLowerCase()) score += 1;
+
+    if (score > 0) {
+      scored.push({
+        id: row.id as string,
+        name: row.name as string,
+        category: row.category as string,
+        filePath: row.file_path as string,
+        mimeType: row.mime_type as string,
+        description: (row.description as string | null) ?? null,
+        score,
+        url: `/api/brand-assets/serve/${encodeURIComponent(row.name as string)}`,
+      });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, effectiveLimit);
+}
+
+export interface ToolAuditLogEntry {
+  sessionId: string | null;
+  tool: string;
+  argsHash: string;
+  tier: string;
+  decision: string;
+  costUsdEst?: number;
+  outcome?: string;
+  detailJson?: string;
+}
+
+/**
+ * Insert a row into tool_audit_log. Used by the tool-dispatch wrapper (Phase 24+).
+ * id is auto-generated via nanoid, timestamp is Date.now().
+ */
+export function writeToolAuditLog(entry: ToolAuditLogEntry): void {
+  const db = getDb();
+  db.prepare(
+    `INSERT INTO tool_audit_log (id, session_id, tool, args_hash, tier, decision, cost_usd_est, outcome, timestamp, detail_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    nanoid(),
+    entry.sessionId,
+    entry.tool,
+    entry.argsHash,
+    entry.tier,
+    entry.decision,
+    entry.costUsdEst ?? 0,
+    entry.outcome ?? null,
+    Date.now(),
+    entry.detailJson ?? null,
+  );
+}
+
+/**
+ * Sum cost_usd_est from tool_audit_log for the current UTC day (midnight to now).
+ * Pass sinceTs (Unix ms) to override the start timestamp.
+ * Used by later dispatches to enforce daily spend caps.
+ */
+export function dailySpendUsd(sinceTs?: number): number {
+  const db = getDb();
+  const startOfDay = sinceTs ?? (() => {
+    const now = new Date();
+    return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  })();
+  const result = db
+    .prepare(
+      'SELECT COALESCE(SUM(cost_usd_est), 0) as total FROM tool_audit_log WHERE timestamp >= ?',
+    )
+    .get(startOfDay) as { total: number };
+  return result.total;
+}
+
+// ─── Stale iteration cleanup ────────────────────────────────────────────────
+
+/**
+ * Resolve an iteration's html_path to an on-disk file, trying the canonical
+ * strategies the watcher uses to serve HTML. Returns the first resolved
+ * absolute path, or null if none of the strategies locate the file.
+ *
+ * The watcher (canvas/src/server/watcher.ts, /api/iterations/:id/html) tries
+ * 7 fallback strategies for historical/legacy shape reasons. For cleanup
+ * purposes we check the four that map to canonical on-disk shapes actual
+ * rows are written with today:
+ *   1. html_path resolved against PROJECT_ROOT (default agent-tools shape)
+ *   2. html_path resolved against .fluid/ (legacy writers)
+ *   3. canonical `.fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html`
+ *   7. slide-less shape: `.fluid/campaigns/{cId}/{creationId}/{iterId}.html`
+ * Strategies 5/6 are duplicates of 1/2 with .fluid/ stripping. Strategy 4
+ * (templates/social by basename) is for template rows which wouldn't exist in
+ * iterations in the abandoned-save state we're targeting. Skipping them here
+ * keeps cleanup conservative — a file found by any skipped strategy would
+ * mean we'd incorrectly mark a valid iteration stale.
+ */
+export function resolveIterationHtmlPath(
+  row: { id: string; html_path: string; slide_id?: string | null },
+  projectRoot: string = DB_API_PROJECT_ROOT,
+): string | null {
+  if (!row.html_path) return null;
+  const fluidDir = path.resolve(projectRoot, '.fluid');
+
+  // Strategy 1: resolve against project root
+  const stored = path.resolve(projectRoot, row.html_path);
+  if (fs.existsSync(stored)) return stored;
+
+  // Strategy 2: resolve against .fluid/
+  const fluidPath = path.resolve(fluidDir, row.html_path);
+  if (fs.existsSync(fluidPath)) return fluidPath;
+
+  // Look up full hierarchy for strategies 3 and 7
+  const db = getDb();
+  const hierarchy = db
+    .prepare(
+      `
+      SELECT c.campaign_id, s.creation_id, i.slide_id
+      FROM iterations i
+      JOIN slides s ON s.id = i.slide_id
+      JOIN creations c ON c.id = s.creation_id
+      WHERE i.id = ?
+      `,
+    )
+    .get(row.id) as
+    | { campaign_id: string; creation_id: string; slide_id: string }
+    | undefined;
+
+  if (hierarchy) {
+    // Strategy 3: canonical .fluid/campaigns/{cId}/{creationId}/{slideId}/{iterId}.html
+    const canonical = path.join(
+      fluidDir,
+      'campaigns',
+      hierarchy.campaign_id,
+      hierarchy.creation_id,
+      hierarchy.slide_id,
+      `${row.id}.html`,
+    );
+    if (fs.existsSync(canonical)) return canonical;
+
+    // Strategy 7: slide-less shape
+    const noSlide = path.join(
+      fluidDir,
+      'campaigns',
+      hierarchy.campaign_id,
+      hierarchy.creation_id,
+      `${row.id}.html`,
+    );
+    if (fs.existsSync(noSlide)) return noSlide;
+  }
+
+  return null;
+}
+
+/**
+ * Delete iteration rows whose `html_path` points to a file that no longer
+ * exists on disk, then cascade-delete now-empty slides/creations/campaigns.
+ *
+ * Why: saveCreation is only semi-atomic. A file write is done before the DB
+ * transaction. Historically, abandoned test runs, crashed saves, or hand-wired
+ * test fixtures have left iteration rows pointing to files that were never
+ * created or were cleaned up out of band. The Campaigns view then renders
+ * cards that load "HTML file not found on disk" in place of the preview.
+ *
+ * Safety:
+ *   - `minAgeMs` (default 10 minutes) protects rows mid-save. saveCreation
+ *     writes the file before the DB transaction, but validation / image
+ *     generation can keep a row in an "in-flight" state for several seconds.
+ *     Anything younger than `minAgeMs` is left alone.
+ *   - The singleton `__standalone__` sentinel campaign is never deleted, even
+ *     if all of its child creations are cleaned up. It's a logical bucket
+ *     used by campaignless saves; a re-created sentinel would get a new ID
+ *     and break any UI currently filtered to the old one.
+ *   - Resolution uses the same four strategies the watcher uses to serve
+ *     HTML (see resolveIterationHtmlPath). An iteration is only flagged stale
+ *     when ALL strategies fail.
+ *   - When `dryRun`, the function reports what would be deleted and performs
+ *     no mutations.
+ */
+export function cleanupStaleIterations(opts?: {
+  dryRun?: boolean;
+  minAgeMs?: number;
+}): {
+  iterationsDeleted: number;
+  slidesDeleted: number;
+  creationsDeleted: number;
+  campaignsDeleted: number;
+  details: Array<{ id: string; html_path: string; age_ms: number }>;
+} {
+  const dryRun = opts?.dryRun ?? false;
+  const minAgeMs = opts?.minAgeMs ?? 10 * 60 * 1000; // 10 minutes
+  const now = Date.now();
+
+  const db = getDb();
+  const rows = db
+    .prepare(
+      'SELECT id, html_path, slide_id, created_at FROM iterations WHERE html_path IS NOT NULL',
+    )
+    .all() as Array<{
+    id: string;
+    html_path: string;
+    slide_id: string | null;
+    created_at: number;
+  }>;
+
+  const staleDetails: Array<{ id: string; html_path: string; age_ms: number }> = [];
+  for (const row of rows) {
+    const resolved = resolveIterationHtmlPath(row);
+    if (resolved !== null) continue; // file found — not stale
+    const age = now - (row.created_at ?? 0);
+    if (age <= minAgeMs) continue; // too young — may be an in-flight save
+    staleDetails.push({ id: row.id, html_path: row.html_path, age_ms: age });
+  }
+
+  if (staleDetails.length === 0 || dryRun) {
+    return {
+      iterationsDeleted: 0,
+      slidesDeleted: 0,
+      creationsDeleted: 0,
+      campaignsDeleted: 0,
+      details: staleDetails,
+    };
+  }
+
+  const staleIds = staleDetails.map((s) => s.id);
+
+  let iterationsDeleted = 0;
+  let slidesDeleted = 0;
+  let creationsDeleted = 0;
+  let campaignsDeleted = 0;
+
+  const tx = db.transaction(() => {
+    // Find affected parents BEFORE deleting the iterations so we can scope
+    // the cascade checks.
+    const placeholders = staleIds.map(() => '?').join(',');
+    const affectedSlides = db
+      .prepare(`SELECT DISTINCT slide_id FROM iterations WHERE id IN (${placeholders})`)
+      .all(...staleIds) as Array<{ slide_id: string }>;
+    const slideIds = affectedSlides.map((r) => r.slide_id).filter(Boolean);
+
+    const iterDelete = db
+      .prepare(`DELETE FROM iterations WHERE id IN (${placeholders})`)
+      .run(...staleIds);
+    iterationsDeleted = iterDelete.changes;
+
+    // Cascade: delete annotations attached to the deleted iterations.
+    db.prepare(`DELETE FROM annotations WHERE iteration_id IN (${placeholders})`).run(
+      ...staleIds,
+    );
+
+    // Slides with zero surviving iterations → delete.
+    const affectedCreationIds = new Set<string>();
+    for (const slideId of slideIds) {
+      const remaining = db
+        .prepare('SELECT COUNT(*) as c FROM iterations WHERE slide_id = ?')
+        .get(slideId) as { c: number };
+      if (remaining.c === 0) {
+        const slide = db
+          .prepare('SELECT creation_id FROM slides WHERE id = ?')
+          .get(slideId) as { creation_id: string } | undefined;
+        if (slide) affectedCreationIds.add(slide.creation_id);
+        db.prepare('DELETE FROM slides WHERE id = ?').run(slideId);
+        slidesDeleted += 1;
+      }
+    }
+
+    // Creations with zero surviving slides → delete.
+    const affectedCampaignIds = new Set<string>();
+    for (const creationId of affectedCreationIds) {
+      const remaining = db
+        .prepare('SELECT COUNT(*) as c FROM slides WHERE creation_id = ?')
+        .get(creationId) as { c: number };
+      if (remaining.c === 0) {
+        const creation = db
+          .prepare('SELECT campaign_id FROM creations WHERE id = ?')
+          .get(creationId) as { campaign_id: string } | undefined;
+        if (creation) affectedCampaignIds.add(creation.campaign_id);
+        db.prepare('DELETE FROM creations WHERE id = ?').run(creationId);
+        creationsDeleted += 1;
+      }
+    }
+
+    // Campaigns with zero surviving creations → delete, EXCEPT the singleton
+    // __standalone__ sentinel which must persist.
+    for (const campaignId of affectedCampaignIds) {
+      const campaign = db
+        .prepare('SELECT title FROM campaigns WHERE id = ?')
+        .get(campaignId) as { title: string } | undefined;
+      if (!campaign) continue;
+      if (campaign.title === STANDALONE_CAMPAIGN_TITLE) continue;
+      const remaining = db
+        .prepare('SELECT COUNT(*) as c FROM creations WHERE campaign_id = ?')
+        .get(campaignId) as { c: number };
+      if (remaining.c === 0) {
+        db.prepare('DELETE FROM campaigns WHERE id = ?').run(campaignId);
+        campaignsDeleted += 1;
+      }
+    }
+  });
+  tx();
+
+  return {
+    iterationsDeleted,
+    slidesDeleted,
+    creationsDeleted,
+    campaignsDeleted,
+    details: staleDetails,
+  };
 }

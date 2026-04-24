@@ -27,17 +27,32 @@ const KNOWN_FIELD_TYPES = ['text', 'image', 'divider'];
 const KNOWN_TEXT_MODES = ['text', 'pre', 'br'];
 
 // ── Platform dimension lookup ────────────────────────────────────────────────
-function getPlatformForSlug(slug) {
+
+/**
+ * Determine platform for a given slug + parsed schema.
+ * Priority: schema.platform (explicit) > slug suffix convention (implicit).
+ * This allows new 4:5 archetypes without a suffix to declare their platform directly.
+ */
+function getPlatformForSlug(slug, schema) {
+  // Prefer explicit schema.platform when present (forward-contract for new archetypes)
+  if (schema && typeof schema.platform === 'string' && schema.platform !== '') {
+    return schema.platform;
+  }
+  // Fall back to slug suffix convention for legacy archetypes
   if (slug.endsWith('-li')) return 'linkedin-landscape';
   if (slug.endsWith('-op')) return 'one-pager';
   return 'instagram-square';
 }
 
 const PLATFORM_DIMS = {
-  'instagram-square':   { width: 1080, height: 1080 },
-  'linkedin-landscape': { width: 1200, height: 627  },
-  'one-pager':          { width: 612,  height: 792  },
+  'instagram-square':    { width: 1080, height: 1080 },
+  'instagram-portrait':  { width: 1080, height: 1350 },
+  'linkedin-landscape':  { width: 1200, height: 627  },
+  'one-pager':           { width: 612,  height: 792  },
 };
+
+// Fields required on meta for instagram-portrait archetypes
+const INSTAGRAM_PORTRAIT_META_REQUIRED = ['category', 'imageRole', 'useCases', 'slotCount'];
 
 // Directories to skip when listing archetype slugs
 const SKIP_DIRS = new Set(['components']);
@@ -199,13 +214,38 @@ function validateArchetype(dir, slug) {
 
     // ── Check 4: Dimensions must match platform ─────────────────────────────
     // (Semantic check — can't be expressed in zod without knowing the slug)
-    const platform = getPlatformForSlug(slug);
+    const platform = getPlatformForSlug(slug, schema);
     const requiredDims = PLATFORM_DIMS[platform];
-    if (typeof schema.width === 'number' && schema.width !== requiredDims.width) {
-      error('WRONG_DIMS', `schema.json width must be ${requiredDims.width} for ${platform}, got ${schema.width}`);
+    if (!requiredDims) {
+      error('UNKNOWN_PLATFORM', `Unknown platform "${platform}" — not in PLATFORM_DIMS`);
+    } else {
+      if (typeof schema.width === 'number' && schema.width !== requiredDims.width) {
+        error('WRONG_DIMS', `schema.json width must be ${requiredDims.width} for ${platform}, got ${schema.width}`);
+      }
+      if (typeof schema.height === 'number' && schema.height !== requiredDims.height) {
+        error('WRONG_DIMS', `schema.json height must be ${requiredDims.height} for ${platform}, got ${schema.height}`);
+      }
     }
-    if (typeof schema.height === 'number' && schema.height !== requiredDims.height) {
-      error('WRONG_DIMS', `schema.json height must be ${requiredDims.height} for ${platform}, got ${schema.height}`);
+
+    // ── Check 4b: instagram-portrait archetypes must have meta sub-object ───
+    if (platform === 'instagram-portrait') {
+      if (!schema.meta || typeof schema.meta !== 'object') {
+        error('MISSING_META', 'instagram-portrait archetypes must have a "meta" object in schema.json');
+      } else {
+        for (const field of INSTAGRAM_PORTRAIT_META_REQUIRED) {
+          if (schema.meta[field] === undefined || schema.meta[field] === null) {
+            error('MISSING_META_FIELD', `schema.json meta.${field} is required for instagram-portrait archetypes`);
+          }
+        }
+        // useCases must have at least 1 entry
+        if (Array.isArray(schema.meta.useCases) && schema.meta.useCases.length === 0) {
+          error('EMPTY_USE_CASES', 'schema.json meta.useCases must have at least 1 entry');
+        }
+        // slotCount must be a positive integer
+        if (typeof schema.meta.slotCount === 'number' && schema.meta.slotCount < 1) {
+          error('INVALID_SLOT_COUNT', 'schema.json meta.slotCount must be >= 1');
+        }
+      }
     }
 
     // ── Check 11: Selector parity — class names must appear in index.html ────
@@ -235,9 +275,20 @@ function validateArchetype(dir, slug) {
       }
     }
 
-    // ── Check 13: Platform field matches slug suffix ─────────────────────────
-    if (schema.platform && schema.platform !== platform) {
-      error('PLATFORM_MISMATCH', `schema.json "platform" is "${schema.platform}" but slug suffix implies "${platform}"`);
+    // ── Check 13: If platform derived from suffix, schema.platform must agree ─
+    // When schema.platform is present, it IS the authoritative value (already used
+    // in getPlatformForSlug above). Only flag a mismatch if the schema omits platform
+    // but has dims that conflict with slug-suffix inference — that's a misconfiguration.
+    if (!schema.platform) {
+      const suffixPlatform = (() => {
+        if (slug.endsWith('-li')) return 'linkedin-landscape';
+        if (slug.endsWith('-op')) return 'one-pager';
+        return 'instagram-square';
+      })();
+      if (platform !== suffixPlatform) {
+        // This shouldn't happen when schema.platform is absent, but guard defensively
+        warning('PLATFORM_INFERRED', `No schema.platform field; inferring "${platform}" from slug suffix "${slug}"`);
+      }
     }
   }
 

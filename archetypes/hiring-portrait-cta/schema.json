@@ -1,0 +1,39 @@
+{
+  "archetypeId": "hiring-portrait-cta",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "personal-about",
+    "mood": ["professional", "bold", "editorial", "inviting"],
+    "contentDensity": "moderate",
+    "imageRole": "accent",
+    "imageHints": {
+      "suggestedAspect": "portrait orientation",
+      "suggestedSubject": "team photo, office environment, or professional portrait",
+      "treatment": "rounded-corner right-column portrait supports the bold headline",
+      "damPreference": ["people", "team", "office", "portrait"]
+    },
+    "useCases": [
+      "Job opening announcement posts",
+      "Team expansion posts",
+      "Brand ambassador or freelancer recruitment posts",
+      "Internship or fellowship announcement posts"
+    ],
+    "avoidCases": [
+      "Personal introduction posts (use about-me-portrait)",
+      "When the headline needs to describe a specific role with detail",
+      "When no team or people photo is available"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "text",  "sel": ".badge-text",        "label": "Badge Text",       "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".hiring-headline",   "label": "Headline",         "mode": "pre",  "rows": 2 },
+    { "type": "image", "sel": ".team-photo img",    "label": "Team / Person Photo", "dims": "420 x 580px" },
+    { "type": "text",  "sel": ".role-description",  "label": "Role Description", "mode": "pre",  "rows": 3 },
+    { "type": "text",  "sel": ".apply-cta",         "label": "Apply CTA",        "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

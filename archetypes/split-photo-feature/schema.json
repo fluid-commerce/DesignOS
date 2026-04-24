@@ -1,0 +1,39 @@
+{
+  "archetypeId": "split-photo-feature",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "hero-photo",
+    "mood": ["editorial", "product", "fashion", "considered"],
+    "contentDensity": "moderate",
+    "imageRole": "hero",
+    "imageHints": {
+      "suggestedAspect": "portrait or 2:3 (fills left column 520px wide)",
+      "suggestedSubject": "single person, product, or detail shot in portrait orientation",
+      "treatment": "photo is self-contained in left column; text panel on right uses dark background from body",
+      "damPreference": ["fashion", "product", "portrait", "lifestyle"]
+    },
+    "useCases": [
+      "Product feature posts pairing a product photo with editorial copy",
+      "New arrival or collection announcement posts",
+      "Profile or about posts combining a portrait with a brand statement",
+      "Case study teasers with an environmental photo and copy"
+    ],
+    "avoidCases": [
+      "When the photo is landscape-oriented (it crops poorly in the narrow 520px column)",
+      "When copy is very short (fewer than 3 lines of body text leaves the right panel empty)",
+      "When a full-bleed emotional impact is the goal (use photo-darken-headline)"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "image", "sel": ".feature-photo img",  "label": "Feature Photo",   "dims": "520 x 1350px" },
+    { "type": "text",  "sel": ".category-tag",       "label": "Category Tag",    "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".feature-headline",   "label": "Headline",        "mode": "pre",  "rows": 3 },
+    { "type": "text",  "sel": ".feature-body",       "label": "Body Copy",       "mode": "pre",  "rows": 4 },
+    { "type": "text",  "sel": ".feature-cta",        "label": "CTA",             "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

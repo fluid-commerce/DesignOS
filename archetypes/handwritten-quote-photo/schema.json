@@ -1,0 +1,39 @@
+{
+  "archetypeId": "handwritten-quote-photo",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "motivational",
+    "mood": ["warm", "intimate", "lifestyle", "inspirational"],
+    "contentDensity": "sparse",
+    "imageRole": "background",
+    "imageHints": {
+      "suggestedAspect": "4:5 (fills full canvas)",
+      "suggestedSubject": "warm lifestyle photo — nature, hands, soft interior, person in context",
+      "treatment": "photo at 50% opacity to allow italic quote text to read clearly on any background",
+      "damPreference": ["lifestyle", "nature", "people", "warmth"]
+    },
+    "useCases": [
+      "Motivational quote posts attributed to a named person",
+      "Lifestyle vlog or journal posts with a personal quote",
+      "Coach or author quote posts",
+      "Partner or client quote posts in a warm editorial context"
+    ],
+    "avoidCases": [
+      "When the quote is more than 2 sentences (italic text at 88px overflows)",
+      "When no atmospheric lifestyle photo is available (use affirmation-note)",
+      "When the attribution needs to be anonymous"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "image", "sel": ".lifestyle-photo img",  "label": "Lifestyle / Background Photo", "dims": "1080 x 1350px" },
+    { "type": "text",  "sel": ".italic-quote",         "label": "Quote Text",                  "mode": "pre",  "rows": 3 },
+    { "type": "text",  "sel": ".attribution-name",     "label": "Attribution Name",            "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".attribution-role",     "label": "Attribution Role",            "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".brand-handle",         "label": "Brand Handle",                "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

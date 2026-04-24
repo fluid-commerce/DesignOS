@@ -12,18 +12,39 @@
   .card-left { display: flex; flex-direction: column; gap: 8px; }
   .card-label { font-size: 14px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
   .frame-wrap {
-    width: 540px; height: 540px;
+    width: 270px; height: 338px;
     border: 1px solid #d0d0d0;
     background: #f5f5f5;
     overflow: hidden;
     position: relative;
   }
+  .frame-wrap.square {
+    width: 270px; height: 270px;
+  }
+  .frame-wrap.linkedin {
+    width: 360px; height: 188px;
+  }
+  .frame-wrap.onepager {
+    width: 245px; height: 317px;
+  }
   .frame-wrap iframe {
-    width: 1080px; height: 1080px;
-    transform: scale(0.5);
+    width: 1080px; height: 1350px;
+    transform: scale(0.25);
     transform-origin: top left;
     border: none;
     display: block;
+  }
+  .frame-wrap.square iframe {
+    width: 1080px; height: 1080px;
+    transform: scale(0.25);
+  }
+  .frame-wrap.linkedin iframe {
+    width: 1200px; height: 627px;
+    transform: scale(0.3);
+  }
+  .frame-wrap.onepager iframe {
+    width: 612px; height: 792px;
+    transform: scale(0.4);
   }
   .card-right { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 320px; }
   .card-right label { font-size: 13px; font-weight: 500; color: #777; }
@@ -54,7 +75,7 @@
 </head>
 <body>
 
-<h1>Phase 19 — Archetype Review</h1>
+<h1>Phase 19–23 — Archetype Review</h1>
 
 <div class="grid" id="grid"></div>
 
@@ -66,28 +87,94 @@
 
 <script>
 const archetypes = [
-  { slug: 'stat-hero-single', label: 'Stat Hero Single (Phase 18 PoC)', desc: 'Original PoC — giant stat, headline, subtext, 68px margins' },
-  { slug: 'hero-stat', label: 'Hero Stat', desc: 'Eyebrow + headline + body copy, 3-stat row at bottom' },
-  { slug: 'hero-stat-split', label: 'Hero Stat Split (NEW)', desc: 'Photo left, headline + body + 2 stats right' },
-  { slug: 'photo-bg-overlay', label: 'Photo BG Overlay', desc: 'Full-bleed photo with gradient text overlay' },
-  { slug: 'split-photo-text', label: 'Split Photo / Text', desc: '50/50 split — photo left, headline + body right' },
-  { slug: 'split-photo-quote', label: 'Split Photo / Quote (NEW)', desc: '50/50 split — photo left, pull quote + attribution right' },
-  { slug: 'quote-testimonial', label: 'Quote Testimonial', desc: 'Full-width pull quote, portrait + attribution row' },
-  { slug: 'minimal-statement', label: 'Minimal Statement', desc: 'Bold statement + subheader, grouped tight' },
-  { slug: 'minimal-photo-top', label: 'Minimal Photo Top (NEW)', desc: 'Photo top half, headline + subheader bottom' },
-  { slug: 'data-dashboard', label: 'Data Dashboard', desc: '2x2 stat grid, centered headline' },
+  // ── Phase 19–22 legacy (1080×1080 square) ──────────────────────────────────
+  { slug: 'stat-hero-single',      label: 'Stat Hero Single (Phase 18 PoC)', desc: 'Original PoC — giant stat, headline, subtext, 68px margins' },
+  { slug: 'hero-stat',             label: 'Hero Stat',                       desc: 'Eyebrow + headline + body copy, 3-stat row at bottom' },
+  { slug: 'hero-stat-split',       label: 'Hero Stat Split',                 desc: 'Photo left, headline + body + 2 stats right' },
+  { slug: 'photo-bg-overlay',      label: 'Photo BG Overlay',                desc: 'Full-bleed photo with gradient text overlay' },
+  { slug: 'split-photo-text',      label: 'Split Photo / Text',              desc: '50/50 split — photo left, headline + body right' },
+  { slug: 'split-photo-quote',     label: 'Split Photo / Quote',             desc: '50/50 split — photo left, pull quote + attribution right' },
+  { slug: 'quote-testimonial',     label: 'Quote Testimonial',               desc: 'Full-width pull quote, portrait + attribution row' },
+  { slug: 'minimal-statement',     label: 'Minimal Statement',               desc: 'Bold statement + subheader, grouped tight' },
+  { slug: 'minimal-photo-top',     label: 'Minimal Photo Top',               desc: 'Photo top half, headline + subheader bottom' },
+  { slug: 'data-dashboard',        label: 'Data Dashboard',                  desc: '2x2 stat grid, centered headline' },
+
+  // ── Phase 21 legacy (1200×627 LinkedIn landscape) ──────────────────────────
+  { slug: 'hero-stat-li',          label: 'Hero Stat (LinkedIn)',            desc: 'LinkedIn landscape variant — eyebrow + headline + 3 stats' },
+  { slug: 'data-dashboard-li',     label: 'Data Dashboard (LinkedIn)',       desc: 'LinkedIn landscape — 2x2 stat grid with centered headline' },
+  { slug: 'minimal-statement-li',  label: 'Minimal Statement (LinkedIn)',    desc: 'LinkedIn landscape — bold statement + subheader' },
+  { slug: 'split-photo-text-li',   label: 'Split Photo / Text (LinkedIn)',   desc: 'LinkedIn landscape — photo left, headline + body right' },
+  { slug: 'quote-testimonial-li',  label: 'Quote Testimonial (LinkedIn)',    desc: 'LinkedIn landscape — pull quote + attribution row' },
+  { slug: 'article-preview-li',    label: 'Article Preview (LinkedIn)',      desc: 'LinkedIn landscape — article title + excerpt + author row' },
+
+  // ── Phase 21 legacy (612×792 one-pager / US Letter) ────────────────────────
+  { slug: 'case-study-op',         label: 'Case Study (One-Pager)',          desc: 'US Letter — case study layout with results and narrative zones' },
+  { slug: 'company-overview-op',   label: 'Company Overview (One-Pager)',    desc: 'US Letter — company summary + key facts + services grid' },
+  { slug: 'product-feature-op',    label: 'Product Feature (One-Pager)',     desc: 'US Letter — product hero + feature breakdown + specs' },
+
+  // ── Phase 23 new (1080×1350 instagram-portrait) ────────────────────────────
+  // Stat / Data
+  { slug: 'hero-stat-45',          label: 'Hero Stat 4:5',                   desc: 'Portrait 4:5 variant — headline + body + 3-stat row' },
+  { slug: 'big-number-card',       label: 'Big Number Card',                  desc: 'Single dominant milestone number with unit and note' },
+  { slug: 'stat-comparison',       label: 'Stat Comparison',                  desc: 'Before/after two-column split with headline and note' },
+  // Quote / Testimonial
+  { slug: 'photocentric-quote',    label: 'Photocentric Quote',               desc: 'Hero photo upper zone + pull-quote lower zone' },
+  { slug: 'typographic-quote',     label: 'Typographic Quote',                desc: 'Asymmetric display-word left / body-quote right (no photo)' },
+  { slug: 'book-quote-highlight',  label: 'Book Quote Highlight',             desc: 'Cover image + 3 annotation callouts + excerpt footer' },
+  // Announcement
+  { slug: 'coming-soon-minimal',   label: 'Coming Soon Minimal',              desc: 'Centered countdown — brand, headline, date, URL' },
+  { slug: 'website-launch-mockup', label: 'Website Launch Mockup',            desc: 'Bold headline + right-column screen/mockup image' },
+  { slug: 'event-promo',           label: 'Event Promo',                      desc: 'Full-bleed event photo + info band (date/time/location)' },
+  // Photo Collage
+  { slug: 'vintage-scrapbook',     label: 'Vintage Scrapbook',                desc: '2x2 full-canvas photo grid + metadata overlay' },
+  { slug: 'fashion-moodboard',     label: 'Fashion Moodboard',                desc: 'Hero photo + typography zone + 3-image detail strip' },
+  { slug: 'memory-grid-4up',       label: 'Memory Grid 4up',                  desc: 'Asymmetric 4-panel (1 large + 1 side + 2 bottom)' },
+  { slug: 'asymmetric-photo-collage', label: 'Asymmetric Photo Collage',      desc: '3-photo left-dominant split + headline overlay' },
+  // Hero Photo
+  { slug: 'photo-darken-headline', label: 'Photo Darken Headline',            desc: 'Full-bleed photo + gradient darkening + bottom text' },
+  { slug: 'split-photo-feature',   label: 'Split Photo Feature',              desc: 'Photo left column / editorial text right column' },
+  // Tips / How-to
+  { slug: 'numbered-tips-cover',   label: 'Numbered Tips Cover',              desc: 'Carousel cover with series label, headline, tip count, accent photo' },
+  { slug: 'how-to-step-card',      label: 'How-To Step Card',                 desc: 'Single step: photo + step number/headline + body + page indicator' },
+  // Personal / About
+  { slug: 'about-me-portrait',     label: 'About Me Portrait',                desc: 'Arch-cropped portrait, name, orbital tags, tagline' },
+  { slug: 'hiring-portrait-cta',   label: 'Hiring Portrait CTA',              desc: 'Badge + bold headline + team photo + role description + CTA' },
+  // Product
+  { slug: 'product-hero-backlit',  label: 'Product Hero Backlit',             desc: 'Brand name + product display name + centered photo + price' },
+  { slug: 'product-feature-grid',  label: 'Product Feature Grid',             desc: '2x2 product grid with name + price per cell' },
+  { slug: 'product-callout-macro', label: 'Product Callout Macro',            desc: 'Large product photo + bold callout + 3 feature bullets + CTA' },
+  // Motivational
+  { slug: 'affirmation-note',      label: 'Affirmation Note',                 desc: 'Text-only: category + date corners, bold affirmation, body, handle' },
+  { slug: 'handwritten-quote-photo', label: 'Handwritten Quote Photo',        desc: 'Lifestyle photo BG + large italic quote + attribution' },
+  // Carousel Cover
+  { slug: 'carousel-cover-typographic', label: 'Carousel Cover Typographic',  desc: 'Topic tag + ghost number + bold headline + subtitle + swipe badge' },
 ];
 
 const grid = document.getElementById('grid');
 
+// Legacy square (1080×1080) slugs — all Phase 19 archetypes without a suffix
+const squareSlugs = new Set([
+  'stat-hero-single','hero-stat','hero-stat-split','data-dashboard',
+  'minimal-statement','minimal-photo-top','photo-bg-overlay',
+  'split-photo-text','split-photo-quote','quote-testimonial',
+]);
+
+function frameClass(slug) {
+  if (slug.endsWith('-li')) return 'linkedin';   // 1200×627
+  if (slug.endsWith('-op')) return 'onepager';   // 612×792
+  if (squareSlugs.has(slug)) return 'square';    // 1080×1080
+  return '';                                      // default: 1080×1350 portrait
+}
+
 archetypes.forEach(a => {
+  const cls = frameClass(a.slug);
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
     <div class="card-left">
       <div class="card-label">${a.label}</div>
       <div class="status">${a.desc}</div>
-      <div class="frame-wrap">
+      <div class="frame-wrap${cls ? ' ' + cls : ''}">
         <iframe src="${a.slug}/index.html" loading="lazy"></iframe>
       </div>
     </div>

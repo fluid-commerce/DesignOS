@@ -60,7 +60,19 @@ export type ChatEventType =
   | 'css_merge_failed' // mergeCssLayersForHtml returned input unchanged
   | 'agent_run_failed' // outer catch in runAgentImpl — unexpected throw
   | 'creation_edited' // edit_creation tool completed
-  | 'agent_run_complete'; // end-of-turn summary with usage totals
+  | 'agent_run_complete' // end-of-turn summary with usage totals
+  // ─── Phase 24 additions ───────────────────────────────────────────────────
+  | 'tool_start' // ask-first/long-running tool begun (dispatch-wrapper)
+  | 'tool_end' // tool complete with duration + outcome
+  | 'permission_prompt' // ask-first tool paused for approval
+  | 'permission_response' // user approved/denied
+  | 'cost_cap_reached' // daily spend cap hit
+  | 'image_generated' // gemini returned an image (future dispatch)
+  | 'image_gen_blocked_safety' // gemini SAFETY/IMAGE_SAFETY response
+  | 'image_gen_idempotent_hit' // cached asset returned without new spend
+  | 'dam_search' // search_brand_images invoked
+  | 'asset_promoted' // promote_generated_image promoted an asset to library
+  | 'archetype_schema_parse_failed'; // SlotSchema JSON parse failed
 
 // ─── Brand audit log ─────────────────────────────────────────────────────
 

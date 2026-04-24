@@ -4,18 +4,35 @@ import { slugify } from '../lib/slugify';
 import { renderPreview } from './render-engine';
 import { runValidation, mergeCssLayersForHtml, formatValidationMessage } from './validation-hooks';
 import { auditBrandWrite, logChatEvent } from './observability';
+import {
+  searchBrandAssets,
+  findAssetByIdempotencyKey,
+  promoteAssetToLibrary,
+  getOrCreateStandaloneCampaignId,
+} from './db-api';
+import { generateGeminiImage, computeIdempotencyKey } from './gemini-image';
+import type { GeminiAspectRatio } from './gemini-image';
 import * as path from 'path';
 import * as fs from 'fs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..', '..', '..');
-const ARCHETYPES_DIR = path.join(PROJECT_ROOT, 'archetypes');
+// FLUID_ARCHETYPES_DIR lets tests point at a temp fixtures directory.
+// Matches the pattern in tools/validate-archetypes.cjs.
+const ARCHETYPES_DIR = process.env.FLUID_ARCHETYPES_DIR
+  ? path.resolve(process.env.FLUID_ARCHETYPES_DIR)
+  : path.join(PROJECT_ROOT, 'archetypes');
 
 // Known creation types — must match the platform names referenced in the system
 // prompt, validation-hooks.runValidation, and dimension-check.cjs targets.
 // Used to reject malformed agent inputs early rather than letting them propagate
 // into the brand compliance / dimension-check subprocesses.
+// Keep in sync with:
+//   - canvas/src/server/validation-hooks.ts (runValidation switch on platform)
+//   - tools/dimension-check.cjs KNOWN_DIMENSIONS map
+//   - canvas/src/server/agent-system-prompt.ts Platform Dimensions section
 const KNOWN_PLATFORMS = new Set([
   'instagram',
+  'instagram-portrait',
   'instagram-square',
   'instagram-story',
   'linkedin',
@@ -24,7 +41,8 @@ const KNOWN_PLATFORMS = new Set([
   'one-pager',
 ]);
 
-function normalizePlatform(platform: string): string {
+// Exported for testability. Also invoked internally by saveCreation.
+export function normalizePlatform(platform: string): string {
   const p = platform.toLowerCase().trim();
   if (!KNOWN_PLATFORMS.has(p)) {
     logChatEvent('platform_rejected', { platform, known: [...KNOWN_PLATFORMS] });
@@ -130,7 +148,74 @@ export function readTemplate(id: number): any | null {
   return { ...tmpl, designRules: rules };
 }
 
-export function listArchetypes(): { slug: string; name: string; slots: string[] }[] {
+// ─── Archetype types ──────────────────────────────────────────────────────────
+// Co-located with listArchetypes/readArchetype; no shared location exists for
+// filesystem-derived archetype shapes yet.
+
+export type ImageRole = 'none' | 'accent' | 'background' | 'hero' | 'grid';
+export type ContentDensity = 'sparse' | 'moderate' | 'dense';
+
+export interface ArchetypeMeta {
+  category: string;
+  imageRole: ImageRole;
+  useCases: string[];
+  slotCount: number;
+  mood?: string[];
+  contentDensity?: ContentDensity;
+  imageHints?: {
+    suggestedAspect?: string;
+    suggestedSubject?: string;
+    treatment?: string;
+    damPreference?: string[];
+  };
+  avoidCases?: string[];
+}
+
+/** Minimal shape of a parsed schema.json — only the fields listArchetypes reads. */
+export interface ArchetypeSchemaShape {
+  archetypeId?: string;
+  platform?: string;
+  width?: number;
+  height?: number;
+  fields?: unknown[];
+  meta?: ArchetypeMeta;
+}
+
+export interface ArchetypeListItem {
+  slug: string;
+  name: string;
+  platform: string;
+  category: string | null;
+  mood: string[];
+  imageRole: string | null;
+  slotCount: number | null;
+  useCases: string[];
+}
+
+/**
+ * List archetypes with optional filters and rich meta projection.
+ *
+ * Results are ordered alphabetically by slug (deterministic across platforms —
+ * readdirSync order is filesystem-dependent, so we sort before filtering so
+ * pageSize truncation produces the same results on macOS, Linux, and Windows).
+ *
+ * A malformed schema.json is skipped (logged as archetype_schema_parse_failed)
+ * rather than silently appearing with falsy platform/category/meta that would
+ * bypass every filter.
+ *
+ * @param opts.category  Filter by meta.category (e.g. "hero-photo", "stat-data")
+ * @param opts.platform  Filter by platform (e.g. "instagram-portrait", "instagram-square")
+ * @param opts.imageRole Filter by meta.imageRole (e.g. "background", "hero", "none")
+ * @param opts.pageSize  Max results (default 25, hard max 50)
+ */
+export function listArchetypes(opts: {
+  category?: string;
+  platform?: string;
+  imageRole?: string;
+  pageSize?: number;
+} = {}): ArchetypeListItem[] {
+  const pageSize = Math.min(opts.pageSize ?? 25, 50);
+
   let dirs: fs.Dirent[];
   try {
     dirs = fs
@@ -141,22 +226,65 @@ export function listArchetypes(): { slug: string; name: string; slots: string[] 
     throw err;
   }
 
-  return dirs.map((d) => {
+  // Sort for deterministic ordering — readdirSync order is FS-dependent.
+  // Without this, pageSize truncation could drop different archetypes on
+  // different platforms when count > pageSize.
+  dirs.sort((a, b) => a.name.localeCompare(b.name));
+
+  const results: ArchetypeListItem[] = [];
+
+  for (const d of dirs) {
+    if (results.length >= pageSize) break;
+
     const schemaPath = path.join(ARCHETYPES_DIR, d.name, 'schema.json');
     const raw = tryReadFile(schemaPath);
-    let slots: string[] = [];
+    let schema: ArchetypeSchemaShape | null = null;
     if (raw != null) {
       try {
-        const schema = JSON.parse(raw);
-        slots = (schema.slots ?? []).map((s: any) => s.label ?? s.selector);
-      } catch {}
+        schema = JSON.parse(raw) as ArchetypeSchemaShape;
+      } catch (err) {
+        // A corrupted schema.json must not leak into results with falsy
+        // fields that bypass every filter. Log and skip.
+        logChatEvent('archetype_schema_parse_failed', {
+          slug: d.name,
+          error: err instanceof Error ? err.message : String(err),
+        });
+        continue;
+      }
     }
-    return {
+
+    // Derive platform from schema.platform or slug suffix convention
+    const derivedPlatform: string = schema?.platform
+      ? schema.platform
+      : (d.name.endsWith('-li') ? 'linkedin-landscape'
+         : d.name.endsWith('-op') ? 'one-pager'
+         : 'instagram-square');
+
+    const meta: ArchetypeMeta | null = schema?.meta ?? null;
+    const category: string | null = meta?.category ?? null;
+    const imageRole: string | null = meta?.imageRole ?? null;
+    const mood: string[] = Array.isArray(meta?.mood) ? meta!.mood! : [];
+    const slotCount: number | null = meta?.slotCount ?? null;
+    const useCases: string[] = Array.isArray(meta?.useCases) ? meta!.useCases : [];
+
+    // Apply filters
+    if (opts.category && category !== opts.category) continue;
+    if (opts.platform && derivedPlatform !== opts.platform) continue;
+    if (opts.imageRole && imageRole !== opts.imageRole) continue;
+
+    results.push({
       slug: d.name,
       name: d.name.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-      slots,
-    };
-  });
+      platform: derivedPlatform,
+      category,
+      mood,
+      imageRole,
+      slotCount,
+      useCases,
+    });
+  }
+
+  return results;
 }
 
 // Archetype slugs are directory names under archetypes/. Agent input is
@@ -345,8 +473,12 @@ export function saveCreation(
   const now = Date.now();
   const normalizedPlatform = normalizePlatform(platform);
 
-  // Decide IDs up front so we can build the on-disk path before the transaction.
-  const cId = campaignId ?? nanoid();
+  // Resolve the target campaign up front. When no campaignId is supplied we
+  // route the creation to the singleton "__standalone__" sentinel campaign
+  // (creating it on first save) instead of spawning a fresh "Agent Campaign
+  // {date}" row per save. This keeps the campaigns list clean and lets the
+  // Creations tab (which filters on the sentinel) find the result.
+  const cId = campaignId ?? getOrCreateStandaloneCampaignId();
   const creationId = nanoid();
   const slideId = nanoid();
   const iterationId = nanoid();
@@ -359,28 +491,31 @@ export function saveCreation(
   fs.mkdirSync(path.dirname(htmlAbsPath), { recursive: true });
   fs.writeFileSync(htmlAbsPath, mergedHtml, 'utf-8');
 
+  // Post-write sanity check. If the write silently produced a 0-byte file
+  // (disk full, truncated stream, permission quirk), throw BEFORE starting
+  // the DB transaction so no orphan iteration row gets written. The catch
+  // below the transaction also unlinks the file on DB failure; for this
+  // path we unlink here since the transaction hasn't started yet.
+  const written = fs.statSync(htmlAbsPath);
+  if (written.size === 0) {
+    try {
+      fs.unlinkSync(htmlAbsPath);
+    } catch {}
+    throw new Error(`HTML file write produced 0 bytes: ${htmlAbsPath}`);
+  }
+
   const aiBaseline = slotSchema
     ? JSON.stringify(Object.fromEntries(Object.keys(slotSchema).map((k) => [k, null])))
     : null;
 
-  // All four INSERTs run in a single transaction so a mid-way failure can't
-  // leave an orphaned campaign/creation/slide without an iteration row.
+  // All three INSERTs run in a single transaction so a mid-way failure can't
+  // leave an orphaned creation/slide without an iteration row. The campaign
+  // row is resolved above (either the caller-supplied one or the sentinel),
+  // so no campaign INSERT happens here.
   // Note: the HTML file is written above the transaction. If the transaction
   // throws, we clean up the orphaned file in the catch below — otherwise
   // failed saves would litter .fluid/campaigns/ with dead files.
   const insertAll = db.transaction(() => {
-    if (!campaignId) {
-      db.prepare(
-        `INSERT INTO campaigns (id, title, channels, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
-      ).run(
-        cId,
-        `Agent Campaign ${new Date(now).toISOString().slice(0, 10)}`,
-        JSON.stringify([normalizedPlatform]),
-        now,
-        now,
-      );
-    }
-
     db.prepare(
       `INSERT INTO creations (id, campaign_id, title, creation_type, slide_count, created_at) VALUES (?, ?, ?, ?, 1, ?)`,
     ).run(creationId, cId, `${normalizedPlatform} creation`, normalizedPlatform, now);
@@ -453,6 +588,15 @@ export function editCreation(
   const mergedHtml = mergeCssLayersForHtml(html, platform);
   fs.mkdirSync(path.dirname(htmlAbsPath), { recursive: true });
   fs.writeFileSync(htmlAbsPath, mergedHtml, 'utf-8');
+
+  // A zero-byte overwrite would leave the DB row pointing at an empty file.
+  const written = fs.statSync(htmlAbsPath);
+  if (written.size === 0) {
+    try {
+      fs.unlinkSync(htmlAbsPath);
+    } catch {}
+    throw new Error(`HTML file write produced 0 bytes: ${htmlAbsPath}`);
+  }
 
   if (slotSchema !== undefined) {
     db.prepare(`UPDATE iterations SET slot_schema = ? WHERE id = ?`).run(
@@ -638,4 +782,208 @@ export function getCampaign(campaignId: string): {
       iterationCount: c.iteration_count,
     })),
   };
+}
+
+// ─── Phase 24: DAM-first image search ────────────────────────────────────────
+
+export interface BrandImageSearchResult {
+  id: string;
+  name: string;
+  url: string;
+  mimeType: string;
+  description: string | null;
+  score: number;
+}
+
+/**
+ * Search the brand's image library (DAM) before requesting image generation.
+ * Returns existing brand images ranked by query match. This is the first step
+ * of the DAM-first workflow: always call this before generate_image to check
+ * whether a suitable asset already exists.
+ *
+ * Read-only — no side effects except logging the search event.
+ */
+export function searchBrandImages(opts: {
+  query: string;
+  category?: 'images' | 'decorations' | 'logos';
+  limit?: number;
+}): BrandImageSearchResult[] {
+  if (!opts.query || typeof opts.query !== 'string') return [];
+  const results = searchBrandAssets(
+    opts.query,
+    opts.category,
+    Math.min(opts.limit ?? 10, 25),
+  );
+  logChatEvent('dam_search', {
+    query: opts.query,
+    category: opts.category ?? null,
+    results_count: results.length,
+    top_score: results[0]?.score ?? 0,
+  });
+  return results.map((r) => ({
+    id: r.id,
+    name: r.name,
+    url: r.url,
+    mimeType: r.mimeType,
+    description: r.description,
+    score: r.score,
+  }));
+}
+
+// ─── Phase 24 Dispatch 3: Image generation + skill reading ───────────────────
+
+/**
+ * Thrown when Gemini blocks a generation request due to safety filters.
+ * The dispatcher checks for this error type and returns outcome='blocked_safety'
+ * so the model receives a structured signal rather than a generic tool error.
+ *
+ * Design choice: We use a typed error class (rather than a union return type)
+ * so the dispatcher can inspect the error without every caller needing to
+ * check for a blocked branch. The dispatchTool catch block in tool-dispatch.ts
+ * already handles outcome='error' for all errors; we add a specific check for
+ * ImageGenerationBlockedError to emit outcome='blocked_safety' instead.
+ */
+export class ImageGenerationBlockedError extends Error {
+  public readonly reason: 'safety' | 'image_safety' | 'other' | 'no_inline_data';
+  constructor(reason: 'safety' | 'image_safety' | 'other' | 'no_inline_data') {
+    super(`Image generation blocked by safety filter: ${reason}`);
+    this.name = 'ImageGenerationBlockedError';
+    this.reason = reason;
+  }
+}
+
+export interface GenerateImageToolResult {
+  id: string;
+  name: string;
+  url: string;
+  promptUsed: string;
+  watermark: 'synthid';
+  costUsd: number;
+  cached?: boolean;
+}
+
+/**
+ * Generate a brand image via Gemini 2.5 Flash Image.
+ *
+ * Idempotency: if an asset with the same computed key already exists in
+ * brand_assets, the existing record is returned with costUsd=0 and cached=true.
+ *
+ * Safety blocks throw ImageGenerationBlockedError so the dispatcher can emit
+ * outcome='blocked_safety' (handled in agent.ts already) instead of 'error'.
+ */
+export async function generateImageTool(opts: {
+  prompt: string;
+  aspectRatio: GeminiAspectRatio;
+  referenceImages?: string[];
+  idempotencyKey?: string;
+  reason: 'no_dam_match' | 'user_explicit_request' | 'style_override';
+  sessionId?: string | null;
+  iterationId?: string | null;
+  searchedQueries?: string[];
+}): Promise<GenerateImageToolResult> {
+  // 1. Compute or accept idempotency key
+  const key =
+    opts.idempotencyKey ??
+    computeIdempotencyKey({
+      prompt: opts.prompt,
+      aspectRatio: opts.aspectRatio,
+      referenceImages: opts.referenceImages,
+    });
+
+  // 2. Check for existing asset with same idempotency key
+  const existing = findAssetByIdempotencyKey(key);
+  if (existing) {
+    logChatEvent('image_gen_idempotent_hit', {
+      idempotency_key: key,
+      asset_id: existing.id,
+    });
+    return {
+      id: existing.id,
+      name: existing.name,
+      url: existing.url,
+      promptUsed: opts.prompt,
+      watermark: 'synthid',
+      costUsd: 0,
+      cached: true,
+    };
+  }
+
+  // 3. Generate via Gemini
+  const result = await generateGeminiImage({
+    prompt: opts.prompt,
+    aspectRatio: opts.aspectRatio,
+    referenceImages: opts.referenceImages,
+    idempotencyKey: key,
+    reason: opts.reason,
+    sessionId: opts.sessionId,
+    iterationId: opts.iterationId,
+    searchedQueries: opts.searchedQueries,
+  });
+
+  // 4. Handle safety block — throw typed error so dispatcher can classify
+  if ('blocked' in result) {
+    logChatEvent('image_gen_blocked_safety', {
+      reason: result.reason,
+      finishReason: result.finishReason,
+    });
+    throw new ImageGenerationBlockedError(result.reason);
+  }
+
+  logChatEvent('image_generated', {
+    asset_id: result.id,
+    cost_usd: result.costUsd,
+  });
+
+  return {
+    id: result.id,
+    name: result.name,
+    url: `/api/brand-assets/serve/${encodeURIComponent(result.name)}`,
+    promptUsed: opts.prompt,
+    watermark: 'synthid',
+    costUsd: result.costUsd,
+  };
+}
+
+/**
+ * Promote a generated (or uploaded) asset to the curated brand library.
+ * Thin wrapper over promoteAssetToLibrary in db-api.ts.
+ */
+export function promoteGeneratedImageTool(assetId: string): { success: boolean } {
+  if (!assetId || typeof assetId !== 'string') {
+    throw new Error("promoteGeneratedImageTool: 'assetId' must be a non-empty string");
+  }
+  promoteAssetToLibrary(assetId);
+  logChatEvent('asset_promoted', { asset_id: assetId });
+  return { success: true };
+}
+
+// ─── Skill whitelist ──────────────────────────────────────────────────────────
+
+const SKILL_WHITELIST: Record<string, string> = {
+  'social-media-taste': 'social-media-taste-skill.md',
+  'gemini-social-image': 'gemini-social-image-skill.md',
+};
+
+const SKILLS_DIR = path.resolve(import.meta.dirname, 'skills');
+
+/**
+ * Read a skill markdown file by whitelisted name.
+ * Returns name, content, and linesCount.
+ * Throws if the name is not in the whitelist.
+ */
+export function readSkillTool(name: string): {
+  name: string;
+  content: string;
+  linesCount: number;
+} {
+  const fileName = SKILL_WHITELIST[name];
+  if (!fileName) {
+    throw new Error(
+      `readSkillTool: unknown skill '${name}'. Allowed: ${Object.keys(SKILL_WHITELIST).join(', ')}`,
+    );
+  }
+  const skillPath = path.join(SKILLS_DIR, fileName);
+  const content = fs.readFileSync(skillPath, 'utf-8');
+  const linesCount = content.split('\n').length;
+  return { name, content, linesCount };
 }

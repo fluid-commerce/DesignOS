@@ -1,0 +1,43 @@
+{
+  "archetypeId": "fashion-moodboard",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "photo-collage",
+    "mood": ["editorial", "seasonal", "poetic", "luxury"],
+    "contentDensity": "moderate",
+    "imageRole": "hero",
+    "imageHints": {
+      "suggestedAspect": "landscape or wide for hero (fills top 49%), portrait for detail strip",
+      "suggestedSubject": "hero: atmospheric lifestyle or fashion; detail strip: texture, product, close-up",
+      "treatment": "hero photo is the visual anchor; detail strip provides variety and rhythm",
+      "damPreference": ["fashion", "lifestyle", "editorial", "seasonal"]
+    },
+    "useCases": [
+      "Seasonal collection moodboard posts",
+      "Brand aesthetic or identity reveal posts",
+      "Editorial campaign preview posts",
+      "Lifestyle brand 'world-building' content"
+    ],
+    "avoidCases": [
+      "When all 4 images are not from the same visual session or color palette",
+      "When the message is more data-driven than emotional",
+      "When the brand needs to communicate a specific offer or CTA (this layout is purely editorial)"
+    ],
+    "slotCount": 9
+  },
+  "fields": [
+    { "type": "image", "sel": ".hero-photo img",    "label": "Hero Photo",         "dims": "1080 x 660px" },
+    { "type": "text",  "sel": ".season-tag",        "label": "Season / Category Tag", "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".quote-overlay",     "label": "Overlay Quote",      "mode": "pre",  "rows": 2 },
+    { "type": "text",  "sel": ".script-accent",     "label": "Script Accent Word", "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".collection-word",   "label": "Collection Title",   "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".detail-photo-1",    "label": "Detail Photo 1",     "dims": "350 x 280px" },
+    { "type": "image", "sel": ".detail-photo-2",    "label": "Detail Photo 2",     "dims": "350 x 280px" },
+    { "type": "image", "sel": ".detail-photo-3",    "label": "Detail Photo 3",     "dims": "350 x 280px" },
+    { "type": "text",  "sel": ".credits-line",      "label": "Credits / Handle",   "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

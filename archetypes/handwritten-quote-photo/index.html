@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!-- archetype: handwritten-quote-photo | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Beige_Photocentric_Handwritten_Affirmation_Quote + Pink_and_Yellow_Handwritten_Lifestyle_Vlog -->
+<!-- Layout: lifestyle photo background, large italic quote center, attribution below -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: lifestyle-photo */
+  .lifestyle-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .lifestyle-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0.5;
+  }
+
+  /* SLOT: .italic-quote */
+  .italic-quote {
+    position: absolute;
+    left: 68px;
+    right: 68px;
+    top: 420px;
+    font-size: 88px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .attribution-name */
+  .attribution-name {
+    position: absolute;
+    left: 68px;
+    bottom: 200px;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.65);
+    z-index: 2;
+  }
+
+  /* SLOT: .attribution-role */
+  .attribution-role {
+    position: absolute;
+    left: 68px;
+    bottom: 152px;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+  }
+
+  /* SLOT: .brand-handle */
+  .brand-handle {
+    position: absolute;
+    right: 68px;
+    bottom: 108px;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: lifestyle-photo -->
+  <div class="lifestyle-photo">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+  </div>
+
+  <!-- SLOT: italic-quote -->
+  <p class="italic-quote">The small acts of courage are the ones that compound into character.</p>
+
+  <!-- SLOT: attribution-name -->
+  <div class="attribution-name">Maya Okonkwo</div>
+
+  <!-- SLOT: attribution-role -->
+  <div class="attribution-role">Coach & author</div>
+
+  <!-- SLOT: brand-handle -->
+  <div class="brand-handle">@yourbrand</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "archetypeId": "numbered-tips-cover",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "tips-howto",
+    "mood": ["educational", "approachable", "practical"],
+    "contentDensity": "moderate",
+    "imageRole": "accent",
+    "imageHints": {
+      "suggestedAspect": "portrait (fills right column accent panel)",
+      "suggestedSubject": "lifestyle photo contextually relevant to the tip topic",
+      "treatment": "rounded-corner accent panel on right; serves as mood support not primary visual",
+      "damPreference": ["lifestyle", "people", "work", "wellness"]
+    },
+    "useCases": [
+      "Carousel cover slides for how-to tip series",
+      "Educational content series openers",
+      "Step-by-step guide intro posts",
+      "Productivity, wellness, or skill-building tip posts"
+    ],
+    "avoidCases": [
+      "Single standalone posts without carousel follow-up slides",
+      "When the topic requires more context than a headline can provide",
+      "When the tip count is variable or not confirmed"
+    ],
+    "slotCount": 6
+  },
+  "fields": [
+    { "type": "text",  "sel": ".series-label",       "label": "Series Label",      "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".how-to-script",      "label": "How To (script)",   "mode": "text", "rows": 1 },
+    { "type": "text",  "sel": ".tips-headline",      "label": "Tips Headline",     "mode": "pre",  "rows": 3 },
+    { "type": "text",  "sel": ".tips-count",         "label": "Tip Count",         "mode": "text", "rows": 1 },
+    { "type": "image", "sel": ".cover-accent-photo img", "label": "Accent Photo",  "dims": "380 x 480px" },
+    { "type": "text",  "sel": ".swipe-cta",          "label": "Swipe CTA",         "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

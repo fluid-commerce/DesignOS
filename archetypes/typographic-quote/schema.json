@@ -1,0 +1,33 @@
+{
+  "archetypeId": "typographic-quote",
+  "platform": "instagram-portrait",
+  "width": 1080,
+  "height": 1350,
+  "meta": {
+    "category": "quote-testimonial",
+    "mood": ["minimalist", "bold", "editorial", "literary"],
+    "contentDensity": "moderate",
+    "imageRole": "none",
+    "useCases": [
+      "Daily or weekly quote series posts (no photo needed)",
+      "Brand philosophy or manifesto statement posts",
+      "Inspirational content requiring typographic impact",
+      "Counterintuitive wisdom or reframe posts with a bold declarative word"
+    ],
+    "avoidCases": [
+      "When you have a strong photo that should anchor the layout (use photocentric-quote)",
+      "When the quote is longer than 100 words (body-quote panel overflows)",
+      "When the display word or phrase is more than 4–5 syllables (display-quote font-size forces awkward breaks)"
+    ],
+    "slotCount": 5
+  },
+  "fields": [
+    { "type": "text", "sel": ".series-label",   "label": "Series Label",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".handle-label",   "label": "Handle / Tag",    "mode": "text", "rows": 1 },
+    { "type": "text", "sel": ".display-quote",  "label": "Display Word(s)", "mode": "pre",  "rows": 2 },
+    { "type": "text", "sel": ".body-quote",     "label": "Full Quote Text", "mode": "pre",  "rows": 5 },
+    { "type": "text", "sel": ".signature-text", "label": "Signature / Tagline", "mode": "text", "rows": 1 }
+  ],
+  "brush": null,
+  "brushAdditional": []
+}

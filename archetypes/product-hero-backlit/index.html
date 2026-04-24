@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- archetype: product-hero-backlit | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Blue_White_Minimalist_Drink_Promotion_Coffee_Latte -->
+<!-- Layout: brand name top center, large product photo center, name+price description bottom -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .brand-label */
+  .brand-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 80px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 2;
+  }
+
+  /* SLOT: .product-name-display */
+  .product-name-display {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 160px;
+    text-align: center;
+    font-size: 120px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 0.88;
+    z-index: 2;
+  }
+
+  /* SLOT: product-photo */
+  .product-photo {
+    position: absolute;
+    left: 180px;
+    top: 380px;
+    width: 720px;
+    height: 640px;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .product-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* SLOT: .product-description */
+  .product-description {
+    position: absolute;
+    left: 68px;
+    bottom: 220px;
+    width: 620px;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.55);
+    z-index: 2;
+  }
+
+  /* SLOT: .product-price */
+  .product-price {
+    position: absolute;
+    right: 68px;
+    bottom: 220px;
+    font-size: 48px;
+    font-weight: 700;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .footer-cta */
+  .footer-cta {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 80px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: brand-label -->
+  <div class="brand-label">YOUR BRAND & STUDIO</div>
+
+  <!-- SLOT: product-name-display -->
+  <p class="product-name-display">Product Name</p>
+
+  <!-- SLOT: product-photo -->
+  <div class="product-photo">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="">
+  </div>
+
+  <!-- SLOT: product-description -->
+  <p class="product-description">The perfect blend of form and function for the discerning collector.</p>
+
+  <!-- SLOT: product-price -->
+  <div class="product-price">$49</div>
+
+  <!-- SLOT: footer-cta -->
+  <div class="footer-cta">www.yourbrand.com · @yourbrand</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

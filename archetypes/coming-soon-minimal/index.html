@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!-- archetype: coming-soon-minimal | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Black_and_White_Minimalist_Coming_Soon_Instagram_Post -->
+<!-- Layout: centered axis, brand top, headline mid, date + URL footer -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .brand-name */
+  .brand-name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 280px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+  }
+
+  /* SLOT: .coming-soon-headline */
+  .coming-soon-headline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 520px;
+    text-align: center;
+    font-size: 140px;
+    font-weight: 300;
+    letter-spacing: 0.06em;
+    line-height: 0.9;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .teaser-line */
+  .teaser-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 840px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.35);
+    z-index: 2;
+  }
+
+  /* SLOT: .launch-date */
+  .launch-date {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 940px;
+    text-align: center;
+    font-size: 56px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* SLOT: .url-line */
+  .url-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: brand-name -->
+  <div class="brand-name">YOUR BRAND NAME</div>
+
+  <!-- SLOT: coming-soon-headline -->
+  <p class="coming-soon-headline">COMING SOON</p>
+
+  <!-- SLOT: teaser-line -->
+  <div class="teaser-line">STAY TUNED</div>
+
+  <!-- SLOT: launch-date -->
+  <div class="launch-date">01.09.2026</div>
+
+  <!-- SLOT: url-line -->
+  <div class="url-line">www.yourbrand.com</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>

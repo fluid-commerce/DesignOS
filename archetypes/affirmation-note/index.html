@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- archetype: affirmation-note | target: 1080x1350 (instagram-portrait) -->
+<!-- Source: Black_and_Cream_Minimalist_Reminder_Note + Monochrome_Simple_Note_Motivational -->
+<!-- Layout: large centered affirmation text, small metadata corners, minimal elements -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  body {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    background: #111;
+  }
+
+  /* SLOT: .note-category */
+  .note-category {
+    position: absolute;
+    left: 68px;
+    top: 80px;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.35);
+    z-index: 2;
+  }
+
+  /* SLOT: .note-date */
+  .note-date {
+    position: absolute;
+    right: 68px;
+    top: 80px;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 2;
+  }
+
+  /* SLOT: .affirmation-text */
+  .affirmation-text {
+    position: absolute;
+    left: 68px;
+    right: 68px;
+    top: 340px;
+    font-size: 96px;
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    z-index: 2;
+  }
+
+  /* SLOT: .affirmation-body */
+  .affirmation-body {
+    position: absolute;
+    left: 68px;
+    right: 68px;
+    bottom: 280px;
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.55);
+    z-index: 2;
+  }
+
+  /* SLOT: .note-handle */
+  .note-handle {
+    position: absolute;
+    left: 68px;
+    bottom: 108px;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.25);
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <!-- BACKGROUND LAYER: brand fills with textures, brushstrokes -->
+  <div class="background-layer"></div>
+
+  <!-- SLOT: note-category -->
+  <div class="note-category">DAILY REMINDER</div>
+
+  <!-- SLOT: note-date -->
+  <div class="note-date">April 23</div>
+
+  <!-- SLOT: affirmation-text -->
+  <p class="affirmation-text">You are allowed to take up space</p>
+
+  <!-- SLOT: affirmation-body -->
+  <p class="affirmation-body">Confidence is not something you wait to feel. It is something you practice — one small, intentional action at a time.</p>
+
+  <!-- SLOT: note-handle -->
+  <div class="note-handle">@yourbrand</div>
+
+  <!-- FOREGROUND LAYER: brand fills with borders (footer, header, etc.) -->
+  <div class="foreground-layer"></div>
+</body>
+</html>
