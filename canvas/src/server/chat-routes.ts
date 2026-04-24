@@ -1,7 +1,7 @@
 import { getDb } from '../lib/db';
 import { nanoid } from 'nanoid';
 import { runAgent, cancelChat } from './agent';
-import { resolvePermissionResponse } from './tool-dispatch';
+import { resolvePermissionResponse } from './permission-registry';
 import type { IncomingMessage, ServerResponse } from 'http';
 
 // ─── Usage rollup types ──────────────────────────────────────────────────────

@@ -1,18 +1,21 @@
 /**
- * tool-dispatch.ts — permission + cost-cap + audit-log wrapper around executeTool.
+ * tool-dispatch.ts — cost-cap + audit-log wrapper around executeTool.
  *
  * Every agent tool call routes through dispatchTool(), which:
  *   1. Looks up the tool's policy in capabilities.ts
  *   2. Emits tool_start SSE (with est_duration for known-slow tools)
- *   3. Checks tier: always-allow → run; ask-first → check auto-approve, else pause for user
+ *   3. Checks tier: never-allow-by-default → denied; everything else proceeds.
+ *      (Ask-first permission gating now happens upstream in the SDK's
+ *      `canUseTool` callback — see agent.ts. By the time dispatchTool runs,
+ *      the user has already approved.)
  *   4. Pre-spend cost-cap check for costProfile='image-api'
  *   5. Runs the inner tool executor
  *   6. Writes tool_audit_log row with decision + outcome + cost
  *   7. Emits tool_end SSE
  *
- * Permission pauses use a per-chat Promise map. When the client sends an
- * approve/deny via POST /api/chats/:id/permission-response, we resolve the
- * pending promise so the agent loop continues.
+ * Permission registry (pendingPermissions, waitForPermissionResponse,
+ * resolvePermissionResponse) lives in ./permission-registry and is invoked
+ * by the canUseTool callback in agent.ts.
  *
  * Concurrency note: the pre-spend cap check + executor run are not atomic.
  * In a high-concurrency scenario two image-api tools could both pass the cap
@@ -23,7 +26,6 @@
 
 import type { ServerResponse } from 'node:http';
 import { createHash } from 'node:crypto';
-import { nanoid } from 'nanoid';
 import { getToolPolicy } from './capabilities';
 import type { ToolTier } from './capabilities';
 import { sendSSE } from './agent';
@@ -40,12 +42,15 @@ export interface DispatchContext {
   chatId: string;
   res: ServerResponse;
   signal: AbortSignal;
-  /** Tools the user has approved "for this session" (in-memory, per-chat). */
+  /**
+   * Tools the user has approved "for this session" (in-memory, per-chat).
+   * Consumed by the canUseTool callback in agent.ts. Kept here so MCP server
+   * modules can continue to pass a single ctx object down to dispatchTool.
+   */
   autoApproved: Set<string>;
   /**
-   * Solo-dev bypass: when true, all ask-first tools are auto-approved without
-   * prompting. Approved-once still adds to autoApproved for parity, but the
-   * initial prompt is skipped entirely.
+   * Solo-dev bypass: when true, ask-first prompts are skipped entirely in
+   * the canUseTool callback. Not read by dispatchTool itself.
    */
   trusted: boolean;
 }
@@ -58,126 +63,13 @@ export interface DispatchResult<T> {
 
 export type ToolExecutor<T> = () => Promise<T>;
 
-// ─── Permission response registry ────────────────────────────────────────────
-
-export type PermissionDecision = 'approve_once' | 'approve_session' | 'deny';
-
-interface PendingPermission {
-  toolName: string;
-  resolve: (decision: PermissionDecision) => void;
-  timer: ReturnType<typeof setTimeout>;
-}
-
-/**
- * Outer key = chatId, inner key = promptId (nanoid).
- * Each pending permission prompt has exactly one waiter.
- */
-const pendingPermissions = new Map<string, Map<string, PendingPermission>>();
-
-/**
- * Wait for the user to approve or deny a permission prompt.
- * Emits permission_prompt SSE with the promptId so the client knows what to
- * respond to. Resolves 'deny' after timeoutMs (default 5 min).
- *
- * Abort-aware: if ctx.signal fires while waiting, resolves as 'deny' and
- * cleans up the pending entry.
- */
-export function waitForPermissionResponse(
-  ctx: DispatchContext,
-  toolName: string,
-  argsPreview: string,
-  estCostUsd: number | undefined,
-  timeoutMs = 300_000,
-): Promise<PermissionDecision> {
-  return new Promise<PermissionDecision>((resolve) => {
-    const promptId = nanoid();
-
-    const cleanup = (decision: PermissionDecision) => {
-      const chatMap = pendingPermissions.get(ctx.chatId);
-      if (chatMap) {
-        const entry = chatMap.get(promptId);
-        if (entry) {
-          clearTimeout(entry.timer);
-          chatMap.delete(promptId);
-          if (chatMap.size === 0) pendingPermissions.delete(ctx.chatId);
-        }
-      }
-      resolve(decision);
-    };
-
-    // Timeout — resolve as denied
-    const timer = setTimeout(() => {
-      logChatEvent('permission_response', {
-        tool: toolName,
-        promptId,
-        decision: 'deny',
-        reason: 'timeout',
-      });
-      cleanup('deny');
-    }, timeoutMs);
-
-    // Abort — resolve as denied immediately
-    const onAbort = () => {
-      logChatEvent('permission_response', {
-        tool: toolName,
-        promptId,
-        decision: 'deny',
-        reason: 'abort',
-      });
-      cleanup('deny');
-    };
-
-    if (ctx.signal.aborted) {
-      clearTimeout(timer);
-      resolve('deny');
-      return;
-    }
-
-    ctx.signal.addEventListener('abort', onAbort, { once: true });
-
-    // Override cleanup to also remove abort listener
-    const fullCleanup = (decision: PermissionDecision) => {
-      ctx.signal.removeEventListener('abort', onAbort);
-      cleanup(decision);
-    };
-
-    // Store resolver
-    let chatMap = pendingPermissions.get(ctx.chatId);
-    if (!chatMap) {
-      chatMap = new Map();
-      pendingPermissions.set(ctx.chatId, chatMap);
-    }
-    chatMap.set(promptId, { toolName, resolve: fullCleanup, timer });
-
-    // Emit SSE prompt to client
-    sendSSE(ctx.res, 'permission_prompt', {
-      promptId,
-      tool: toolName,
-      args_preview: argsPreview,
-      est_cost_usd: estCostUsd,
-      reason: `Tool '${toolName}' requires user approval before running.`,
-    });
-
-    logChatEvent('permission_prompt', { tool: toolName, promptId });
-  });
-}
-
-/**
- * Resolve a pending permission prompt by chatId + promptId.
- * Returns true if the prompt was found and resolved, false if stale/missing.
- */
-export function resolvePermissionResponse(
-  chatId: string,
-  promptId: string,
-  decision: PermissionDecision,
-): boolean {
-  const chatMap = pendingPermissions.get(chatId);
-  if (!chatMap) return false;
-  const entry = chatMap.get(promptId);
-  if (!entry) return false;
-  entry.resolve(decision);
-  return true;
-}
+// Re-exports for backward compatibility — permission logic moved to
+// ./permission-registry in Phase 26.
+export type { PermissionDecision } from './permission-registry';
+export {
+  waitForPermissionResponse,
+  resolvePermissionResponse,
+} from './permission-registry';
 
 // ─── Progress helper ──────────────────────────────────────────────────────────
 
@@ -239,7 +131,9 @@ export async function dispatchTool<T>(
   let result: T | undefined;
   let error: Error | undefined;
 
-  // 4. Tier decision tree
+  // 4. Tier decision tree. Ask-first gating already happened upstream in the
+  //    SDK's canUseTool callback (agent.ts) — by the time we get here, the
+  //    call is approved. We only reject the hard never-allow case.
   if (policy.tier === 'never-allow-by-default') {
     decision = 'denied';
     outcome = 'denied';
@@ -247,40 +141,7 @@ export async function dispatchTool<T>(
     return { outcome: 'denied' };
   }
 
-  if (policy.tier === 'always-allow') {
-    decision = 'allowed';
-  } else {
-    // ask-first
-    if (ctx.trusted || ctx.autoApproved.has(toolName)) {
-      decision = 'approved';
-    } else {
-      // Emit permission_prompt and wait
-      const argsPreview = JSON.stringify(args).slice(0, 200);
-      const permDecision = await waitForPermissionResponse(
-        ctx,
-        toolName,
-        argsPreview,
-        opts?.estCostUsd,
-      );
-
-      logChatEvent('permission_response', {
-        tool: toolName,
-        decision: permDecision,
-      });
-
-      if (permDecision === 'deny') {
-        decision = 'denied';
-        outcome = 'denied';
-        writeAuditAndEnd(toolName, argsHash, policy.tier, decision, outcome, startMs, opts, ctx);
-        return { outcome: 'denied' };
-      }
-
-      decision = 'approved';
-      if (permDecision === 'approve_session') {
-        ctx.autoApproved.add(toolName);
-      }
-    }
-  }
+  decision = policy.tier === 'always-allow' ? 'allowed' : 'approved';
 
   // 5. Cost cap check (only for image-api profile)
   if (policy.costProfile === 'image-api') {

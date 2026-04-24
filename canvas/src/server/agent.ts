@@ -18,7 +18,10 @@ import type {
   SDKPartialAssistantMessage,
   SDKResultMessage,
   SDKUserMessage,
+  CanUseTool,
 } from '@anthropic-ai/claude-agent-sdk';
+import { getToolPolicy } from './capabilities';
+import { waitForPermissionResponse } from './permission-registry';
 import { nanoid } from 'nanoid';
 import * as path from 'path';
 import { getDb } from '../lib/db';
@@ -999,6 +1002,91 @@ async function runAgentImpl(
     // off toolUseId and uses `name` for the inline tool-call label.
     const toolUseNames = new Map<string, string>();
 
+    // Phase 26: permission gating runs here, at the SDK layer, via canUseTool.
+    // The SDK awaits this callback natively — no in-MCP timeout, no abort-on-
+    // hang. When we return, the SDK proceeds to invoke the MCP tool (or skips
+    // it if we denied). Previously this logic ran inside dispatchTool(), which
+    // caused the SDK to consider the tool call in-progress while we waited for
+    // a user click — triggering a timeout and abort that killed the SSE stream
+    // before the user could respond.
+    //
+    // The SDK-prefixed toolName (e.g. 'mcp__visual__save_creation') is stripped
+    // to its bare name ('save_creation') so we can look up the policy.
+    const canUseTool: CanUseTool = async (toolName, input, { signal: sdkSignal }) => {
+      const bareName = toolName.startsWith('mcp__')
+        ? toolName.split('__').slice(2).join('__')
+        : toolName;
+      const policy = getToolPolicy(bareName);
+
+      // Unknown tool or always-allow → allow through.
+      if (!policy || policy.tier === 'always-allow') {
+        return { behavior: 'allow', updatedInput: input };
+      }
+
+      // Hard-blocked → deny immediately.
+      if (policy.tier === 'never-allow-by-default') {
+        return {
+          behavior: 'deny',
+          message: `Tool '${bareName}' is blocked by policy.`,
+        };
+      }
+
+      // ask-first: skip the prompt if trusted or previously approved.
+      if (trusted || autoApproved.has(bareName)) {
+        return { behavior: 'allow', updatedInput: input };
+      }
+
+      // Combine the chat's own abort signal with the SDK's per-call signal so
+      // aborting either cancels the wait. waitForPermissionResponse needs a
+      // PermissionContext with a single signal, so we forward both to a
+      // dedicated AbortController.
+      const combined = new AbortController();
+      const onChatAbort = () => combined.abort();
+      const onSdkAbort = () => combined.abort();
+      if (signal.aborted || sdkSignal.aborted) {
+        combined.abort();
+      } else {
+        signal.addEventListener('abort', onChatAbort, { once: true });
+        sdkSignal.addEventListener('abort', onSdkAbort, { once: true });
+      }
+
+      try {
+        const argsPreview = JSON.stringify(input).slice(0, 200);
+        const permDecision = await waitForPermissionResponse(
+          {
+            chatId,
+            res,
+            signal: combined.signal,
+            autoApproved,
+            trusted,
+          },
+          bareName,
+          argsPreview,
+          undefined,
+        );
+
+        logChatEvent('permission_response', {
+          tool: bareName,
+          decision: permDecision,
+        });
+
+        if (permDecision === 'deny') {
+          return {
+            behavior: 'deny',
+            message: `User declined to run '${bareName}'. Do not speculate about causes — ask the user if they want to proceed differently.`,
+          };
+        }
+
+        if (permDecision === 'approve_session') {
+          autoApproved.add(bareName);
+        }
+        return { behavior: 'allow', updatedInput: input };
+      } finally {
+        signal.removeEventListener('abort', onChatAbort);
+        sdkSignal.removeEventListener('abort', onSdkAbort);
+      }
+    };
+
     for await (const msg of query({
       prompt: userContent,
       options: {
@@ -1006,8 +1094,8 @@ async function runAgentImpl(
         systemPrompt,
         mcpServers,
         allowedTools,
-        permissionMode: 'bypassPermissions' as const,
-        allowDangerouslySkipPermissions: true,
+        canUseTool,
+        permissionMode: 'default' as const,
         includePartialMessages: true,
         maxTurns: 25,
         abortController: controller,

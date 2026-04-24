@@ -1,18 +1,24 @@
 /**
  * phase-24-dispatch-2.test.ts
  *
- * Tests for Phase 24 Dispatch 2: tool-dispatch wrapper.
+ * Tests for tool-dispatch wrapper + permission-registry.
+ *
+ * NOTE (Phase 26): permission gating moved out of dispatchTool into the SDK's
+ * canUseTool callback (see agent.ts). The registry (waitForPermissionResponse
+ * / resolvePermissionResponse) now lives in permission-registry.ts and is
+ * tested here directly. dispatchTool itself no longer emits permission_prompt
+ * — every call that reaches it is already approved (or is always-allow).
+ *
  *  1. Always-allow flow: outcome='ok', audit row decision='allowed', no permission_prompt
- *  2. Ask-first with trusted=true: auto-approved, no prompt
- *  3. Ask-first without trusted, approve_once: executor runs
- *  4. Ask-first without trusted, deny: executor NOT called, outcome='denied'
+ *  2. Ask-first calls reach dispatchTool approved — executor always runs
+ *  3. waitForPermissionResponse emits permission_prompt + resolves on approve_once
+ *  4. waitForPermissionResponse returns 'deny' on deny
  *  5. Permission timeout: resolves as 'deny' after timeoutMs
  *  6. Cost cap hard block at cap
  *  7. Cost cap soft warn at 80%
- *  8. autoApproved session state: 'approve_session' skips subsequent prompts
- *  9. Unknown tool policy: treated as always-allow, warning logged
- * 10. resolvePermissionResponse returns false for stale promptId
- * 11. HTTP endpoint: POST /api/chats/:id/permission-response
+ *  8. Unknown tool policy: treated as always-allow, warning logged
+ *  9. resolvePermissionResponse returns false for stale promptId
+ * 10. HTTP endpoint: POST /api/chats/:id/permission-response
  */
 
 // @vitest-environment node
@@ -26,9 +32,12 @@ import { closeDb, getDb } from '../../lib/db';
 import { writeToolAuditLog } from '../../server/db-api';
 import {
   dispatchTool,
-  resolvePermissionResponse,
   emitToolProgress,
 } from '../../server/tool-dispatch';
+import {
+  resolvePermissionResponse,
+  waitForPermissionResponse,
+} from '../../server/permission-registry';
 import type { DispatchContext } from '../../server/tool-dispatch';
 import { handleChatRoutes } from '../../server/chat-routes';
 import type { IncomingMessage } from 'node:http';
@@ -141,12 +150,15 @@ describe('always-allow flow', () => {
   });
 });
 
-// ─── 2. Ask-first with trusted=true ───────────────────────────────────────────
+// ─── 2. Ask-first reaches dispatchTool approved ───────────────────────────────
 
-describe('ask-first with trusted=true', () => {
-  it('auto-approves, no permission_prompt emitted', async () => {
+describe('ask-first tool reaches dispatchTool', () => {
+  it('runs executor without emitting permission_prompt — gating is upstream now', async () => {
+    // In the post-Phase-26 flow, ask-first permission is resolved upstream by
+    // the SDK's canUseTool callback. By the time dispatchTool sees the call,
+    // it's already approved. dispatchTool must NOT emit a prompt here.
     const { res, events } = makeMockRes();
-    const ctx = makeCtx({ res, trusted: true });
+    const ctx = makeCtx({ res, trusted: false });
     let executed = false;
 
     const result = await dispatchTool(
@@ -164,7 +176,7 @@ describe('ask-first with trusted=true', () => {
     const promptEvents = events.filter((e) => e.event === 'permission_prompt');
     expect(promptEvents).toHaveLength(0);
 
-    // Audit row decision=approved
+    // Audit row decision=approved (ask-first tier)
     const db = getDb();
     const row = db
       .prepare(
@@ -176,69 +188,48 @@ describe('ask-first with trusted=true', () => {
   });
 });
 
-// ─── 3. Ask-first without trusted, approve_once ───────────────────────────────
+// ─── 3. waitForPermissionResponse — approve_once ──────────────────────────────
 
-describe('ask-first without trusted, approve_once', () => {
-  it('emits permission_prompt, executor runs after resolve', async () => {
+describe('waitForPermissionResponse approve_once', () => {
+  it('emits permission_prompt and resolves when registry is resolved', async () => {
     const { res, events } = makeMockRes();
     const ctx = makeCtx({ res, trusted: false });
-    let executed = false;
-    let capturedPromptId: string | undefined;
 
-    // Start dispatch — it will pause waiting for permission
-    const dispatchPromise = dispatchTool(
-      'save_creation',
-      { html: '<p>test</p>', platform: 'instagram' },
+    const waitPromise = waitForPermissionResponse(
       ctx,
-      async () => {
-        executed = true;
-        return 'saved-once';
-      },
+      'save_creation',
+      '{"html":"<p>test</p>"}',
+      undefined,
     );
 
-    // Give the Promise microtask queue a tick to reach the permission_prompt emit
+    // Give the emit a tick
     await new Promise((r) => setTimeout(r, 10));
 
-    // permission_prompt should have been emitted by now
     const promptEvents = events.filter((e) => e.event === 'permission_prompt');
     expect(promptEvents.length).toBeGreaterThanOrEqual(1);
-    capturedPromptId = (promptEvents[0].data as any).promptId as string;
-    expect(typeof capturedPromptId).toBe('string');
-    expect(capturedPromptId.length).toBeGreaterThan(0);
+    const promptId = (promptEvents[0].data as any).promptId as string;
+    expect(typeof promptId).toBe('string');
 
-    // Executor should NOT have run yet
-    expect(executed).toBe(false);
-
-    // Resolve with approve_once
-    const resolved = resolvePermissionResponse(ctx.chatId, capturedPromptId, 'approve_once');
+    const resolved = resolvePermissionResponse(ctx.chatId, promptId, 'approve_once');
     expect(resolved).toBe(true);
 
-    const result = await dispatchPromise;
-    expect(result.outcome).toBe('ok');
-    expect(executed).toBe(true);
-    expect(result.result).toBe('saved-once');
-
-    // approve_once should NOT add to autoApproved
-    expect(ctx.autoApproved.has('save_creation')).toBe(false);
+    const decision = await waitPromise;
+    expect(decision).toBe('approve_once');
   });
 });
 
-// ─── 4. Ask-first without trusted, deny ──────────────────────────────────────
+// ─── 4. waitForPermissionResponse — deny ──────────────────────────────────────
 
-describe('ask-first without trusted, deny', () => {
-  it('executor NOT called, outcome=denied', async () => {
+describe('waitForPermissionResponse deny', () => {
+  it('resolves as deny when registry is told deny', async () => {
     const { res, events } = makeMockRes();
     const ctx = makeCtx({ res, trusted: false });
-    let executed = false;
 
-    const dispatchPromise = dispatchTool(
-      'save_creation',
-      { html: '<p>deny test</p>', platform: 'instagram' },
+    const waitPromise = waitForPermissionResponse(
       ctx,
-      async () => {
-        executed = true;
-        return 'should-not-reach';
-      },
+      'save_creation',
+      '{}',
+      undefined,
     );
 
     await new Promise((r) => setTimeout(r, 10));
@@ -247,23 +238,9 @@ describe('ask-first without trusted, deny', () => {
     expect(promptEvents.length).toBeGreaterThanOrEqual(1);
     const promptId = (promptEvents[0].data as any).promptId as string;
 
-    const resolved = resolvePermissionResponse(ctx.chatId, promptId, 'deny');
-    expect(resolved).toBe(true);
-
-    const result = await dispatchPromise;
-    expect(result.outcome).toBe('denied');
-    expect(executed).toBe(false);
-
-    // Audit row should show denied
-    const db = getDb();
-    const row = db
-      .prepare(
-        'SELECT decision, outcome FROM tool_audit_log WHERE session_id = ? AND tool = ? ORDER BY timestamp DESC LIMIT 1',
-      )
-      .get(ctx.chatId, 'save_creation') as { decision: string; outcome: string } | undefined;
-    expect(row).toBeDefined();
-    expect(row!.decision).toBe('denied');
-    expect(row!.outcome).toBe('denied');
+    resolvePermissionResponse(ctx.chatId, promptId, 'deny');
+    const decision = await waitPromise;
+    expect(decision).toBe('deny');
   });
 });
 
@@ -273,13 +250,6 @@ describe('permission timeout', () => {
   it('resolves as denied after timeoutMs without any response', async () => {
     const { res } = makeMockRes();
     const ctx = makeCtx({ res, trusted: false });
-
-    // We need to use the internal waitForPermissionResponse with a short timeout.
-    // We do this by patching the default arg through an override approach.
-    // The easier approach: call dispatchTool but override timeoutMs via a monkey-patch.
-    // Since we can't easily pass timeoutMs through dispatchTool, we test
-    // waitForPermissionResponse directly.
-    const { waitForPermissionResponse } = await import('../../server/tool-dispatch');
 
     const start = Date.now();
     const decision = await waitForPermissionResponse(ctx, 'save_creation', '{}', undefined, 80);
@@ -406,51 +376,11 @@ describe('cost cap soft warn at 80%', () => {
   });
 });
 
-// ─── 8. autoApproved session state ───────────────────────────────────────────
-
-describe('autoApproved session state', () => {
-  it('approve_session adds to autoApproved and skips prompt on next dispatch', async () => {
-    const { res, events } = makeMockRes();
-    const ctx = makeCtx({ res, trusted: false });
-
-    // First dispatch — will pause for permission
-    const firstDispatch = dispatchTool(
-      'save_creation',
-      { html: '<p>session test</p>', platform: 'instagram' },
-      ctx,
-      async () => 'first',
-    );
-
-    await new Promise((r) => setTimeout(r, 10));
-
-    const promptEvents = events.filter((e) => e.event === 'permission_prompt');
-    expect(promptEvents.length).toBeGreaterThanOrEqual(1);
-    const promptId = (promptEvents[0].data as any).promptId as string;
-
-    // Approve for session
-    resolvePermissionResponse(ctx.chatId, promptId, 'approve_session');
-    const firstResult = await firstDispatch;
-    expect(firstResult.outcome).toBe('ok');
-
-    // autoApproved should now contain 'save_creation'
-    expect(ctx.autoApproved.has('save_creation')).toBe(true);
-
-    // Second dispatch — no permission_prompt should be emitted
-    const eventCountBefore = events.length;
-    const secondResult = await dispatchTool(
-      'save_creation',
-      { html: '<p>second</p>', platform: 'instagram' },
-      ctx,
-      async () => 'second',
-    );
-
-    expect(secondResult.outcome).toBe('ok');
-    const newPromptEvents = events
-      .slice(eventCountBefore)
-      .filter((e) => e.event === 'permission_prompt');
-    expect(newPromptEvents).toHaveLength(0);
-  });
-});
+// ─── 8. autoApproved session state (moved to canUseTool — phase-26 test) ─────
+//
+// Phase 26: `approve_session` side-effect (adding toolName to
+// ctx.autoApproved) now lives in the canUseTool callback in agent.ts, not in
+// dispatchTool. See phase-26-canusetool.test.ts for coverage.
 
 // ─── 9. Unknown tool policy ───────────────────────────────────────────────────
 
@@ -487,11 +417,11 @@ describe('resolvePermissionResponse stale promptId', () => {
     const { res, events } = makeMockRes();
     const ctx = makeCtx({ res, trusted: false });
 
-    const dispatchPromise = dispatchTool(
-      'save_creation',
-      { html: '<p>stale test 2</p>', platform: 'instagram' },
+    const waitPromise = waitForPermissionResponse(
       ctx,
-      async () => 'ok2',
+      'save_creation',
+      '{}',
+      undefined,
     );
     await new Promise((r) => setTimeout(r, 10));
 
@@ -507,7 +437,7 @@ describe('resolvePermissionResponse stale promptId', () => {
     const second = resolvePermissionResponse(ctx.chatId, promptId, 'deny');
     expect(second).toBe(false);
 
-    await dispatchPromise;
+    await waitPromise;
   });
 });
 
@@ -680,47 +610,22 @@ describe('POST /api/chats/:id/permission-response endpoint', () => {
   });
 
   it('returns 200 success when promptId resolves a live pending permission', async () => {
-    // Set up a live pending permission
-    const { res: sseRes } = makeMockRes();
+    // Set up a live pending permission directly via the registry — post-Phase-26
+    // dispatchTool no longer creates pending permissions.
+    const { res: sseRes, events: sseEvents } = makeMockRes();
     const ctrl = new AbortController();
-    const ctx: DispatchContext = {
-      chatId: testChatId,
-      res: sseRes,
-      signal: ctrl.signal,
-      autoApproved: new Set(),
-      trusted: false,
-    };
 
-    const dispatchPromise = dispatchTool(
+    const waitPromise = waitForPermissionResponse(
+      {
+        chatId: testChatId,
+        res: sseRes,
+        signal: ctrl.signal,
+        autoApproved: new Set(),
+        trusted: false,
+      },
       'save_creation',
-      { html: '<p>endpoint test</p>', platform: 'instagram' },
-      ctx,
-      async () => 'endpoint-result',
-    );
-
-    // Wait for the permission_prompt SSE to be emitted
-    await new Promise((r) => setTimeout(r, 20));
-
-    // Get the promptId from the SSE events on sseRes
-    // We need to re-use the same chatId, so extract from the registry via HTTP
-    // Actually the mock res captures events — check the SSE events
-    // We need to re-read events from the mock res — let's use a direct approach:
-    // use a fresh mock that captures events
-    const { res: sseRes2, events: sseEvents } = makeMockRes();
-    const ctrl2 = new AbortController();
-    const ctx2: DispatchContext = {
-      chatId: testChatId,
-      res: sseRes2,
-      signal: ctrl2.signal,
-      autoApproved: new Set(),
-      trusted: false,
-    };
-
-    const dispatchPromise2 = dispatchTool(
-      'save_creation',
-      { html: '<p>endpoint test 2</p>', platform: 'instagram' },
-      ctx2,
-      async () => 'endpoint-result-2',
+      '{"html":"<p>endpoint test</p>"}',
+      undefined,
     );
 
     await new Promise((r) => setTimeout(r, 20));
@@ -761,12 +666,8 @@ describe('POST /api/chats/:id/permission-response endpoint', () => {
     expect(finalStatus).toBe(200);
     expect((finalBody as any).success).toBe(true);
 
-    const result2 = await dispatchPromise2;
-    expect(result2.outcome).toBe('ok');
-
-    // Clean up first dispatch
-    ctrl.abort();
-    await dispatchPromise.catch(() => {});
+    const decision = await waitPromise;
+    expect(decision).toBe('approve_once');
   });
 });
 
