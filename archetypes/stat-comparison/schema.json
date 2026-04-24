@@ -19,7 +19,7 @@
       "When the transformation is qualitative and not easily quantified",
       "When the difference between values is not meaningful or large enough to be visually dramatic"
     ],
-    "slotCount": 8
+    "slotCount": 9
   },
   "fields": [
     { "type": "text", "sel": ".section-label",  "label": "Section Label",   "mode": "text", "rows": 1 },
